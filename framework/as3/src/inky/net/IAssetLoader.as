@@ -5,11 +5,7 @@ package inky.net
 
 	/**
      * 
-     * <p>Dispatched when an IAssetLoader's content becomes accessible, after
-     * the object's <code>load()</code> method is called. This event is like
-     * Event.COMPLETE, except that it is guaranteed to be dispatched when the
-     * <code>load()</code> method is called, even if the item was already
-     * loaded.</p>
+     * Dispatched when an IAssetLoader's content becomes accessible.
      *
      * @eventType inky.events.AssetLoaderEvent.READY
      *
@@ -73,18 +69,13 @@ package inky.net
 
 
 		/**
-		 *
-		 * Indicates the number of bytes that have been loaded thus far during
-		 * the load operation.
-		 *
+		 * @copy flash.net.URLLoader#bytesLoaded
 		 */
 		function get bytesLoaded():uint;
 
 
 		/**
-		 *
-		 * Indicates the total number of bytes in the downloaded data.
-		 *	
+		 * @copy flash.net.URLLoader#bytesTotal
 		 */
 		function get bytesTotal():uint;
 

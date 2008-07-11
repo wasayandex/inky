@@ -5,7 +5,7 @@ package inky.net
 
 	/**
 	 *
-	 *  Loads a SWF file.
+	 *  Loads a graphic.
 	 * 
 	 *  @langversion ActionScript 3
 	 *  @playerversion Flash 9.0.0

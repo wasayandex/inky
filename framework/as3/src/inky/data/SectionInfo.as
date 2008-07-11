@@ -4,6 +4,8 @@ package inky.data
 	import inky.core.inky_internal;
 	import inky.utils.RouteMapper;
 	import inky.utils.SPath;
+	import com.exanimo.collections.IList;
+	import com.exanimo.collections.ArrayList;
 	import com.exanimo.utils.URLUtil;
 	import flash.utils.getDefinitionByName;
 	
@@ -25,6 +27,7 @@ package inky.data
 	public class SectionInfo
 	{
 		private var _className:String;
+		private var _componentCount:uint;
 		private var _data:XML;
 		private var _defaultRouteRoot:SPath;
 		private var _defaultSubsection:SPath;
@@ -34,6 +37,7 @@ package inky.data
 		private var _owner:SectionInfo;
 		private var _routeMapper:RouteMapper;
 		private var _source:String;
+		private var _subSectionInfos:IList;
 		private var _subSectionInfosMap:Object;
 
 // TODO: Make sure that only prefixed nodes are being used.
@@ -47,7 +51,9 @@ package inky.data
 		 */
 		public function SectionInfo()
 		{
+			this._componentCount = 0;
 			this._subSectionInfosMap = {};
+			this._subSectionInfos = new ArrayList();
 		}
 
 
@@ -117,22 +123,6 @@ package inky.data
 		 * 
 		 * 
 		 */
-		public function get numSubsections():int
-		{
-			var numSubsections:int = 0;
-			for (var key:String in this._subSectionInfosMap)
-			{
-				numSubsections++
-			}
-			return numSubsections;
-		}
-
-
-		/**
-		 *
-		 * 
-		 * 
-		 */
 		public function get owner():SectionInfo
 		{
 			return this._owner;
@@ -181,6 +171,17 @@ package inky.data
 			sPath.removeItemAt(0);
 			sPath.absolute = true;
 			return sPath;
+		}
+
+
+		/**
+		 *
+		 * 
+		 * 
+		 */
+		public function get subSectionInfos():IList
+		{
+			return this._subSectionInfos;
 		}
 
 
@@ -238,10 +239,11 @@ package inky.data
 				info._owner = this;
 				info.parseData(subsection);
 				this._subSectionInfosMap[subsection.@name] = info;
+				this._subSectionInfos.addItem(info);
 			}
 
 			// Parse class.
-			this._className = this._getAttribute(value, 'class', true);
+			this._className = value.attributes().((namespace() == inky) && (localName() == 'class'));
 			if (!this._className && !this._href && this.owner)
 			{
 				throw new Error('Required attribute inky:class missing from Section ' + this.sPath);
@@ -252,7 +254,7 @@ package inky.data
 			tmp = value;
 			while (tmp)
 			{
-				baseURL = URLUtil.getFullURL(baseURL, this._getAttribute(tmp, 'base', true));
+				baseURL = URLUtil.getFullURL(baseURL, this._getAttribute(tmp, 'base'));
 				tmp = tmp.parent();
 			}
 			var source:String = this._getAttribute(value, 'source');
@@ -263,14 +265,14 @@ package inky.data
 			{
 				// Parse the default options.
 				var defaultOptions:Object = {};
-				for each (var defaultOption:XML in route.inky::Default)
+				for each (var defaultOption:XML in route.Default)
 				{
 					defaultOptions[defaultOption.attribute('for')] = this._getAttribute(defaultOption, 'value');
 				}
 				
 				// Parse the requirements.
 				var requirements:Object = {};
-				for each (var requirement:XML in route.inky::Requirement)
+				for each (var requirement:XML in route.Requirement)
 				{
 					requirements[requirement.attribute('for')] = new RegExp(this._getAttribute(requirement, 'value'));
 				}
@@ -283,6 +285,15 @@ package inky.data
 
 			if (!this.owner)
 			{
+				// Assign a name to all unnamed components.
+				for each (var component:XML in value..Component)
+				{
+					if (!component.attribute('name').toString())
+					{
+						component.@name = 'inkyComponent' + this._componentCount++;
+					}
+				}
+
 				// Parse the url.
 				var defaultRouteRoot:SPath = SPath.parse(value.attribute('defaultRouteRoot')).resolve(this.sPath);
 				this._getDefaultRoutes(defaultRouteRoot);
@@ -358,9 +369,9 @@ package inky.data
 		 * 
 		 * 
 		 */
-		private function _getAttribute(node:XML, attrName:String, inkyNS:Boolean = false):String
+		private function _getAttribute(node:XML, attrName:String):String
 		{
-			if (inkyNS)
+			if (attrName == 'base')
 			{
 				return node.attributes().((namespace() == inky) && (localName() == attrName));
 			}

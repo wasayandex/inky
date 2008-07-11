@@ -47,7 +47,7 @@ package inky.display
 		public function TransitioningObjectBehavior(obj:DisplayObject)
 		{
 			this._obj = obj;
-			this._obj.addEventListener(Event.ADDED_TO_STAGE, this._init, false, 0, true);
+			this._obj.addEventListener(Event.ADDED_TO_STAGE, this._init);
 		}
 
 
@@ -82,9 +82,9 @@ package inky.display
 
 			if (intro)
 			{
-				intro.addEventListener(ActionEvent.ACTION_FINISH, this._actionFinishHandler, false, 0, true);
-				intro.addEventListener(ActionEvent.ACTION_START, this._action2TransitionEvents, false, 0, true);
-				intro.addEventListener(ActionEvent.ACTION_FINISH, this._action2TransitionEvents, false, 0, true);
+				intro.addEventListener(ActionEvent.ACTION_FINISH, this._actionFinishHandler);
+				intro.addEventListener(ActionEvent.ACTION_START, this._action2TransitionEvents);
+				intro.addEventListener(ActionEvent.ACTION_FINISH, this._action2TransitionEvents);
 				intro.target = this._obj;
 			}
 
@@ -117,9 +117,9 @@ package inky.display
 
 			if (outro)
 			{
-				outro.addEventListener(ActionEvent.ACTION_FINISH, this._actionFinishHandler, false, 0, true);
-				outro.addEventListener(ActionEvent.ACTION_START, this._action2TransitionEvents, false, 0, true);
-				outro.addEventListener(ActionEvent.ACTION_FINISH, this._action2TransitionEvents, false, 0, true);
+				outro.addEventListener(ActionEvent.ACTION_FINISH, this._actionFinishHandler);
+				outro.addEventListener(ActionEvent.ACTION_START, this._action2TransitionEvents);
+				outro.addEventListener(ActionEvent.ACTION_FINISH, this._action2TransitionEvents);
 				outro.target = this._obj;
 			}
 			
@@ -153,7 +153,7 @@ package inky.display
 			if (this._outro)
 			{
 				// If there is an outro, play it before removing the clip.
-				this._outro.addEventListener(ActionEvent.ACTION_FINISH, this._removeNow, false, 0, true);
+				this._outro.addEventListener(ActionEvent.ACTION_FINISH, this._removeNow);
 				this._playTransition(this._outro);
 			}
 			else

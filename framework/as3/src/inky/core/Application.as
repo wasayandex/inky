@@ -1,5 +1,7 @@
 package inky.core
 {
+	import com.asual.swfaddress.SWFAddress;
+	import com.asual.swfaddress.SWFAddressEvent;
 	import com.exanimo.controls.IProgressBar;
 	import com.exanimo.controls.ProgressBarMode;
 	import com.exanimo.net.LoadQueue;
@@ -35,6 +37,7 @@ package inky.core
 	 */
 	public class Application extends Section
 	{
+		private var _currentURL:String;
 		private var _data:XML;
 		private var _dataSourceIsSet:Boolean;
 		private var _loadQueue:LoadQueue;
@@ -113,41 +116,115 @@ package inky.core
 		/**
 		 * @inheritDoc
 		 */
-		/*override public function get cumulativeProgressBar():IProgressBar
+		override public function get cumulativeProgressBar():IProgressBar
 		{
 			return super.cumulativeProgressBar;
-		}*/
+		}
 		/**
 		 * @private
 		 */
-		/*override public function set itemProgressBar(progressBar:IProgressBar):void
+		override public function set itemProgressBar(progressBar:IProgressBar):void
 		{
 			if (progressBar)
 			{
 				super.itemProgressBar = progressBar;
 				if (this._loadQueue && this._loadQueue.numItems) this.itemProgressBar.source = this._loadQueue.getItemAt(0);
 			}
-		}*/
+		}
 
 
 		/**
 		 * @inheritDoc
 		 */
-		/*override public function get itemProgressBar():IProgressBar
+		override public function get itemProgressBar():IProgressBar
 		{
 			return super.itemProgressBar;
-		}*/
+		}
 		/**
 		 * @private
 		 */
-		/*override public function set cumulativeProgressBar(progressBar:IProgressBar):void
+		override public function set cumulativeProgressBar(progressBar:IProgressBar):void
 		{
 			if (progressBar)
 			{
 				super.cumulativeProgressBar = progressBar;
 				if (this._loadQueue && this._loadQueue.numItems) this.cumulativeProgressBar.source = this._loadQueue;
 			}
-		}*/
+		}
+
+
+
+
+		//
+		// public methods
+		//
+
+
+		/**
+		 * @inheritDoc
+		 */
+		override public function gotoSection(target:Object, options:Object = null):void
+		{
+// TODO: Move this into Section so that testing without an application doesn't cause you to lose routing defaults.
+			var sPath:SPath = target is String ? SPath.parse(target as String) : target as SPath;
+
+			if (sPath)
+			{
+				// Make the SPath absolute.
+				sPath = sPath.absolute ? sPath : sPath.resolve(this.sPath);
+				sPath = sPath.normalize();
+
+				// Resolve the SPath.
+				sPath = this.getInfo().resolveSPath(sPath);
+				var info:SectionInfo = this.getInfo().getSectionInfoBySPath(sPath);
+
+				if (!info)
+				{
+					throw new ArgumentError('Section ' + sPath + ' does not exist');
+				}
+
+				if (info.href)
+				{
+					this.gotoLink(info.href);
+					return;
+				}
+
+				// If inadequate routing information is provided, just goto the section normally.
+				var useSPath:Boolean = false;
+				try
+				{
+					var url:String = info.routeMapper.getURL(info.sPath, options);
+
+					if ((url != null) && (url != this._currentURL))
+					{
+						// SWFAddress will throw security errors sometimes. If it does,
+						// call the handler directly. (This way we still use url.)
+						try
+						{
+							SWFAddress.setValue(url.replace(/^#(.*)$/, '$1'));
+						}
+						catch(error:Error)
+						{
+							this._addressChangeHandler(url);
+						}
+					}
+					else
+					{
+						useSPath = true;
+					}
+				}
+				catch (error:Error)
+				{
+					trace('Warning: ' + error.message);
+					useSPath = true;
+				}
+				
+				if (useSPath)
+				{
+					super.gotoSection(sPath, options);
+				}
+			}
+		}
 
 
 
@@ -159,20 +236,35 @@ package inky.core
 
 		/**
 		 *
+		 * 
+		 * 
+		 *
+		 */
+		private function _addressChangeHandler(o:Object):void
+		{
+			var url:String = o is SWFAddressEvent ? o.value == '/' ? '#/' : '#' + o.value : o as String;
+			this._currentURL = url;
+
+			var sPath:SPath = this.getInfo().routeMapper.getSPath(url);
+			var options:Object = this.getInfo().routeMapper.getOptions(url, sPath);
+
+			if (!sPath)
+			{
+				throw new Error('Application couldn\'t resolve the following url hash: ' + url);
+			}
+
+			super.gotoSection(sPath, options);
+		}
+
+
+		/**
+		 *
 		 * 	
 		 * 
 		 */
 		private function _dataCompleteHandler(e:Event):void
 		{
-			/*if (this.itemProgressBar)
-			{
-				this.removeItemProgressBar(itemProgressBar);
-			}
-			if (this.cumulativeProgressBar)
-			{
-				this.removeCumulativeProgressBar(cumulativeProgressBar);
-			}*/
-			this._parseData(new XML(e.currentTarget.data));
+			this._parseData(new XML(e.currentTarget.data));			
 		}
 
 
@@ -186,7 +278,7 @@ package inky.core
 			// Load the data provider.
 			e.currentTarget.addEventListener(Event.COMPLETE, this._dataCompleteHandler);
 		
-			/*if (this.itemProgressBar)
+			if (this.itemProgressBar)
 			{
 				this.addItemProgressBar(this.itemProgressBar);
 				this.itemProgressBar.source = this._loadQueue.getItemAt(0);
@@ -195,7 +287,7 @@ package inky.core
 			{
 				this.addCumulativeProgressBar(this.cumulativeProgressBar);
 				this.cumulativeProgressBar.source = this._loadQueue;
-			}*/
+			}
 		}
 
 
@@ -240,7 +332,9 @@ package inky.core
 			var info:SectionInfo = new SectionInfo();
 			info.parseData(this._data);
 			this.setInfo(info);
-			this.markupObjectManager.setData(this, this._data);
+			this.setData(this, this._data);
+
+			SWFAddress.addEventListener(SWFAddressEvent.CHANGE, this._addressChangeHandler);
 		}
 
 

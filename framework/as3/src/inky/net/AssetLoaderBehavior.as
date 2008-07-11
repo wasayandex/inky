@@ -23,6 +23,7 @@ package inky.net
 	 */
 	public class AssetLoaderBehavior
 	{
+		private var _closed:Boolean;
 		private var _content:Object;
 		private var _createLoaderFunction:Function;
 		private var _getLoadArgsFunction:Function;
@@ -31,6 +32,7 @@ package inky.net
 		private var _preload:Boolean;
 		private var _request:URLRequest;
 		private var _section:Object;
+		private var _smartLoad:Boolean;
 		private var _source:Object;
 		private var _target:IAssetLoader;
 
@@ -44,6 +46,7 @@ package inky.net
 		 */
 		public function AssetLoaderBehavior(target:IAssetLoader)
 		{
+			this._closed = true;
 			this._preload = false;
 			this._target = target;
 		}
@@ -203,6 +206,8 @@ package inky.net
 		 */
 		public function close():void
 		{
+			this._closed = true;
+			
 			// If this loader belongs to a section, delegate the loading to it.
 			var section:Object = Section.getSection(this._target);
 			if (section)
@@ -334,6 +339,12 @@ package inky.net
 				return;
 			}
 
+			// If it's already loading, but not complete, don't do anything.
+			if (!this._closed)
+			{
+				return;
+			}
+
 			// If this loader belongs to a section, delegate the loading to it.
 			var section:Object = Section.getSection(this._target);
 			if (section)
@@ -351,6 +362,8 @@ package inky.net
 			{
 				this.loadAsset();
 			}
+			
+			this._closed = false;
 		}
 
 

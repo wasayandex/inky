@@ -62,8 +62,8 @@ package inky.display
 				this.outro = new PlayFrameLabelAction('outro');
 			}
 			
-			this._proxy.addEventListener(TransitionEvent.TRANSITION_START, this._relayEvent, false, 0, true);
-			this._proxy.addEventListener(TransitionEvent.TRANSITION_FINISH, this._relayEvent, false, 0, true);
+			this._proxy.addEventListener(TransitionEvent.TRANSITION_START, this._relayEvent);
+			this._proxy.addEventListener(TransitionEvent.TRANSITION_FINISH, this._relayEvent);
 		}
 
 

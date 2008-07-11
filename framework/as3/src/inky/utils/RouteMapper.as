@@ -6,7 +6,7 @@ package inky.utils
 
 	/**
 	 *
-	 *  An object responsible for connecting routes.
+	 *  ..
 	 * 
 	 * 	@langversion ActionScript 3
 	 *  @playerversion Flash 9.0.0

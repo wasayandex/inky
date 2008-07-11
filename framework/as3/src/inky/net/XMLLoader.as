@@ -7,8 +7,6 @@ package inky.net
 	import flash.events.ProgressEvent;
 	import flash.events.SecurityErrorEvent;
 	import flash.net.URLLoader;
-	import flash.net.URLLoaderDataFormat;
-	import flash.utils.getDefinitionByName;
 	import inky.events.AssetLoaderEvent;
 	import inky.net.AbstractAssetLoader;
 
@@ -43,19 +41,7 @@ package inky.net
 		 */
 		private function _completeHandler(e:Event):void
 		{
-			// Attempt to unzip the file.
-// TODO: Better "is this a zip?" logic.
-			try
-			{
-				var fzipClass:Class = getDefinitionByName('deng.fzip.FZip') as Class;
-				var fz:Object = new fzipClass();
-				fz.loadBytes(e.currentTarget.data);
-				this.setContent(new XML(fz.getFileAt(0).getContentAsString()));
-			}
-			catch (error:Error)
-			{
-				this.setContent(new XML(e.currentTarget.data));
-			}
+			this.setContent(new XML(e.currentTarget.data));
 			this.dispatchEvent(new AssetLoaderEvent(AssetLoaderEvent.READY));
 		}
 
@@ -73,7 +59,6 @@ package inky.net
 		override protected function createLoader():Object
 		{
 			this._loader = new URLLoader();
-			this._loader.dataFormat = URLLoaderDataFormat.BINARY;
 
 			// Configure listeners
 			this._loader.addEventListener(Event.COMPLETE, this._completeHandler);
