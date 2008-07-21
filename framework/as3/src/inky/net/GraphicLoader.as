@@ -9,6 +9,8 @@ package inky.net
 	import flash.events.IOErrorEvent;
 	import flash.events.ProgressEvent;
 	import flash.net.URLRequest;
+	import flash.system.ApplicationDomain;
+	import flash.system.LoaderContext;
 	import flash.utils.getQualifiedClassName;
 	import inky.core.Section;
 	import inky.events.AssetLoaderEvent;
@@ -257,7 +259,7 @@ package inky.net
 		 */
 		private function _getLoadArgs():Array
 		{
-			return [this._behavior.getURLRequest()];
+			return [this._behavior.getURLRequest(), new LoaderContext(false, ApplicationDomain.currentDomain)];
 		}
 
 

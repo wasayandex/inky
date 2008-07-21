@@ -924,7 +924,7 @@ this.dispatchEvent(new Event('navigate'));
 		 *      The section to add to the stage.
 		 * 
 		 */
-		protected function addSubsection(subsection:Section):void
+		public function addSubsection(subsection:Section):void
 		{
 			this._registerSubsection(subsection);
 			this.addChild(subsection);
