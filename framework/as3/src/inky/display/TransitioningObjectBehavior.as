@@ -88,6 +88,7 @@ package inky.display
 				intro.target = this._obj;
 			}
 
+
 			if (playTransition) this._playTransition(intro);
 		}
 

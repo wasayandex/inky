@@ -22,7 +22,9 @@ package inky.managers
 	import inky.net.SoundLoader;
 	import inky.net.SWFLoader;
 	import inky.net.XMLLoader;
-
+	import inky.transitions.ActionGroup;
+	import inky.transitions.ActionSequence;
+	import inky.transitions.AnimatorAction;
 
 	/**
 	 *
@@ -40,6 +42,9 @@ package inky.managers
 	{
 		// Force the Model class to be compiled into the SWF.
 		Model;
+ActionSequence;
+ActionGroup;
+AnimatorAction;
 
 		private var _bindings:Dictionary;
 		private static var _bindingTags:Object = {};
@@ -140,6 +145,15 @@ package inky.managers
 						{
 							switch (xml.localName())
 							{
+								case 'AnimatorAction':
+									className = 'inky.transitions.AnimatorAction';
+									break;
+								case 'ActionGroup':
+									className = 'inky.transitions.ActionGroup';
+									break;
+								case 'ActionSequence':
+									className = 'inky.transitions.ActionSequence';
+									break;
 								case 'Section':
 									break;
 								case 'Model':
