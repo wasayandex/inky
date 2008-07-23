@@ -45,14 +45,15 @@ package inky.transitions
 
 
 		/**
-		 *
-		 * 
-		 * 
+		 * @inheritDoc
 		 */
 		public function get target():Object
 		{
 			return this._target;
 		}
+		/**
+		 * @private
+		 */
 		public function set target(target:Object):void
 		{
 			this._target = target;
@@ -82,15 +83,14 @@ package inky.transitions
 
 
 
+
 		//
 		// public methods
 		//
 
 
 		/**
-		 *
-		 * 
-		 * 
+		 * @inheritDoc
 		 */
 		public function start():void
 		{

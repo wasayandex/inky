@@ -11,8 +11,10 @@ package inky.transitions
 	import flash.events.EventDispatcher;
 	import fl.motion.Animator;
 	import fl.motion.MotionEvent;
-	
+
+
 	/**
+	 *
 	 *	Class description.
 	 *
 	 *	@langversion ActionScript 3.0
@@ -22,24 +24,30 @@ package inky.transitions
 	 *	@author Eric Eldredge
 	 *	@author Rich Perez
 	 *	@author Matthew Tretter
-	 *	@since  22.07.2008
+	 *	@since  2008.07.22
+	 *	
 	 */
 	public class AnimatorAction extends EventDispatcher implements IAction, IInkyDataParser
 	{
 		private var _target:Object;
 		private var _animator:Animator;
 		private var _xml:XML;
+
 		
 		/**
-		 *	@Constructor
+		 *	
 		 */
 		public function AnimatorAction()
 		{
 		}
 
+
+
+
 		//
 		// accessors
 		//
+
 
 		/**
 		 *
@@ -53,6 +61,7 @@ package inky.transitions
 			return this._target;
 		}
 
+
 		/**
 		 * @private	
 		 */
@@ -61,9 +70,13 @@ package inky.transitions
 			this._target = target;
 		}	
 
+
+
+
 		//
 		// public methods
 		//
+
 
 		/**
 		 *
@@ -74,6 +87,7 @@ package inky.transitions
 		{
 			this._xml = data.*[0];
 		}
+
 
 		/**
 		 *
@@ -88,19 +102,27 @@ package inky.transitions
 			this._animator.play();
 		}
 
+
+
+
 		//
 		// private methods
 		//
 
+
 		/**
-		*	
-		*	Dispatches an MotionEvent once the entire AnimatorAction is finished.
-		*	
-		*/
+		 *	
+		 *	Dispatches an MotionEvent once the entire AnimatorAction is finished.
+		 *	
+		 */
 		private function _motionEndHandler(e:MotionEvent):void
 		{
 			e.currentTarget.removeEventListener(e.type, arguments.callee);
 			this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_FINISH, false, false));
 		}
+
+
+
+
 	}
 }

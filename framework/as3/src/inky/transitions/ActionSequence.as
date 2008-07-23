@@ -6,23 +6,27 @@ package inky.transitions
 	import inky.utils.IAction;
 	import com.exanimo.collections.IListIterator;
 	import com.exanimo.collections.ArrayList;
-	
+
+
 	/**
+	 *	
 	 *	Class description.
 	 *
 	 *	@langversion ActionScript 3.0
 	 *	@playerversion Flash 9.0
 	 *
 	 *	@author Rich Perez
-	 *	@since  21.07.2008
+	 *	@since  2008.07.21
+	 *	
 	 */
 	public class ActionSequence extends ArrayList implements IAction, IInkyDataParser
 	{
 		private var _target:Object;
 		private var _currentIndex:Number;
-		
+
+
 		/**
-		 *	@Constructor
+		 *
 		 */
 		public function ActionSequence(... rest)
 		{
@@ -34,10 +38,14 @@ package inky.transitions
 
 			this._currentIndex = 0;
 		}
-		
+
+
+
+
 		//
 		// accessors
 		//
+
 		
 		/**
 		 *
@@ -51,6 +59,7 @@ package inky.transitions
 			return this._target;
 		}
 
+
 		/**
 		 * @private	
 		 */
@@ -58,10 +67,14 @@ package inky.transitions
 		{
 			this._target = target;
 		}	
+
+
+
 		
 		//
 		// public methods
 		//
+
 		
 		/**
 		 *
@@ -78,6 +91,7 @@ package inky.transitions
 				this.addItem(obj);
 			}
 		}
+
 				
 		/**
 		 *
@@ -89,16 +103,20 @@ package inky.transitions
 			this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_START, false, false));
 			this._startAction(this._currentIndex);
 		}
+
+
+
 					
 		//
 		// private methods
 		//
+
 		
 		/**
-		*
-		*	Starts the action designated by the index in the ActionSequence.	
-		*	
-		*/
+		 *
+		 *	Starts the action designated by the index in the ActionSequence.	
+		 *	
+		 */
 		private function _startAction(index:Number):void
 		{
 			var action:IAction = this.getItemAt(index) as IAction;
@@ -108,12 +126,13 @@ package inky.transitions
 			action.addEventListener(ActionEvent.ACTION_FINISH, this._transitionFinish);
 			action.start();
 		}
+
 		
 		/**
-		*	
-		*	Dispatches an ActionEvent once the entire ActionSequence is finished. Otherwise it will call on the next action to start.
-		*	
-		*/
+		 *	
+		 *	Dispatches an ActionEvent once the entire ActionSequence is finished. Otherwise it will call on the next action to start.
+		 *	
+		 */
 		private function _transitionFinish(e:ActionEvent):void
 		{
 			e.currentTarget.removeEventListener(e.type, arguments.callee);
@@ -121,6 +140,10 @@ package inky.transitions
 			
 			if (this._currentIndex >= this.length) this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_FINISH, false, false));
 			else this._startAction(this._currentIndex);			
-		}		
+		}
+
+
+
+		
 	}
 }

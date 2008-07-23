@@ -12,10 +12,10 @@ package inky.transitions
 	 *  ..
 	 * 
 	 * 	@langversion ActionScript 3
-	 * @playerversion Flash 9.0.0
+	 *  @playerversion Flash 9.0.0
 	 *
-	 * @author Matthew Tretter
-	 * @since  2008.02.12
+	 *  @author Matthew Tretter
+	 *  @since  2008.02.12
 	 *
 	 */
 	public class PlayFrameLabelAction extends EventDispatcher implements IAction
@@ -48,14 +48,15 @@ package inky.transitions
 
 
 		/**
-		 *
-		 * 
-		 * 
+		 * @inheritDoc
 		 */
 		public function get target():Object
 		{
 			return this._target;
 		}
+		/**
+		 * @private
+		 */
 		public function set target(target:Object):void
 		{
 			this._target = target;
@@ -72,6 +73,9 @@ package inky.transitions
 		{
 			return this._labelName;
 		}
+		/**
+		 * @private
+		 */
 		public function set labelName(labelName:String):void
 		{
 			this._labelName = labelName;
@@ -97,9 +101,7 @@ package inky.transitions
 
 
 		/**
-		 *
-		 * 
-		 * 
+		 * @inheritDoc
 		 */
 		public function start():void
 		{
