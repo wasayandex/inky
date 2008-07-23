@@ -25,6 +25,8 @@ package inky.managers
 	import inky.transitions.ActionGroup;
 	import inky.transitions.ActionSequence;
 	import inky.transitions.AnimatorAction;
+	import inky.transitions.SetValueAction;
+	import inky.transitions.TweenerAction;
 
 	/**
 	 *
@@ -45,6 +47,8 @@ package inky.managers
 ActionSequence;
 ActionGroup;
 AnimatorAction;
+SetValueAction;
+TweenerAction;
 
 		private var _bindings:Dictionary;
 		private static var _bindingTags:Object = {};
@@ -145,6 +149,12 @@ AnimatorAction;
 						{
 							switch (xml.localName())
 							{
+								case 'TweenerAction':
+									className = 'inky.transitions.TweenerAction';
+									break;
+								case 'SetValueAction':
+									className = 'inky.transitions.SetValueAction';
+									break;
 								case 'AnimatorAction':
 									className = 'inky.transitions.AnimatorAction';
 									break;

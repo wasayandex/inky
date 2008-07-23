@@ -2,6 +2,7 @@ package inky.transitions
 {
 	import caurina.transitions.Tweener;
 	import inky.events.ActionEvent;
+	import inky.core.IInkyDataParser;
 	import inky.utils.IAction;
 	import flash.events.EventDispatcher;
 
@@ -17,103 +18,85 @@ package inky.transitions
 	 * @since  30.01.2008
 	 *
 	 */
-	public class TweenerAction extends EventDispatcher implements IAction
+	public class TweenerAction extends EventDispatcher implements IAction, IInkyDataParser
 	{
 		private var _target:Object;
 		private var _tweenParams:Object;
-
 
 		/**
 		 *
 		 *
 		 *
 		 */
-		public function TweenerAction(userParams:Object = null)
+		public function TweenerAction(obj:Object = null)
 		{
-			this._tweenParams = {};
-			this._tweenParams.transition = 'easeOutSine';
-			this._tweenParams.time = 0.75;
-			if (userParams) for(var param:Object in userParams) this._tweenParams[param] = userParams[param];
+			this._tweenParams = obj || {};
 		}
-
-
-
-
+		
 		//
 		// accessors
 		//
-
-
+		
 		/**
+<<<<<<< .mine
+		 *
 		 * @inheritDoc
+		 * 
+=======
+		 * @inheritDoc
+>>>>>>> .r276
 		 */
 		public function get target():Object
 		{
 			return this._target;
 		}
+<<<<<<< .mine
+		
+		/**
+		*
+		*	@private	
+		*	
+		*/
+=======
 		/**
 		 * @private
 		 */
+>>>>>>> .r276
 		public function set target(target:Object):void
 		{
 			this._target = target;
 		}
-
-
-		/**
-		 *
-		 * 
-		 * 
-		 */
-		public function get playing():Boolean
-		{
-			return this.target ? Tweener.isTweening(this.target) : false;
-		}
-
-
-		/**
-		 *
-		 * 
-		 * 
-		 */
-		public function get tweenParams():Object
-		{
-			return this._tweenParams;
-		}
-
-
-
+		
+		
 
 		//
 		// public methods
 		//
-
-
-		/**
-		 * @inheritDoc
-		 */
-		public function start():void
+		
+		public function parseData(data:XML):void
 		{
-			if (!this.target) return;
-			Tweener.addTween(this.target, {base:this._tweenParams, onComplete:this.dispatchEvent, onCompleteParams:[new ActionEvent(ActionEvent.ACTION_FINISH, false, false)]});
-			this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_START, false, false));
+			for each (var item:XML in data.* + data.attributes())
+			{
+				var name = item.localName();
+				this._tweenParams[name] = item.toString();
+			}
 		}
 
 
+<<<<<<< .mine
+
+=======
 		/**
-		 *
-		 * 
-		 * 
+		 * @inheritDoc
 		 */
-		public function stop():void
+>>>>>>> .r276
+		public function start():void
 		{
 			if (!this.target) return;
-			Tweener.removeTweens(this.target);
-			this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_STOP, false, false));
-		}		
-
-
-
-
+			
+			Tweener.addTween(this.target, {base:this._tweenParams, onComplete:this.dispatchEvent, onCompleteParams:[new ActionEvent(ActionEvent.ACTION_FINISH, false, false)]});
+			this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_START, false, false));
+			
+		}	
 	}
 }
