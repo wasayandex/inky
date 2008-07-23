@@ -65,15 +65,15 @@ package inky.transitions
 		// public methods
 		//
 
-/**
- *
- * @inheritDoc
- * 
- */
-public function parseData(data:XML):void
-{
-	this._xml = data.*[0];
-}
+		/**
+		 *
+		 * @inheritDoc
+		 * 
+		 */
+		public function parseData(data:XML):void
+		{
+			this._xml = data.*[0];
+		}
 
 		/**
 		 *
@@ -94,7 +94,7 @@ public function parseData(data:XML):void
 
 		/**
 		*	
-		*	Dispatches an MotionEvent once the entire ActionSequence is finished. Otherwise it will call on the next action to start.
+		*	Dispatches an MotionEvent once the entire AnimatorAction is finished.
 		*	
 		*/
 		private function _motionEndHandler(e:MotionEvent):void

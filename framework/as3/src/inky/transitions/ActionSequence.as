@@ -24,12 +24,12 @@ package inky.transitions
 		/**
 		 *	@Constructor
 		 */
-		public function ActionSequence( ... rest )
+		public function ActionSequence(... rest)
 		{
-			for each ( var action:IAction in rest )
+			for each (var action:IAction in rest)
 			{
-				if ( !action ) return;
-				else this.addItem( action );
+				if (!action) return;
+				else this.addItem(action);
 			}
 
 			this._currentIndex = 0;
@@ -63,28 +63,25 @@ package inky.transitions
 		// public methods
 		//
 		
-/**
- *
- * Parses the inky XML node that corresponds to this object.
- *	
- * @param data
- *     The inky XML node that corresponds to this object.
- * 
- */
-public function parseData(data:XML):void
-{
-	// TODO: Type mom?
-	var mom:Object = Section.getSection(this).markupObjectManager;
-	for each ( var xml:XML in data.* )
-	{
-		var obj:Object = mom.createMarkupObject(xml);
-		this.addItem(obj);
-	}
-}
+		/**
+		 *
+		 * @inheritDoc
+		 * 
+		 */
+		public function parseData(data:XML):void
+		{
+			// TODO: Type mom?
+			var mom:Object = Section.getSection(this).markupObjectManager;
+			for each (var xml:XML in data.*)
+			{
+				var obj:Object = mom.createMarkupObject(xml);
+				this.addItem(obj);
+			}
+		}
 				
 		/**
 		 *
-		 * Start the action sequence.	
+		 * @inheritDoc
 		 * 
 		 */
 		public function start():void
@@ -99,7 +96,7 @@ public function parseData(data:XML):void
 		
 		/**
 		*
-		*	starts the action designated by the index in the ActionSequence.	
+		*	Starts the action designated by the index in the ActionSequence.	
 		*	
 		*/
 		private function _startAction(index:Number):void
@@ -122,7 +119,7 @@ public function parseData(data:XML):void
 			e.currentTarget.removeEventListener(e.type, arguments.callee);
 			this._currentIndex++;
 			
-			if ( this._currentIndex >= this.length ) this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_FINISH, false, false));
+			if (this._currentIndex >= this.length) this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_FINISH, false, false));
 			else this._startAction(this._currentIndex);			
 		}		
 	}
