@@ -3,7 +3,7 @@ package
 	import flash.display.*;
 	import flash.events.MouseEvent;
 	import flash.text.TextField;
-	import inky.core.Application;
+	import inky.framework.core.Application;
 	public class PetsittersApplication extends Application
 	{
 		public function PetsittersApplication()

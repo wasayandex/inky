@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<inky:Application xmlns:inky="http://exanimo.com/2008/inky">
+<inky:Application xmlns:inky="http://inkyframework.com/2008/inky">
 
 	<inky:Section name="about" inky:class="AboutSection" y="25" />
 	<inky:Section name="hours" inky:class="HoursSection" y="25" />
