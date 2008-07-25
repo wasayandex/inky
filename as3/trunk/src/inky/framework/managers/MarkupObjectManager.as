@@ -183,6 +183,7 @@ package inky.framework.managers
 								case 'SoundLoader':
 								case 'SWFLoader':
 								case 'XMLLoader':
+
 									// Get the asset source.
 									var base:String;
 									var source:String = xml.@source;
@@ -268,7 +269,7 @@ if (xml.@inky_internal::sourceAlreadyResolved != true)
 
 // Determine if this section is the true owner of the asset.
 tmp = xml.parent();
-while (tmp.localName() != 'Section')
+while (tmp && (tmp.localName() != 'Section') && (tmp.localName() != 'Application'))
 {
 	tmp = tmp.parent();
 }

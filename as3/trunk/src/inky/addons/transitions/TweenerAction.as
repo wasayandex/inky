@@ -70,7 +70,6 @@ package inky.addons.transitions
 			{
 				var name = item.localName();
 				this[name] = item.toString();
-				trace(name)
 			}
 		}
 
