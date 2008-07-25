@@ -18,19 +18,17 @@ package inky.transitions
 	 * @since  30.01.2008
 	 *
 	 */
-	public class TweenerAction extends EventDispatcher implements IAction, IInkyDataParser
+	dynamic public class TweenerAction extends EventDispatcher implements IAction, IInkyDataParser
 	{
 		private var _target:Object;
-		private var _tweenParams:Object;
 
 		/**
 		 *
 		 *
 		 *
 		 */
-		public function TweenerAction(obj:Object = null)
+		public function TweenerAction()
 		{
-			this._tweenParams = obj || {};
 		}
 		
 		//
@@ -38,37 +36,23 @@ package inky.transitions
 		//
 		
 		/**
-<<<<<<< .mine
 		 *
 		 * @inheritDoc
 		 * 
-=======
-		 * @inheritDoc
->>>>>>> .r276
 		 */
 		public function get target():Object
 		{
 			return this._target;
 		}
-<<<<<<< .mine
-		
-		/**
-		*
-		*	@private	
-		*	
-		*/
-=======
+
 		/**
 		 * @private
 		 */
->>>>>>> .r276
 		public function set target(target:Object):void
 		{
 			this._target = target;
 		}
-		
-		
-
+				
 		//
 		// public methods
 		//
@@ -78,23 +62,19 @@ package inky.transitions
 			for each (var item:XML in data.* + data.attributes())
 			{
 				var name = item.localName();
-				this._tweenParams[name] = item.toString();
+				this[name] = item.toString();
+				trace(name)
 			}
 		}
 
-
-<<<<<<< .mine
-
-=======
 		/**
 		 * @inheritDoc
 		 */
->>>>>>> .r276
 		public function start():void
 		{
 			if (!this.target) return;
 			
-			Tweener.addTween(this.target, {base:this._tweenParams, onComplete:this.dispatchEvent, onCompleteParams:[new ActionEvent(ActionEvent.ACTION_FINISH, false, false)]});
+			Tweener.addTween(this.target, {base:this, onComplete:this.dispatchEvent, onCompleteParams:[new ActionEvent(ActionEvent.ACTION_FINISH, false, false)]});
 			this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_START, false, false));
 			
 		}	
