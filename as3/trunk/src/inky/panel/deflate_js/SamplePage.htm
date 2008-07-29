@@ -1,0 +1,36 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>DEFLATE Sample</title>
+    <script language="javascript" type="text/javascript" src="deflate.js"></script>
+</head>
+<body>
+
+<!-- RFC 1951 represented in UTF8, deflated and encoded using BASE64 -->
+
+<pre id="rfc">
+    <script src="base64.js"></script>
+    <script language="javascript" type="text/javascript"><!--    
+ 
+
+	var xmlhttp = new XMLHttpRequest();
+	xmlhttp.open("GET", "base64.txt",true);
+	xmlhttp.onreadystatechange=function() {
+		if (xmlhttp.readyState==4) {
+			var base64 = xmlhttp.responseText;
+
+			var inflator = new Inflator(new Base64Reader(base64));
+//			var textReader = new TextReader(new Utf8Translator(inflator));
+
+//			document.write(textReader.readToEnd());
+document.write(inflator.decodeItem());
+		}
+	}
+	xmlhttp.send(null)
+
+
+
+    //--></script>
+
+</pre>
+</body>
+</html>
