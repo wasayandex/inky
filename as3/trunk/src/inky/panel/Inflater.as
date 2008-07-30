@@ -1,4 +1,4 @@
-package
+package inky.panel
 {
 	import flash.utils.ByteArray;
 
@@ -298,20 +298,21 @@ function Inflator(data:ByteArray)
 		 */	
 		private static function _buildCodes(lengths):Array
 		{
+			var i:uint;
 		    var codes = new Array(lengths.length);
 		    var maxBits = lengths[0];
-		    for (var i=1; i<lengths.length; i++)
+		    for (i = 1; i < lengths.length; i++)
 		    {
 		        if (maxBits < lengths[i]) maxBits = lengths[i];
 		    }
 		
 		    var bitLengthsCount:Array = new Array(maxBits + 1);
-		    for (var i=0; i <= maxBits; i++)
+		    for (i = 0; i <= maxBits; i++)
 			{
 				bitLengthsCount[i]=0;
 			}
 		
-		    for (var i=0; i<lengths.length; i++)
+		    for (i = 0; i<lengths.length; i++)
 		    {
 		        ++bitLengthsCount[lengths[i]];
 		    }
@@ -411,6 +412,8 @@ function Inflator(data:ByteArray)
 		 */
 		private static function _initializeStaticTrees():void
 		{
+			var i:uint;
+		
 			// Only init once.
 			if (Inflater._isInitialized) return;
 			Inflater._isInitialized = true;
@@ -418,22 +421,22 @@ function Inflator(data:ByteArray)
 		    var codes:Array = new Array(288);
 		    var codesLengths:Array = new Array(288);
 		
-		    for (var i = 0; i <= 143; i++)
+		    for (i = 0; i <= 143; i++)
 		    {
 		        codes[i] = 0x0030 + i;
 		        codesLengths[i] = 8;
 		    }
-		    for (var i = 144; i <= 255; i++)
+		    for (i = 144; i <= 255; i++)
 		    {
 		        codes[i] = 0x0190 + i - 144;
 		        codesLengths[i] = 9;
 		    }
-		    for (var i = 256; i <= 279; i++)
+		    for (i = 256; i <= 279; i++)
 		    {
 		        codes[i] = 0x0000 + i - 256;
 		        codesLengths[i] = 7;
 		    }
-		    for (var i = 280; i <= 287; i++)
+		    for (i = 280; i <= 287; i++)
 		    {
 		        codes[i] = 0x00C0 + i - 280;
 		        codesLengths[i] = 8;
@@ -441,7 +444,7 @@ function Inflator(data:ByteArray)
 		    Inflater._staticCodes = Inflater._buildTree(codes, codesLengths);
 		    var distances:Array = new Array(32);
 		    var distancesLengths:Array = new Array(32);
-		    for (var i:uint = 0; i <= 31; i++)
+		    for (i = 0; i <= 31; i++)
 		    {
 		        distances[i] = i;
 		        distancesLengths[i] = 5;
@@ -461,10 +464,13 @@ function Inflator(data:ByteArray)
 		    var hlit = bitReader.readLSB(5) + 257;
 		    var hdist = bitReader.readLSB(5) + 1;
 		    var hclen = bitReader.readLSB(4) + 4;
+		    var i:uint;
+		    var repeat;
+		    var q;
 		
 		    var clen = new Array(19);
-		    for(var i=0; i<clen.length; ++i) clen[i] = 0;
-		    for(var i=0; i<hclen; ++i) clen[Inflater._clenMap[i]] = bitReader.readLSB(3);
+		    for(i=0; i<clen.length; ++i) clen[i] = 0;
+		    for(i=0; i<hclen; ++i) clen[Inflater._clenMap[i]] = bitReader.readLSB(3);
 		
 		    var clenCodes = Inflater._buildCodes(clen);
 		    var clenTree = Inflater._buildTree(clenCodes, clen);
@@ -483,20 +489,20 @@ function Inflator(data:ByteArray)
 		            lengthsSequence.push(code);
 		        else if(code == 16)
 		        {
-		            var repeat = bitReader.readLSB(2) + 3;
-		            for(var q=0; q<repeat; ++q)
+		            repeat = bitReader.readLSB(2) + 3;
+		            for(q=0; q<repeat; ++q)
 		                lengthsSequence.push(lengthsSequence[lengthsSequence.length - 1]);
 		        }
 		        else if(code == 17)
 		        {
-		            var repeat = bitReader.readLSB(3) + 3;
-		            for(var q=0; q<repeat; ++q)
+		            repeat = bitReader.readLSB(3) + 3;
+		            for(q=0; q<repeat; ++q)
 		                lengthsSequence.push(0);
 		        }
 		        else if(code == 18)
 		        {
-		            var repeat = bitReader.readLSB(7) + 11;
-		            for(var q=0; q<repeat; ++q)
+		            repeat = bitReader.readLSB(7) + 11;
+		            for(q=0; q<repeat; ++q)
 		                lengthsSequence.push(0);
 		        }
 		    }
