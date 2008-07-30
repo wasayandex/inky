@@ -86,7 +86,7 @@ package inky.panel
 		private function _build(e:Event = null):void
 		{
 			var builder:Builder = new Builder();
-			builder.build('file:///C:/Documents%20and%20Settings/matthew/My%20Documents/code/projects/thejw.hzdesign.com/web/flash/TheJWApplication.inky.xml');
+			builder.build('file:///C:/Documents%20and%20Settings/matthew/Desktop/inky/examples/petsitters-1/deploy/PetsittersApplication.inky.xml');
 		}		 		 		
 
 

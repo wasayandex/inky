@@ -105,7 +105,7 @@ private function _swcCompleteHandler(e:Event):void
 			this._getDeps(className, classes);
 		}
 	}
-	
+
 	this._printMap(this._swfMap);
 	
 	//!
