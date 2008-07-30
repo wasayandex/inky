@@ -21,7 +21,7 @@
 package deng.fzip
 {
 	import deng.utils.ChecksumUtil;
-	import Inflater;
+	import inky.panel.Inflater;
 	
 	import flash.utils.*;
 
