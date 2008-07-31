@@ -33,9 +33,9 @@ package inky.framework.transitions
 		 *
 		 *
 		 */
-		public function PlayFrameLabelAction(labelName:String)
+		public function PlayFrameLabelAction(labelName:String = null)
 		{
-			this.labelName = labelName;
+			if (labelName) this.labelName = labelName;
 			this._playing = false;
 		}
 
