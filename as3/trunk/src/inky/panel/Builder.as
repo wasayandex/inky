@@ -76,8 +76,9 @@ package inky.panel
 
 			// Get the external sections.
 			this._swfMap = this._mapSWFs(this._inkyXML);
-var swcFilename:String = JSFLInterface.call('getDocumentPath') + 'caliope.swc';
+
 			// Publish the swc.
+			var swcFilename:String = JSFLInterface.call('getDocumentPath') + 'caliope.swc';
 			JSFLInterface.call('publishSWC', swcFilename);
 
 			// Load the swc catalog.
@@ -95,8 +96,11 @@ private function _swcCompleteHandler(e:Event):void
 	var zip:FZip = new FZip();
 	zip.loadBytes(e.currentTarget.data);
 	var file:FZipFile = zip.getFileAt(0);
-	this._catalog = new XML(file.getContentAsString());
-	
+
+	// Create XML from the catalog.
+	var swcContents:String = file.getContentAsString();
+	this._catalog = new XML(swcContents);
+trace(this._catalog.toXMLString());
 	// Expand the swf map to include dependencies.
 	for each (var classes:Array in this._swfMap)
 	{
@@ -107,9 +111,10 @@ private function _swcCompleteHandler(e:Event):void
 	}
 
 	this._printMap(this._swfMap);
-	
+
 	//!
 }
+
 
 
 private function _getDeps(className:String, a:Array):void
@@ -122,6 +127,7 @@ private function _getDeps(className:String, a:Array):void
 	for each (var dep:XML in script.dep + script.def)
 	{
 		var depClass:String = String(dep.@id).replace(/\W/g, '.');
+
 		if (a.indexOf(depClass) == -1)
 		{
 			a.push(depClass);
@@ -206,10 +212,9 @@ private function _printMap(map:Object):void
 }
 
 
-
-public function trace(str:String):void
+public function trace(str:*):void
 {
-	JSFLInterface.call('fl.trace', str);
+	JSFLInterface.call('fl.trace', String(str));
 }
 
 

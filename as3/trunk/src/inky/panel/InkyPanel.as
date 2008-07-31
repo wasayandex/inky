@@ -86,7 +86,7 @@ package inky.panel
 		private function _build(e:Event = null):void
 		{
 			var builder:Builder = new Builder();
-			builder.build('file:///C:/Documents%20and%20Settings/matthew/Desktop/inky/examples/petsitters-1/deploy/PetsittersApplication.inky.xml');
+			builder.build('file:///Users/mjt/Desktop/inky/as3/trunk/examples/petsitters-1/deploy/PetsittersApplication.inky.xml');
 		}		 		 		
 
 
@@ -125,9 +125,9 @@ public function throwError(msg:String):void
 {
 	JSFLInterface.call('throwError', msg);
 }
-public function trace(str:String):void
+public function trace(str:*):void
 {
-	JSFLInterface.call('fl.trace', str);
+	JSFLInterface.call('fl.trace', String(str));
 }
 
 
