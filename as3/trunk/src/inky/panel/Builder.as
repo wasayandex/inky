@@ -1,6 +1,7 @@
 package inky.panel
 {
 	import com.exanimo.external.JSFLInterface;
+	import com.exanimo.utils.ArrayUtil;
 	import deng.fzip.FZip;
 	import deng.fzip.FZipFile;
 	import flash.events.Event;
@@ -93,6 +94,14 @@ package inky.panel
 
 private function _swcCompleteHandler(e:Event):void
 {
+	var className:String;
+	
+	// There's something weird going on here. If the next line isn't present,
+	// the XML created from the swc contents will be messed up. It's not the
+	// Inflater either, because you get the same problem using the xml
+	// directly.
+	namespace swc = "http://www.adobe.com/flash/swccatalog/9";
+
 	var zip:FZip = new FZip();
 	zip.loadBytes(e.currentTarget.data);
 	var file:FZipFile = zip.getFileAt(0);
@@ -100,19 +109,98 @@ private function _swcCompleteHandler(e:Event):void
 	// Create XML from the catalog.
 	var swcContents:String = file.getContentAsString();
 	this._catalog = new XML(swcContents);
-trace(this._catalog.toXMLString());
+
 	// Expand the swf map to include dependencies.
 	for each (var classes:Array in this._swfMap)
 	{
-		for each (var className:String in classes)
+		for each (className in classes)
 		{
 			this._getDeps(className, classes);
 		}
 	}
+	
+	// Remove redundant classes from the map.
+//	var classAttr:QName = new QName(inky, 'class');
+	var sectionNode:QName = new QName(inky, 'Section');
+	var applicationNode:QName = new QName(inky, 'Application');
+	var extSections:Array = this._sortByNestLevel(this._inkyXML..inky::Section.(attribute('source').length()));
+	var excludeClasses:Object = {};
+	excludeClasses[this._publishProfile.PublishFormatProperties.flashFileName.toString()] = [];
 
-	this._printMap(this._swfMap);
+	for each (var extSection:XML in extSections)
+	{
+		var source:String = extSection.@source;
+		excludeClasses[source] = [];
+
+		// Make a list of all the sections with the same source.
+		var sections:XMLList = this._inkyXML..inky::Section.(attribute('source') == source);
+		
+		// Determine which classes are needed.
+		for (var i:int = 0; i < this._swfMap[source].length; i++)
+		{
+			className = this._swfMap[source][i];
+			var includeClass:Boolean = true;
+
+			// Multiple sections could potentially have the same source swf, so make sure that neither swf requires this class.
+			for each (var s:XML in sections)
+			{
+				var tmp:XML = s.parent();
+				var classDefInAncestor:Boolean = false;
+				var otherSource:String;
+				while (tmp)
+				{
+					if (((tmp.name() == sectionNode)  && (otherSource = tmp.@source)) || ((tmp.name() == applicationNode) && (otherSource = this._publishProfile.PublishFormatProperties.flashFileName)))
+					{
+						if (this._swfMap[otherSource].indexOf(className) != -1)
+						{
+							classDefInAncestor = true;
+							break;
+						}
+					}
+					tmp = tmp.parent();
+				}
+				if (classDefInAncestor)
+				{
+					includeClass = false;
+					break;
+				}
+			}
+
+			if (!includeClass)
+			{
+				excludeClasses[source].push(className);
+				this._swfMap[source].splice(i, 1);
+				i--;
+			}
+		}
+	}
+
+	this._printMap(excludeClasses);
 
 	//!
+}
+
+
+
+private function _sortByNestLevel(list:XMLList):Array
+{
+	var array:Array = [];
+	for each (var xml:XML in list)
+	{
+		array.push({xml: xml, nestLevel: this._getNestLevel(xml)});
+	}
+	return ArrayUtil.getFieldValues(array.sortOn('nestLevel'), 'xml');
+}
+
+private function _getNestLevel(xml:XML):uint
+{
+	var nestLevel:uint = 0;
+	var tmp:XML = xml;
+	while ((tmp = tmp.parent()))
+	{
+		nestLevel++;
+	}
+	return nestLevel;
 }
 
 
@@ -120,15 +208,17 @@ trace(this._catalog.toXMLString());
 private function _getDeps(className:String, a:Array):void
 {	
 	namespace swc = "http://www.adobe.com/flash/swccatalog/9";
-	use namespace swc;
 	var scriptName:String = className.replace(/\W/g, '/');
 
-	var script:XMLList = this._catalog..script.(attribute('name') == scriptName);
-	for each (var dep:XML in script.dep + script.def)
+	// For some weird buggy reason, we have to use the ns explicitly, or else the script will only run correctly the first time.
+	var script:XMLList = this._catalog..swc::script.(attribute('name') == scriptName);
+	for each (var dep:XML in script.swc::dep + script.swc::def)
 	{
 		var depClass:String = String(dep.@id).replace(/\W/g, '.');
 
-		if (a.indexOf(depClass) == -1)
+		// Don't add the class to the list if it's already in the list or if it's a flash.* class.
+// TODO: don't add if it's a top-level flash class (i.e. Error)
+		if ((a.indexOf(depClass) == -1) && !(/^flash\./.test(depClass)))
 		{
 			a.push(depClass);
 			this._getDeps(depClass, a);
@@ -204,6 +294,7 @@ private function _printMap(map:Object):void
 	for (var prop:String in map)
 	{
 		trace(prop);
+		map[prop].sort(Array.CASEINSENSITIVE);
 		for each (var className:String in map[prop])
 		{
 			trace('\t' + className);

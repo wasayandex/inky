@@ -30,7 +30,7 @@ package inky.panel
 
 
 
-
+public static var textField;
 		/**
 		 *
 		 *
@@ -43,6 +43,7 @@ package inky.panel
 			this._loader = new URLLoader();
 			this._loader.addEventListener(Event.COMPLETE, this._init);
 			this._loader.load(new URLRequest('InkyPanel.jsfl'));
+InkyPanel.textField = this.textField;
 		}
 		
 		
