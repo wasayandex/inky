@@ -540,15 +540,34 @@ this._cmdQueue.push({type: '__removeProgressBars'});
 			var data:XML = info.inky_internal::getData();
 			subsection.markupObjectManager.setData(subsection, data);
 
-			// 
-			this._addCommandCompleteListener(cmd, subsection, TransitionEvent.TRANSITION_FINISH);
+			// Because the section may have no intro (or the intro may finish
+			// immediately upon adding the section to the stage), we need to
+			// do some special handling to make sure that sections are
+			// initialized in the correct order.
+			var introIsFinished:Boolean = false;
+			var handler:Function = function(e:TransitionEvent):void
+			{
+				e.currentTarget.removeEventListener(e.type, arguments.callee);
+				introIsFinished = true;
+			};
+			subsection.addEventListener(TransitionEvent.TRANSITION_FINISH, handler, false, 0, true);
 
 			// Add the section to its owner.
 			owner.addSubsection(subsection);
+			subsection.removeEventListener(TransitionEvent.TRANSITION_FINISH, handler);
 			owner.dispatchEvent(new SectionEvent(SectionEvent.NAVIGATION_COMPLETE, true));
 
 			// Initialize the subsection.
 			this._initializeSection(subsection);
+			
+			if (!introIsFinished)
+			{
+				this._addCommandCompleteListener(cmd, subsection, TransitionEvent.TRANSITION_FINISH);
+			}
+			else
+			{
+				this._commandCompleteHandler();
+			}
 		}
 
 
