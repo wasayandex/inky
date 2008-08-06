@@ -1026,8 +1026,8 @@ package inky.framework.core
 
 			this.itemProgressBar = this.getChildByName('_itemProgressBar') as IProgressBar || this.itemProgressBar;
 			this.cumulativeProgressBar = this.getChildByName('_cumulativeProgressBar') as IProgressBar || this.cumulativeProgressBar;
-			if (this.itemProgressBar) this.removeChild(this.itemProgressBar as DisplayObject);
-			if (this.cumulativeProgressBar) this.removeChild(this.cumulativeProgressBar as DisplayObject);
+			/*if (this.itemProgressBar) this.removeChild(this.itemProgressBar as DisplayObject);
+			if (this.cumulativeProgressBar) this.removeChild(this.cumulativeProgressBar as DisplayObject);*/
 		}
 
 

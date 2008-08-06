@@ -167,15 +167,16 @@ package inky.framework.managers
 		/**
 		 *
 		 * Initializes the navigation controller, resulting in the immediate
-		 * navigation to the application's initial section (as specified by
+		 * navigation to the application's initial section (as specified by 
 		 * either the URL or the defaultSubsection attributes in the inkyXML).
 		 *	
 		 */
 		public function initialize():void
 		{
+			/*this._cmdQueue.push({type: '__initialize'});
+			this._runCommandQueue();*/
 			SWFAddress.addEventListener(SWFAddressEvent.CHANGE, this._addressChangeHandler);
 		}
-
 
 
 
@@ -213,7 +214,6 @@ package inky.framework.managers
 			{
 				throw new Error('Couldn\'t resolve the following url hash: ' + url);
 			}
-
 			this._gotoSection(sPath, options);
 		}
 
@@ -336,7 +336,7 @@ package inky.framework.managers
 			this._cmdQueue = this._cmdQueue.length ? [this._cmdQueue[0]] : [];
 
 // Remove progress bars (if they are currently added).
-this._cmdQueue.push({type: '__removeProgressBars'});
+//this._cmdQueue.push({type: '__removeProgressBars'});
 
 			// Determine what sections need to be left.
 			var index:int = 0;
@@ -653,6 +653,20 @@ this._commandCompleteHandler();
 			this._commandCompleteHandler();
 		}
 
+
+		/**
+		 *
+		 *	
+		 */
+		/*private function __initialize(cmd:Object):void
+		{
+			var info:SectionInfo = this._masterSection.getInfo();
+			var data:XML = info.inky_internal::getData();
+			var loadManager:LoadManager = this._masterSection.loadManager;
+
+			this._addCommandCompleteListener(cmd, loadManager, 'includeLoadComplete');
+			loadManager.loadXMLIncludes(data);
+		}*/
 
 
 

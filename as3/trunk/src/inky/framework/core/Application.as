@@ -1,16 +1,8 @@
 package inky.framework.core
 {
-	import com.exanimo.controls.IProgressBar;
-	import com.exanimo.controls.ProgressBarMode;
-	import com.exanimo.net.LoadQueue;
-	import com.exanimo.utils.URLUtil;
 	import flash.display.*;
-	import flash.events.Event;
-	import flash.events.IOErrorEvent;
-	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.text.*;
-	import flash.utils.Dictionary;
 	import inky.framework.core.inky;
 	import inky.framework.core.Section;
 	import inky.framework.data.SectionInfo;
@@ -37,10 +29,6 @@ package inky.framework.core
 	{
 		private var _data:XML;
 		private var _dataSourceIsSet:Boolean;
-		private var _loadQueue:LoadQueue;
-		private var _loaders2xml:Dictionary;
-		private var _numIncludes:uint;
-
 
 		/**
 		 * 
@@ -51,10 +39,6 @@ package inky.framework.core
 		 */
 		public function Application()
 		{
-			this._loadQueue = new LoadQueue();
-			this._loaders2xml = new Dictionary();
-			this._numIncludes = 0;
-
 			var dataSource:String = this.root.loaderInfo.parameters.dataSource;
 			if (dataSource)
 			{
@@ -64,7 +48,7 @@ package inky.framework.core
 			{
 				// If the dataSource property isn't set on the SWF, try to use
 				// the default value.
-				this._loadData(new URLRequest(new Loader().contentLoaderInfo.loaderURL.split('.').slice(0, -1).join('.') + '.inky.xml'));
+				this.dataSource = new URLRequest(new Loader().contentLoaderInfo.loaderURL.split('.').slice(0, -1).join('.') + '.inky.xml');
 			}
 		}
 
@@ -96,59 +80,18 @@ package inky.framework.core
 // TODO: Add a dataSource getter?
 			if (dataSource is XML)
 			{
-				this._parseData(dataSource as XML);
+				this._init(dataSource as XML);
 			}
 			else if ((dataSource is String) || (dataSource is URLRequest))
 			{
 				var request:URLRequest = (dataSource as URLRequest) || new URLRequest(dataSource as String);
-				this._loadData(request);
+				this.loadManager.loadData(request, this._init);
 			}
 			else
 			{
 				throw new Error('Application.dataSource may only be set to XML, a URL String, or a URLRequest.');
 			}
 		}		
-
-
-		/**
-		 * @inheritDoc
-		 */
-		/*override public function get cumulativeProgressBar():IProgressBar
-		{
-			return super.cumulativeProgressBar;
-		}*/
-		/**
-		 * @private
-		 */
-		/*override public function set itemProgressBar(progressBar:IProgressBar):void
-		{
-			if (progressBar)
-			{
-				super.itemProgressBar = progressBar;
-				if (this._loadQueue && this._loadQueue.numItems) this.itemProgressBar.source = this._loadQueue.getItemAt(0);
-			}
-		}*/
-
-
-		/**
-		 * @inheritDoc
-		 */
-		/*override public function get itemProgressBar():IProgressBar
-		{
-			return super.itemProgressBar;
-		}*/
-		/**
-		 * @private
-		 */
-		/*override public function set cumulativeProgressBar(progressBar:IProgressBar):void
-		{
-			if (progressBar)
-			{
-				super.cumulativeProgressBar = progressBar;
-				if (this._loadQueue && this._loadQueue.numItems) this.cumulativeProgressBar.source = this._loadQueue;
-			}
-		}*/
-
 
 
 
@@ -162,152 +105,20 @@ package inky.framework.core
 		 * 	
 		 * 
 		 */
-		private function _dataCompleteHandler(e:Event):void
+		private function _init(data:XML):void
 		{
-			/*if (this.itemProgressBar)
-			{
-				this.removeItemProgressBar(itemProgressBar);
-			}
-			if (this.cumulativeProgressBar)
-			{
-				this.removeCumulativeProgressBar(cumulativeProgressBar);
-			}*/
-			this._parseData(new XML(e.currentTarget.data));
-		}
-
-
-		/**
-		 *
-		 * Called when the data is successfully opened.
-		 *
-		 */		 		 		 		
-		private function _dataOpenHandler(e:Event):void
-		{
-			// Load the data provider.
-			e.currentTarget.addEventListener(Event.COMPLETE, this._dataCompleteHandler);
-		
-			/*if (this.itemProgressBar)
-			{
-				this.addItemProgressBar(this.itemProgressBar);
-				this.itemProgressBar.source = this._loadQueue.getItemAt(0);
-			}
-			if (this.cumulativeProgressBar)
-			{
-				this.addCumulativeProgressBar(this.cumulativeProgressBar);
-				this.cumulativeProgressBar.source = this._loadQueue;
-			}*/
-		}
-
-
-		/**
-		 *
-		 * Suppresses unhandled error event warnings.
-		 * 
-		 */
-		private function _doNothing(e:Event):void
-		{
-		}
-
-
-		/**
-		 *
-		 * 	
-		 * 
-		 */
-		private function _includeCompleteHandler(e:Event):void
-		{
-			// Replace the include node with the loaded data.
-			var incl:XML = this._loaders2xml[e.currentTarget];
-			incl.parent().replace(incl.childIndex(), new XML(e.currentTarget.data));
-	
-			// Remove the loader from the list of loading loaders. If the list
-			// is empty (i.e. all the data is loaded), kick of the initialization
-			// process.
-			delete this._loaders2xml[e.currentTarget];
-			this._numIncludes--;
-
-			if (this._numIncludes == 0) this._init();
-		}
-
-
-		/**
-		 *
-		 * 	
-		 * 
-		 */
-		private function _init():void
-		{
-			var info:SectionInfo = new SectionInfo();
-			info.parseData(this._data);
-			this.setInfo(info);
-			this.markupObjectManager.setData(this, this._data);
-		}
-
-
-		/**
-		 *
-		 *
-		 *
-		 */		 		 		 		
-		private function _loadData(request:URLRequest):void
-		{
-			var loader:URLLoader = new URLLoader();
-			loader.addEventListener(Event.OPEN, this._dataOpenHandler);
-			loader.addEventListener(IOErrorEvent.IO_ERROR, this._doNothing);
-
-			// Add the loader to the LoadQueue.
-			this._loadQueue.addItem(loader);
-			this._loadQueue.setLoadArguments(loader, request);
-			this._loadQueue.load();
-		}
-
-
-		/**
-		 *
-		 * 
-		 * 
-		 */
-		private function _parseData(data:XML):void
-		{
-			// Only allow the data to be set once.
 			if (this._dataSourceIsSet)
 			{
 				return;
 			}
 			this._dataSourceIsSet = true;
-
 			this._data = data;
-			var numIncludes:int = 0;
-			for each (var incl:XML in this._data.descendants(new QName(inky, 'include')))
-			{
-				var loader:URLLoader = new URLLoader();
-				var source:String = incl.@source;
 
-				// Get the base.
-				var tmp:XML = incl;
-				while (tmp)
-				{
-					if (tmp.@inky::base.length())
-					{
-						source = URLUtil.getFullURL(tmp.@inky::base, source);
-					}
-					tmp = tmp.parent();
-				}
-
-				var request:URLRequest = new URLRequest(source);
-				this._loaders2xml[loader] = incl;
-				this._numIncludes++;
-				loader.addEventListener(Event.COMPLETE, this._includeCompleteHandler);
-				this._loadQueue.addItem(loader);
-				this._loadQueue.setLoadArguments(loader, request);
-				this._loadQueue.load();
-
-				numIncludes++;
-			}
-
-			if (!this._numIncludes) this._init();
+			var info:SectionInfo = new SectionInfo();
+			info.parseData(this._data);
+			this.setInfo(info);
+			this.markupObjectManager.setData(this, this._data);
 		}
-
 
 
 

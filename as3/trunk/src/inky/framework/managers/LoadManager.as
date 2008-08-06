@@ -1,8 +1,12 @@
 package inky.framework.managers 
 {
+	import com.exanimo.controls.ProgressBarMode;
 	import com.exanimo.events.LoadQueueEvent;
+	import com.exanimo.utils.URLUtil;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
+	import flash.events.IOErrorEvent;
+	import flash.events.ProgressEvent;
 	import inky.framework.core.Section;
 	import inky.framework.core.inky;
 	import inky.framework.core.inky_internal;
@@ -11,10 +15,13 @@ package inky.framework.managers
 	import inky.framework.net.IAssetLoader;
 	import inky.framework.utils.SPath;
 	import flash.display.Loader;
+	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.system.ApplicationDomain;
 	import flash.system.LoaderContext;
 	import flash.utils.Dictionary;
+
+
 	
 	/**
 	 *
@@ -32,8 +39,13 @@ package inky.framework.managers
 	{
 		private var _loadQueue:LoadQueue;
 		private var _section:Section;
-		private static var _masterSection:Section;
+
+		private static var _data:XML;
+		private static var _dataLoadCompleteCallback:Function;
+		private static var _includeLoaders2xml:Dictionary;
 		private static var _masterLoadQueue:LoadQueue = new LoadQueue();
+		private static var _masterSection:Section;
+		private static var _xmlLoader:URLLoader;
 
 		use namespace inky;
 		
@@ -170,6 +182,25 @@ LoadManager._masterSection = LoadManager._masterSection || section;
 
 
 		/**
+		 *
+		 * 	
+		 * 
+		 */
+		public function loadData(request:URLRequest, callback:Function):void
+		{
+			LoadManager._xmlLoader = new URLLoader();
+			LoadManager._xmlLoader.addEventListener(Event.OPEN, LoadManager._dataOpenHandler);
+			LoadManager._xmlLoader.addEventListener(IOErrorEvent.IO_ERROR, LoadManager._doNothing);
+
+			LoadManager._dataLoadCompleteCallback = callback;
+
+			LoadManager._masterLoadQueue.addItem(LoadManager._xmlLoader);
+			LoadManager._masterLoadQueue.setLoadArguments(LoadManager._xmlLoader, request);
+			LoadManager._masterLoadQueue.load();
+		}
+
+
+		/**
 		 * 
 		 * @private
 		 *	
@@ -232,7 +263,6 @@ LoadManager._masterSection = LoadManager._masterSection || section;
 
 
 
-
 		//
 		// private methods
 		//
@@ -277,6 +307,67 @@ LoadManager._masterSection = LoadManager._masterSection || section;
 			}
 
 			return lq.numItems ? lq : null;
+		}
+
+
+		/**
+		 *
+		 * Called when the data is successfully opened.
+		 *
+		 */		 		 		 		
+		private static function _dataOpenHandler(e:Event):void
+		{
+			var section:Section = LoadManager._masterSection;
+			if (section.itemProgressBar)
+			{
+				section.itemProgressBar.mode = ProgressBarMode.MANUAL;
+			}
+
+			e.currentTarget.addEventListener(ProgressEvent.PROGRESS, LoadManager._dataProgressHandler);
+			e.currentTarget.addEventListener(Event.COMPLETE, LoadManager._dataProgressHandler);
+			section.loaderInfo.addEventListener(ProgressEvent.PROGRESS, LoadManager._dataProgressHandler);
+			section.loaderInfo.addEventListener(Event.COMPLETE, LoadManager._dataProgressHandler);
+		}
+
+
+		/**
+		 *
+		 * 	
+		 * 
+		 */
+		private static function _dataProgressHandler(e:Event):void
+		{
+			var section:Section = LoadManager._masterSection;
+			var xmlLoader:URLLoader = LoadManager._xmlLoader;
+			var maximum:Number = section.loaderInfo.bytesTotal + xmlLoader.bytesTotal;
+			var value:Number = section.loaderInfo.bytesLoaded + xmlLoader.bytesLoaded;
+
+			if (section.itemProgressBar)
+			{
+				section.itemProgressBar.setProgress(value, maximum);
+			}
+
+			if (e.type == Event.COMPLETE && value == maximum)
+			{
+				section.loaderInfo.removeEventListener(ProgressEvent.PROGRESS, LoadManager._dataProgressHandler);
+				section.loaderInfo.removeEventListener(Event.COMPLETE, LoadManager._dataProgressHandler);
+				xmlLoader.removeEventListener(ProgressEvent.PROGRESS, LoadManager._dataProgressHandler);
+				xmlLoader.removeEventListener(Event.COMPLETE, LoadManager._dataProgressHandler);
+
+				LoadManager._data = new XML(xmlLoader.data);
+				LoadManager._loadXMLIncludes(LoadManager._data);
+				LoadManager._xmlLoader = undefined;
+			}
+		}
+
+
+		/**
+		 *
+		 * Suppresses unhandled error event warnings.
+		 * 
+		 */
+		private static function _doNothing(e:Event):void
+		{
 		}
 
 
@@ -375,6 +466,87 @@ LoadManager._masterSection = LoadManager._masterSection || section;
 		}
 
 
+		/**
+		 *
+		 * 	
+		 * 
+		 */
+		private static function _includeCompleteHandler(e:Event):void
+		{
+			// Replace the include node with the loaded data.
+			var incl:XML = LoadManager._includeLoaders2xml[e.currentTarget];
+			incl.parent().replace(incl.childIndex(), new XML(e.currentTarget.data));
+	
+			// Remove the loader from the list of loading loaders. If the list
+			// is empty (i.e. all the data is loaded), kick of the initialization
+			// process.
+			delete LoadManager._includeLoaders2xml[e.currentTarget];
+		}
+
+
+		/**
+		 *
+		 * 	
+		 * 
+		 */
+		private static function _includeQueueCompleteHandler(e:Event = null):void
+		{
+			if (LoadManager._masterSection.itemProgressBar)
+			{
+				LoadManager._masterSection.itemProgressBar.mode = ProgressBarMode.EVENT;
+			}
+
+			LoadManager._dataLoadCompleteCallback.apply(LoadManager._masterSection, [LoadManager._data]);
+			LoadManager._dataLoadCompleteCallback = undefined;
+			LoadManager._data = undefined;
+		}
+
+
+		/**
+		 *
+		 *	
+		 *	
+		 */
+		private static function _loadXMLIncludes(data:XML):void
+		{
+			var includeQueue:LoadQueue = new LoadQueue();
+
+			LoadManager._includeLoaders2xml = new Dictionary(true);
+
+			for each (var incl:XML in data.descendants(new QName(inky, 'include')))
+			{
+				var loader:URLLoader = new URLLoader();
+				var source:String = incl.@source;
+
+				// Get the base.
+				var tmp:XML = incl;
+				while (tmp)
+				{
+					if (tmp.@inky::base.length())
+					{
+						source = URLUtil.getFullURL(tmp.@inky::base, source);
+					}
+					tmp = tmp.parent();
+				}
+				LoadManager._includeLoaders2xml[loader] = incl;
+				includeQueue.addItem(loader);
+				includeQueue.setLoadArguments(loader, new URLRequest(source));
+				loader.addEventListener(Event.COMPLETE, LoadManager._includeCompleteHandler);
+			}
+
+			if (includeQueue.numItems)
+			{
+				includeQueue.addEventListener(Event.COMPLETE, LoadManager._includeQueueCompleteHandler);
+				LoadManager._masterLoadQueue.addItem(includeQueue);
+				LoadManager._masterLoadQueue.load();
+			}
+			else
+			{
+				LoadManager._includeQueueCompleteHandler();
+			}
+		}
+		
+		
 		/**
 		 *
 		 * Updates the itemProgressBar when an asset in the preload queue is opened.
