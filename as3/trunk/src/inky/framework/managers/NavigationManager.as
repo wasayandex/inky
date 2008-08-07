@@ -373,8 +373,8 @@ package inky.framework.managers
 				this._cmdQueue.push({type: '__leaveSubsection'});
 			}
 
-// Reinitialize the sections that have not been removed.
-this._cmdQueue.push({type: '__reinitializeSections'});
+			// Reinitialize the sections that have not been removed.
+			this._cmdQueue.push({type: '__reinitializeSections'});
 
 			// Insert "gotoSubsection" commands for each subsection to go to.
 			for (i = index; i < sPath.length; i++)
