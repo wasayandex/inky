@@ -7,6 +7,7 @@ package inky.framework.core
 	import inky.framework.core.Section;
 	import inky.framework.data.SectionInfo;
 	import inky.framework.events.SectionEvent;
+	import inky.framework.utils.Debugger;
 	import inky.framework.utils.SPath;
 
 
@@ -29,6 +30,7 @@ package inky.framework.core
 	{
 		private var _data:XML;
 		private var _dataSourceIsSet:Boolean;
+
 
 		/**
 		 * 
@@ -92,6 +94,25 @@ package inky.framework.core
 				throw new Error('Application.dataSource may only be set to XML, a URL String, or a URLRequest.');
 			}
 		}		
+
+
+		/**
+		 *
+		 *
+		 *
+		 */
+		public function get debug():Boolean
+		{
+			return Debugger.enabled;
+		}
+		/**
+		 * @private
+		 */
+		public function set debug(debug:Boolean):void
+		{
+			Debugger.enabled = debug;
+		}
+
 
 
 

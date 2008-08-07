@@ -426,19 +426,7 @@ package inky.framework.core
 		 */
 		public function close():void
 		{
-// TODO: is this method good?  if you have nested virtual subsections, it won't work correctly.
-// Is there really any way to do this so that it always behaves as you want?
-/*
-			if (this._master._currentSPath && this._master._currentSPath.numItems)
-			{
-				var sPath:SPath = this._master._currentSPath.clone() as SPath;
-				sPath.removeItemAt(sPath.length - 1);
-				this._master.gotoSection(sPath);
-			}
-			else
-			{
-				this.remove();
-			}*/
+			this.gotoSection('..', this.navigationManager.initializeOptions);
 		}
 
 

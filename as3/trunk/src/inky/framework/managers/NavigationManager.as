@@ -2,17 +2,18 @@ package inky.framework.managers
 {
 	import com.asual.swfaddress.SWFAddress;
 	import com.asual.swfaddress.SWFAddressEvent;
+	import flash.events.Event;
+	import flash.events.IEventDispatcher;
+	import flash.utils.Dictionary;
+	import flash.utils.getDefinitionByName;
 	import inky.framework.core.inky_internal;
 	import inky.framework.core.Section;
 	import inky.framework.data.SectionInfo;
 	import inky.framework.events.SectionEvent;
 	import inky.framework.events.TransitionEvent;
 	import inky.framework.managers.LoadManager;
+	import inky.framework.utils.Debugger;
 	import inky.framework.utils.SPath;
-	import flash.events.Event;
-	import flash.events.IEventDispatcher;
-	import flash.utils.Dictionary;
-	import flash.utils.getDefinitionByName;
 
 
 	/**
@@ -35,9 +36,10 @@ package inky.framework.managers
 		private var _currentInitializeOptions:Dictionary;
 		private var _currentSPath:SPath;
 		private var _currentSubsections:Dictionary;
-		private var _currentURL:String;
+		private var _currentAddress:String;
 		public var initializeOptions:Object;
 		private var _masterSection:Section;
+		private var _nextSPath:SPath;
 
 
 		/**
@@ -107,6 +109,23 @@ package inky.framework.managers
 
 			if (sPath)
 			{
+				// Use the special _base options property.
+				if (options['_base'])
+				{
+					var newOptions:Object = {};
+					var prop:String;
+					for (prop in options['_base'])
+					{
+						newOptions[prop] = options['_base'][prop];
+					}
+					delete options['_base'];
+					for (prop in options)
+					{
+						newOptions[prop] = options[prop];
+					}
+					options = newOptions;
+				}
+				
 				// Make the SPath absolute.
 				sPath = sPath.absolute ? sPath : sPath.resolve(this._masterSection.sPath);
 				sPath = sPath.normalize();
@@ -132,17 +151,18 @@ package inky.framework.managers
 				{
 					var url:String = info.routeMapper.getURL(info.sPath, options);
 
-					if ((url != null) && (url != this._currentURL))
+					if ((url != null) && (url != this._currentAddress))
 					{
 						// SWFAddress will throw security errors sometimes. If it does,
 						// call the handler directly. (This way we still use url.)
 						try
 						{
+							this._nextSPath = sPath;
 							SWFAddress.setValue(url.replace(/^#(.*)$/, '$1'));
 						}
 						catch(error:Error)
 						{
-							this._addressChangeHandler(url);
+							this._gotoAddress(url, sPath);
 						}
 					}
 					else
@@ -152,7 +172,7 @@ package inky.framework.managers
 				}
 				catch (error:Error)
 				{
-					trace('Warning: ' + error.message);
+					Debugger.traceWarning(error.message);
 					useSPath = true;
 				}
 
@@ -202,19 +222,9 @@ package inky.framework.managers
 		 * 
 		 *
 		 */
-		private function _addressChangeHandler(o:Object):void
+		private function _addressChangeHandler(e:SWFAddressEvent):void
 		{
-			var url:String = o is SWFAddressEvent ? o.value == '/' ? '#/' : '#' + o.value : o as String;
-			this._currentURL = url;
-
-			var sPath:SPath = this._masterSection.getInfo().routeMapper.getSPath(url);
-			var options:Object = this._masterSection.getInfo().routeMapper.getOptions(url, sPath);
-
-			if (!sPath)
-			{
-				throw new Error('Couldn\'t resolve the following url hash: ' + url);
-			}
-			this._gotoSection(sPath, options);
+			this._gotoAddress(e.value == '/' ? '#/' : '#' + e.value);
 		}
 
 
@@ -261,6 +271,36 @@ package inky.framework.managers
 				section = section.currentSubsection;
 			}
 			return section;
+		}
+
+
+		/**
+		 *
+		 * Goes to the address specified. Because multiple sections can have
+		 * the same routing, the method allows you to specifiy the target
+		 * SPath, however it isn't necessary as the RouteMapper can figure out
+		 * the section from the address.
+		 *	
+		 * @param address
+		 *     The address to navigate to.
+		 * @param sPath
+		 *     (optional) The section to navigate to. If not provided, it will
+		 *     be determined by the RouteMapper
+		 * @see inky.utils.RouteMapper
+		 *	
+		 */
+		private function _gotoAddress(address:String, sPath:SPath = null):void
+		{
+			this._currentAddress = address;
+
+			sPath = sPath || this._nextSPath || this._masterSection.getInfo().routeMapper.getSPath(address);
+			var options:Object = this._masterSection.getInfo().routeMapper.getOptions(address, sPath);
+
+			if (!sPath)
+			{
+				throw new Error('Couldn\'t resolve the following url hash: ' + address);
+			}
+			this._gotoSection(sPath, options);
 		}
 
 

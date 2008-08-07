@@ -1,5 +1,6 @@
 package inky.framework.utils
 {
+	import inky.framework.utils.Debugger;
 	import inky.framework.utils.Route;
 	import inky.framework.utils.SPath;
 
@@ -61,7 +62,9 @@ package inky.framework.utils
 				{
 					if (!route.sPath.equals(sPath))
 					{
-						throw new Error('Duplicate route: the path ' + path + ' cannot be routed to ' + sPath + ' because it is already routed to ' + route.sPath); 
+// TODO:
+// BUG: this warning will never be traced because this line is executed before the debug property is set on the app.
+						Debugger.traceWarning('Duplicate route: the path ' + path + ' cannot be routed to ' + sPath + ' because it is already routed to ' + route.sPath); 
 					}
 					else
 					{

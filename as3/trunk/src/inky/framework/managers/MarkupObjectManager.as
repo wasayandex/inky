@@ -24,6 +24,7 @@ package inky.framework.managers
 	import inky.framework.net.XMLLoader;
 	import inky.framework.transitions.ActionGroup;
 	import inky.framework.transitions.ActionSequence;
+	import inky.framework.utils.Debugger;
 
 
 	/**
@@ -370,7 +371,7 @@ if (this._getMarkupObjectByData(this._section, tmp) != this._section)
 							}
 							catch (error:Error)
 							{
-trace('Warning: ' + error);
+Debugger.traceWarning(error);
 							}
 
 // TODO: Shouldn't we catch if no classname is provided at all??
