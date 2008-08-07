@@ -110,7 +110,7 @@ package inky.framework.managers
 			if (sPath)
 			{
 				// Use the special _base options property.
-				if (options['_base'])
+				if (options && options.hasOwnProperty('_base') && options['_base'])
 				{
 					var newOptions:Object = {};
 					var prop:String;
