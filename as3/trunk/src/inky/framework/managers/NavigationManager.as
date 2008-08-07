@@ -367,13 +367,14 @@ package inky.framework.managers
 			this._cmdQueue.push({type: '__preload', name: sPath, context: section});
 			this._cmdQueue.push({type: '__removeProgressBars'});
 
-
 			// Insert "leaveSubsection" commands for each section to leave.
 			for (i = index; i < this._currentSPath.length; i++)
 			{
 				this._cmdQueue.push({type: '__leaveSubsection'});
 			}
 
+// Reinitialize the sections that have not been removed.
+this._cmdQueue.push({type: '__reinitializeSections'});
 
 			// Insert "gotoSubsection" commands for each subsection to go to.
 			for (i = index; i < sPath.length; i++)
@@ -637,6 +638,24 @@ package inky.framework.managers
 
 // Mark the command as done and move on to the next.
 this._commandCompleteHandler();
+		}
+
+
+		/**
+		 *
+		 *	
+		 */
+		private function __reinitializeSections(cmd:Object):void
+		{
+			var section:Section = this._masterSection;
+			while (section)
+			{
+				this._initializeSection(section);
+				section = section.currentSubsection;
+			}
+
+			// This command is done. Move on to the next.
+			this._commandCompleteHandler();	
 		}
 
 
