@@ -27,6 +27,8 @@ package inky.framework.transitions
 
 		/**
 		 *
+		 *	
+		 *	
 		 */
 		public function ActionSequence(... rest)
 		{
@@ -38,7 +40,6 @@ package inky.framework.transitions
 
 			this._currentIndex = 0;
 		}
-
 
 
 
@@ -70,7 +71,6 @@ package inky.framework.transitions
 
 
 
-		
 		//
 		// public methods
 		//
@@ -101,12 +101,22 @@ package inky.framework.transitions
 		public function start():void
 		{
 			this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_START, false, false));
+			if (!this.length)
+			{
+				this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_FINISH, false, false));
+				return;
+			}
+			
+			if (this._currentIndex < 0 || this._currentIndex >= this.length)
+			{
+				this._currentIndex = 0;
+			}
+
 			this._startAction(this._currentIndex);
 		}
 
 
 
-					
 		//
 		// private methods
 		//
