@@ -10,7 +10,10 @@ package inky.framework.data
 
 	/**
 	 *
-	 * @private
+	 * Holds information about a section. Unlike sections, SectionInfo
+	 * instances are never destroyed, so that the application always has access
+	 * to the information they store. This class should be considered an
+	 * implementation detail and is subject to change.
 	 * 
 	 * @langversion ActionScript 3
 	 * @playerversion Flash 9.0.0

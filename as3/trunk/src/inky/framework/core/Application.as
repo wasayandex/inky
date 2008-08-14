@@ -4,6 +4,7 @@ package inky.framework.core
 	import flash.net.URLRequest;
 	import flash.text.*;
 	import inky.framework.core.inky;
+	import inky.framework.core.inky_internal;
 	import inky.framework.core.Section;
 	import inky.framework.data.SectionInfo;
 	import inky.framework.events.SectionEvent;
@@ -87,7 +88,7 @@ package inky.framework.core
 			else if ((dataSource is String) || (dataSource is URLRequest))
 			{
 				var request:URLRequest = (dataSource as URLRequest) || new URLRequest(dataSource as String);
-				this.loadManager.loadData(request, this._init);
+				this.inky_internal::getLoadManager().loadData(request, this._init);
 			}
 			else
 			{
@@ -137,7 +138,7 @@ package inky.framework.core
 
 			var info:SectionInfo = new SectionInfo();
 			info.parseData(this._data);
-			this.setInfo(info);
+			this.inky_internal::setInfo(info);
 			this.markupObjectManager.setData(this, this._data);
 		}
 

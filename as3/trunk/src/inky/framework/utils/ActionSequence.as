@@ -1,4 +1,4 @@
-package inky.framework.transitions
+package inky.framework.utils
 {
 	import inky.framework.events.ActionEvent;
 	import inky.framework.core.IInkyDataParser;
@@ -10,7 +10,7 @@ package inky.framework.transitions
 
 	/**
 	 *	
-	 *	Class description.
+	 *	Defines a list of actions to be executed sequentially.
 	 *
 	 *	@langversion ActionScript 3.0
 	 *	@playerversion Flash 9.0
@@ -43,6 +43,7 @@ package inky.framework.transitions
 
 
 
+
 		//
 		// accessors
 		//
@@ -59,8 +60,6 @@ package inky.framework.transitions
 		{
 			return this._target;
 		}
-
-
 		/**
 		 * @private	
 		 */
@@ -68,6 +67,7 @@ package inky.framework.transitions
 		{
 			this._target = target;
 		}	
+
 
 
 
@@ -114,6 +114,7 @@ package inky.framework.transitions
 
 			this._startAction(this._currentIndex);
 		}
+
 
 
 

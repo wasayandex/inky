@@ -24,14 +24,15 @@ package inky.framework.managers
 	import inky.framework.net.SoundLoader;
 	import inky.framework.net.SWFLoader;
 	import inky.framework.net.XMLLoader;
-	import inky.framework.transitions.ActionGroup;
-	import inky.framework.transitions.ActionSequence;
+	import inky.framework.utils.ActionGroup;
+	import inky.framework.utils.ActionSequence;
 	import inky.framework.utils.Debugger;
 
 
 	/**
 	 *
-	 * Unmarshalls objects represented by the Inky XML.
+	 * Unmarshalls objects represented by the Inky XML. This class should be considered an
+	 * implementation detail and is subject to change.
 	 * 
 	 * @langversion ActionScript 3
 	 * @playerversion Flash 9.0.0
@@ -154,10 +155,10 @@ package inky.framework.managers
 									className = 'inky.framework.transitions.AnimatorAction';
 									break;
 								case 'ActionGroup':
-									className = 'inky.framework.transitions.ActionGroup';
+									className = 'inky.framework.utils.ActionGroup';
 									break;
 								case 'ActionSequence':
-									className = 'inky.framework.transitions.ActionSequence';
+									className = 'inky.framework.utils.ActionSequence';
 									break;
 								case 'Section':
 									break;
@@ -571,7 +572,7 @@ if (orphans)
 // Initialize the navigation controller.
 if (obj == this._section.master)
 {
-	this._section.navigationManager.initialize();
+	this._section.inky_internal::getNavigationManager().initialize();
 }
 		}
 
@@ -793,7 +794,7 @@ MarkupObjectManager._sections2MarkupObjectFactories[context]._markupObjects2Data
 				var owner:DisplayObject = Section.getSection(obj);
 				var objectName:String = obj.name;
 				var tmp:DisplayObject = obj.parent;
-				var info:SectionInfo = context.getInfo();
+				var info:SectionInfo = context.inky_internal::getInfo();
 				while (tmp && (tmp != owner))
 				{
 					objectName = tmp.name + '.' + objectName;

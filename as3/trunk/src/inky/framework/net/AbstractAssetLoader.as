@@ -13,7 +13,7 @@ package inky.framework.net
 
 	/**
 	 *
-	 *  Defines base functionality for an asset loader class.
+	 * Defines base functionality for an asset loader class.
 	 * AbstractAssetLoader uses the AssetLoaderBehavior decorator for its
 	 * functionality.
 	 * 

@@ -20,7 +20,9 @@ package inky.framework.managers
 	 *
 	 * Handles the navigation-related tasks of an application, including
 	 * manipulation of the URL and navigation triggered by URL changes. One
-	 * NavigationManager is created automatically for each application.
+	 * NavigationManager is created automatically for each application. This
+	 * class should be considered an implementation detail and is subject to
+	 * change.
 	 * 
 	 * @langversion ActionScript 3
 	 * @playerversion Flash 9.0.0
@@ -131,8 +133,8 @@ package inky.framework.managers
 				sPath = sPath.normalize();
 
 				// Resolve the SPath.
-				sPath = this._masterSection.getInfo().resolveSPath(sPath);
-				var info:SectionInfo = this._masterSection.getInfo().getSectionInfoBySPath(sPath);
+				sPath = this._masterSection.inky_internal::getInfo().resolveSPath(sPath);
+				var info:SectionInfo = this._masterSection.inky_internal::getInfo().getSectionInfoBySPath(sPath);
 
 				if (!info)
 				{
@@ -293,8 +295,8 @@ package inky.framework.managers
 		{
 			this._currentAddress = address;
 
-			sPath = sPath || this._nextSPath || this._masterSection.getInfo().routeMapper.getSPath(address);
-			var options:Object = this._masterSection.getInfo().routeMapper.getOptions(address, sPath);
+			sPath = sPath || this._nextSPath || this._masterSection.inky_internal::getInfo().routeMapper.getSPath(address);
+			var options:Object = this._masterSection.inky_internal::getInfo().routeMapper.getOptions(address, sPath);
 
 			if (!sPath)
 			{
@@ -332,8 +334,8 @@ package inky.framework.managers
 			var i:int;
 
 			// Resolve the SPath.
-			sPath = this._masterSection.getInfo().resolveSPath(sPath);
-			var info:SectionInfo = this._masterSection.getInfo().getSectionInfoBySPath(sPath);
+			sPath = this._masterSection.inky_internal::getInfo().resolveSPath(sPath);
+			var info:SectionInfo = this._masterSection.inky_internal::getInfo().getSectionInfoBySPath(sPath);
 			this.initializeOptions = options || {};
 
 			if (!info)
@@ -552,7 +554,7 @@ package inky.framework.managers
 		private function __addSubsection(cmd:Object):void
 		{
 			// Get the section's info.
-			var info:SectionInfo = this._masterSection.getInfo().getSectionInfoBySPath(this._currentSPath);
+			var info:SectionInfo = this._masterSection.inky_internal::getInfo().getSectionInfoBySPath(this._currentSPath);
 
 			// Get the section's owner (the section to which the new one should be added).
 			var owner:Section = this._getLeafSection();
@@ -575,7 +577,7 @@ package inky.framework.managers
 			this._currentSubsections[owner] = subsection;
 
 			// Set the section's info.
-			subsection.setInfo(info);
+			subsection.inky_internal::setInfo(info);
 
 			// Set the section's data.
 			var data:XML = info.inky_internal::getData();
@@ -660,7 +662,7 @@ package inky.framework.managers
 		 */
 		private function __preload(cmd:Object):void
 		{
-			var loadManager:LoadManager = cmd.context.loadManager;
+			var loadManager:LoadManager = cmd.context.inky_internal::getLoadManager();
 			this._addCommandCompleteListener(cmd, loadManager, 'preloadComplete');
 			loadManager.preload(cmd.name);
 		}

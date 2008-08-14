@@ -23,6 +23,7 @@ package inky.framework.core
 	import flash.system.LoaderContext;
 	import flash.utils.Dictionary;
 	import flash.utils.describeType;
+	import inky.framework.core.inky_internal;
 	import inky.framework.core.Application;
 	import inky.framework.core.IInkyDataParser;
 	import inky.framework.data.SectionInfo;
@@ -152,18 +153,7 @@ package inky.framework.core
 			}
 
 			if (!progressBar) return;
-/*
-			// If a subsection is currently loading, set the queue progress bar source to its preload queue.
-			if (this._info && this._info.getSubsectionInfoByName(this._loadingSubsectionName))
-			{
-				var preloadAssetsLoadQueue:LoadQueue = this._getPreloadAssetsLoadQueueByName(this._loadingSubsectionName);
-				if (preloadAssetsLoadQueue && preloadAssetsLoadQueue.numItems && progressBar)
-				{
-					progressBar.source = preloadAssetsLoadQueue;
-					preloadAssetsLoadQueue.addEventListener(LoadQueueEvent.ASSET_ADDED, this._preloadAssetAddedHandler, false, 0, true);
-					preloadAssetsLoadQueue.addEventListener(LoadQueueEvent.ASSET_COMPLETE, this._preloadAssetCompleteHandler, false, 0, true);
-				}
-			}*/
+
 			progressBar.mode = ProgressBarMode.MANUAL;
 			this.__cumulativeProgressBar = progressBar;
 		}
@@ -180,7 +170,7 @@ package inky.framework.core
 		 */
 		public function get currentSubsection():Section
 		{
-			return this.navigationManager.getCurrentSubsection(this);
+			return this.inky_internal::getNavigationManager().getCurrentSubsection(this);
 		}
 
 
@@ -209,27 +199,13 @@ package inky.framework.core
 			}
 			
 			if (!progressBar) return;
-/*	
-			// If a subsection is currently loading, set the item progress bar source to the first item in its load queue.
-			if (this._info && this._info.getSubsectionInfoByName(this._loadingSubsectionName))
-			{
-				var preloadAssetsLoadQueue:LoadQueue = this._getPreloadAssetsLoadQueueByName(this._loadingSubsectionName);
-				if (preloadAssetsLoadQueue && preloadAssetsLoadQueue.numItems && progressBar)
-				{
-					progressBar.source = preloadAssetsLoadQueue.getItemAt(0);
-					preloadAssetsLoadQueue.addEventListener(LoadQueueEvent.ASSET_COMPLETE, this._preloadAssetCompleteHandler, false, 0, true);
-				}
-			}
-			progressBar.mode = ProgressBarMode.EVENT;
-*/
+
 			this.__itemProgressBar = progressBar;
 		}
 
 
 		/**
-		 *
-		 *	
-		 *	
+		 * @private
 		 */
 		public function get markupObjectManager():MarkupObjectManager
 		{
@@ -293,7 +269,7 @@ package inky.framework.core
 		 */
 		public function get numSubsections():int
 		{
-			return this.getInfo().numSubsections;
+			return this.inky_internal::getInfo().numSubsections;
 		}
 
 
@@ -321,7 +297,7 @@ package inky.framework.core
 		 */
 		public function get sPath():SPath
 		{
-			return this._sPath || this.getInfo().sPath;
+			return this._sPath || this.inky_internal::getInfo().sPath;
 		}
 
 
@@ -417,16 +393,26 @@ package inky.framework.core
 		 */		 		 		 		
 		public function cancelFetchAsset(asset:Object):void
 		{
-			this.loadManager.cancelFetchAsset(asset);
+			this.inky_internal::getLoadManager().cancelFetchAsset(asset);
 		}
 
 
 		/**
-		 * @private
+		 * 
 		 */
 		public function close():void
 		{
-			this.gotoSection('..', this.navigationManager.initializeOptions);
+			this.gotoSection('..', this.inky_internal::getNavigationManager().initializeOptions);
+		}
+
+
+		/**
+		 *
+		 * Invoked immediately before the section is destroyed.
+		 *		
+		 */
+		public function destroy():void
+		{
 		}
 
 
@@ -479,7 +465,7 @@ package inky.framework.core
 		 */
 		public function fetchAsset(asset:Object, callback:Function = null):void
 		{
-			this.loadManager.fetchAsset(asset, callback);
+			this.inky_internal::getLoadManager().fetchAsset(asset, callback);
 		}
 
 
@@ -498,7 +484,7 @@ package inky.framework.core
 		 */
 		public function fetchAssetNow(asset:Object, callback:Function = null):void
 		{
-			this.loadManager.fetchAssetNow(asset, callback);
+			this.inky_internal::getLoadManager().fetchAssetNow(asset, callback);
 		}
 
 
@@ -597,7 +583,7 @@ package inky.framework.core
 				// Delegate navigation to the master.
 				if (this == this.master)
 				{
-					this.navigationManager.gotoSection(sPath, options);
+					this.inky_internal::getNavigationManager().gotoSection(sPath, options);
 				}
 				else
 				{
@@ -795,7 +781,7 @@ package inky.framework.core
 
 			if (this == this.master)
 			{
-				var info:SectionInfo = this.getInfo();
+				var info:SectionInfo = this.inky_internal::getInfo();
 				for (var i:uint = 0; i < absoluteSPath.length; i++)
 				{
 					var name:String = absoluteSPath.getItemAt(i) as String;
@@ -932,12 +918,11 @@ package inky.framework.core
 
 
 		/**
-		 * @private
 		 *	
 		 * Destroys a section so that it doesn't take up room in memory.
 		 * 
 		 */
-		public function destroy():void
+		private function _destroy():void
 		{
 			// Remove any links between owned objects and this section.
 			for (var obj:Object in Section._objects2Sections)
@@ -952,7 +937,7 @@ package inky.framework.core
 			this.markupObjectManager.destroy();
 			
 			// Destroy the loadManager.
-			this.loadManager.destroy();
+			this.inky_internal::getLoadManager().destroy();
 
 			Section.setSection(this, undefined);
 
@@ -967,31 +952,11 @@ package inky.framework.core
 			// Remove event listeners.
 			this.removeEventListener(Event.ADDED, this._initTimelineMarkupObject);
 			this.removeEventListener(Event.ADDED_TO_STAGE, this._addedToStageHandler);
+			
+			this.destroy();
 		}
 
 		
-		/**
-		 *
-		 *	
-		 *	
-		 */
-		public function get loadManager():LoadManager
-		{
-			return this._loadManager;
-		}
-
-
-		/**
-		 *
-		 *	
-		 *	
-		 */
-		public function get navigationManager():NavigationManager
-		{
-			return this.master._navigationManager;
-		}
-
-
 		/**
 		 *
 		 *	
@@ -1036,7 +1001,7 @@ package inky.framework.core
 		 */
 		private function _initTimelineMarkupObject(e:Event):void
 		{
-			if (this.getInfo() && this.master && (e.currentTarget != e.target) && !(e.target is Section))
+			if (this.inky_internal::getInfo() && this.master && (e.currentTarget != e.target) && !(e.target is Section))
 			{
 				Section.getSection(e.target).markupObjectManager.setData(e.target);
 			}
@@ -1050,7 +1015,7 @@ package inky.framework.core
 		private function _outroCompleteHandler(e:Event):void
 		{
 			e.currentTarget.removeEventListener(e.type, arguments.callee);
-			this.destroy();
+			this._destroy();
 			this.dispatchEvent(new Event('leaveComplete'));
 		}
 
@@ -1162,6 +1127,7 @@ setTimeout(function (target:Object) {
 
 
 
+
 		//
 		// internal methods
 		//
@@ -1174,10 +1140,31 @@ setTimeout(function (target:Object) {
 		 * Gets the SectionInfo object for this Section.
 		 * 
 		 */
-		public function getInfo():SectionInfo
+		inky_internal function getInfo():SectionInfo
 		{
 // TODO: Remove this method
 			return this._info;
+		}
+
+		/**
+		 *
+		 * @private
+		 *	
+		 */
+		inky_internal function getLoadManager():LoadManager
+		{
+			return this._loadManager;
+		}
+
+
+		/**
+		 *
+		 * @private	
+		 *	
+		 */
+		inky_internal function getNavigationManager():NavigationManager
+		{
+			return this.master._navigationManager;
 		}
 
 
@@ -1188,7 +1175,7 @@ setTimeout(function (target:Object) {
 		 * Sets the SectionInfo object for this Section.
 		 * 
 		 */
- 		public function setInfo(info:SectionInfo):void
+ 		inky_internal function setInfo(info:SectionInfo):void
 		{
 // TODO: Remove this method
 			this._info = info;

@@ -11,7 +11,7 @@ package inky.framework.binding
 	
 	/**
 	 *
-	 * 
+	 * Manages binding. This class should be considered an implementation detail and is subject to change.
 	 * 
 	 * @langversion ActionScript 3
 	 * @playerversion Flash 9.0.0

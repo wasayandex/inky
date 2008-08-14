@@ -17,6 +17,8 @@ package inky.framework.utils
 	 * &lt;/inky:Application>
 	 * </listing>
 	 *	
+	 * <p>This class should be considered an implementation detail and is subject to change.</p>
+	 *	
 	 * @see http://code.google.com/p/inky/wiki/Routing
 	 * 
 	 * @langversion ActionScript 3

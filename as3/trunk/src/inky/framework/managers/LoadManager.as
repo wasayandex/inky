@@ -25,7 +25,8 @@ package inky.framework.managers
 	
 	/**
 	 *
-	 *  ..
+	 *	Handles the loading for a section. This class should be considered an
+	 *	implementation detail and is subject to change.
 	 *	
 	 * 	@langversion ActionScript 3
 	 *	@playerversion Flash 9.0.0
@@ -278,7 +279,7 @@ LoadManager._masterSection = LoadManager._masterSection || section;
 			var sPath:SPath = target as SPath;
 
 			// Get the section's info.
-			var info:SectionInfo = context.getInfo().getSectionInfoBySPath(sPath);
+			var info:SectionInfo = context.inky_internal::getInfo().getSectionInfoBySPath(sPath);
 
 			// Get the section's data.
 			var data:XML = info.inky_internal::getData();

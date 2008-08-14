@@ -4,6 +4,9 @@ package inky.framework.binding
 
 	/**
 	 *
+	 * An object that stores information about a single instance of
+	 * databinding. This class should be considered an implementation detail
+	 * and subject to change.
 	 * 
 	 * 
 	 * @langversion ActionScript 3
