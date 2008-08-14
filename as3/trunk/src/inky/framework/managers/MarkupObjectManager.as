@@ -9,6 +9,8 @@ package inky.framework.managers
 	import flash.utils.describeType;
 	import flash.utils.getDefinitionByName;
 	import flash.utils.Dictionary;
+	import inky.framework.binding.Binding;
+	import inky.framework.binding.BindingManager;
 	import inky.framework.core.inky;
 	import inky.framework.core.inky_internal;
 	import inky.framework.core.IInkyDataParser;
@@ -46,10 +48,8 @@ package inky.framework.managers
 		ActionSequence;
 		ActionGroup;
 
-		private var _bindings:Dictionary;
-		private static var _bindingTags:Object = {};
+		private var _bindingManager:BindingManager;
 		private var _section:Section;
-		private var _unresolvedBindings:Object;
 		private static var _sections2MarkupObjectFactories:Dictionary = new Dictionary(true);
 		private var _idMarkupObjects:Object;
 		private var _data2MarkupObjects:E4XHashMap;
@@ -73,8 +73,7 @@ package inky.framework.managers
 		public function MarkupObjectManager(section:Section)
 		{
 			this._section = section;
-			this._bindings = new Dictionary(true);
-			this._unresolvedBindings = {};
+			this._bindingManager = new BindingManager(section);
 			this._initializedNonmarkupObjects = new Dictionary(true);
 			MarkupObjectManager._sections2MarkupObjectFactories[section] = this;
 			this._idMarkupObjects = {};
@@ -293,23 +292,9 @@ if (this._getMarkupObjectByData(this._section, tmp) != this._section)
 
 									break;
 								case 'Binding':
-// TODO: BINDING: this is already being done on source expression in _setBoundValue. Can we centralize it?
-									// Create a list of bindings so that we
-									// will be able to create the binding once
-									// the destination object is created.
-									var t:Array = xml.@destination.toString().split('.');
-									var id:String = t.shift() as String;
-									MarkupObjectManager._bindingTags[id] = MarkupObjectManager._bindingTags[id] || [];
-									MarkupObjectManager._bindingTags[id].push({source: xml.@source.toString(), destination: t.join('.')});
-
-									// If the destination already exists, bind it immediately.
-									var destinationObj:Object = this._getMarkupObjectById(this._section, id);
-									if (destinationObj)
-									{
-// TODO: BINDING: isn't this going to redo other bindings? We really only need to do this one!
-										this._resolveBindings(this._section, destinationObj);
-									}
-
+									// Create the binding.
+									var binding:Binding = this._bindingManager.parseBinding(xml.@source, xml.@destination);
+									this._bindingManager.executeBinding(binding);
 									break;
 								case 'Number':
 									if (xml.hasSimpleContent())
@@ -438,19 +423,6 @@ Debugger.traceWarning(error);
 		 */
 		public function destroy():void
 		{
-			// Although binding sources are stored with a weak reference, they
-			// may not be immediately garbage collected. To insure that
-			// instances "in limbo" do not trigger updates, remove their event
-			// listeners.
-			for (var source:Object in this._bindings)
-			{
-				if (source is IEventDispatcher)
-				{
-					source.removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE, this._propertyChangeHandler);
-					source.removeEventListener(Event.CHANGE, this._propertyChangeHandler);
-				}
-				delete this._bindings[source];
-			}
 //!
 var orphans:Object = MarkupObjectManager._orphanAssets[this._section.sPath.toString()];
 if (orphans)
@@ -462,7 +434,7 @@ if (orphans)
 	delete MarkupObjectManager._orphanAssets[this._section.sPath.toString()];
 }
 
-
+			this._bindingManager.destroy();
 
 			this._initializedMarkupObjects.removeAll();
 			this._data2MarkupObjects.removeAll();
@@ -473,10 +445,19 @@ if (orphans)
 			this._noIdMarkupObjects = undefined;
 			this._data2MarkupObjects = undefined;
 			this._initializedNonmarkupObjects = undefined;
-			this._unresolvedBindings = undefined;
 			this._section = undefined;
 			this._idMarkupObjects = undefined;
-			this._bindings = undefined;
+		}
+
+
+		/**
+		 *
+		 * 
+		 * 
+		 */
+		public function getMarkupObjectById(id:String):Object
+		{
+			return this._getMarkupObjectByIdHelper(this._section.master, id);
 		}
 
 
@@ -581,10 +562,10 @@ if (orphans)
 						this.parseData(obj, data as XML);
 					}
 				}
-
-				// Resolved any unresolved bindings.
-				this._resolveBindings(this._section, obj);
 			}
+
+			// Resolved any unresolved bindings.
+			this._bindingManager.executeUnresolvedBindings();
 
 // TODO: Should this be here? It's a little random.
 // Initialize the navigation controller.
@@ -620,7 +601,8 @@ if (obj == this._section.master)
 				if ((trimmedStr.charAt(0) == '{') && (trimmedStr.charAt(trimmedStr.length - 1) == '}'))
 				{
 					// Value is bound to another value using {id} syntax
-					this._setBoundValue(this._section, obj, propName, trimmedStr.substr(1, -2));
+					var binding:Binding = this._bindingManager.parseBinding2(obj, propName, trimmedStr.substr(1, -2));
+					this._bindingManager.executeBinding(binding);
 					return;
 				}
 				else
@@ -690,46 +672,6 @@ private static function _destroyMarkupObject(context:Object, obj:Object):void
 	context._data2MarkupObjects.removeItemByKey(data);
 	delete context._markupObjects2Data[obj];
 	context._initializedMarkupObjects.removeItemByKey(obj);
-
-	/*delete this._noIdMarkupObjects = undefined;
-	delete this._unresolvedBindings = undefined;
-	delete this._idMarkupObjects = undefined;
-	this._bindings*/
-	
-	
-	/*
-				private var _bindings:Dictionary;
-				private static var _bindingTags:Object = {};
-				private var _section:Section;
-				private var _unresolvedBindings:Object;
-				private static var _sections2MarkupObjectFactories:Dictionary = new Dictionary(true);
-				private var _idMarkupObjects:Object;
-				private var _data2MarkupObjects:E4XHashMap;
-				private var _noIdMarkupObjects:Array;
-				private var _markupObjects2Data:Dictionary;
-				private var _initializedMarkupObjects:E4XHashMap;
-				private var _initializedNonmarkupObjects:Dictionary;
-		//!
-				private static var _orphanAssets:Object = {};
-
-
-
-
-	this._initializedMarkupObjects.removeAll();
-	this._data2MarkupObjects.removeAll();
-	delete MarkupObjectManager._sections2MarkupObjectFactories[this._section];
-
-	this._markupObjects2Data = undefined;
-	this._initializedMarkupObjects = undefined;
-	this._noIdMarkupObjects = undefined;
-	this._data2MarkupObjects = undefined;
-	this._initializedNonmarkupObjects = undefined;
-	this._unresolvedBindings = undefined;
-	this._section = undefined;
-	this._idMarkupObjects = undefined;
-	this._bindings = undefined;
-	*/
-	
 }
 
 
@@ -825,18 +767,7 @@ private static function _destroyMarkupObject(context:Object, obj:Object):void
 
 		/**
 		 *
-		 * 
-		 * 
-		 */
-		private function _getMarkupObjectById(context:Object, id:String):Object
-		{
-			return this._getMarkupObjectByIdHelper(context.master, id);
-		}
-
-
-		/**
-		 *
-		 * Should not be called directly. Use _getMarkupObjectById().
+		 * Should not be called directly. Use getMarkupObjectById().
 		 * 
 		 */
 		private function _getMarkupObjectByIdHelper(context:Object, id:String):Object
@@ -923,272 +854,6 @@ MarkupObjectManager._sections2MarkupObjectFactories[context]._markupObjects2Data
 			return MarkupObjectManager._sections2MarkupObjectFactories[context]._initializedNonmarkupObjects[obj] || MarkupObjectManager._sections2MarkupObjectFactories[context]._initializedMarkupObjects.containsKey(obj) || (context.currentSubsection && this._isInitializedComponentHelper(context.currentSubsection, obj));
 		}
 
-
-		/**
-		 *
-		 * 
-		 * 
-		 */
-		private function _propertyChangeHandler(e:Event):void
-		{
-			var source:Object;
-			var sourceProp:String;
-			var update:Boolean;
-			var newValue:Object;
-			var updateAllBoundProperties:Boolean = false;
-			var obj:Object;
-
-			if (e is PropertyChangeEvent)
-			{
-				var evt:PropertyChangeEvent = e as PropertyChangeEvent;
-				source = evt.source;
-// TODO: Support qname (not just string) properties
-				sourceProp = String(evt.property);
-				update = evt.kind == PropertyChangeEventKind.UPDATE;
-				newValue = evt.newValue;
-			}
-			else
-			{
-				source = e.currentTarget;
-				update = true;
-
-				// Special handling for CHANGE events.
-				if (e.type == Event.CHANGE)
-				{
-					updateAllBoundProperties = true;
-				}
-				else
-				{
-					throw new Error('Unsupported binding!');
-				}
-			}
-
-			// Update the bound values.
-			if (update)
-			{
-				var properties2Update:Array;
-				var prop:String;
-				if (updateAllBoundProperties)
-				{
-					// Update all the bound properties on the source.
-					for (sourceProp in this._bindings[source])
-					{
-						newValue = source[sourceProp];
-						for (obj in this._bindings[source][sourceProp])
-						{
-							properties2Update = this._bindings[source][sourceProp][obj];
-							for each (prop in properties2Update)
-							{
-// TODO: only set value if it's changed?
-								MarkupObjectManager._setValue(obj, prop, newValue);
-							}
-						}
-					}
-				}
-				else
-				{
-					newValue = source[sourceProp];
-					// Update only a specific bound property.
-					for (obj in this._bindings[source][sourceProp])
-					{
-						properties2Update = this._bindings[source][sourceProp][obj];
-						for each (prop in properties2Update)
-						{
-// TODO: only set value if it's changed?
-							MarkupObjectManager._setValue(obj, prop, newValue);
-						}
-					}
-				}
-			}
-			else
-			{
-				throw new Error('Unsupported binding kind!');
-			}
-		}
-
-
-		/**
-		 *
-		 * Resolves values that are bound to the given object.
-		 * 
-		 */
-		private function _resolveBindings(context:Object, obj:Object, id:String = null):void
-		{
-			// Handle unresolved bindings.
-			id = id || this._getMarkupObjectId(context, obj);
-
-			if (id && this._unresolvedBindings[id])
-			{
-				for (var dest:Object in this._unresolvedBindings[id])
-				{
-					for each (var args:Array in this._unresolvedBindings[id][dest])
-					{
-						args = args.slice();
-						args.unshift(dest);
-						args.push(false);
-						args.unshift(context);
-						this._setBoundValue.apply(null, args)
-					}
-				}
-			}
-
-			// Handle binding tags.
-			if (id)
-			{
-// TODO: BINDING: Can we get rid of the binding tags list and use the same list for values bound with Binding tags and bracket notation??
-				for each (var bindingTagData:Object in MarkupObjectManager._bindingTags[id])
-				{
-// TODO: BINDING: This is already being done for the source expression in _setBoundValue. Can we centralize it?
-					// Get the property.
-					var propertyChain:Array = bindingTagData.destination.split('.');
-					var tmp:Object = obj;
-					for (var i:uint = 0; i < propertyChain.length - 1; i++)
-					{
-						var prop:String = propertyChain[i];
-						tmp = tmp[prop];
-					}
-
-					this._setBoundValue(context, tmp, propertyChain[propertyChain.length - 1], bindingTagData.source);
-				}
-			}
-
-			if (context.owner)
-			{
-				this._resolveBindings(context.owner, obj, id);
-			}
-		}
-
-
-		/**
-		 *
-		 * 
-		 * 
-		 */
-		private function _setBoundValue(context:Object, obj:Object, property:Object, expression:String, addToUnresolvedBindings:Boolean = true):Boolean
-		{
-// TODO: Support qname (not just string) properties
-			var propName:String = String(property);
-
-			//
-			// Handle "special" expressions (true, false, null, etc.)
-			//
-
-			if (expression == 'true')
-			{
-				MarkupObjectManager._setValue(obj, property, true);
-				return true;
-			}
-			else if (expression == 'false')
-			{
-				MarkupObjectManager._setValue(obj, property, false);
-				return true;
-			}
-			else if (expression == 'null')
-			{
-				MarkupObjectManager._setValue(obj, property, null);
-				return true;
-			}
-			else if (expression == 'undefined')
-			{
-				MarkupObjectManager._setValue(obj, property, undefined);
-				return true;
-			}
-
-			//
-			// Parse the expression
-			//
-
-			var argsStr:String;
-			var target:Object;
-			var segment:String;
-			var segments:Array = expression.replace(/;$/, '').split('.');
-			var source:Object;
-			var sourceProp:String;
-			var i:uint;
-			var fnName:String;
-			var id:String = segments[0];
-
-			target = this._getMarkupObjectById(context, id);
-			source = target;
-
-			if ((target == null) || !this._isInitializedComponent(target))
-			{
-				// The object to which this binding points has not yet been initialized. At it to a list to be dealt with later.
-				if (addToUnresolvedBindings)
-				{
-// TODO: BINDING: What do we even need _unresolvedBindings for any more? Why not just use _bindings if they're never removed from the list anyway? Are we in trouble if something doesn't get added to the list, and then you navigate to a different section and back?
-					this._unresolvedBindings[id] = this._unresolvedBindings[id] || new Dictionary(true);
-					this._unresolvedBindings[id][obj] = this._unresolvedBindings[id][obj] || [];
-					this._unresolvedBindings[id][obj].push([propName, expression]);
-				}
-				return false;
-			}
-			else
-			{
-				for (i = 1; i < segments.length; i++)
-				{
-					segment = segments[i];
-					var openParenIndex:int = segment.indexOf('(');
-
-					if (openParenIndex > -1)
-					{
-						// Segment is method call.
-						fnName = segment.substring(0, openParenIndex);
-						argsStr = segment.substring(openParenIndex + 1, segment.indexOf(')'));
-						var args:Array = [];
-
-						if (!target[fnName])
-						{
-							throw new Error('Binding Error: Could not find "' + segments.slice(0, i + 1).join('.') + '"');
-						}
-
-						for each (var arg:String in argsStr.split(','))
-						{
-							args.push(MarkupObjectManager._deserializeValue(arg.replace(/^[\s]*/, '').replace(/[\s]*$/, '')));
-						}
-
-						target = target[fnName].apply(null, args);
-					}
-					else
-					{
-						if (!target.hasOwnProperty(segment))
-						{
-							throw new Error('Binding Error: Could not find "' + segments.slice(0, i + 1).join('.') + '"');
-							break;
-						}
-						else if (i == segments.length - 1)
-						{
-							sourceProp = segment;
-						}
-						target = target[segment];
-					}
-
-					if (i != segments.length - 1)
-					{
-						source = target;
-					}
-				}
-
-				MarkupObjectManager._setValue(obj, propName, target);
-
-				if (sourceProp)
-				{
-					// Remember bound properties.
-					this._bindings[source] = this._bindings[source] || {};
-					this._bindings[source][sourceProp] = this._bindings[source][sourceProp] || new Dictionary(true);
-					this._bindings[source][sourceProp][obj] = this._bindings[source][sourceProp][obj] || [];
-					this._bindings[source][sourceProp][obj].push(propName);
-
-					if (source is IEventDispatcher)
-					{
-						source.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, this._propertyChangeHandler, false, 0, true);
-						source.addEventListener(Event.CHANGE, this._propertyChangeHandler, false, 0, true);
-					}
-				}
-			}
-
-			return true;
-		}
 
 //!
 private static function _setOrphanAsset(context:Object, obj:Object, sPath:String):void
