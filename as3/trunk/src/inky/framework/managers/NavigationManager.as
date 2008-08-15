@@ -407,7 +407,7 @@ package inky.framework.managers
 			}
 
 			this._cmdQueue.push({type: '__preload', name: sPath, context: section});
-			this._cmdQueue.push({type: '__removeProgressBars'});
+			this._cmdQueue.push({type: '__removeProgressBars', context: section});
 
 			// Insert "leaveSubsection" commands for each section to leave.
 			for (i = index; i < this._currentSPath.length; i++)
@@ -642,16 +642,9 @@ package inky.framework.managers
 		 */
 		private function __removeProgressBars(cmd:Object):void
 		{
-			var section:Section = this._getLeafSection();
-			if (section.hasProgressBars())
-			{
-				this._addCommandCompleteListener(cmd, section, 'removeProgressBarsComplete');
-				section.removeProgressBars();
-			}
-			else 
-			{
-				this._commandCompleteHandler();
-			}
+			var loadManager:LoadManager = cmd.context.inky_internal::getLoadManager();
+			this._addCommandCompleteListener(cmd, loadManager, 'removeProgressBarsComplete');
+			loadManager.removeProgressBars();
 		}
 
 

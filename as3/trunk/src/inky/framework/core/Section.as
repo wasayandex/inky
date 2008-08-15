@@ -70,9 +70,9 @@ package inky.framework.core
 	 */
 	public class Section extends TransitioningMovieClip implements IInkyDataParser
 	{
-		private var __cumulativeProgressBar:IProgressBar;
+		private var __cumulativeProgressBar:DisplayObject;
 		private var _info:SectionInfo;
-		private var __itemProgressBar:IProgressBar;
+		private var __itemProgressBar:DisplayObject;
 		private var _isRegistered:Boolean;
 		private var _loadManager:LoadManager;
 		private var _markupObjectManager:MarkupObjectManager;
@@ -137,25 +137,31 @@ package inky.framework.core
 		 * @default null
 		 * 
 		 */
-		public function get cumulativeProgressBar():IProgressBar
+		public function get cumulativeProgressBar():DisplayObject
 		{
 			return this.__cumulativeProgressBar;
 		}
 		/**
 		 * @private
 		 */		 		
-		public function set cumulativeProgressBar(progressBar:IProgressBar):void
+		public function set cumulativeProgressBar(progressBar:DisplayObject):void
 		{
 			// Unregister the old queue progress bar.
-			if (this.cumulativeProgressBar)
+			var oldProgressBar:IProgressBar = this.cumulativeProgressBar as IProgressBar;
+			if (oldProgressBar)
 			{
-				this.cumulativeProgressBar.source = null;
+				oldProgressBar.source = null;
 			}
 
 			if (!progressBar) return;
+			
+			if (progressBar is IProgressBar)
+			{
+				(progressBar as IProgressBar).mode = ProgressBarMode.MANUAL;
+			}
 
-			progressBar.mode = ProgressBarMode.MANUAL;
 			this.__cumulativeProgressBar = progressBar;
+			Section.setSection(this.__cumulativeProgressBar, this);
 		}
 
 
@@ -183,24 +189,26 @@ package inky.framework.core
 		 * @default null
 		 * 
 		 */
-		public function get itemProgressBar():IProgressBar
+		public function get itemProgressBar():DisplayObject
 		{
 			return this.__itemProgressBar;
 		}
 		/**
 		 * @private
 		 */
-		public function set itemProgressBar(progressBar:IProgressBar):void
+		public function set itemProgressBar(progressBar:DisplayObject):void
 		{
 			// Unregister the old item progress bar.
-			if (this.itemProgressBar)
+			var oldProgressBar:IProgressBar = this.cumulativeProgressBar as IProgressBar;
+			if (oldProgressBar)
 			{
-				this.itemProgressBar.source = null;
+				oldProgressBar.source = null;
 			}
 			
 			if (!progressBar) return;
 
 			this.__itemProgressBar = progressBar;
+			Section.setSection(this.__itemProgressBar, this);
 		}
 
 
@@ -317,7 +325,7 @@ package inky.framework.core
 		 *     The progress bar to add to the stage.
 		 * 
 		 */
-		public function addItemProgressBar(progressBar:IProgressBar):void
+		public function addItemProgressBar(progressBar:DisplayObject):void
 		{
 			this._addProgressBar(progressBar);
 		}
@@ -333,7 +341,7 @@ package inky.framework.core
 		 *     The progress bar to add to the stage.
 		 * 
 		 */
-		public function addCumulativeProgressBar(progressBar:IProgressBar):void
+		public function addCumulativeProgressBar(progressBar:DisplayObject):void
 		{
 			this._addProgressBar(progressBar);
 		}
@@ -703,7 +711,7 @@ package inky.framework.core
 		 *     The progress bar to remove from the stage.
 		 * 
 		 */
-		public function removeItemProgressBar(progressBar:IProgressBar):void
+		public function removeItemProgressBar(progressBar:DisplayObject):void
 		{
 			this._removeProgressBar(progressBar);
 		}
@@ -717,7 +725,7 @@ package inky.framework.core
 		 *     The progress bar to remove from the stage.
 		 * 
 		 */
-		public function removeCumulativeProgressBar(progressBar:IProgressBar):void
+		public function removeCumulativeProgressBar(progressBar:DisplayObject):void
 		{
 			this._removeProgressBar(progressBar);
 		}
@@ -738,27 +746,6 @@ package inky.framework.core
 			return !!this.cumulativeProgressBar || !!this.itemProgressBar;
 		}
 		
-
-		/**
-		 * @private
-		 *	
-		 * Removes the defined progress bars from display list. This method is
-		 * invoked by the framework to remove any present progress bars from
-		 * the stage.
-		 * 
-		 */
-		public function removeProgressBars():void
-		{
-			if (this.itemProgressBar)
-			{
-				this._removeProgressBar(itemProgressBar);
-			}
-			if (this.cumulativeProgressBar)
-			{
-				this._removeProgressBar(this.cumulativeProgressBar);
-			}
-		}
-
 
 		/**
 		 * @private
@@ -807,8 +794,6 @@ package inky.framework.core
 			
 				if (owner && obj is Section)
 				{
-					if (!obj.itemProgressBar) obj.itemProgressBar = owner.itemProgressBar;
-					if (!obj.cumulativeProgressBar) obj.cumulativeProgressBar = owner.cumulativeProgressBar;
 					obj._master = owner._master || owner;
 				}
 			}
@@ -886,7 +871,7 @@ package inky.framework.core
 		 * Adds the progress bar to the display list
 		 * 
 		 */
-		private function _addProgressBar(progressBar:IProgressBar):void
+		private function _addProgressBar(progressBar:DisplayObject):void
 		{
 			var pb:Object = progressBar as Object;
 
@@ -977,8 +962,8 @@ package inky.framework.core
 			
 			this.addEventListener(Event.ADDED_TO_STAGE, this._addedToStageHandler, false, 0, true);
 
-			this.itemProgressBar = this.getChildByName('_itemProgressBar') as IProgressBar || this.itemProgressBar;
-			this.cumulativeProgressBar = this.getChildByName('_cumulativeProgressBar') as IProgressBar || this.cumulativeProgressBar;
+			this.itemProgressBar = this.getChildByName('_itemProgressBar') as DisplayObject || this.itemProgressBar;
+			this.cumulativeProgressBar = this.getChildByName('_cumulativeProgressBar') as DisplayObject || this.cumulativeProgressBar;
 			/*if (this.itemProgressBar) this.removeChild(this.itemProgressBar as DisplayObject);
 			if (this.cumulativeProgressBar) this.removeChild(this.cumulativeProgressBar as DisplayObject);*/
 		}
@@ -1025,7 +1010,7 @@ package inky.framework.core
 		 * Removes the progress bar the from display list
 		 * 
 		 */
-		private function _removeProgressBar(progressBar:IProgressBar):void
+		private function _removeProgressBar(progressBar:DisplayObject):void
 		{
 			var pb:Object = progressBar as Object;
 			if (pb.parent && pb is ITransitioningObject && pb.state == TransitioningObjectState.PLAYING_INTRO)
@@ -1052,79 +1037,15 @@ package inky.framework.core
 				pb = pb.target;
 			}
 
-			if (pb.parent)
+			if (pb is ITransitioningObject && !(pb.state == TransitioningObjectState.PLAYING_OUTRO))
 			{
-				var section:Section = this;
-				
-				// _removeProgressBarCompleteHandler will dispatch an event
-				// that NavigationManager.__removeProgressBars is expecting.
-				pb.addEventListener(Event.REMOVED_FROM_STAGE, section._removeProgressBarCompleteHandler);
-				if (pb is ITransitioningObject && !(pb.state == TransitioningObjectState.PLAYING_OUTRO))
-				{
-					pb.remove();
-				}
-				else if (pb is DisplayObject)
-				{
-					pb.parent.removeChild(pb as DisplayObject);
-				}
+				pb.remove();
 			}
-			else
+			else if (pb is DisplayObject)
 			{
-				// _removeProgressBarCompleteHandler will dispatch an event
-				// that NavigationManager.__removeProgressBars is expecting.
-				this._removeProgressBarCompleteHandler();
+				pb.parent.removeChild(pb as DisplayObject);
 			}
 		}
-		
-		
-		/**
-		 *
-		 * Dispatches 'removeProgressBarsComplete' event if all progress bars are removed.
-		 * The NavigationManager.__removeProgressBars command will be listening for this
-		 * event before continuing to the next command in its queue.
-		 * 
-		 */
-		private function _removeProgressBarCompleteHandler(e:Event = null)
-		{
-			
-			var cumulativeRemoved:Boolean = false;
-			var itemRemoved:Boolean = false;
-			
-			if (e)
-			{
-				e.target.removeEventListener(e.type, arguments.callee);
-
-				if (e.target == this.cumulativeProgressBar)
-				{
-					cumulativeRemoved = true;
-				}
-				else if (e.target == this.itemProgressBar)
-				{
-					itemRemoved = true;
-				}
-			}
-
-			if (!this.itemProgressBar || !this.itemProgressBar.parent)
-			{
-				itemRemoved = true;
-			}
-
-			if (!this.cumulativeProgressBar || !this.cumulativeProgressBar.parent)
-			{
-				cumulativeRemoved = true;
-			}
-			
-			if (cumulativeRemoved && itemRemoved)
-			{
-// TODO: setTimeout? I mean, really?? This is avoiding the old 
-// event-fires-before-the-remove problem...
-import flash.utils.setTimeout;
-setTimeout(function (target:Object) {
-	target.dispatchEvent(new Event('removeProgressBarsComplete'));
-}, 0, this);
-			}
-		}
-
 
 
 
