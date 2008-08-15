@@ -1,6 +1,7 @@
 package inky.framework.core
 {
 	import flash.display.*;
+	import flash.events.Event;
 	import flash.net.URLRequest;
 	import flash.text.*;
 	import inky.framework.core.inky;
@@ -30,6 +31,7 @@ package inky.framework.core
 	public class Application extends Section
 	{
 		private var _data:XML;
+		private var _dataSource:Object;
 		private var _dataSourceIsSet:Boolean;
 
 
@@ -47,12 +49,7 @@ package inky.framework.core
 			{
 				this.dataSource = dataSource;
 			}
-			else
-			{
-				// If the dataSource property isn't set on the SWF, try to use
-				// the default value.
-				this.dataSource = new URLRequest(new Loader().contentLoaderInfo.loaderURL.split('.').slice(0, -1).join('.') + '.inky.xml');
-			}
+			this.addEventListener(Event.ENTER_FRAME, this._loadData);
 		}
 
 
@@ -80,17 +77,9 @@ package inky.framework.core
 		 */
 		public function set dataSource(dataSource:Object):void
 		{
-// TODO: Add a dataSource getter?
-			if (dataSource is XML)
-			{
-				this._init(dataSource as XML);
-			}
-			else if ((dataSource is String) || (dataSource is URLRequest))
-			{
-				var request:URLRequest = (dataSource as URLRequest) || new URLRequest(dataSource as String);
-				this.inky_internal::getLoadManager().loadData(request, this._init);
-			}
-			else
+			this._dataSource = dataSource;
+
+			if (!(dataSource is XML) && !(dataSource is String) && !(dataSource is URLRequest))
 			{
 				throw new Error('Application.dataSource may only be set to XML, a URL String, or a URLRequest.');
 			}
@@ -141,6 +130,32 @@ package inky.framework.core
 			this.inky_internal::setInfo(info);
 			this.markupObjectManager.setData(this, this._data);
 		}
+
+
+		/**
+		 *
+		 * Loads the XML file.	
+		 *	
+		 */
+		private function _loadData(e:Event):void
+		{
+			e.currentTarget.removeEventListener(e.type, arguments.callee);
+
+			if (this._dataSource is XML)
+			{
+				this._init(this._dataSource as XML);
+			}
+			else
+			{
+				if (this._dataSource == null)
+				{
+					this._dataSource = this.loaderInfo.loaderURL.split('.').slice(0, -1).join('.') + '.inky.xml';
+				}
+				var request:URLRequest = this._dataSource is URLRequest ? this._dataSource as URLRequest : new URLRequest(this._dataSource as String);
+				this.inky_internal::getLoadManager().loadData(request, this._init);
+			}
+		}
+
 
 
 
