@@ -5,6 +5,7 @@ package inky.addons.transitions
 	import inky.framework.core.IInkyDataParser;
 	import inky.framework.utils.IAction;
 	import flash.events.EventDispatcher;
+	import flash.events.Event;
 
 
 	/**
@@ -37,11 +38,15 @@ package inky.addons.transitions
 				}
 			}
 		}
-		
+
+
+
+
 		//
 		// accessors
 		//
-		
+
+
 		/**
 		 *
 		 * @inheritDoc
@@ -59,11 +64,19 @@ package inky.addons.transitions
 		{
 			this._target = target;
 		}
-				
+
+
+
+
 		//
 		// public methods
 		//
-		
+
+
+		/**
+		 *
+		 *	
+		 */
 		public function parseData(data:XML):void
 		{
 			for each (var item:XML in data.* + data.attributes())
@@ -73,6 +86,7 @@ package inky.addons.transitions
 			}
 		}
 
+
 		/**
 		 * @inheritDoc
 		 */
@@ -80,9 +94,35 @@ package inky.addons.transitions
 		{
 			if (!this.target) return;
 			
-			Tweener.addTween(this.target, {base:this, onComplete:this.dispatchEvent, onCompleteParams:[new ActionEvent(ActionEvent.ACTION_FINISH, false, false)]});
+			Tweener.addTween(this.target, {base: this, onComplete: this._completeHandler});
 			this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_START, false, false));
 			
-		}	
+		}
+
+
+		/**
+		 *
+		 *	
+		 */
+		private function _completeHandler(...args:Array):void
+		{
+			if (this.hasOwnProperty('onComplete'))
+			{
+				var onCompleteFunc:Function = this['onComplete'];
+				if (args && args.length)
+				{
+					onCompleteFunc.apply(null, args);
+				}
+				else
+				{
+					onCompleteFunc();
+				}
+			}
+			this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_FINISH, false, false));
+		}
+
+
+
+
 	}
 }
