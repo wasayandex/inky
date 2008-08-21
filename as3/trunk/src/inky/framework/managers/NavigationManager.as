@@ -336,7 +336,7 @@ package inky.framework.managers
 			// Resolve the SPath.
 			sPath = this._masterSection.inky_internal::getInfo().resolveSPath(sPath);
 			var info:SectionInfo = this._masterSection.inky_internal::getInfo().getSectionInfoBySPath(sPath);
-			this.initializeOptions = options || {};
+			this.initializeOptions = options || this.initializeOptions;
 
 			if (!info)
 			{
@@ -461,6 +461,14 @@ package inky.framework.managers
 		 */
  		private function _initializeSection(section:Section):void
 		{
+			// Allow the user to opt-out of the initialization process with by
+			// setting the _initialize flag of their options to false:
+			// mySection.gotoSection('..', {_initialize: false});
+			if (this.initializeOptions && this.initializeOptions.hasOwnProperty('_initialize') && (this.initializeOptions['_initialize'] == false))
+			{
+				return;
+			}
+			
 			var currentInitializeOptions:Object = this._currentInitializeOptions[section];
 			var initOptionsChanged:Boolean = currentInitializeOptions && this.initializeOptions ? false : true;
 			if (!initOptionsChanged)
