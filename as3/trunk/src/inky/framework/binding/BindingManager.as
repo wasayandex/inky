@@ -178,8 +178,12 @@ package inky.framework.binding
 			destination = destination.substr(0, dotIndex);
 			var destObjFunc:Function = this._parseExpression(destination);
 			dotIndex = source.lastIndexOf('.');
-			var srcProp:String = source.substr(dotIndex + 1);
-			source = source.substr(0, dotIndex);
+			var srcProp:String;
+			if (dotIndex != -1)
+			{
+				srcProp = source.substr(dotIndex + 1);
+				source = source.substr(0, dotIndex);
+			}
 			var srcObjFunc:Function = this._parseExpression(source);
 			
 			var binding:Binding = new Binding(srcObjFunc, srcProp, destObjFunc, destProp);
@@ -200,8 +204,12 @@ package inky.framework.binding
 				return destObj;
 			}
 			var dotIndex:int = source.lastIndexOf('.');
-			var srcProp:String = source.substr(dotIndex + 1);
-			source = source.substr(0, dotIndex);
+			var srcProp:String;
+			if (dotIndex != -1)
+			{
+			 	srcProp = source.substr(dotIndex + 1);
+				source = source.substr(0, dotIndex);
+			}
 			var srcObjFunc:Function = this._parseExpression(source);
 			var binding:Binding = new Binding(srcObjFunc, srcProp, destObjFunc, destProp);
 			this._unresolvedBindings.push(binding);
