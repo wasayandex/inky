@@ -8,12 +8,12 @@ package inky.framework.managers
 	import flash.utils.getDefinitionByName;
 	import inky.framework.core.inky_internal;
 	import inky.framework.core.Section;
+	import inky.framework.core.SPath;
 	import inky.framework.data.SectionInfo;
 	import inky.framework.events.SectionEvent;
 	import inky.framework.events.TransitionEvent;
 	import inky.framework.managers.LoadManager;
 	import inky.framework.utils.Debugger;
-	import inky.framework.utils.SPath;
 
 
 	/**
@@ -95,7 +95,7 @@ package inky.framework.managers
 		 * @param target
 		 *     The section to which to navigate, as represented by an SPath
 		 *     object or SPath string.
-		 * @see inky.framework.utils.SPath
+		 * @see inky.framework.core.SPath
 		 * @param options
 		 *     A map of options to use for the navigation. This map will be
 		 *     passed to the target section's <code>initialize</code> method
@@ -317,7 +317,7 @@ package inky.framework.managers
 		 * @param target
 		 *     The section to which to navigate, as represented by an SPath
 		 *     object or SPath string.
-		 * @see inky.framework.utils.SPath
+		 * @see inky.framework.core.SPath
 		 * @param options
 		 *     A map of options to use for the navigation. This map will be
 		 *     passed to the target section's <code>initialize</code> method

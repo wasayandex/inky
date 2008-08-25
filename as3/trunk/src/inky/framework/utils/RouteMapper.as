@@ -1,8 +1,8 @@
 package inky.framework.utils
 {
+	import inky.framework.core.SPath;
 	import inky.framework.utils.Debugger;
 	import inky.framework.utils.Route;
-	import inky.framework.utils.SPath;
 
 
 	/**

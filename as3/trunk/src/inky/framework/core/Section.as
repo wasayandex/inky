@@ -27,6 +27,7 @@ package inky.framework.core
 	import inky.framework.core.Application;
 	import inky.framework.core.IInkyDataParser;
 	import inky.framework.core.SectionOptions;
+	import inky.framework.core.SPath;
 	import inky.framework.data.SectionInfo;
 	import inky.framework.display.ITransitioningObject;
 	import inky.framework.display.TransitioningMovieClip;
@@ -39,7 +40,6 @@ package inky.framework.core
 	import inky.framework.net.IAssetLoader;
 	import inky.framework.net.LoadQueue;
 	import inky.framework.utils.IAction;
-	import inky.framework.utils.SPath;
 
 
     /**
@@ -241,7 +241,7 @@ package inky.framework.core
 		 * for navigating between sections, and for forming default routes.
 		 *
 		 * @see #gotoSection()
-		 * @see inky.framework.utils.SPath;
+		 * @see inky.framework.core.SPath;
 		 * 
 		 */
 		public override function get name():String
@@ -313,7 +313,7 @@ package inky.framework.core
 		 * The location of this section within the application, as represented
 		 * by an SPath object.
 		 *
-		 * @see inky.framework.utils.SPath
+		 * @see inky.framework.core.SPath
 		 * 
 		 */
 		public function get sPath():SPath
@@ -575,7 +575,7 @@ package inky.framework.core
 		 *     SPath objects or their string equivalents. If the path is not
 		 *     absolute, it will be resolved using the current section's SPath
 		 *     as a base.
-		 * @see inky.framework.utils.SPath
+		 * @see inky.framework.core.SPath
 		 * @param options
 		 *     (optional) A hash map of options that will be passed to the
 		 *     initialize function of the target section.

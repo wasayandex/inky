@@ -1,6 +1,6 @@
 package inky.framework.utils
 {
-	import inky.framework.utils.SPath;
+	import inky.framework.core.SPath;
 
 
 	/**

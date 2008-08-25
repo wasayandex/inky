@@ -18,11 +18,10 @@ package inky.framework.managers
 	import inky.framework.core.Section;
 	import inky.framework.core.inky;
 	import inky.framework.core.inky_internal;
+	import inky.framework.core.SPath;
 	import inky.framework.data.SectionInfo;
 	import inky.framework.net.LoadQueue;
 	import inky.framework.net.IAssetLoader;
-	import inky.framework.utils.SPath;
-
 
 	
 	/**
@@ -217,7 +216,7 @@ LoadManager._masterSection = LoadManager._masterSection || section;
 		 * @param target
 		 *     The series of subsections to be preloaded, as represented by
 		 *	   an SPath object or SPath string.
-		 * @see inky.framework.utils.SPath
+		 * @see inky.framework.core.SPath
 		 *	
 		 */
 		public function preload(target:Object):void

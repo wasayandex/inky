@@ -2,8 +2,8 @@ package inky.framework.data
 {
 	import inky.framework.core.inky;
 	import inky.framework.core.inky_internal;
+	import inky.framework.core.SPath;
 	import inky.framework.utils.RouteMapper;
-	import inky.framework.utils.SPath;
 	import com.exanimo.utils.URLUtil;
 	import flash.utils.getDefinitionByName;
 	
