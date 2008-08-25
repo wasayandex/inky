@@ -39,7 +39,7 @@ package inky.framework.managers
 		private var _currentSPath:SPath;
 		private var _currentSubsections:Dictionary;
 		private var _currentAddress:String;
-		public var initializeOptions:Object;
+		private var _sectionOptions:Object;
 		private var _masterSection:Section;
 		private var _nextSPath:SPath;
 
@@ -195,8 +195,6 @@ package inky.framework.managers
 		 */
 		public function initialize():void
 		{
-			/*this._cmdQueue.push({type: '__initialize'});
-			this._runCommandQueue();*/
 			SWFAddress.addEventListener(SWFAddressEvent.CHANGE, this._addressChangeHandler);
 		}
 
@@ -336,7 +334,7 @@ package inky.framework.managers
 			// Resolve the SPath.
 			sPath = this._masterSection.inky_internal::getInfo().resolveSPath(sPath);
 			var info:SectionInfo = this._masterSection.inky_internal::getInfo().getSectionInfoBySPath(sPath);
-			this.initializeOptions = options || this.initializeOptions;
+			this._sectionOptions = options || this._sectionOptions;
 
 			if (!info)
 			{
@@ -416,7 +414,7 @@ package inky.framework.managers
 			}
 
 			// Reinitialize the sections that have not been removed.
-			this._cmdQueue.push({type: '__reinitializeSections'});
+			this._cmdQueue.push({type: '__updateAllOptions'});
 
 			// Insert "gotoSubsection" commands for each subsection to go to.
 			for (i = index; i < sPath.length; i++)
@@ -444,14 +442,13 @@ package inky.framework.managers
 		 */
 		private function _init():void
 		{
-			this.initializeOptions = {};
+			this._sectionOptions = {};
 			this._cmdQueue = [];
 			this._currentInitializeOptions = new Dictionary(true);
 			this._currentSPath = new SPath();
 			this._currentSPath.absolute = true;
 			this._currentSubsections = new Dictionary(true);
 		}
-
 
 
 		/**
@@ -461,49 +458,8 @@ package inky.framework.managers
 		 */
  		private function _initializeSection(section:Section):void
 		{
-			// Allow the user to opt-out of the initialization process with by
-			// setting the _initialize flag of their options to false:
-			// mySection.gotoSection('..', {_initialize: false});
-			if (this.initializeOptions && this.initializeOptions.hasOwnProperty('_initialize') && (this.initializeOptions['_initialize'] == false))
-			{
-				return;
-			}
-			
-			var currentInitializeOptions:Object = this._currentInitializeOptions[section];
-			var initOptionsChanged:Boolean = currentInitializeOptions && this.initializeOptions ? false : true;
-			if (!initOptionsChanged)
-			{
-				var key:String;
-				for (key in currentInitializeOptions)
-				{
-					if (currentInitializeOptions[key] != this.initializeOptions[key])
-					{
-						initOptionsChanged = true;
-						break;
-					}
-				}
-
-				if (!initOptionsChanged)
-				{
-					for (key in this.initializeOptions)
-					{
-						if (currentInitializeOptions[key] != this.initializeOptions[key])
-						{
-							initOptionsChanged = true;
-							break;
-						}
-					}
-				}
-			}
-
-			if (initOptionsChanged)
-			{
-				this._currentInitializeOptions[section] = this.initializeOptions;
-				section.initialize(this.initializeOptions);
-			}
+			section.initialize();
 		}
-
-
 
 
 		/**
@@ -544,6 +500,16 @@ package inky.framework.managers
 				this._cmdQueue = [];
 				throw(error);
 			}
+		}
+
+
+		/**
+		 *
+		 *	
+		 */
+		private function _updateOptions(section:Section):void
+		{
+			section.options.update(this._sectionOptions);
 		}
 
 
@@ -610,7 +576,8 @@ package inky.framework.managers
 
 			// Initialize the subsection.
 			this._initializeSection(subsection);
-			
+			this._updateOptions(subsection);
+
 			if (!introIsFinished)
 			{
 				this._addCommandCompleteListener(cmd, subsection, TransitionEvent.TRANSITION_FINISH);
@@ -688,12 +655,12 @@ this._commandCompleteHandler();
 		 *
 		 *	
 		 */
-		private function __reinitializeSections(cmd:Object):void
+		private function __updateAllOptions(cmd:Object):void
 		{
 			var section:Section = this._masterSection;
 			while (section)
 			{
-				this._initializeSection(section);
+				this._updateOptions(section);
 				section = section.currentSubsection;
 			}
 

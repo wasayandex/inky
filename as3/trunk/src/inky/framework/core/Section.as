@@ -26,6 +26,7 @@ package inky.framework.core
 	import inky.framework.core.inky_internal;
 	import inky.framework.core.Application;
 	import inky.framework.core.IInkyDataParser;
+	import inky.framework.core.SectionOptions;
 	import inky.framework.data.SectionInfo;
 	import inky.framework.display.ITransitioningObject;
 	import inky.framework.display.TransitioningMovieClip;
@@ -80,6 +81,7 @@ package inky.framework.core
 		private var _name:String;
 		private var _navigationManager:NavigationManager;
 		private static var _objects2Sections:Dictionary = new Dictionary(true);
+		private var _options:SectionOptions;
 		private var _sPath:SPath;
 
 
@@ -283,6 +285,17 @@ package inky.framework.core
 
 		/**
 		 *
+		 *
+		 *
+		 */
+		public function get options():SectionOptions
+		{
+			return this._options;
+		}
+
+
+		/**
+		 *
 		 * The Section that owns this Section. In most cases, this is
 		 * equivalent to the first Section anscestor in the display list,
 		 * however, it is possible to create a Section that is not a
@@ -402,15 +415,6 @@ package inky.framework.core
 		public function cancelFetchAsset(asset:Object):void
 		{
 			this.inky_internal::getLoadManager().cancelFetchAsset(asset);
-		}
-
-
-		/**
-		 * 
-		 */
-		public function close():void
-		{
-			this.gotoSection('..', this.inky_internal::getNavigationManager().initializeOptions);
 		}
 
 
@@ -624,23 +628,10 @@ package inky.framework.core
 		
 		/**
 		 *
-		 * Initializes the section. Called by the framework when the Section is
-		 * ready. If the navigation was triggered by Section.gotoSection, this
-		 * method will be forwarded the second argument of that function. If
-		 * the navigation was triggered by a change in the browser state (back
-		 * button, deep link, etc.), the options argument will be a hash map
-		 * of the dynamic parts of the route.
-		 * 
-		 * Override this method if you want your section to have dynamic
-		 * content.
-		 *
-		 * @see inky.framework.utils.Route
-		 *
-		 * @param options
-		 *     A hash map containg the options for this section.
+		 * Initializes the section.
 		 * 
 		 */
-		public function initialize(options:Object):void
+		public function initialize():void
 		{
 		}
 
@@ -957,6 +948,7 @@ package inky.framework.core
 				throw new ArgumentError('Error #2012: Section$ class cannot be instantiated.');
 			}
 
+			this._options = new SectionOptions();
 			this._loadManager = new LoadManager(this);
 			this._markupObjectManager = new MarkupObjectManager(this);
 			
