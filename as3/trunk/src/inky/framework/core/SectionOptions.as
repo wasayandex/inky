@@ -1,6 +1,7 @@
 package inky.framework.core
 {
 	import flash.events.Event;
+	import inky.framework.events.SectionOptionsEvent;
 	import inky.framework.utils.ObjectProxy;
 
 
@@ -25,25 +26,27 @@ package inky.framework.core
 		public function update(options:Object):void
 		{
 			var prop:String;
-			var isUpdated:Boolean = false;
+			var isChanged:Boolean = false;
 			for (prop in this)
 			{
 				if (!options.hasOwnProperty(prop))
 				{
 					delete this[prop];
-					isUpdated = true;
+					isChanged = true;
 				}
 			}
 			for (prop in options)
 			{
-				isUpdated = isUpdated || (this[prop] != options[prop]);
+				isChanged = isChanged || (this[prop] != options[prop]);
 				this[prop] = options[prop];
 			}
-			
-			if (isUpdated)
+
+			if (isChanged)
 			{
-				this.dispatchEvent(new Event(Event.CHANGE));
+				this.dispatchEvent(new SectionOptionsEvent(SectionOptionsEvent.CHANGE));
 			}
+
+			this.dispatchEvent(new SectionOptionsEvent(SectionOptionsEvent.UPDATE));
 		}
 
 

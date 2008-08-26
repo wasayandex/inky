@@ -575,8 +575,8 @@ package inky.framework.managers
 			owner.dispatchEvent(new SectionEvent(SectionEvent.NAVIGATION_COMPLETE, true));
 
 			// Initialize the subsection.
-			this._updateOptions(subsection);
 			this._initializeSection(subsection);
+			this._updateOptions(subsection);
 
 			if (!introIsFinished)
 			{
