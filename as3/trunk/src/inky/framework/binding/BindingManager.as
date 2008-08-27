@@ -2,6 +2,7 @@ package inky.framework.binding
 {
 	import flash.events.Event;
 	import flash.events.IEventDispatcher;
+	import flash.utils.describeType;
 	import flash.utils.Dictionary;
 	import inky.framework.binding.Binding;
 	import inky.framework.core.Section;
@@ -269,7 +270,9 @@ package inky.framework.binding
 			var update:Boolean;
 			var newValue:Object;
 			var updateAllBoundProperties:Boolean = false;
+			var deleteProp:Boolean;
 			var destObj:Object;
+			var destProp:String;
 
 			if (e is PropertyChangeEvent)
 			{
@@ -278,6 +281,7 @@ package inky.framework.binding
 				srcProp = String(evt.property);
 				update = evt.kind == PropertyChangeEventKind.UPDATE;
 				newValue = evt.newValue;
+				deleteProp = evt.kind == PropertyChangeEventKind.DELETE;
 			}
 			else
 			{
@@ -299,7 +303,6 @@ package inky.framework.binding
 			if (update)
 			{
 				var properties2Update:Object;
-				var destProp:String;
 				if (updateAllBoundProperties)
 				{
 					// Update all the bound properties on the source.
@@ -326,6 +329,26 @@ package inky.framework.binding
 						for (destProp in properties2Update)
 						{
 							destObj[destProp] = newValue;
+						}
+					}
+				}
+			}
+			else if (deleteProp)
+			{
+				// Delete bound properties (or set them to undefined if they can't be deleted)
+				for (destObj in this._resolvedBindings[srcObj][srcProp])
+				{
+					var description:XML = describeType(destObj);
+					properties2Update = this._resolvedBindings[srcObj][srcProp][destObj];
+					for (destProp in properties2Update)
+					{
+						if ((description.@isDynamic == 'true') && ((description.accessor + description.variable).(attribute('name') == destProp).length() == 0))
+						{
+							delete destObj[destProp];
+						}
+						else
+						{
+							destObj[destProp] = undefined;
 						}
 					}
 				}
