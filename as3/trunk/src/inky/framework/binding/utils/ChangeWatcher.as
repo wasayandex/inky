@@ -22,12 +22,18 @@ package inky.framework.binding.utils
 		private var _next:ChangeWatcher;
 		private var _events:Array;
 
+import flash.utils.Dictionary;
+private static var _dict = new Dictionary(true);
 
 		/**
 		 *
 		 */
 		public function ChangeWatcher(access:Object, handler:Function, next:ChangeWatcher = null)
 		{
+_dict[this] = true;
+var count = 0;
+for (var o in _dict) count++;
+trace(count);
 			this._events = [];
 			this._getter = access is String ? null : access.getter;
 			this._handler = handler;
@@ -93,7 +99,7 @@ package inky.framework.binding.utils
 				this._events = ChangeWatcher._getEvents(this._host, this._name);
 				for each (eventType in this._events)
 				{
-					this._host.addEventListener(eventType, this._wrappedHandler);
+					this._host.addEventListener(eventType, this._wrappedHandler, false, 0, true);
 				}
 			}
 
