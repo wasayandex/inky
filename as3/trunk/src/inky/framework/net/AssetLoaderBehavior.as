@@ -4,9 +4,9 @@ package inky.framework.net
 	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;
 	import flash.net.URLRequest;
+	import inky.framework.binding.events.PropertyChangeEvent;
 	import inky.framework.core.Section;
 	import inky.framework.events.AssetLoaderEvent;
-	import inky.framework.events.PropertyChangeEvent;
 	import inky.framework.net.IAssetLoader;
 
 

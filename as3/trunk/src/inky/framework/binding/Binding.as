@@ -22,19 +22,19 @@ package inky.framework.binding
 		public var destObjFunc:Function;
 		public var destProp:String;
 		public var srcObjFunc:Function;
-		public var srcProp:String;
+		public var srcPropChain:Object;
 
 		
 		/**
 		 *
 		 *	
 		 */
-	    public function Binding(srcObjFunc:Function, srcProp:String, destObjFunc:Function, destProp:String)
+	    public function Binding(srcObjFunc:Function, srcPropChain:Object, destObjFunc:Function, destProp:String)
 	    {
 			this.destObjFunc = destObjFunc;
 			this.destProp = destProp;
 			this.srcObjFunc = srcObjFunc;
-			this.srcProp = srcProp;
+			this.srcPropChain = srcPropChain;
 		}
 
 

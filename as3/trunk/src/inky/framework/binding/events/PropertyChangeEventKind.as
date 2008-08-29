@@ -1,4 +1,4 @@
-package inky.framework.events
+package inky.framework.binding.events
 {
 	/**
 	 *

@@ -1,7 +1,7 @@
 package inky.framework.utils
 {
-	import inky.framework.events.PropertyChangeEvent;
-	import inky.framework.events.PropertyChangeEventKind;
+	import inky.framework.binding.events.PropertyChangeEvent;
+	import inky.framework.binding.events.PropertyChangeEventKind;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;

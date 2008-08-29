@@ -11,14 +11,14 @@ package inky.framework.managers
 	import flash.utils.Dictionary;
 	import inky.framework.binding.Binding;
 	import inky.framework.binding.BindingManager;
+	import inky.framework.binding.events.PropertyChangeEvent;
+	import inky.framework.binding.events.PropertyChangeEventKind;
 	import inky.framework.core.inky;
 	import inky.framework.core.inky_internal;
 	import inky.framework.core.IInkyDataParser;
 	import inky.framework.core.Section;
 	import inky.framework.data.Model;
 	import inky.framework.data.SectionInfo;
-	import inky.framework.events.PropertyChangeEvent;
-	import inky.framework.events.PropertyChangeEventKind;
 	import inky.framework.net.ImageLoader;
 	import inky.framework.net.RuntimeLibraryLoader;
 	import inky.framework.net.SoundLoader;

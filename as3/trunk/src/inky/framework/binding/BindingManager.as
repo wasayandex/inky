@@ -5,9 +5,10 @@ package inky.framework.binding
 	import flash.utils.describeType;
 	import flash.utils.Dictionary;
 	import inky.framework.binding.Binding;
+	import inky.framework.binding.utils.BindingUtils;
+	import inky.framework.binding.events.PropertyChangeEvent;
+	import inky.framework.binding.events.PropertyChangeEventKind;
 	import inky.framework.core.Section;
-	import inky.framework.events.PropertyChangeEvent;
-	import inky.framework.events.PropertyChangeEventKind;
 
 	
 	/**
@@ -29,8 +30,6 @@ package inky.framework.binding
 		private var _unresolvedBindings:Array;
 
 
-
-
 		/**
 		 *
 		 *	
@@ -50,23 +49,7 @@ package inky.framework.binding
 		 */
 		public function destroy():void
 		{
-			// Although binding sources are stored with a weak reference, they
-			// may not be immediately garbage collected. To insure that
-			// instances "in limbo" do not trigger updates, remove their event
-			// listeners.
-			for (var source:Object in this._resolvedBindings)
-			{
-				if (source is IEventDispatcher)
-				{
-					source.removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE, this._propertyChangeHandler);
-					source.removeEventListener(Event.CHANGE, this._propertyChangeHandler);
-				}
-				delete this._resolvedBindings[source];
-			}
-			
-			this._resolvedBindings = undefined;
-			this._section = undefined;
-			this._unresolvedBindings = undefined;
+// TODO: clean up bindings.
 		}
 
 
@@ -77,40 +60,31 @@ package inky.framework.binding
 		 */
 		public function executeBinding(binding:Binding):Boolean
 		{
-			var success:Boolean = true;
+			var success:Boolean = false;
 			var srcObj:Object;
 			var destObj:Object;
-			var srcProp:String = binding.srcProp;
+			var srcPropChain:Object = binding.srcPropChain;
 			var destProp:String = binding.destProp;
 			var addListeners:Boolean = false;
 
-			try
+			destObj = binding.destObjFunc();
+			
+			if (destObj)
 			{
-				destObj = binding.destObjFunc();
-
-				if (destObj)
+				srcObj = binding.srcObjFunc();
+	
+				if (srcObj)
 				{
-					srcObj = binding.srcObjFunc();
-
-					if (srcObj)
+					if (srcPropChain == null)
 					{
-						addListeners = srcProp && (srcObj is IEventDispatcher);
-						var value:* = srcProp ? srcObj[srcProp] : srcObj;
-						destObj[destProp] = value;
+						destObj[destProp] = srcObj;
 					}
 					else
 					{
-						success = false;
+						BindingUtils.bindProperty(destObj, destProp, srcObj, srcPropChain);
 					}
+					success = true;
 				}
-				else
-				{
-					success = false;
-				}
-			}
-			catch (error:Error)
-			{
-				success = false;
 			}
 
 			if (success)
@@ -121,31 +95,8 @@ package inky.framework.binding
 				{
 					this._unresolvedBindings.splice(index, 1);
 				}
-
-				// Add the binding to list of resolved bindings.
-				if (!this._resolvedBindings[srcObj])
-				{
-					this._resolvedBindings[srcObj] = {};
-				}
-				if (!this._resolvedBindings[srcObj][srcProp])
-				{
-					this._resolvedBindings[srcObj][srcProp] = new Dictionary(true);
-				}
-				if (!this._resolvedBindings[srcObj][srcProp][destObj])
-				{
-					this._resolvedBindings[srcObj][srcProp][destObj] = {};
-				}
-
-				this._resolvedBindings[srcObj][srcProp][destObj][destProp] = binding;
-
-				// Add listeners.
-				if (addListeners)
-				{
-					srcObj.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, this._propertyChangeHandler, false, 0, true);
-					srcObj.addEventListener(Event.CHANGE, this._propertyChangeHandler, false, 0, true);
-				}
 			}
-			
+
 			return success;
 		}
 
@@ -174,22 +125,13 @@ package inky.framework.binding
 		 */
 		public function parseBinding(source:String, destination:String):Binding
 		{
+			// Determine the destination property and create a function for getting the destination object.
 			var dotIndex:int = destination.lastIndexOf('.');
 			var destProp:String = destination.substr(dotIndex + 1);
 			destination = destination.substr(0, dotIndex);
 			var destObjFunc:Function = this._parseExpression(destination);
-			dotIndex = source.lastIndexOf('.');
-			var srcProp:String;
-			if (dotIndex != -1)
-			{
-				srcProp = source.substr(dotIndex + 1);
-				source = source.substr(0, dotIndex);
-			}
-			var srcObjFunc:Function = this._parseExpression(source);
-			
-			var binding:Binding = new Binding(srcObjFunc, srcProp, destObjFunc, destProp);
-			this._unresolvedBindings.push(binding);
-			return binding;
+
+			return this._createBinding(destObjFunc, destProp, source);
 		}
 
 
@@ -200,21 +142,13 @@ package inky.framework.binding
 		 */
 		public function parseBinding2(destObj:Object, destProp:String, source:String):Binding
 		{
+			// Create a function for getting the destination object.
 			var destObjFunc:Function = function():*
 			{
 				return destObj;
 			}
-			var dotIndex:int = source.lastIndexOf('.');
-			var srcProp:String;
-			if (dotIndex != -1)
-			{
-			 	srcProp = source.substr(dotIndex + 1);
-				source = source.substr(0, dotIndex);
-			}
-			var srcObjFunc:Function = this._parseExpression(source);
-			var binding:Binding = new Binding(srcObjFunc, srcProp, destObjFunc, destProp);
-			this._unresolvedBindings.push(binding);
-			return binding;
+			
+			return this._createBinding(destObjFunc, destProp, source);
 		}
 
 
@@ -227,6 +161,37 @@ package inky.framework.binding
 
 		/**
 		 *
+		 *	
+		 *	
+		 */
+		private function _createBinding(destObjFunc:Function, destProp:String, source:String):Binding
+		{
+			// Determine the source property chain.
+			var dotIndex:int = source.indexOf('.');
+			var srcPropChain:Object;
+			if (dotIndex != -1)
+			{
+			 	srcPropChain = source.substr(dotIndex + 1);
+				srcPropChain = srcPropChain.indexOf('.') == -1 ? srcPropChain : srcPropChain.split('.');
+				source = source.substr(0, dotIndex);
+			}
+
+			// Create a function for getting the source object.
+			var srcObjFunc:Function = function():Object
+			{
+				return _section.markupObjectManager.getMarkupObjectById(source);
+			}
+
+			var binding:Binding = new Binding(srcObjFunc, srcPropChain, destObjFunc, destProp);
+			this._unresolvedBindings.push(binding);
+			return binding;
+		}
+
+
+		/**
+		 *
+		 * Creates a function that returns the result of the provided string
+		 * expression. Essentially a simple eval().
 		 *	
 		 */
 		private function _parseExpression(expression:String):Function
@@ -254,108 +219,6 @@ package inky.framework.binding
 				{
 					return _section.markupObjectManager.getMarkupObjectById(expression);
 				}
-			}
-		}
-
-
-		/**
-		 *
-		 * 
-		 * 
-		 */
-		private function _propertyChangeHandler(e:Event):void
-		{
-			var srcObj:Object;
-			var srcProp:String;
-			var update:Boolean;
-			var newValue:Object;
-			var updateAllBoundProperties:Boolean = false;
-			var deleteProp:Boolean;
-			var destObj:Object;
-			var destProp:String;
-
-			if (e is PropertyChangeEvent)
-			{
-				var evt:PropertyChangeEvent = e as PropertyChangeEvent;
-				srcObj = evt.source;
-				srcProp = String(evt.property);
-				update = evt.kind == PropertyChangeEventKind.UPDATE;
-				newValue = evt.newValue;
-				deleteProp = evt.kind == PropertyChangeEventKind.DELETE;
-			}
-			else
-			{
-				srcObj = e.currentTarget;
-				update = true;
-
-				// Special handling for CHANGE events.
-				if (e.type == Event.CHANGE)
-				{
-					updateAllBoundProperties = true;
-				}
-				else
-				{
-					throw new Error('Unsupported binding!');
-				}
-			}
-
-			// Update the bound values.
-			if (update)
-			{
-				var properties2Update:Object;
-				if (updateAllBoundProperties)
-				{
-					// Update all the bound properties on the source.
-					for (srcProp in this._resolvedBindings[srcObj])
-					{
-						newValue = srcObj[srcProp];
-						for (destObj in this._resolvedBindings[srcObj][srcProp])
-						{
-							properties2Update = this._resolvedBindings[srcObj][srcProp][destObj];
-							for (destProp in properties2Update)
-							{
-								destObj[destProp] = newValue;
-							}
-						}
-					}
-				}
-				else
-				{
-					newValue = srcObj[srcProp];
-					// Update only a specific bound property.
-					for (destObj in this._resolvedBindings[srcObj][srcProp])
-					{
-						properties2Update = this._resolvedBindings[srcObj][srcProp][destObj];
-						for (destProp in properties2Update)
-						{
-							destObj[destProp] = newValue;
-						}
-					}
-				}
-			}
-			else if (deleteProp)
-			{
-				// Delete bound properties (or set them to undefined if they can't be deleted)
-				for (destObj in this._resolvedBindings[srcObj][srcProp])
-				{
-					var description:XML = describeType(destObj);
-					properties2Update = this._resolvedBindings[srcObj][srcProp][destObj];
-					for (destProp in properties2Update)
-					{
-						if ((description.@isDynamic == 'true') && ((description.accessor + description.variable).(attribute('name') == destProp).length() == 0))
-						{
-							delete destObj[destProp];
-						}
-						else
-						{
-							destObj[destProp] = undefined;
-						}
-					}
-				}
-			}
-			else
-			{
-				throw new Error('Unsupported binding kind!');
 			}
 		}
 
