@@ -238,23 +238,23 @@ LoadManager._masterSection = LoadManager._masterSection || section;
 
 			if (this._loadQueue.numItems)
 			{
-				var itemProgressBar:DisplayObject = this._getItemProgressBar();
-				var cumulativeProgressBar:DisplayObject = this._getCumulativeProgressBar();
+				var itemLoadingProgressBar:DisplayObject = this._getItemLoadingProgressBar();
+				var cumulativeLoadingProgressBar:DisplayObject = this._getCumulativeLoadingProgressBar();
 
-				if (cumulativeProgressBar)
+				if (cumulativeLoadingProgressBar)
 				{
-					var progressBar:IProgressBar = cumulativeProgressBar as IProgressBar;
+					var progressBar:IProgressBar = cumulativeLoadingProgressBar as IProgressBar;
 					if (progressBar)
 					{
 						progressBar.source = this._loadQueue;
 						progressBar.maximum = LoadManager._getCumulativeLoadQueueNumItems(this._loadQueue);
 					}
-					Section.getSection(cumulativeProgressBar).addCumulativeProgressBar(cumulativeProgressBar);
+					Section.getSection(cumulativeLoadingProgressBar).addCumulativeLoadingProgressBar(cumulativeLoadingProgressBar);
 				}
 
-				if (itemProgressBar)
+				if (itemLoadingProgressBar)
 				{
-					Section.getSection(itemProgressBar).addItemProgressBar(itemProgressBar);
+					Section.getSection(itemLoadingProgressBar).addItemLoadingProgressBar(itemLoadingProgressBar);
 				}
 
 				this._loadQueue.addEventListener(LoadQueueEvent.ASSET_OPEN, this._preloadAssetOpenHandler);
@@ -285,22 +285,22 @@ LoadManager._masterSection = LoadManager._masterSection || section;
 		 */
 		public function removeProgressBars():void
 		{
-			var itemProgressBar:DisplayObject = this._getItemProgressBar();
-			var cumulativeProgressBar:DisplayObject = this._getCumulativeProgressBar();
+			var itemLoadingProgressBar:DisplayObject = this._getItemLoadingProgressBar();
+			var cumulativeLoadingProgressBar:DisplayObject = this._getCumulativeLoadingProgressBar();
 			
-			if (itemProgressBar)
+			if (itemLoadingProgressBar)
 			{
-				Section.getSection(itemProgressBar).removeItemProgressBar(itemProgressBar);
-				itemProgressBar.addEventListener(Event.REMOVED_FROM_STAGE, this._removeProgressBarCompleteHandler);
+				Section.getSection(itemLoadingProgressBar).removeItemLoadingProgressBar(itemLoadingProgressBar);
+				itemLoadingProgressBar.addEventListener(Event.REMOVED_FROM_STAGE, this._removeProgressBarCompleteHandler);
 			}
 			
-			if (cumulativeProgressBar)
+			if (cumulativeLoadingProgressBar)
 			{
-				Section.getSection(cumulativeProgressBar).removeCumulativeProgressBar(cumulativeProgressBar);
-				cumulativeProgressBar.addEventListener(Event.REMOVED_FROM_STAGE, this._removeProgressBarCompleteHandler);
+				Section.getSection(cumulativeLoadingProgressBar).removeCumulativeLoadingProgressBar(cumulativeLoadingProgressBar);
+				cumulativeLoadingProgressBar.addEventListener(Event.REMOVED_FROM_STAGE, this._removeProgressBarCompleteHandler);
 			}
 			
-			if ((!itemProgressBar || !itemProgressBar.parent) && (!cumulativeProgressBar || !cumulativeProgressBar.parent))
+			if ((!itemLoadingProgressBar || !itemLoadingProgressBar.parent) && (!cumulativeLoadingProgressBar || !cumulativeLoadingProgressBar.parent))
 			{
 				this._removeProgressBarCompleteHandler();
 			}
@@ -363,10 +363,10 @@ LoadManager._masterSection = LoadManager._masterSection || section;
 		private static function _dataOpenHandler(e:Event):void
 		{
 			var section:Section = LoadManager._masterSection;
-			var itemProgressBar:IProgressBar = section.itemProgressBar as IProgressBar;
-			if (itemProgressBar)
+			var itemLoadingProgressBar:IProgressBar = section.itemLoadingProgressBar as IProgressBar;
+			if (itemLoadingProgressBar)
 			{
-				itemProgressBar.mode = ProgressBarMode.MANUAL;
+				itemLoadingProgressBar.mode = ProgressBarMode.MANUAL;
 			}
 
 			e.currentTarget.addEventListener(ProgressEvent.PROGRESS, LoadManager._dataProgressHandler);
@@ -387,11 +387,11 @@ LoadManager._masterSection = LoadManager._masterSection || section;
 			var xmlLoader:URLLoader = LoadManager._xmlLoader;
 			var maximum:Number = section.loaderInfo.bytesTotal + xmlLoader.bytesTotal;
 			var value:Number = section.loaderInfo.bytesLoaded + xmlLoader.bytesLoaded;
-			var itemProgressBar:IProgressBar = section.itemProgressBar as IProgressBar;
+			var itemLoadingProgressBar:IProgressBar = section.itemLoadingProgressBar as IProgressBar;
 
-			if (itemProgressBar)
+			if (itemLoadingProgressBar)
 			{
-				itemProgressBar.setProgress(value, maximum);
+				itemLoadingProgressBar.setProgress(value, maximum);
 			}
 
 			if (e.type == Event.COMPLETE && value == maximum)
@@ -518,9 +518,9 @@ LoadManager._masterSection = LoadManager._masterSection || section;
 		 *	
 		 *	
 		 */
-		private function _getCumulativeProgressBar():DisplayObject
+		private function _getCumulativeLoadingProgressBar():DisplayObject
 		{
-			return this._getProgressBar('cumulativeProgressBar');
+			return this._getProgressBar('cumulativeLoadingProgressBar');
 		}
 
 
@@ -529,9 +529,9 @@ LoadManager._masterSection = LoadManager._masterSection || section;
 		 *	
 		 *	
 		 */
-		private function _getItemProgressBar():DisplayObject
+		private function _getItemLoadingProgressBar():DisplayObject
 		{
-			return this._getProgressBar('itemProgressBar');
+			return this._getProgressBar('itemLoadingProgressBar');
 		}
 
 
@@ -580,10 +580,10 @@ LoadManager._masterSection = LoadManager._masterSection || section;
 		 */
 		private static function _includeQueueCompleteHandler(e:Event = null):void
 		{
-			var itemProgressBar:IProgressBar = LoadManager._masterSection.itemProgressBar as IProgressBar;
-			if (itemProgressBar)
+			var itemLoadingProgressBar:IProgressBar = LoadManager._masterSection.itemLoadingProgressBar as IProgressBar;
+			if (itemLoadingProgressBar)
 			{
-				itemProgressBar.mode = ProgressBarMode.EVENT;
+				itemLoadingProgressBar.mode = ProgressBarMode.EVENT;
 			}
 
 			LoadManager._dataLoadCompleteCallback.apply(LoadManager._masterSection, [LoadManager._data]);
@@ -639,30 +639,30 @@ LoadManager._masterSection = LoadManager._masterSection || section;
 		
 		/**
 		 *
-		 * Updates the itemProgressBar when an asset in the preload queue is opened.
+		 * Updates the itemLoadingProgressBar when an asset in the preload queue is opened.
 		 * 
 		 */
 		private function _preloadAssetOpenHandler(e:LoadQueueEvent):void
 		{
-			var itemProgressBar:IProgressBar = this._getItemProgressBar() as IProgressBar;
-			if (itemProgressBar && !(e.loader is LoadQueue))
+			var itemLoadingProgressBar:IProgressBar = this._getItemLoadingProgressBar() as IProgressBar;
+			if (itemLoadingProgressBar && !(e.loader is LoadQueue))
 			{
-				itemProgressBar.source = e.loader;
+				itemLoadingProgressBar.source = e.loader;
 			}
 		}
 
 
 		/**
 		 *
-		 * Updates the cumulativeProgressBar when an asset in the preload queue is complete.
+		 * Updates the cumulativeLoadingProgressBar when an asset in the preload queue is complete.
 		 * 
 		 */
 		private function _preloadAssetCompleteHandler(e:LoadQueueEvent):void
 		{
-			var cumulativeProgressBar:IProgressBar = this._getCumulativeProgressBar() as IProgressBar;
-			if (cumulativeProgressBar && !(e.loader is LoadQueue))
+			var cumulativeLoadingProgressBar:IProgressBar = this._getCumulativeLoadingProgressBar() as IProgressBar;
+			if (cumulativeLoadingProgressBar && !(e.loader is LoadQueue))
 			{
-				cumulativeProgressBar.value++;
+				cumulativeLoadingProgressBar.value++;
 			}
 		}
 
@@ -699,29 +699,29 @@ LoadManager._masterSection = LoadManager._masterSection || section;
 			var cumulativeRemoved:Boolean = false;
 			var itemRemoved:Boolean = false;
 
-			var itemProgressBar:DisplayObject = this._getItemProgressBar();
-			var cumulativeProgressBar:DisplayObject = this._getCumulativeProgressBar();
+			var itemLoadingProgressBar:DisplayObject = this._getItemLoadingProgressBar();
+			var cumulativeLoadingProgressBar:DisplayObject = this._getCumulativeLoadingProgressBar();
 
 			if (e)
 			{
 				e.target.removeEventListener(e.type, arguments.callee);
 
-				if (e.target == cumulativeProgressBar)
+				if (e.target == cumulativeLoadingProgressBar)
 				{
 					cumulativeRemoved = true;
 				}
-				else if (e.target == itemProgressBar)
+				else if (e.target == itemLoadingProgressBar)
 				{
 					itemRemoved = true;
 				}
 			}
 
-			if (!itemProgressBar || !itemProgressBar.parent)
+			if (!itemLoadingProgressBar || !itemLoadingProgressBar.parent)
 			{
 				itemRemoved = true;
 			}
 
-			if (!cumulativeProgressBar || !cumulativeProgressBar.parent)
+			if (!cumulativeLoadingProgressBar || !cumulativeLoadingProgressBar.parent)
 			{
 				cumulativeRemoved = true;
 			}

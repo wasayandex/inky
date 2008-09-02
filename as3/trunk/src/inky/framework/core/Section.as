@@ -71,9 +71,9 @@ package inky.framework.core
 	 */
 	public class Section extends TransitioningMovieClip implements IInkyDataParser
 	{
-		private var __cumulativeProgressBar:DisplayObject;
+		private var __cumulativeLoadingProgressBar:DisplayObject;
 		private var _info:SectionInfo;
-		private var __itemProgressBar:DisplayObject;
+		private var __itemLoadingProgressBar:DisplayObject;
 		private var _isRegistered:Boolean;
 		private var _loadManager:LoadManager;
 		private var _markupObjectManager:MarkupObjectManager;
@@ -134,22 +134,22 @@ package inky.framework.core
 		 * 
 		 * A progress bar that shows the cumulative progress of loading items
 		 * for this section. You may set the progress bar directly or place an
-		 * instance on the stage in the IDE named "_cumulativeProgressBar".
+		 * instance on the stage in the IDE named "_cumulativeLoadingProgressBar".
 		 * 
 		 * @default null
 		 * 
 		 */
-		public function get cumulativeProgressBar():DisplayObject
+		public function get cumulativeLoadingProgressBar():DisplayObject
 		{
-			return this.__cumulativeProgressBar;
+			return this.__cumulativeLoadingProgressBar;
 		}
 		/**
 		 * @private
 		 */		 		
-		public function set cumulativeProgressBar(progressBar:DisplayObject):void
+		public function set cumulativeLoadingProgressBar(progressBar:DisplayObject):void
 		{
 			// Unregister the old queue progress bar.
-			var oldProgressBar:IProgressBar = this.cumulativeProgressBar as IProgressBar;
+			var oldProgressBar:IProgressBar = this.cumulativeLoadingProgressBar as IProgressBar;
 			if (oldProgressBar)
 			{
 				oldProgressBar.source = null;
@@ -162,8 +162,8 @@ package inky.framework.core
 				(progressBar as IProgressBar).mode = ProgressBarMode.MANUAL;
 			}
 
-			this.__cumulativeProgressBar = progressBar;
-			Section.setSection(this.__cumulativeProgressBar, this);
+			this.__cumulativeLoadingProgressBar = progressBar;
+			Section.setSection(this.__cumulativeLoadingProgressBar, this);
 		}
 
 
@@ -186,22 +186,22 @@ package inky.framework.core
 		 * 
 		 * A progress bar that shows the progress of the currently loading item.
 		 * You may set the progress bar directly or place an instance on the
-		 * stage in the IDE named "_itemProgressBar".
+		 * stage in the IDE named "_itemLoadingProgressBar".
 		 * 
 		 * @default null
 		 * 
 		 */
-		public function get itemProgressBar():DisplayObject
+		public function get itemLoadingProgressBar():DisplayObject
 		{
-			return this.__itemProgressBar;
+			return this.__itemLoadingProgressBar;
 		}
 		/**
 		 * @private
 		 */
-		public function set itemProgressBar(progressBar:DisplayObject):void
+		public function set itemLoadingProgressBar(progressBar:DisplayObject):void
 		{
 			// Unregister the old item progress bar.
-			var oldProgressBar:IProgressBar = this.cumulativeProgressBar as IProgressBar;
+			var oldProgressBar:IProgressBar = this.cumulativeLoadingProgressBar as IProgressBar;
 			if (oldProgressBar)
 			{
 				oldProgressBar.source = null;
@@ -209,8 +209,8 @@ package inky.framework.core
 			
 			if (!progressBar) return;
 
-			this.__itemProgressBar = progressBar;
-			Section.setSection(this.__itemProgressBar, this);
+			this.__itemLoadingProgressBar = progressBar;
+			Section.setSection(this.__itemLoadingProgressBar, this);
 		}
 
 
@@ -338,7 +338,7 @@ package inky.framework.core
 		 *     The progress bar to add to the stage.
 		 * 
 		 */
-		public function addItemProgressBar(progressBar:DisplayObject):void
+		public function addItemLoadingProgressBar(progressBar:DisplayObject):void
 		{
 			this._addProgressBar(progressBar);
 		}
@@ -354,7 +354,7 @@ package inky.framework.core
 		 *     The progress bar to add to the stage.
 		 * 
 		 */
-		public function addCumulativeProgressBar(progressBar:DisplayObject):void
+		public function addCumulativeLoadingProgressBar(progressBar:DisplayObject):void
 		{
 			this._addProgressBar(progressBar);
 		}
@@ -702,7 +702,7 @@ package inky.framework.core
 		 *     The progress bar to remove from the stage.
 		 * 
 		 */
-		public function removeItemProgressBar(progressBar:DisplayObject):void
+		public function removeItemLoadingProgressBar(progressBar:DisplayObject):void
 		{
 			this._removeProgressBar(progressBar);
 		}
@@ -716,7 +716,7 @@ package inky.framework.core
 		 *     The progress bar to remove from the stage.
 		 * 
 		 */
-		public function removeCumulativeProgressBar(progressBar:DisplayObject):void
+		public function removeCumulativeLoadingProgressBar(progressBar:DisplayObject):void
 		{
 			this._removeProgressBar(progressBar);
 		}
@@ -726,7 +726,7 @@ package inky.framework.core
 		 * @private
 		 *	
 		 * Determines whether a section has one or more defined progress bars
-		 * (itemProgressBar and/or cumulativeProgressBar).
+		 * (itemLoadingProgressBar and/or cumulativeLoadingProgressBar).
 		 * 	
 		 * @return
 		 *     true if the Section has progress bars defined, otherwise false.
@@ -734,7 +734,7 @@ package inky.framework.core
 		 */
 		public function hasProgressBars():Boolean
 		{
-			return !!this.cumulativeProgressBar || !!this.itemProgressBar;
+			return !!this.cumulativeLoadingProgressBar || !!this.itemLoadingProgressBar;
 		}
 		
 
@@ -918,9 +918,9 @@ package inky.framework.core
 			Section.setSection(this, undefined);
 
 			// Unset all the properties.
-			this.__cumulativeProgressBar = undefined;
+			this.__cumulativeLoadingProgressBar = undefined;
 			this._info = undefined;
-			this.__itemProgressBar = undefined;
+			this.__itemLoadingProgressBar = undefined;
 			this._master = undefined;
 			this._sPath = undefined;
 			this._markupObjectManager = undefined;
@@ -954,10 +954,10 @@ package inky.framework.core
 			
 			this.addEventListener(Event.ADDED_TO_STAGE, this._addedToStageHandler, false, 0, true);
 
-			this.itemProgressBar = this.getChildByName('_itemProgressBar') as DisplayObject || this.itemProgressBar;
-			this.cumulativeProgressBar = this.getChildByName('_cumulativeProgressBar') as DisplayObject || this.cumulativeProgressBar;
-			/*if (this.itemProgressBar) this.removeChild(this.itemProgressBar as DisplayObject);
-			if (this.cumulativeProgressBar) this.removeChild(this.cumulativeProgressBar as DisplayObject);*/
+			this.itemLoadingProgressBar = this.getChildByName('_itemLoadingProgressBar') as DisplayObject || this.itemLoadingProgressBar;
+			this.cumulativeLoadingProgressBar = this.getChildByName('_cumulativeLoadingProgressBar') as DisplayObject || this.cumulativeLoadingProgressBar;
+			/*if (this.itemLoadingProgressBar) this.removeChild(this.itemLoadingProgressBar as DisplayObject);
+			if (this.cumulativeLoadingProgressBar) this.removeChild(this.cumulativeLoadingProgressBar as DisplayObject);*/
 		}
 
 
@@ -1033,7 +1033,7 @@ package inky.framework.core
 			{
 				pb.remove();
 			}
-			else if (pb is DisplayObject)
+			else if ((pb is DisplayObject) && (pb.parent))
 			{
 				pb.parent.removeChild(pb as DisplayObject);
 			}
