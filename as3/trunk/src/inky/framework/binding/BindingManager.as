@@ -28,6 +28,7 @@ package inky.framework.binding
 		private var _resolvedBindings:Dictionary;
 		private var _section:Section;
 		private var _unresolvedBindings:Array;
+		private var _watchers:Array;
 
 
 		/**
@@ -40,6 +41,7 @@ package inky.framework.binding
 			this._section = section;
 			this._unresolvedBindings = [];
 			this._resolvedBindings = new Dictionary(true);
+			this._watchers = [];
 		}
 
 
@@ -49,7 +51,11 @@ package inky.framework.binding
 		 */
 		public function destroy():void
 		{
-// TODO: clean up bindings.
+			// Clean up the bindings for this section.
+			for each (var watcher:* in this._watchers)
+			{
+				watcher.unwatch();
+			}
 		}
 
 
@@ -81,7 +87,8 @@ package inky.framework.binding
 					}
 					else
 					{
-						BindingUtils.bindProperty(destObj, destProp, srcObj, srcPropChain);
+						var watcher = BindingUtils.bindProperty(destObj, destProp, srcObj, srcPropChain);
+						this._watchers.push(watcher);
 					}
 					success = true;
 				}

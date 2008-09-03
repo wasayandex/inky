@@ -60,7 +60,7 @@ package inky.framework.binding.utils
 	     *  computed value with the named (public) property.</p>
 	     *
 	     */
-	    public static function bindProperty(site:Object, prop:String, host:Object, chain:Object):void
+	    public static function bindProperty(site:Object, prop:String, host:Object, chain:Object):ChangeWatcher
 	    {
 	        var watcher:ChangeWatcher = ChangeWatcher.watch(host, chain, null);
 
@@ -73,6 +73,8 @@ package inky.framework.binding.utils
 	            watcher.setHandler(assign);
 	            assign(null);
 	        }
+	
+			return watcher;
 	    }
 
 

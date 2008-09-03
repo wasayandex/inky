@@ -93,7 +93,7 @@ package inky.framework.binding.utils
 				this._events = ChangeWatcher._getEvents(this._host, this._name);
 				for each (eventType in this._events)
 				{
-					this._host.addEventListener(eventType, this._wrappedHandler, false, 0, true);
+					this._host.addEventListener(eventType, this._wrappedHandler);
 				}
 			}
 
