@@ -294,6 +294,7 @@ package inky.framework.managers
 			this._currentAddress = address;
 
 			sPath = sPath || this._nextSPath || this._masterSection.inky_internal::getInfo().routeMapper.getSPath(address);
+			this._nextSPath = null;
 			var options:Object = this._masterSection.inky_internal::getInfo().routeMapper.getOptions(address, sPath);
 
 			if (!sPath)
