@@ -8,7 +8,6 @@ package inky.framework.binding
 	import inky.framework.binding.utils.BindingUtils;
 	import inky.framework.binding.events.PropertyChangeEvent;
 	import inky.framework.binding.events.PropertyChangeEventKind;
-	import inky.framework.core.Section;
 
 	
 	/**
@@ -25,8 +24,8 @@ package inky.framework.binding
 	 */
 	public class BindingManager
 	{
+		private var _idMarkupObjects:Object;
 		private var _resolvedBindings:Dictionary;
-		private var _section:Section;
 		private var _unresolvedBindings:Array;
 		private var _watchers:Array;
 
@@ -36,9 +35,9 @@ package inky.framework.binding
 		 *	
 		 *	
 		 */
-		public function BindingManager(section:Section)
+		public function BindingManager(idMarkupObjects:Object)
 		{
-			this._section = section;
+			this._idMarkupObjects = idMarkupObjects;
 			this._unresolvedBindings = [];
 			this._resolvedBindings = new Dictionary(true);
 			this._watchers = [];
@@ -81,15 +80,8 @@ package inky.framework.binding
 	
 				if (srcObj)
 				{
-					if (srcPropChain == null)
-					{
-						destObj[destProp] = srcObj;
-					}
-					else
-					{
-						var watcher = BindingUtils.bindProperty(destObj, destProp, srcObj, srcPropChain);
-						this._watchers.push(watcher);
-					}
+					var watcher = BindingUtils.bindProperty(destObj, destProp, srcObj, srcPropChain);
+					this._watchers.push(watcher);
 					success = true;
 				}
 			}
@@ -174,19 +166,12 @@ package inky.framework.binding
 		private function _createBinding(destObjFunc:Function, destProp:String, source:String):Binding
 		{
 			// Determine the source property chain.
-			var dotIndex:int = source.indexOf('.');
-			var srcPropChain:Object;
-			if (dotIndex != -1)
-			{
-			 	srcPropChain = source.substr(dotIndex + 1);
-				srcPropChain = srcPropChain.indexOf('.') == -1 ? srcPropChain : srcPropChain.split('.');
-				source = source.substr(0, dotIndex);
-			}
+			var srcPropChain:Array = source.split('.');
 
 			// Create a function for getting the source object.
 			var srcObjFunc:Function = function():Object
 			{
-				return _section.markupObjectManager.getMarkupObjectById(source);
+				return _idMarkupObjects;
 			}
 
 			var binding:Binding = new Binding(srcObjFunc, srcPropChain, destObjFunc, destProp);
@@ -224,7 +209,7 @@ package inky.framework.binding
 				// The expression is an id.
 				return function():Object
 				{
-					return _section.markupObjectManager.getMarkupObjectById(expression);
+					return _idMarkupObjects[expression];
 				}
 			}
 		}

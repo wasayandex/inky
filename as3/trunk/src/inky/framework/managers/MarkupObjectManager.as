@@ -27,6 +27,7 @@ package inky.framework.managers
 	import inky.framework.utils.ActionGroup;
 	import inky.framework.utils.ActionSequence;
 	import inky.framework.utils.Debugger;
+	import inky.framework.utils.ObjectProxy;
 
 
 	/**
@@ -50,16 +51,28 @@ package inky.framework.managers
 		ActionGroup;
 
 		private var _bindingManager:BindingManager;
+		private var _initializedMarkupObjects:E4XHashMap;
+		private var _initializedNonmarkupObjects:Dictionary;
+		private static var _idMarkupObjects:Object = new ObjectProxy();
 		private var _section:Section;
 		private static var _sections2MarkupObjectFactories:Dictionary = new Dictionary(true);
-		private var _idMarkupObjects:Object;
 		private var _data2MarkupObjects:E4XHashMap;
 		private var _noIdMarkupObjects:Array;
 		private var _markupObjects2Data:Dictionary;
-		private var _initializedMarkupObjects:E4XHashMap;
-		private var _initializedNonmarkupObjects:Dictionary;
-//!
 		private static var _orphanAssets:Object = {};
+
+		
+		/**
+		 * A list of ids of markup objects that this section has created.
+		 */
+		private var _markupObjectIds:Array;
+
+
+
+
+		//
+		// constructor
+		//
 
 
 		/**
@@ -73,11 +86,11 @@ package inky.framework.managers
 		 */
 		public function MarkupObjectManager(section:Section)
 		{
+			this._markupObjectIds = [];
 			this._section = section;
-			this._bindingManager = new BindingManager(section);
+			this._bindingManager = new BindingManager(MarkupObjectManager._idMarkupObjects);
 			this._initializedNonmarkupObjects = new Dictionary(true);
 			MarkupObjectManager._sections2MarkupObjectFactories[section] = this;
-			this._idMarkupObjects = {};
 			this._data2MarkupObjects = new E4XHashMap();
 			this._noIdMarkupObjects = [];
 			this._markupObjects2Data = new Dictionary();
@@ -447,7 +460,13 @@ if (orphans)
 			this._data2MarkupObjects = undefined;
 			this._initializedNonmarkupObjects = undefined;
 			this._section = undefined;
-			this._idMarkupObjects = undefined;
+
+			// Remove this section's markup objects from the markup object id map.
+			for each (var id:String in this._markupObjectIds)
+			{
+				delete MarkupObjectManager._idMarkupObjects[id];
+			}
+			this._markupObjectIds = undefined;
 		}
 
 
@@ -458,7 +477,7 @@ if (orphans)
 		 */
 		public function getMarkupObjectById(id:String):Object
 		{
-			return this._getMarkupObjectByIdHelper(this._section.master, id);
+			return MarkupObjectManager._idMarkupObjects[id];
 		}
 
 
@@ -542,7 +561,8 @@ if (orphans)
 				var id:String = data.@inky::id.length() ? data.@inky::id : null;
 				if (id)
 				{
-					this._idMarkupObjects[id] = this._idMarkupObjects[id] || obj;
+					this._markupObjectIds.push(id);
+					MarkupObjectManager._idMarkupObjects[id] = MarkupObjectManager._idMarkupObjects[id] || obj;
 				}
 				else if (this._noIdMarkupObjects.indexOf(obj) == -1)
 				{
@@ -768,17 +788,6 @@ private static function _destroyMarkupObject(context:Object, obj:Object):void
 
 		/**
 		 *
-		 * Should not be called directly. Use getMarkupObjectById().
-		 * 
-		 */
-		private function _getMarkupObjectByIdHelper(context:Object, id:String):Object
-		{
-			return MarkupObjectManager._sections2MarkupObjectFactories[context]._idMarkupObjects[id] || (context.currentSubsection ? this._getMarkupObjectByIdHelper(context.currentSubsection, id) : null);
-		}
-
-
-		/**
-		 *
 		 * 
 		 * 
 		 */
@@ -822,15 +831,15 @@ MarkupObjectManager._sections2MarkupObjectFactories[context]._markupObjects2Data
 		 */
  		private function _getMarkupObjectId(context:Object, obj:Object):String
 		{
-			for (var id:String in MarkupObjectManager._sections2MarkupObjectFactories[context]._idMarkupObjects)
+			for (var id:String in MarkupObjectManager._idMarkupObjects)
 			{
-				if (MarkupObjectManager._sections2MarkupObjectFactories[context]._idMarkupObjects[id] == obj)
+				if (MarkupObjectManager._idMarkupObjects[id] == obj)
 				{
 					return id;
 				}
 			}
-
-			return context.owner ? this._getMarkupObjectId(context.owner, obj) : null;
+			
+			return null;
 		}
 
 
