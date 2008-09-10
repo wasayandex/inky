@@ -240,7 +240,7 @@ if (xml.@inky_internal::sourceAlreadyResolved != true)
 												obj = new XMLLoader();
 												break;
 											case 'RuntimeLibraryLoader':
-												obj = new RuntimeLibraryLoader;
+												obj = new RuntimeLibraryLoader();
 												break;
 											case 'SoundLoader':
 												obj = new SoundLoader();
