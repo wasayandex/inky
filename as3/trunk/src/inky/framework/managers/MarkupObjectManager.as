@@ -93,7 +93,7 @@ package inky.framework.managers
 			MarkupObjectManager._sections2MarkupObjectFactories[section] = this;
 			this._data2MarkupObjects = new E4XHashMap();
 			this._noIdMarkupObjects = [];
-			this._markupObjects2Data = new Dictionary();
+			this._markupObjects2Data = new Dictionary(true);
 			this._initializedMarkupObjects = new E4XHashMap(true);
 		}
 
