@@ -3,6 +3,8 @@ package inky.framework.binding.utils
 	import flash.events.IEventDispatcher;
 	import flash.events.Event;
 	import inky.framework.binding.events.PropertyChangeEvent;
+	import inky.framework.binding.utils.IChangeWatcher;
+
 
 	/**
 	 *
@@ -13,7 +15,7 @@ package inky.framework.binding.utils
 	 * This should be considered an implementation detail.
 	 *	
 	 */
-	public class ChangeWatcher
+	public class ChangeWatcher implements IChangeWatcher
 	{
 		private var _host:Object;
 		private var _name:String;
