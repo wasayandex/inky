@@ -323,7 +323,7 @@ package inky.framework.utils
 			for (i = 0; i < segments.length; i++)
 			{
 				segment = segments[i];
-				
+
 				switch (segment.type)
 				{
 					case 'text':
@@ -417,7 +417,7 @@ package inky.framework.utils
 			{
 				this._replaceWithToken(a, dynamicSegment, 'dynamic');
 			}
-		
+
 			// Make separators into tokens.
 			var separators:Array = ['/'];
 			for each (var separator:String in separators)
@@ -453,11 +453,11 @@ package inky.framework.utils
 				if (k is String)
 				{
 					var tmp:Array = k.split(str);
+
 					for (var p:int = tmp.length - 1; p > 0; p -= 1)
 					{
 						// Remove the preceding color from dynamic segments.
-						str = type == 'dynamic' ? str.substr(1) : str;
-						tmp.splice(p, 0, {value: str, type: type});
+						tmp.splice(p, 0, {value: type == 'dynamic' ? str.substr(1) : str, type: type});
 					}
 
 					// Remove the empty items.
