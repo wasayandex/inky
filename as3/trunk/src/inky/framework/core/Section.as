@@ -32,8 +32,8 @@ package inky.framework.core
 	import inky.framework.display.ITransitioningObject;
 	import inky.framework.display.TransitioningMovieClip;
 	import inky.framework.display.TransitioningObjectState;
-	import inky.framework.events.TransitionEvent;
 	import inky.framework.events.SectionEvent;
+	import inky.framework.events.TransitionEvent;
 	import inky.framework.managers.LoadManager;
 	import inky.framework.managers.MarkupObjectManager;
 	import inky.framework.managers.NavigationManager;
@@ -72,6 +72,7 @@ package inky.framework.core
 	public class Section extends TransitioningMovieClip implements IInkyDataParser
 	{
 		private var __cumulativeLoadingProgressBar:DisplayObject;
+		private var _gotoSectionOrigin:Section; // Only used on master
 		private var _info:SectionInfo;
 		private var __itemLoadingProgressBar:DisplayObject;
 		private var _isRegistered:Boolean;
@@ -592,7 +593,7 @@ package inky.framework.core
 				sPath = sPath.absolute ? sPath : sPath.resolve(this.sPath);
 				sPath = sPath.normalize();
 
-				// Delegate navigation to the master.
+				// Delegate navigation up the section chain.
 				if (this == this.master)
 				{
 					this.inky_internal::getNavigationManager().gotoSection(sPath, options);

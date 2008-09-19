@@ -10,6 +10,7 @@ package inky.framework.managers
 	import inky.framework.core.Section;
 	import inky.framework.core.SPath;
 	import inky.framework.data.SectionInfo;
+	import inky.framework.events.NavigationEvent;
 	import inky.framework.events.SectionEvent;
 	import inky.framework.events.TransitionEvent;
 	import inky.framework.managers.LoadManager;
@@ -135,6 +136,24 @@ package inky.framework.managers
 				// Resolve the SPath.
 				sPath = this._masterSection.inky_internal::getInfo().resolveSPath(sPath);
 				var info:SectionInfo = this._masterSection.inky_internal::getInfo().getSectionInfoBySPath(sPath);
+
+				// Dispatch gotoSection events.
+				var sectionChain:Array = [];
+				var tmp:Section = this._masterSection;
+				while (tmp)
+				{
+					sectionChain.unshift(tmp);
+					tmp = tmp.currentSubsection;
+				}
+				for each (tmp in sectionChain)
+				{
+					// TODO: Should we really use the actual options object? Is the options argument passed to this function complete or does it need to be tweaked first?
+					tmp.dispatchEvent(new NavigationEvent(NavigationEvent.GOTO_SECTION, false, false, sPath, options, this._currentSPath, this._sectionOptions));
+				}
+
+				//
+				// Do the actual navigation
+				//
 
 				if (!info)
 				{
