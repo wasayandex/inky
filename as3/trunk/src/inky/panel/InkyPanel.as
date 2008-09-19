@@ -38,12 +38,7 @@ public static var textField;
 		 */		 		 		
 		public function InkyPanel()
 		{
-			// Load the jsfl library. This requires that the jsfl file be in the
-			// same place as the swf.
-			this._loader = new URLLoader();
-			this._loader.addEventListener(Event.COMPLETE, this._init);
-			this._loader.load(new URLRequest('InkyPanel.jsfl'));
-//InkyPanel.textField = this.textField;
+			this._init();
 		}
 		
 		
@@ -63,12 +58,10 @@ public static var textField;
 		}
 
 
-		private function _init(e:Event):void
+		private function _init():void
 		{
-			e.currentTarget.removeEventListener(e.type, arguments.callee);
-
 			// Load the JSFL library.
-			JSFLInterface.call('eval', e.currentTarget.data);
+			JSFLInterface.call('fl.runScript', 'file:///C:/Documents%20and%20Settings/matthew/Local%20Settings/Application%20Data/Adobe/Flash%20CS3/en/Configuration/WindowSWF/InkyPanel.jsfl');
 			
 			// Check for documentChanged.
 			this.addEventListener(Event.ENTER_FRAME, this._enterFrameHandler);
@@ -87,7 +80,9 @@ public static var textField;
 		private function _build(e:Event = null):void
 		{
 			var builder:Builder = new Builder();
-			builder.build('file:///Users/mjt/Desktop/inky/as3/trunk/examples/petsitters-1/deploy/PetsittersApplication.inky.xml');
+var source:String = 'file:///C:/Documents%20and%20Settings/matthew/Desktop/inky/examples/petsitters-1/deploy/PetsittersApplication.inky.xml';
+//var source:String = 'file:///Users/mjt/Desktop/inky/as3/trunk/examples/petsitters-1/deploy/PetsittersApplication.inky.xml';
+			builder.build(source);
 		}		 		 		
 
 

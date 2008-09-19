@@ -94,8 +94,9 @@ package inky.panel
 
 private function _swcCompleteHandler(e:Event):void
 {
+
 	var className:String;
-	
+
 	// There's something weird going on here. If the next line isn't present,
 	// the XML created from the swc contents will be messed up. It's not the
 	// Inflater either, because you get the same problem using the xml
@@ -118,7 +119,7 @@ private function _swcCompleteHandler(e:Event):void
 			this._getDeps(className, classes);
 		}
 	}
-	
+
 	// Remove redundant classes from the map.
 //	var classAttr:QName = new QName(inky, 'class');
 	var sectionNode:QName = new QName(inky, 'Section');
