@@ -84,6 +84,7 @@ package inky.framework.core
 		private static var _objects2Sections:Dictionary = new Dictionary(true);
 		private var _options:SectionOptions;
 		private var _sPath:SPath;
+		private var __subsectionContainer:DisplayObjectContainer;
 
 
 
@@ -393,7 +394,7 @@ package inky.framework.core
 		 */
 		public function addSubsection(subsection:Section):void
 		{
-			this.addChild(subsection);
+			this.__subsectionContainer.addChild(subsection);
 		}
 
 
@@ -952,6 +953,8 @@ package inky.framework.core
 			this._options = new SectionOptions();
 			this._loadManager = new LoadManager(this);
 			this._markupObjectManager = new MarkupObjectManager(this);
+			
+			this.__subsectionContainer = this.getChildByName('_subsectionContainer') as DisplayObjectContainer || this;
 			
 			this.addEventListener(Event.ADDED_TO_STAGE, this._addedToStageHandler, false, 0, true);
 
