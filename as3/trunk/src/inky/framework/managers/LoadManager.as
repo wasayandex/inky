@@ -1,5 +1,7 @@
 package inky.framework.managers 
 {
+	import com.exanimo.collections.IIterator;
+	import com.exanimo.collections.IList;
 	import com.exanimo.controls.IProgressBar;
 	import com.exanimo.controls.ProgressBarMode;
 	import com.exanimo.events.LoadQueueEvent;
@@ -22,8 +24,9 @@ package inky.framework.managers
 	import inky.framework.data.SectionInfo;
 	import inky.framework.net.LoadQueue;
 	import inky.framework.net.IAssetLoader;
+	import inky.framework.net.SWFLoader;
 
-	
+
 	/**
 	 *
 	 *	Handles the loading for a section. This class should be considered an
@@ -69,7 +72,6 @@ package inky.framework.managers
 
 // TODO: how else to get master section?? Is this good??
 LoadManager._masterSection = LoadManager._masterSection || section;
-
 		}
 
 
@@ -180,6 +182,22 @@ LoadManager._masterSection = LoadManager._masterSection || section;
 		public function fetchAssetNow(asset:Object, callback:Function = null):void
 		{
 			this._fetchAsset(asset, callback, true);
+		}
+
+
+		/**
+		 * @private
+		 *	
+		 *	
+		 */
+		public function initialize():void
+		{
+//! TODO: figure out a way to get rid of this function. the problem is that the section info needs to be available, so this must happen after it's set (i.e. cannot be triggered by the constructor)
+			if (this._section == LoadManager._masterSection)
+			{
+				var info:SectionInfo = this._section.inky_internal::getInfo();
+				this._createPreloadAssetList(info);
+			}	
 		}
 
 
@@ -317,41 +335,62 @@ LoadManager._masterSection = LoadManager._masterSection || section;
 		 *
 		 *	
 		 *	
-		 */	
-		private static function _createPreloadLoadQueue(context:Object, target:Object):LoadQueue
+		 */
+		private function _createPreloadAssetList(info:SectionInfo):void
 		{
-			var sPath:SPath = target as SPath;
-
-			// Get the section's info.
-			var info:SectionInfo = context.inky_internal::getInfo().getSectionInfoBySPath(sPath);
-
 			// Get the section's data.
 			var data:XML = info.inky_internal::getData();
 
-			// Create the preload load queue.
-			var lq:LoadQueue = new LoadQueue();
+			// Create the preload asset list.
 			var preloadAssetList:XMLList = (data..RuntimeLibraryLoader + data..Asset + data..SWFLoader + data..ImageLoader + data..XMLLoader + data..SoundLoader).((attribute('preload') == 'true') || (attribute('preload') == '{true}'));
-			var excludeAssets:XMLList = data.section.RuntimeLibraryLoader + data.Section..Asset + data.Section..SWFLoader + data.Section..ImageLoader + data.Section..XMLLoader + data.Section..SoundLoader;
+			var excludeAssets:XMLList = data.Section..RuntimeLibraryLoader + data.Section..Asset + data.Section..SWFLoader + data.Section..ImageLoader + data.Section..XMLLoader + data.Section..SoundLoader;
+			var preloadAssets:IList = Section.getPreloadAssets(info.sPath);
 			var loader:Object;
+
+			if (info.source)
+			{
+				loader = new SWFLoader();
+				loader.source = info.source;
+				preloadAssets.addItem(loader);
+			}
 
 			for each (var asset:XML in preloadAssetList)
 			{
 				if (!excludeAssets.contains(asset))
 				{
-					loader = context.markupObjectManager.createMarkupObject(asset);
-					lq.addItem(loader);
+					loader = LoadManager._masterSection.markupObjectManager.createMarkupObject(asset);
+					preloadAssets.addItem(loader);
 				}
 			}
 
-			if (info.source)
+			// Get the child sections' preload assests.
+			for each (info in info.getSubsectionInfos())
 			{
-				loader = new Loader();
-				var request:URLRequest = new URLRequest(info.source);
-				lq.addItemAt(loader, 0);
-				lq.setLoadArguments(loader, request, new LoaderContext(false, ApplicationDomain.currentDomain));
+				this._createPreloadAssetList(info);
+			}
+		}
+
+
+		/**
+		 *
+		 *	
+		 *	
+		 */	
+		private static function _createPreloadLoadQueue(context:Object, target:Object):LoadQueue
+		{
+			var preloadAssets:IList = Section.getPreloadAssets(target as SPath);
+			var lq:LoadQueue;
+			
+			if (preloadAssets.length)
+			{
+				lq = new LoadQueue();
+				for (var i:IIterator = preloadAssets.iterator(); i.hasNext(); )
+				{
+					lq.addItem(i.next());
+				}
 			}
 
-			return lq.numItems ? lq : null;
+			return lq;
 		}
 
 

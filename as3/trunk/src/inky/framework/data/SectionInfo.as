@@ -37,7 +37,7 @@ package inky.framework.data
 		private var _owner:SectionInfo;
 		private var _routeMapper:RouteMapper;
 		private var _source:String;
-		private var _subSectionInfosMap:Object;
+		private var _subsectionInfosMap:Object;
 
 // TODO: Make sure that only prefixed nodes are being used.
 		use namespace inky;
@@ -50,7 +50,7 @@ package inky.framework.data
 		 */
 		public function SectionInfo()
 		{
-			this._subSectionInfosMap = {};
+			this._subsectionInfosMap = {};
 		}
 
 
@@ -123,7 +123,7 @@ package inky.framework.data
 		public function get numSubsections():int
 		{
 			var numSubsections:int = 0;
-			for (var key:String in this._subSectionInfosMap)
+			for (var key:String in this._subsectionInfosMap)
 			{
 				numSubsections++
 			}
@@ -201,7 +201,23 @@ package inky.framework.data
 		 */
 		public function getSubsectionInfoByName(name:String):SectionInfo
 		{
-			return this._subSectionInfosMap[name];
+			return this._subsectionInfosMap[name];
+		}
+
+
+		/**
+		 *
+		 * 
+		 * 
+		 */
+		public function getSubsectionInfos():Array
+		{
+			var result:Array = [];
+			for each (var info:SectionInfo in this._subsectionInfosMap)
+			{
+				result.push(info);
+			}
+			return result;
 		}
 
 
@@ -240,7 +256,7 @@ package inky.framework.data
 				var info:SectionInfo = new SectionInfo();
 				info._owner = this;
 				info.parseData(subsection);
-				this._subSectionInfosMap[subsection.@name] = info;
+				this._subsectionInfosMap[subsection.@name] = info;
 			}
 
 			// Parse class.
@@ -406,7 +422,7 @@ package inky.framework.data
 				this.routeMapper.connect(path, this.sPath);
 			}
 
-			for each (var info:SectionInfo in this._subSectionInfosMap)
+			for each (var info:SectionInfo in this._subsectionInfosMap)
 			{
 				info._getDefaultRoutes(defaultRouteRoot);
 			}
@@ -426,7 +442,7 @@ package inky.framework.data
 			{
 				this._defaultSubsection = this.resolveSPath(this._defaultSubsection);
 			}
-			for each (var info:SectionInfo in this._subSectionInfosMap)
+			for each (var info:SectionInfo in this._subsectionInfosMap)
 			{
 				info._updateDefaultSubsection();
 			}

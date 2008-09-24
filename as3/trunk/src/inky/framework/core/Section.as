@@ -1,5 +1,7 @@
 package inky.framework.core
 {
+	import com.exanimo.collections.ArrayList;
+	import com.exanimo.collections.IList;
 	import com.exanimo.controls.IProgressBar;
 	import com.exanimo.controls.ProgressBarMode;
 	import com.exanimo.events.LoadQueueEvent;
@@ -83,6 +85,7 @@ package inky.framework.core
 		private var _navigationManager:NavigationManager;
 		private static var _objects2Sections:Dictionary = new Dictionary(true);
 		private var _options:SectionOptions;
+		private static var _preloadAssets:Object = {};
 		private var _sPath:SPath;
 		private var __subsectionContainer:DisplayObjectContainer;
 
@@ -499,6 +502,31 @@ package inky.framework.core
 		public function fetchAssetNow(asset:Object, callback:Function = null):void
 		{
 			this.inky_internal::getLoadManager().fetchAssetNow(asset, callback);
+		}
+
+
+		/**
+		 *
+		 *	
+		 */
+		public static function getPreloadAssets(obj:Object):IList
+		{
+			var sPath:SPath = obj is String ? SPath.parse(obj as String) : obj as SPath;
+			if (!sPath)
+			{
+				throw new ArgumentError('Expected String or SPath');
+			}
+			else if (!sPath.absolute)
+			{
+				throw new ArgumentError('SPath must be absolute.');
+			}
+		
+			var path:String = sPath.toString();
+			if (!Section._preloadAssets[path])
+			{
+				Section._preloadAssets[path] = new ArrayList();
+			}
+			return Section._preloadAssets[path];
 		}
 
 
@@ -1096,6 +1124,7 @@ package inky.framework.core
 		{
 // TODO: Remove this method
 			this._info = info;
+this._loadManager.initialize();
 		}
 
 
