@@ -76,6 +76,7 @@ package inky.framework.core
 		private var __cumulativeLoadingProgressBar:DisplayObject;
 		private var _gotoSectionOrigin:Section; // Only used on master
 		private var _info:SectionInfo;
+		private var _introComplete:Boolean;
 		private var __itemLoadingProgressBar:DisplayObject;
 		private var _isRegistered:Boolean;
 		private var _loadManager:LoadManager;
@@ -85,6 +86,7 @@ package inky.framework.core
 		private var _navigationManager:NavigationManager;
 		private static var _objects2Sections:Dictionary = new Dictionary(true);
 		private var _options:SectionOptions;
+		private var _outroComplete:Boolean;
 		private static var _preloadAssets:Object = {};
 		private var _sPath:SPath;
 		private var __subsectionContainer:DisplayObjectContainer;
@@ -420,6 +422,23 @@ package inky.framework.core
 		public function cancelFetchAsset(asset:Object):void
 		{
 			this.inky_internal::getLoadManager().cancelFetchAsset(asset);
+		}
+
+
+		/**
+		 *
+		 *	Invoked to trigger the next command in the NavigationManager's queue.
+		 *	Useful for starting the next command early, i.e. before this section's outro
+		 *	completes.
+		 *	
+		 */
+		public function continueNavigation():void
+		{
+			if (this.state != TransitioningObjectState.PLAYING_INTRO && this.state != TransitioningObjectState.PLAYING_OUTRO)
+			{
+				throw new Error('Section is not in a transitioning state.')
+			}
+			this._continueNavigation();
 		}
 
 
@@ -924,6 +943,27 @@ package inky.framework.core
 
 
 		/**
+		 *
+		 *	Dispatches the appropriate navigation-related event,
+		 *	triggering the next command in the NavigationManager's queue.
+		 *	
+		 */
+		private function _continueNavigation():void
+		{
+			if (!this._introComplete)
+			{
+				this._introComplete = true;
+				this.dispatchEvent(new Event('addComplete'));
+			}
+			else if (!this._outroComplete)
+			{
+				this._outroComplete = true;
+				this.dispatchEvent(new Event('leaveComplete'));
+			}
+		}
+
+
+		/**
 		 *	
 		 * Destroys a section so that it doesn't take up room in memory.
 		 * 
@@ -984,6 +1024,10 @@ package inky.framework.core
 			
 			this.__subsectionContainer = this.getChildByName('_subsectionContainer') as DisplayObjectContainer || this;
 			
+			this._introComplete = 
+			this._outroComplete = false;
+			this.addEventListener(TransitionEvent.TRANSITION_FINISH, this._introCompleteHandler);
+
 			this.addEventListener(Event.ADDED_TO_STAGE, this._addedToStageHandler, false, 0, true);
 
 			this.itemLoadingProgressBar = this.getChildByName('_itemLoadingProgressBar') as DisplayObject || this.itemLoadingProgressBar;
@@ -1021,11 +1065,28 @@ package inky.framework.core
 		 *
 		 *	
 		 */
+		private function _introCompleteHandler(e:Event):void
+		{
+			e.currentTarget.removeEventListener(e.type, arguments.callee);
+			if (!this._introComplete)
+			{
+				this._continueNavigation();
+			}
+		}
+
+
+		/**
+		 *
+		 *	
+		 */
 		private function _outroCompleteHandler(e:Event):void
 		{
 			e.currentTarget.removeEventListener(e.type, arguments.callee);
 			this._destroy();
-			this.dispatchEvent(new Event('leaveComplete'));
+			if (!this._outroComplete)
+			{
+				this._continueNavigation();
+			}
 		}
 
 
