@@ -36,6 +36,7 @@ package inky.framework.net
 	public class GraphicLoader extends Sprite implements IAssetLoader
 	{
 		private var _behavior:AssetLoaderBehavior;
+		private var _isLoading:Boolean;
 		private var _loader:Loader;
 		private var _smartLoad:Boolean;
 
@@ -56,6 +57,7 @@ package inky.framework.net
 				throw new ArgumentError('Error #2012: GraphicLoader$ class cannot be instantiated.');
 			}
 
+			this._isLoading = false;
 			this._behavior = new AssetLoaderBehavior(this);
 			this._behavior.createLoaderFunction = this._createLoader;
 			this._behavior.getLoadArgsFunction = this._getLoadArgs;
@@ -172,6 +174,7 @@ if (parent) parent.removeChild(t);}, 0);
 		 */
 		public function close():void
 		{
+			this._isLoading = false;
 			this._behavior.close();
 		}
 
@@ -181,6 +184,7 @@ if (parent) parent.removeChild(t);}, 0);
 		 */
 		public function load(source:Object = null):void
 		{
+			this._isLoading = true;
 			this._behavior.load.apply(null, arguments);
 		}
 
@@ -190,6 +194,7 @@ if (parent) parent.removeChild(t);}, 0);
 		 */
 		public function loadAsset():void
 		{
+			this._isLoading = true;
 			this._behavior.loadAsset();
 		}
 
@@ -199,6 +204,7 @@ if (parent) parent.removeChild(t);}, 0);
 		 */
 		public function loadNow(source:Object = null):void
 		{
+			this._isLoading = true;
 			this._behavior.loadNow.apply(null, arguments);
 		}
 
@@ -216,7 +222,7 @@ if (parent) parent.removeChild(t);}, 0);
 		 */
 		private function _addedToStageHandler(e:Event):void
 		{
-			if (this.smartLoad)
+			if (this.smartLoad && !this._isLoading && !(this.bytesTotal && (this.bytesLoaded == this.bytesTotal)))
 			{
 				this.load();
 			}
@@ -244,13 +250,13 @@ if (parent) parent.removeChild(t);}, 0);
 			
 			// Configure listeners.
 			this._loader.contentLoaderInfo.addEventListener(Event.COMPLETE, this._completeHandler, false, 0, true);
-			this._loader.contentLoaderInfo.addEventListener(Event.COMPLETE, this._behavior.relayEvent, false, 0, true);
-			this._loader.contentLoaderInfo.addEventListener(HTTPStatusEvent.HTTP_STATUS, this._behavior.relayEvent, false, 0, true);
-			this._loader.contentLoaderInfo.addEventListener(Event.INIT, this._behavior.relayEvent, false, 0, true);
-			this._loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, this._behavior.relayEvent, false, 0, true);
-			this._loader.contentLoaderInfo.addEventListener(Event.OPEN, this._behavior.relayEvent, false, 0, true);
-			this._loader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, this._behavior.relayEvent, false, 0, true);
-			this._loader.contentLoaderInfo.addEventListener(Event.UNLOAD, this._behavior.relayEvent, false, 0, true);
+			this._loader.contentLoaderInfo.addEventListener(Event.COMPLETE, this._relayEvent, false, 0, true);
+			this._loader.contentLoaderInfo.addEventListener(HTTPStatusEvent.HTTP_STATUS, this._relayEvent, false, 0, true);
+			this._loader.contentLoaderInfo.addEventListener(Event.INIT, this._relayEvent, false, 0, true);
+			this._loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, this._relayEvent, false, 0, true);
+			this._loader.contentLoaderInfo.addEventListener(Event.OPEN, this._relayEvent, false, 0, true);
+			this._loader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, this._relayEvent, false, 0, true);
+			this._loader.contentLoaderInfo.addEventListener(Event.UNLOAD, this._relayEvent, false, 0, true);
 			
 			this.addEventListener(Event.ADDED_TO_STAGE, this._addedToStageHandler);
 			
@@ -274,6 +280,23 @@ if (parent) parent.removeChild(t);}, 0);
 		private function _getLoadArgs():Array
 		{
 			return [this._behavior.getURLRequest(), new LoaderContext(false, ApplicationDomain.currentDomain)];
+		}
+
+
+		/**
+		 *
+		 */
+		private function _relayEvent(e:Event):void
+		{
+			switch (e.type)
+			{
+				case Event.COMPLETE:
+				case IOErrorEvent.IO_ERROR:
+				case Event.UNLOAD:
+					this._isLoading = false;
+					break;
+			}
+			this._behavior.relayEvent(e);
 		}
 
 
