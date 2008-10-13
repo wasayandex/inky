@@ -3,6 +3,7 @@ package inky.framework.net
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;
+	import flash.events.ProgressEvent;
 	import flash.net.URLRequest;
 	import inky.framework.binding.events.PropertyChangeEvent;
 	import inky.framework.core.Section;
@@ -330,6 +331,7 @@ package inky.framework.net
 			var info:Object = this.getLoaderInfoFunction();
 			if (info && info.bytesTotal && (info.bytesLoaded == info.bytesTotal))
 			{
+				this._target.dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, false, false, info.bytesLoaded, info.bytesTotal));
 				this._target.dispatchEvent(new AssetLoaderEvent(AssetLoaderEvent.READY));
 				return;
 			}
