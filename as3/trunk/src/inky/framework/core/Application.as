@@ -30,6 +30,7 @@ package inky.framework.core
 	 */
 	public class Application extends Section
 	{
+		private static var _currentApplication:Application;
 		private var _data:XML;
 		private var _dataSource:Object;
 		private var _dataSourceIsSet:Boolean;
@@ -44,6 +45,9 @@ package inky.framework.core
 		 */
 		public function Application()
 		{
+			if (Application._currentApplication) return;
+			Application._currentApplication = this;
+			
 			var dataSource:String = this.root.loaderInfo.parameters.dataSource;
 			if (dataSource)
 			{
