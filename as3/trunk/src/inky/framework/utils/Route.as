@@ -1,5 +1,6 @@
 package inky.framework.utils
 {
+	import com.exanimo.utils.ObjectUtil;
 	import inky.framework.core.SPath;
 
 
@@ -95,7 +96,7 @@ package inky.framework.utils
 		public function set path(path:String):void
 		{
 			this._path = path;
-			this._tokenizedPath = this._tokenize(path);
+			this._tokenize(path);
 			this._pattern = new RegExp('\\A' + this._getPatternSource(this._tokenizedPath) + '\\Z');
 		}
 
@@ -180,28 +181,79 @@ package inky.framework.utils
 			options = options || {};
 			var defaultOption:String;
 			var optionName:String;			
-			var urlArray:Array = [];
 			var usedOptions:Array = [];
-			for each (var token:Object in this._tokenizedPath)
+			var i:uint;
+			var j:uint;
+			var token:Object;
+			var optionalTokens:Array = [];
+
+			// Clone the tokenized path, inserting values for dynamic parts.
+			var tokenizedPath:Array = [];
+			for (i = 0; i < this._tokenizedPath.length; i++)
 			{
+				token = ObjectUtil.clone(this._tokenizedPath[i]);
 				if (token.type == 'dynamic')
 				{
-					optionName = token.value;
-					usedOptions.push(optionName);
+					var value:String;
+					if (options)
+					{
+						value = options[token.name];
+					}
+					if (value == null)
+					{
+						value = this.getDefaultOption(token.name);
+					}
+					if (value == this.getDefaultOption(token.name))
+					{
+						optionalTokens.push(token);
+					}
+					usedOptions.push(token.name);
+					token.value = value;
+				}
+				tokenizedPath[i] = token;
+			}
 
-					if (options && (options[optionName] != null) && (options[optionName] != this.getDefaultOption(optionName)))
-					{
-						urlArray.push(options[optionName].toString());
-					}
-					else
-					{
-						// Insert a placeholder for the default value.
-						urlArray.push({optionName: optionName});
-					}
+			// Break path into chunks at the separators.
+			var chunks:Array = [];
+			j = 0;
+			for (i = 0; i < tokenizedPath.length; i++)
+			{
+				if (!chunks[j])
+				{
+					chunks[j] = [];
+				}
+
+				token = tokenizedPath[i];
+				if (token.type == 'separator' && token.value == '/')
+				{
+					j++;
 				}
 				else
 				{
-					urlArray.push(token.value);
+					chunks[j].push(token);
+				}
+			}
+
+			// Minimize the url
+			for (i = chunks.length - 1; i > 0; i--)
+			{
+				// If all the tokens in a chunk are optional, remove the chunk.
+				var removeChunk:Boolean = true;
+				j = 0;
+				while (removeChunk && (j < chunks[i].length))
+				{
+					token = chunks[i][j];
+					removeChunk = optionalTokens.indexOf(token) != -1;
+					j++
+				}
+				
+				if (removeChunk)
+				{
+					chunks.splice(i, 1);
+				}
+				else
+				{
+					break;
 				}
 			}
 
@@ -214,50 +266,19 @@ package inky.framework.utils
 				}
 			}
 
-			// Remove the default value placeholders (and forward slashes) from the end. (Minimize urls.)
-			var j:int = urlArray.length - 1;
-			while ((j > 0) && (j < urlArray.length))
+			// Make the url.
+			var urlArray:Array = [];
+			for (i = 0; i < chunks.length; i++)
 			{
-				if (!(urlArray[j] is String))
+				var chunk:String = ''
+				for (j = 0; j < chunks[i].length; j++)
 				{
-					optionName = urlArray[j].optionName;
-					defaultOption = this.getDefaultOption(optionName);
-
-					if ((options[optionName] == defaultOption) || (options[optionName] === undefined))
-					{
-						// Remove extraneous information from the end.
-						urlArray.splice(j, urlArray.length - j);
-					}
-					else
-					{
-						// If you get to an option that doesn't match the default,
-						// it is required (so stop removing things).
-						break;
-					}
+					chunk += chunks[i][j].value;
 				}
-				j--;
+				urlArray.push(chunk);
 			}
 
-			// Replace any default value tokens that aren't at the end with the default value.
-			for (var i:uint = 0; i < urlArray.length; i++)
-			{
-				if (!(urlArray[i] is String))
-				{
-					optionName = urlArray[i].optionName;
-					defaultOption = this.getDefaultOption(optionName);
-
-					if (defaultOption == null)
-					{
-						throw new ArgumentError('URL could not be generated: no value was provided for ' + optionName + ', and there is no default value.');
-					}
-					else
-					{
-						urlArray.splice(i, 1, defaultOption);
-					}
-				}
-			}
-
-			return urlArray.join('');
+			return urlArray.join('/');
 		}
 
 
@@ -341,7 +362,7 @@ package inky.framework.utils
 									optional = false;
 									break;
 								case 'dynamic':
-									optional = this.getDefaultOption(segments[j].value) != null;
+									optional = this.getDefaultOption(segments[j].name) != null;
 									break;
 							}
 							if (!optional) break;
@@ -349,7 +370,7 @@ package inky.framework.utils
 						
 						if (!optional)
 						{
-							pattern += this._escapeForRegExp(segment.value);
+							pattern += this._escapeForRegExp(segment.type == 'dynamic' ? segment.name : segment.value);
 						}
 						else
 						{
@@ -366,13 +387,13 @@ package inky.framework.utils
 						}
 						break;
 					case 'dynamic':
-						var requirement:RegExp = this.getRequirement(segment.value);
+						var requirement:RegExp = this.getRequirement(segment.name);
 						segmentPattern = requirement ? '(' + requirement.source + ')' : '([^\\/;.,?]+)';
 						pattern += segmentPattern;
 						break;
 				}
 			}
-		
+
 			return pattern;
 		}
 
@@ -407,8 +428,8 @@ package inky.framework.utils
 			//
 			// Tokenize the path.
 			//
-			
-			// Add the trailing slash.
+
+			// Add a trailing slash.
 			path = path.replace(/\/?$/, '/');
 			var a:Array = [path];
 			
@@ -419,12 +440,8 @@ package inky.framework.utils
 			}
 
 			// Make separators into tokens.
-			var separators:Array = ['/'];
-			for each (var separator:String in separators)
-			{
-				this._replaceWithToken(a, separator, 'separator');
-			}
-		
+			this._replaceWithToken(a, '/', 'separator');
+
 			// Make remaining strings into tokens.
 			for (i = 0; i < a.length; i++)
 			{
@@ -433,7 +450,7 @@ package inky.framework.utils
 					a.splice(i, 1, {value: a[i], type: 'text'});
 				}
 			}
-			return a;
+			return this._tokenizedPath = a;
 		}
 
 
@@ -457,7 +474,17 @@ package inky.framework.utils
 					for (var p:int = tmp.length - 1; p > 0; p -= 1)
 					{
 						// Remove the preceding color from dynamic segments.
-						tmp.splice(p, 0, {value: type == 'dynamic' ? str.substr(1) : str, type: type});
+						var o:Object = {type: type};
+						if (type == 'dynamic')
+						{
+							o.name = str.substr(1);;
+						}
+						else
+						{
+							o.value = str;
+						}
+						
+						tmp.splice(p, 0, o);
 					}
 
 					// Remove the empty items.
