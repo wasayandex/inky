@@ -128,7 +128,7 @@ package inky.framework.managers
 					}
 					options = newOptions;
 				}
-				
+
 				// Make the SPath absolute.
 				sPath = sPath.absolute ? sPath : sPath.resolve(this._masterSection.sPath);
 				sPath = sPath.normalize();
@@ -183,6 +183,7 @@ package inky.framework.managers
 						}
 						catch(error:Error)
 						{
+							Debugger.traceWarning('There was an error generating the URL: ' + error.message);
 							this._gotoAddress(url, sPath);
 						}
 					}
@@ -320,6 +321,7 @@ package inky.framework.managers
 			{
 				throw new Error('Couldn\'t resolve the following url hash: ' + address);
 			}
+
 			this._gotoSection(sPath, options);
 		}
 

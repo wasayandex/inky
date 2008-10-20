@@ -201,7 +201,15 @@ package inky.framework.utils
 					}
 					if (value == null)
 					{
-						value = this.getDefaultOption(token.name);
+						var defaultValue:String = this.getDefaultOption(token.name);
+						if (defaultValue == null)
+						{
+							throw new Error('No value was provided for dynamic option ' + token.name + ' and there is no default');
+						}
+						else
+						{
+							value = defaultValue;
+						}
 					}
 					if (value == this.getDefaultOption(token.name))
 					{
