@@ -823,15 +823,30 @@ public static function _getSectionBySPath(sPathStr:String):Section
 		/**
 		 * @private
 		 */
-		public static function setSection(obj:Object, owner:Section):void
+		public static function setSection(obj:Object, section:Object):void
 		{
-			if (owner)
+			var sPath:String;
+
+			if (section is Section)
 			{
-				if (!owner.sPath)
-				{
-					throw new Error('Error 561');
-				}
-				Section._objects2SPaths[obj] = owner.sPath.toString();
+				sPath = section.sPath.toString();
+			}
+			else if (section is SPath)
+			{
+				sPath = section.toString();
+			}
+			else if (section is String)
+			{
+				sPath = SPath.parse(section as String).toString();
+			}
+			else if (section != null)
+			{
+				throw new ArgumentError(section + ' is neither a Section nor an SPath');
+			}
+
+			if (sPath)
+			{
+				Section._objects2SPaths[obj] = sPath;
 			}
 			else
 			{

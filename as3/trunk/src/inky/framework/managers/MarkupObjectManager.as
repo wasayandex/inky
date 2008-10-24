@@ -876,26 +876,29 @@ private static function _setOrphanAsset(context:Object, obj:Object, sPath:String
 
 		/**
 		 *
-		 * Sets the section on an object based on its inky data.
+		 *
 		 *	
 		 */
 		private function _setSection(obj:Object, xml:Object):void
 		{
-			// Set the section on the object. If this is a preload asset,
-			// its section may not yet have been created.
-			var containingNode:XML = xml.parent();
-			while (containingNode && !((containingNode.namespace() == inky) && ((containingNode.localName() == 'Section') || (containingNode.localName() == 'Application'))))
+			// Determine the SPath of the object's section.
+			var node:XML = xml.parent();
+			var sectionNames:Array = [];
+			while (node)
 			{
-				containingNode = containingNode.parent();
-			}
-			if (containingNode)
-			{
-				var owner:Section = this._getMarkupObjectByData(this._section, containingNode) as Section;
-				if (owner)
+				if (node.name() == new QName(inky, 'Section'))
 				{
-					Section.setSection(obj, owner);	
+					sectionNames.unshift(node.@name.toString());
 				}
-			}	
+				node = node.parent();
+			}
+			
+			// Set the section of the object.
+			var sPath:String = sectionNames.length ? '/' + sectionNames.join('/') : null;
+			if (sPath)
+			{
+				Section.setSection(obj, sPath);
+			}
 		}
 
 

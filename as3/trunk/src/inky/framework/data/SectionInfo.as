@@ -171,6 +171,7 @@ package inky.framework.data
 		 */
 		public function get sPath():SPath
 		{
+// TODO: Store this instead of parsing it each time.
 			// Parse the SPath.
 			var sPath:SPath = new SPath(this.name);
 			var tmp:SectionInfo = this.owner;
