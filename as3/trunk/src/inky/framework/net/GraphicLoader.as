@@ -62,14 +62,6 @@ package inky.framework.net
 			this._behavior.getLoadArgsFunction = this._getLoadArgs;
 			this._behavior.getLoaderInfoFunction = this._getLoaderInfo;
 			this._smartLoad = true;
-var t = this;
-this.addEventListener('removedFromStage', function(e)
-{
-e.currentTarget.removeEventListener(e.type, arguments.callee);
-import flash.utils.setTimeout;
-setTimeout(function(){
-if (parent) parent.removeChild(t);}, 0);
-});
 		}
 
 
@@ -277,7 +269,7 @@ if (parent) parent.removeChild(t);}, 0);
 			this._loader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, this._relayEvent, false, int.MAX_VALUE, true);
 			this._loader.contentLoaderInfo.addEventListener(Event.UNLOAD, this._relayEvent, false, int.MAX_VALUE, true);
 			
-			this.addEventListener(Event.ADDED_TO_STAGE, this._addedToStageHandler, false, int.MAX_VALUE);
+			this.addEventListener(Event.ADDED_TO_STAGE, this._addedToStageHandler, false, int.MAX_VALUE, true);
 			
 			this.addChild(this._loader);
 			return this._loader;
