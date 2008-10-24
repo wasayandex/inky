@@ -65,6 +65,15 @@ package inky.framework.core
 
 
 		/**
+		 * @private
+		 */
+		public static function get currentApplication():Application
+		{
+			return Application._currentApplication;
+		}
+
+
+		/**
 		 *
 		 * The data that defines the structure of the application. The
 		 * <code>dataSource</code> property may be set to one of several

@@ -81,13 +81,11 @@ package inky.framework.core
 		private var _isRegistered:Boolean;
 		private var _loadManager:LoadManager;
 		private var _markupObjectManager:MarkupObjectManager;
- 		private var _master:Section;
 		private var _name:String;
 		private var _navigationManager:NavigationManager;
-		private static var _objects2Sections:Dictionary = new Dictionary(true);
+		private static var _objects2SPaths:Dictionary = new Dictionary(true);
 		private var _options:SectionOptions;
 		private var _outroComplete:Boolean;
-		private static var _preloadAssets:Object = {};
 		private var _sPath:SPath;
 		private var __subsectionContainer:DisplayObjectContainer;
 
@@ -103,6 +101,8 @@ package inky.framework.core
 		 */
 		public function Section()
 		{
+import com.exanimo.memory.*;
+MemoryMonitor.watch(this);
 			this._init();
 		}
 
@@ -237,7 +237,14 @@ package inky.framework.core
 		 */
 		public function get master():Section
 		{
-			return this._master;
+			var master:Section;
+			var tmp:Section = this;
+			while (tmp)
+			{
+				master = tmp;
+				tmp = Section.getSection(tmp);
+			}
+			return master;
 		}
 
 
@@ -525,36 +532,12 @@ package inky.framework.core
 
 
 		/**
-		 *
-		 *	
-		 */
-		public static function getPreloadAssets(obj:Object):IList
-		{
-			var sPath:SPath = obj is String ? SPath.parse(obj as String) : obj as SPath;
-			if (!sPath)
-			{
-				throw new ArgumentError('Expected String or SPath');
-			}
-			else if (!sPath.absolute)
-			{
-				throw new ArgumentError('SPath must be absolute.');
-			}
-		
-			var path:String = sPath.toString();
-			if (!Section._preloadAssets[path])
-			{
-				Section._preloadAssets[path] = new ArrayList();
-			}
-			return Section._preloadAssets[path];
-		}
-
-
-		/**
 		 * @private
 		 */
 		public static function getSection(obj:Object):Section
 		{
-			var owner:Section = Section._objects2Sections[obj];
+			var sPathStr:String = Section._objects2SPaths[obj];
+			var owner:Section = Section._getSectionBySPath(sPathStr);
 			if (!owner && (obj is DisplayObject))
 			{
 				var tmp:DisplayObject = (obj as DisplayObject).parent;
@@ -571,6 +554,20 @@ package inky.framework.core
 
 			return owner;
 		}
+
+
+private static var _sections2SPaths = new Dictionary(true);
+public static function _getSectionBySPath(sPathStr:String):Section
+{
+	for (var o in Section._sections2SPaths)
+	{
+		if (Section._sections2SPaths[o] == sPathStr)
+		{
+			return o;
+		}
+	}
+	return null;
+}
 
 
 		/**
@@ -830,16 +827,15 @@ package inky.framework.core
 		{
 			if (owner)
 			{
-				Section._objects2Sections[obj] = owner;
-			
-				if (owner && obj is Section)
+				if (!owner.sPath)
 				{
-					obj._master = owner._master || owner;
+					throw new Error('Error 561');
 				}
+				Section._objects2SPaths[obj] = owner.sPath.toString();
 			}
 			else
 			{
-				delete Section._objects2Sections[obj];
+				delete Section._objects2SPaths[obj];
 			}
 		}
 
@@ -867,29 +863,7 @@ package inky.framework.core
 
 			e.currentTarget.removeEventListener(e.type, arguments.callee);
 			
-//			if (this._isRegistered) return;
-
-			// Get the application and owner.
-			var tmp:DisplayObjectContainer = this;
-			var owner:Section;
-			var master:Section;
-
-			while (tmp)
-			{
-				if (tmp is Section)
-				{
-					if (tmp != this)
-					{
-						owner = owner || (tmp as Section);
-					}
-					master = tmp as Section;
-				}
-				tmp = tmp.parent;
-			}
-
-			this._master = master;
-			
-			if (master == this)
+			if (this == this.master)
 			{
 				// Add a listener to initialize any timeline-placed markup objects
 				// that aren't on the first frame.
@@ -897,12 +871,6 @@ package inky.framework.core
 
 				this._initMaster();
 			}
-			
-			Section.setSection(this, this.owner || owner);
-/*			if (owner)
-			{
-				owner._registerSubsection(this);
-			}*/
 		}
 
 
@@ -970,14 +938,21 @@ package inky.framework.core
 		 */
 		private function _destroy():void
 		{
+//!m
+/*
 			// Remove any links between owned objects and this section.
-			for (var obj:Object in Section._objects2Sections)
+			for (var obj:Object in Section._objects2SPaths)
 			{
-				if (Section._objects2Sections[obj] == this)
+				if (Section._objects2SPaths[obj] == this.sPath.toString())
 				{
-					delete Section._objects2Sections[obj];
+					delete Section._objects2SPaths[obj];
 				}
 			}
+*/
+
+
+			// Dissasociate this section from the SPath.
+			delete Section._sections2SPaths[this];
 
 			// Destroy the MarkupObjectManager.
 			this.markupObjectManager.destroy();
@@ -991,7 +966,6 @@ package inky.framework.core
 			this.__cumulativeLoadingProgressBar = undefined;
 			this._info = undefined;
 			this.__itemLoadingProgressBar = undefined;
-			this._master = undefined;
 			this._sPath = undefined;
 			this._markupObjectManager = undefined;
 
@@ -1184,8 +1158,8 @@ package inky.framework.core
  		inky_internal function setInfo(info:SectionInfo):void
 		{
 // TODO: Remove this method
+Section._sections2SPaths[this] = info.sPath.toString();
 			this._info = info;
-this._loadManager.initialize();
 		}
 
 

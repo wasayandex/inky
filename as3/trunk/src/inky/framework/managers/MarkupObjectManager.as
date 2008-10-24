@@ -51,12 +51,11 @@ package inky.framework.managers
 		ActionGroup;
 
 		private var _bindingManager:BindingManager;
-		private var _initializedMarkupObjects:E4XHashMap;
+		private var _initializedMarkupObjects:Dictionary;
 		private var _initializedNonmarkupObjects:Dictionary;
 		private static var _idMarkupObjects:Object = new ObjectProxy();
 		private var _section:Section;
 		private static var _sections2MarkupObjectFactories:Dictionary = new Dictionary(true);
-		private var _data2MarkupObjects:E4XHashMap;
 		private var _noIdMarkupObjects:Array;
 		private var _markupObjects2Data:Dictionary;
 		private static var _orphanAssets:Object = {};
@@ -91,10 +90,9 @@ package inky.framework.managers
 			this._bindingManager = new BindingManager(MarkupObjectManager._idMarkupObjects);
 			this._initializedNonmarkupObjects = new Dictionary(true);
 			MarkupObjectManager._sections2MarkupObjectFactories[section] = this;
-			this._data2MarkupObjects = new E4XHashMap();
 			this._noIdMarkupObjects = [];
 			this._markupObjects2Data = new Dictionary(true);
-			this._initializedMarkupObjects = new E4XHashMap(true);
+			this._initializedMarkupObjects = new Dictionary(true);
 		}
 
 
@@ -300,6 +298,7 @@ if (this._getMarkupObjectByData(this._section, tmp) != this._section)
 		tmp = tmp.parent();
 	}
 //!
+trace('create\t' + obj + '\t' + obj.source);
 	MarkupObjectManager._setOrphanAsset(this, obj, sPath);
 }
 									this.setData(obj, xml);
@@ -450,14 +449,11 @@ if (orphans)
 
 			this._bindingManager.destroy();
 
-			this._initializedMarkupObjects.removeAll();
-			this._data2MarkupObjects.removeAll();
 			delete MarkupObjectManager._sections2MarkupObjectFactories[this._section];
 
 			this._markupObjects2Data = undefined;
 			this._initializedMarkupObjects = undefined;
 			this._noIdMarkupObjects = undefined;
-			this._data2MarkupObjects = undefined;
 			this._initializedNonmarkupObjects = undefined;
 			this._section = undefined;
 
@@ -549,7 +545,7 @@ if (orphans)
 			}
 			else
 			{
-				this._initializedMarkupObjects.putItemAt(true, obj);
+				this._initializedMarkupObjects[obj] = true;
 
 				// Set the section.
 				if (!(obj is XMLList) && !(obj is XML))
@@ -563,13 +559,13 @@ if (orphans)
 				{
 					this._markupObjectIds.push(id);
 					MarkupObjectManager._idMarkupObjects[id] = MarkupObjectManager._idMarkupObjects[id] || obj;
-				}
+				}/*
+//!m
 				else if (this._noIdMarkupObjects.indexOf(obj) == -1)
 				{
 					this._noIdMarkupObjects.push(obj);
 				}
-
-				this._data2MarkupObjects.putItemAt(obj, data);
+*/
 				this._markupObjects2Data[obj] = this._markupObjects2Data[obj] || data;
 
 				if (parseData)
@@ -689,10 +685,11 @@ if (obj == this._section.master)
 //!
 private static function _destroyMarkupObject(context:Object, obj:Object):void
 {
+trace('destroy\t' + obj);
 	var data:Object = context._markupObjects2Data[obj];
-	context._data2MarkupObjects.removeItemByKey(data);
 	delete context._markupObjects2Data[obj];
-	context._initializedMarkupObjects.removeItemByKey(obj);
+	delete context._initializedMarkupObjects[obj];
+Section.setSection(obj, null);
 }
 
 
@@ -774,7 +771,17 @@ private static function _destroyMarkupObject(context:Object, obj:Object):void
 			if (!obj)
 			{
 				// Dynamically created objects
-				obj = MarkupObjectManager._sections2MarkupObjectFactories[context]._data2MarkupObjects.getItemByKey(data);
+				var dict:Dictionary = MarkupObjectManager._sections2MarkupObjectFactories[context]._markupObjects2Data;
+				var o:Object;
+				for (o in dict)
+				{
+					var xml:Object = dict[o];
+					if (data == xml)
+					{
+						obj = o;
+						break;
+					}
+				}
 			}
 
 			if (!obj && context.owner)
@@ -861,13 +868,14 @@ MarkupObjectManager._sections2MarkupObjectFactories[context]._markupObjects2Data
 		 */
 		private function _isInitializedComponentHelper(context:Section, obj:Object):Boolean
 		{
-			return MarkupObjectManager._sections2MarkupObjectFactories[context]._initializedNonmarkupObjects[obj] || MarkupObjectManager._sections2MarkupObjectFactories[context]._initializedMarkupObjects.containsKey(obj) || (context.currentSubsection && this._isInitializedComponentHelper(context.currentSubsection, obj));
+			return MarkupObjectManager._sections2MarkupObjectFactories[context]._initializedNonmarkupObjects[obj] || MarkupObjectManager._sections2MarkupObjectFactories[context]._initializedMarkupObjects[obj] || (context.currentSubsection && this._isInitializedComponentHelper(context.currentSubsection, obj));
 		}
 
 
 //!
 private static function _setOrphanAsset(context:Object, obj:Object, sPath:String):void
 {
+trace('\t\torphan\t' + context + '\t' + obj + '\t' + sPath);
 	var orphans = MarkupObjectManager._orphanAssets[sPath];
 	if (!orphans)
 	{

@@ -1,5 +1,9 @@
 package inky.framework.net
 {
+	import flash.display.Bitmap;
+	import flash.display.BitmapData;
+	import flash.display.Loader;
+	import flash.display.PixelSnapping;
 	import inky.framework.net.GraphicLoader;
 
 
@@ -16,5 +20,28 @@ package inky.framework.net
 	 */
 	public class ImageLoader extends GraphicLoader
 	{
+
+		public function ImageLoader()
+		{
+			import com.exanimo.memory.*;
+			MemoryMonitor.watch(this);
+		}
+
+
+		/**
+		 *
+		 * 
+		 */
+		override protected function setContent(content:Object):void
+		{
+			var loader:Loader = this.getLoader() as Loader;
+			var bmpData:BitmapData = new BitmapData(loader.width, loader.height, true, 0x00000000);
+			bmpData.draw(loader);
+			super.setContent(new Bitmap(bmpData, PixelSnapping.AUTO, true));
+		}
+
+
+
+
 	}
 }

@@ -6,6 +6,7 @@ package inky.framework.net
 	import flash.events.ProgressEvent;
 	import flash.net.URLRequest;
 	import inky.framework.binding.events.PropertyChangeEvent;
+	import inky.framework.core.Application;
 	import inky.framework.core.Section;
 	import inky.framework.events.AssetLoaderEvent;
 	import inky.framework.net.IAssetLoader;
@@ -31,7 +32,6 @@ package inky.framework.net
 		private var _loader:Object;
 		private var _preload:Boolean;
 		private var _request:URLRequest;
-		private var _section:Object;
 		private var _source:Object;
 		private var _target:IAssetLoader;
 
@@ -337,7 +337,7 @@ package inky.framework.net
 			}
 
 			// If this loader belongs to a section, delegate the loading to it.
-			var section:Object = Section.getSection(this._target);
+			var section:Object = Section.getSection(this._target) || Application.currentApplication;
 			if (section)
 			{
 				if (loadNow)

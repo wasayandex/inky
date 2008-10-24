@@ -12,7 +12,6 @@ package inky.framework.net
 	import flash.system.ApplicationDomain;
 	import flash.system.LoaderContext;	
 	import flash.utils.getQualifiedClassName;
-	import inky.framework.core.Section;
 	import inky.framework.events.AssetLoaderEvent;
 	import inky.framework.net.AssetLoaderBehavior;
 	import inky.framework.net.IAssetLoader;
@@ -180,6 +179,16 @@ if (parent) parent.removeChild(t);}, 0);
 
 
 		/**
+		 *
+		 *	
+		 */
+		protected function getLoader():Object
+		{
+			return this._loader;
+		}
+
+
+		/**
 		 * @inheritDoc
 		 */
 		public function load(source:Object = null):void
@@ -209,6 +218,16 @@ if (parent) parent.removeChild(t);}, 0);
 		}
 
 
+		/**
+		 *
+		 *	
+		 */
+		protected function setContent(content:Object):void
+		{
+			this._behavior.setContent(content);
+		}
+
+
 
 
 		//
@@ -235,7 +254,7 @@ if (parent) parent.removeChild(t);}, 0);
 		 */
 		private function _completeHandler(e:Event):void
 		{
-			this._behavior.setContent(this._loader.content);
+			this.setContent(this._loader.content);
 			this.dispatchEvent(new AssetLoaderEvent(AssetLoaderEvent.READY));
 		}
 
@@ -249,16 +268,16 @@ if (parent) parent.removeChild(t);}, 0);
 			this._loader = new Loader();
 			
 			// Configure listeners.
-			this._loader.contentLoaderInfo.addEventListener(Event.COMPLETE, this._completeHandler, false, 0, true);
-			this._loader.contentLoaderInfo.addEventListener(Event.COMPLETE, this._relayEvent, false, 0, true);
-			this._loader.contentLoaderInfo.addEventListener(HTTPStatusEvent.HTTP_STATUS, this._relayEvent, false, 0, true);
-			this._loader.contentLoaderInfo.addEventListener(Event.INIT, this._relayEvent, false, 0, true);
-			this._loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, this._relayEvent, false, 0, true);
-			this._loader.contentLoaderInfo.addEventListener(Event.OPEN, this._relayEvent, false, 0, true);
-			this._loader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, this._relayEvent, false, 0, true);
-			this._loader.contentLoaderInfo.addEventListener(Event.UNLOAD, this._relayEvent, false, 0, true);
+			this._loader.contentLoaderInfo.addEventListener(Event.COMPLETE, this._completeHandler, false, int.MAX_VALUE, true);
+			this._loader.contentLoaderInfo.addEventListener(Event.COMPLETE, this._relayEvent, false, int.MAX_VALUE, true);
+			this._loader.contentLoaderInfo.addEventListener(HTTPStatusEvent.HTTP_STATUS, this._relayEvent, false, int.MAX_VALUE, true);
+			this._loader.contentLoaderInfo.addEventListener(Event.INIT, this._relayEvent, false, int.MAX_VALUE, true);
+			this._loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, this._relayEvent, false, int.MAX_VALUE, true);
+			this._loader.contentLoaderInfo.addEventListener(Event.OPEN, this._relayEvent, false, int.MAX_VALUE, true);
+			this._loader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, this._relayEvent, false, int.MAX_VALUE, true);
+			this._loader.contentLoaderInfo.addEventListener(Event.UNLOAD, this._relayEvent, false, int.MAX_VALUE, true);
 			
-			this.addEventListener(Event.ADDED_TO_STAGE, this._addedToStageHandler);
+			this.addEventListener(Event.ADDED_TO_STAGE, this._addedToStageHandler, false, int.MAX_VALUE);
 			
 			this.addChild(this._loader);
 			return this._loader;

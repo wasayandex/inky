@@ -1,5 +1,6 @@
 package inky.framework.managers 
 {
+	import com.exanimo.collections.ArrayList;
 	import com.exanimo.collections.IIterator;
 	import com.exanimo.collections.IList;
 	import com.exanimo.controls.IProgressBar;
@@ -49,7 +50,6 @@ package inky.framework.managers
 		private static var _dataLoadCompleteCallback:Function;
 		private static var _includeLoaders2xml:Dictionary;
 		private static var _masterLoadQueue:LoadQueue = new LoadQueue();
-		private static var _masterSection:Section;
 		private static var _xmlLoader:URLLoader;
 
 		use namespace inky;
@@ -69,9 +69,6 @@ package inky.framework.managers
 		{
 			this._loadQueue = new LoadQueue();
 			this._section = section;
-
-// TODO: how else to get master section?? Is this good??
-LoadManager._masterSection = LoadManager._masterSection || section;
 		}
 
 
@@ -186,22 +183,6 @@ LoadManager._masterSection = LoadManager._masterSection || section;
 
 
 		/**
-		 * @private
-		 *	
-		 *	
-		 */
-		public function initialize():void
-		{
-//! TODO: figure out a way to get rid of this function. the problem is that the section info needs to be available, so this must happen after it's set (i.e. cannot be triggered by the constructor)
-			if (this._section == LoadManager._masterSection)
-			{
-				var info:SectionInfo = this._section.inky_internal::getInfo();
-				this._createPreloadAssetList(info);
-			}	
-		}
-
-
-		/**
 		 *
 		 * 	
 		 * 
@@ -209,7 +190,7 @@ LoadManager._masterSection = LoadManager._masterSection || section;
 		public function loadData(request:URLRequest, callback:Function):void
 		{
 			LoadManager._xmlLoader = new URLLoader();
-			LoadManager._xmlLoader.addEventListener(Event.OPEN, LoadManager._dataOpenHandler);
+			LoadManager._xmlLoader.addEventListener(Event.OPEN, this._dataOpenHandler);
 			LoadManager._xmlLoader.addEventListener(IOErrorEvent.IO_ERROR, LoadManager._doNothing);
 
 			LoadManager._dataLoadCompleteCallback = callback;
@@ -243,9 +224,10 @@ LoadManager._masterSection = LoadManager._masterSection || section;
 			var sPath:SPath = target.clone() as SPath;
 			var leafSPath:SPath = this._section.sPath;
 
+			// Create LoadQueues for each section that needs to be preloaded and add them to a master LoadQueue.
 			while (sPath.length && !sPath.equals(leafSPath))
 			{
-				var lq:LoadQueue = LoadManager._createPreloadLoadQueue(this._section, sPath);
+				var lq:LoadQueue = this._createPreloadLoadQueue(sPath);
 				if (lq && lq.numItems)
 				{
 					this._loadQueue.addItemAt(lq, 0);
@@ -336,57 +318,45 @@ LoadManager._masterSection = LoadManager._masterSection || section;
 		 *	
 		 *	
 		 */
-		private function _createPreloadAssetList(info:SectionInfo):void
+		private function _createPreloadLoadQueue(sPath:SPath):LoadQueue
 		{
 			// Get the section's data.
+			var info:SectionInfo = this._section.inky_internal::getInfo().getSectionInfoBySPath(sPath);
 			var data:XML = info.inky_internal::getData();
 
 			// Create the preload asset list.
+// TODO: Only grab inky namespaced nodes.
 			var preloadAssetList:XMLList = (data..RuntimeLibraryLoader + data..Asset + data..SWFLoader + data..ImageLoader + data..XMLLoader + data..SoundLoader).((attribute('preload') == 'true') || (attribute('preload') == '{true}'));
 			var excludeAssets:XMLList = data.Section..RuntimeLibraryLoader + data.Section..Asset + data.Section..SWFLoader + data.Section..ImageLoader + data.Section..XMLLoader + data.Section..SoundLoader;
-			var preloadAssets:IList = Section.getPreloadAssets(info.sPath);
+			var preloadAssets:Array = [];
 			var loader:Object;
 
+			// If the section is external, create a SWFLoader to load it.
 			if (info.source)
 			{
 				loader = new SWFLoader();
 				loader.source = info.source;
-				preloadAssets.addItem(loader);
+				preloadAssets.push(loader);
 			}
 
+			// Create AssetLoaders.
 			for each (var asset:XML in preloadAssetList)
 			{
 				if (!excludeAssets.contains(asset))
 				{
-					loader = LoadManager._masterSection.markupObjectManager.createMarkupObject(asset);
-					preloadAssets.addItem(loader);
+					loader = this._section.master.markupObjectManager.createMarkupObject(asset);
+					preloadAssets.push(loader);
 				}
 			}
 
-			// Get the child sections' preload assests.
-			for each (info in info.getSubsectionInfos())
-			{
-				this._createPreloadAssetList(info);
-			}
-		}
-
-
-		/**
-		 *
-		 *	
-		 *	
-		 */	
-		private static function _createPreloadLoadQueue(context:Object, target:Object):LoadQueue
-		{
-			var preloadAssets:IList = Section.getPreloadAssets(target as SPath);
+			// Make a LoadQueue containing the preload assets.
 			var lq:LoadQueue;
-			
 			if (preloadAssets.length)
 			{
 				lq = new LoadQueue();
-				for (var i:IIterator = preloadAssets.iterator(); i.hasNext(); )
+				for each (loader in preloadAssets)
 				{
-					lq.addItem(i.next());
+					lq.addItem(loader);
 				}
 			}
 
@@ -399,19 +369,19 @@ LoadManager._masterSection = LoadManager._masterSection || section;
 		 * Called when the data is successfully opened.
 		 *
 		 */		 		 		 		
-		private static function _dataOpenHandler(e:Event):void
+		private function _dataOpenHandler(e:Event):void
 		{
-			var section:Section = LoadManager._masterSection;
+			var section:Section = this._section.master;
 			var itemLoadingProgressBar:IProgressBar = section.itemLoadingProgressBar as IProgressBar;
 			if (itemLoadingProgressBar)
 			{
 				itemLoadingProgressBar.mode = ProgressBarMode.MANUAL;
 			}
 
-			e.currentTarget.addEventListener(ProgressEvent.PROGRESS, LoadManager._dataProgressHandler);
-			e.currentTarget.addEventListener(Event.COMPLETE, LoadManager._dataProgressHandler);
-			section.loaderInfo.addEventListener(ProgressEvent.PROGRESS, LoadManager._dataProgressHandler);
-			section.loaderInfo.addEventListener(Event.COMPLETE, LoadManager._dataProgressHandler);
+			e.currentTarget.addEventListener(ProgressEvent.PROGRESS, this._dataProgressHandler);
+			e.currentTarget.addEventListener(Event.COMPLETE, this._dataProgressHandler);
+			section.loaderInfo.addEventListener(ProgressEvent.PROGRESS, this._dataProgressHandler);
+			section.loaderInfo.addEventListener(Event.COMPLETE, this._dataProgressHandler);
 		}
 
 
@@ -420,9 +390,9 @@ LoadManager._masterSection = LoadManager._masterSection || section;
 		 * 	
 		 * 
 		 */
-		private static function _dataProgressHandler(e:Event):void
+		private function _dataProgressHandler(e:Event):void
 		{
-			var section:Section = LoadManager._masterSection;
+			var section:Section = this._section.master;
 			var xmlLoader:URLLoader = LoadManager._xmlLoader;
 			var maximum:Number = section.loaderInfo.bytesTotal + xmlLoader.bytesTotal;
 			var value:Number = section.loaderInfo.bytesLoaded + xmlLoader.bytesLoaded;
@@ -435,13 +405,13 @@ LoadManager._masterSection = LoadManager._masterSection || section;
 
 			if (e.type == Event.COMPLETE && value == maximum)
 			{
-				section.loaderInfo.removeEventListener(ProgressEvent.PROGRESS, LoadManager._dataProgressHandler);
-				section.loaderInfo.removeEventListener(Event.COMPLETE, LoadManager._dataProgressHandler);
-				xmlLoader.removeEventListener(ProgressEvent.PROGRESS, LoadManager._dataProgressHandler);
-				xmlLoader.removeEventListener(Event.COMPLETE, LoadManager._dataProgressHandler);
+				section.loaderInfo.removeEventListener(ProgressEvent.PROGRESS, this._dataProgressHandler);
+				section.loaderInfo.removeEventListener(Event.COMPLETE, this._dataProgressHandler);
+				xmlLoader.removeEventListener(ProgressEvent.PROGRESS, this._dataProgressHandler);
+				xmlLoader.removeEventListener(Event.COMPLETE, this._dataProgressHandler);
 
 				LoadManager._data = new XML(xmlLoader.data);
-				LoadManager._loadXMLIncludes(LoadManager._data);
+				this._loadXMLIncludes(LoadManager._data);
 				LoadManager._xmlLoader = undefined;
 			}
 		}
@@ -599,7 +569,7 @@ LoadManager._masterSection = LoadManager._masterSection || section;
 		 * 	
 		 * 
 		 */
-		private static function _includeCompleteHandler(e:Event):void
+		private function _includeCompleteHandler(e:Event):void
 		{
 			// Replace the include node with the loaded data.
 			var incl:XML = LoadManager._includeLoaders2xml[e.currentTarget];
@@ -617,15 +587,15 @@ LoadManager._masterSection = LoadManager._masterSection || section;
 		 * 	
 		 * 
 		 */
-		private static function _includeQueueCompleteHandler(e:Event = null):void
+		private function _includeQueueCompleteHandler(e:Event = null):void
 		{
-			var itemLoadingProgressBar:IProgressBar = LoadManager._masterSection.itemLoadingProgressBar as IProgressBar;
+			var itemLoadingProgressBar:IProgressBar = this._section.master.itemLoadingProgressBar as IProgressBar;
 			if (itemLoadingProgressBar)
 			{
 				itemLoadingProgressBar.mode = ProgressBarMode.EVENT;
 			}
 
-			LoadManager._dataLoadCompleteCallback.apply(LoadManager._masterSection, [LoadManager._data]);
+			LoadManager._dataLoadCompleteCallback.apply(this._section.master, [LoadManager._data]);
 			LoadManager._dataLoadCompleteCallback = undefined;
 			LoadManager._data = undefined;
 		}
@@ -636,7 +606,7 @@ LoadManager._masterSection = LoadManager._masterSection || section;
 		 *	
 		 *	
 		 */
-		private static function _loadXMLIncludes(data:XML):void
+		private function _loadXMLIncludes(data:XML):void
 		{
 			var includeQueue:LoadQueue = new LoadQueue();
 
@@ -660,18 +630,18 @@ LoadManager._masterSection = LoadManager._masterSection || section;
 				LoadManager._includeLoaders2xml[loader] = incl;
 				includeQueue.addItem(loader);
 				includeQueue.setLoadArguments(loader, new URLRequest(source));
-				loader.addEventListener(Event.COMPLETE, LoadManager._includeCompleteHandler);
+				loader.addEventListener(Event.COMPLETE, this._includeCompleteHandler);
 			}
 
 			if (includeQueue.numItems)
 			{
-				includeQueue.addEventListener(Event.COMPLETE, LoadManager._includeQueueCompleteHandler);
+				includeQueue.addEventListener(Event.COMPLETE, this._includeQueueCompleteHandler);
 				LoadManager._masterLoadQueue.addItem(includeQueue);
 				LoadManager._masterLoadQueue.load();
 			}
 			else
 			{
-				LoadManager._includeQueueCompleteHandler();
+				this._includeQueueCompleteHandler();
 			}
 		}
 		
@@ -734,7 +704,6 @@ LoadManager._masterSection = LoadManager._masterSection || section;
 		 */
 		private function _removeProgressBarCompleteHandler(e:Event = null)
 		{
-
 			var cumulativeRemoved:Boolean = false;
 			var itemRemoved:Boolean = false;
 
