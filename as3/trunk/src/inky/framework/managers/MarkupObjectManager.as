@@ -56,7 +56,6 @@ package inky.framework.managers
 		private static var _idMarkupObjects:Object = new ObjectProxy();
 		private var _section:Section;
 		private static var _sections2MarkupObjectFactories:Dictionary = new Dictionary(true);
-		private var _noIdMarkupObjects:Array;
 		private var _markupObjects2Data:Dictionary;
 		private static var _orphanAssets:Object = {};
 
@@ -90,7 +89,6 @@ package inky.framework.managers
 			this._bindingManager = new BindingManager(MarkupObjectManager._idMarkupObjects);
 			this._initializedNonmarkupObjects = new Dictionary(true);
 			MarkupObjectManager._sections2MarkupObjectFactories[section] = this;
-			this._noIdMarkupObjects = [];
 			this._markupObjects2Data = new Dictionary(true);
 			this._initializedMarkupObjects = new Dictionary(true);
 		}
@@ -297,8 +295,7 @@ if (this._getMarkupObjectByData(this._section, tmp) != this._section)
 		sPath ='/' + tmp.@name + sPath;
 		tmp = tmp.parent();
 	}
-//!
-trace('create\t' + obj + '\t' + obj.source);
+
 	MarkupObjectManager._setOrphanAsset(this, obj, sPath);
 }
 									this.setData(obj, xml);
@@ -436,7 +433,6 @@ Debugger.traceWarning(error);
 		 */
 		public function destroy():void
 		{
-//!
 var orphans:Object = MarkupObjectManager._orphanAssets[this._section.sPath.toString()];
 if (orphans)
 {
@@ -453,7 +449,6 @@ if (orphans)
 
 			this._markupObjects2Data = undefined;
 			this._initializedMarkupObjects = undefined;
-			this._noIdMarkupObjects = undefined;
 			this._initializedNonmarkupObjects = undefined;
 			this._section = undefined;
 
@@ -559,13 +554,7 @@ if (orphans)
 				{
 					this._markupObjectIds.push(id);
 					MarkupObjectManager._idMarkupObjects[id] = MarkupObjectManager._idMarkupObjects[id] || obj;
-				}/*
-//!m
-				else if (this._noIdMarkupObjects.indexOf(obj) == -1)
-				{
-					this._noIdMarkupObjects.push(obj);
 				}
-*/
 				this._markupObjects2Data[obj] = this._markupObjects2Data[obj] || data;
 
 				if (parseData)
@@ -617,6 +606,7 @@ if (obj == this._section.master)
 				var trimmedStr:String = str.replace(/^[\s]*/, '').replace(/[\s]*$/, '');
 				if ((trimmedStr.charAt(0) == '{') && (trimmedStr.charAt(trimmedStr.length - 1) == '}'))
 				{
+// TODO: check to see if <ImageLoader preload="{true}" /> causes memory leak!
 					// Value is bound to another value using {id} syntax
 					var binding:Binding = this._bindingManager.parseBinding2(obj, propName, trimmedStr.substr(1, -2));
 					this._bindingManager.executeBinding(binding);
@@ -682,14 +672,12 @@ if (obj == this._section.master)
 		}
 
 
-//!
 private static function _destroyMarkupObject(context:Object, obj:Object):void
 {
-trace('destroy\t' + obj);
 	var data:Object = context._markupObjects2Data[obj];
 	delete context._markupObjects2Data[obj];
 	delete context._initializedMarkupObjects[obj];
-Section.setSection(obj, null);
+	Section.setSection(obj, null);
 }
 
 
@@ -872,10 +860,9 @@ MarkupObjectManager._sections2MarkupObjectFactories[context]._markupObjects2Data
 		}
 
 
-//!
+// TODO: Get rid of orphan asset stuff. Since the objects are now mapped to SPaths (instead of Sections), you should be able to simply change the SPath the object is mapped to.
 private static function _setOrphanAsset(context:Object, obj:Object, sPath:String):void
 {
-trace('\t\torphan\t' + context + '\t' + obj + '\t' + sPath);
 	var orphans = MarkupObjectManager._orphanAssets[sPath];
 	if (!orphans)
 	{

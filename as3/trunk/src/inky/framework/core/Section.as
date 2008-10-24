@@ -938,8 +938,7 @@ public static function _getSectionBySPath(sPathStr:String):Section
 		 */
 		private function _destroy():void
 		{
-//!m
-/*
+			// TODO: Is this necessary? Objects are already elegible for garbage collection.
 			// Remove any links between owned objects and this section.
 			for (var obj:Object in Section._objects2SPaths)
 			{
@@ -948,8 +947,6 @@ public static function _getSectionBySPath(sPathStr:String):Section
 					delete Section._objects2SPaths[obj];
 				}
 			}
-*/
-
 
 			// Dissasociate this section from the SPath.
 			delete Section._sections2SPaths[this];
