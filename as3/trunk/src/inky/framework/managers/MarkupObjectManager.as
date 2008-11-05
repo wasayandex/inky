@@ -764,7 +764,7 @@ private static function _destroyMarkupObject(context:Object, obj:Object):void
 				for (o in dict)
 				{
 					var xml:Object = dict[o];
-					if (data == xml)
+					if (data === xml)
 					{
 						obj = o;
 						break;
