@@ -208,7 +208,7 @@ MemoryMonitor.watch(this);
 		public function set itemLoadingProgressBar(progressBar:DisplayObject):void
 		{
 			// Unregister the old item progress bar.
-			var oldProgressBar:IProgressBar = this.cumulativeLoadingProgressBar as IProgressBar;
+			var oldProgressBar:IProgressBar = this.itemLoadingProgressBar as IProgressBar;
 			if (oldProgressBar)
 			{
 				oldProgressBar.source = null;
