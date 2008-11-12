@@ -16,13 +16,5 @@ package inky.framework.net
 	 */
 	public class SWFLoader extends GraphicLoader
 	{
-
-
-public function SWFLoader()
-{
-	import com.exanimo.memory.*;
-	MemoryMonitor.watch(this);
-}
-
 	}
 }

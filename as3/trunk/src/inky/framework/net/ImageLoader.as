@@ -21,12 +21,6 @@ package inky.framework.net
 	public class ImageLoader extends GraphicLoader
 	{
 
-		public function ImageLoader()
-		{
-			import com.exanimo.memory.*;
-			MemoryMonitor.watch(this);
-		}
-
 
 		/**
 		 *

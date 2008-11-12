@@ -101,8 +101,6 @@ package inky.framework.core
 		 */
 		public function Section()
 		{
-import com.exanimo.memory.*;
-MemoryMonitor.watch(this);
 			this._init();
 		}
 
