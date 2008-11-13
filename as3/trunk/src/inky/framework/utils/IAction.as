@@ -56,6 +56,16 @@ package inky.framework.utils
 
 		/**
 		 *
+		 * Specifies whether the action can be cancelled.
+		 *	
+		 * @default false
+		 *		
+		 */
+		function get cancelable():Boolean;
+
+
+		/**
+		 *
 		 * The target upon which the action acts.
 		 *
 		 * @default null	
@@ -73,6 +83,17 @@ package inky.framework.utils
 		//
 		// public methods
 		//
+
+
+		/**
+		 *
+		 * Immediately stops the action.
+		 *	
+		 * @throws Error
+		 *     thrown if the action is not cancelable
+		 *	
+		 */
+		function cancel():void;
 
 
 		/**

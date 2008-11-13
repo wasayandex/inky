@@ -50,6 +50,15 @@ package inky.framework.transitions
 		/**
 		 * @inheritDoc
 		 */
+		public function get cancelable():Boolean
+		{
+			return true;
+		}
+
+
+		/**
+		 * @inheritDoc
+		 */
 		public function get target():Object
 		{
 			return this._target;
@@ -98,6 +107,15 @@ package inky.framework.transitions
 		//
 		// public methods
 		//
+
+
+		/**
+		 * @inheritDoc
+		 */
+		public function cancel():void
+		{
+			this.stop();
+		}
 
 
 		/**

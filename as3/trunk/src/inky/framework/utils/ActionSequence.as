@@ -48,6 +48,16 @@ package inky.framework.utils
 		// accessors
 		//
 
+
+		/**
+		 * @inheritDoc
+		 */
+		public function get cancelable():Boolean
+		{
+// TODO: Should be cancelable if all elements are cancelable.
+			return false;
+		}
+
 		
 		/**
 		 *
@@ -75,7 +85,17 @@ package inky.framework.utils
 		// public methods
 		//
 
-		
+
+		/**
+		 * @inheritDoc
+		 */
+		public function cancel():void
+		{
+// TODO: Should be cancelable if all elements are cancelable.
+			throw new Error('ActionSequence is not cancelable.');
+		}
+
+
 		/**
 		 *
 		 * @inheritDoc
