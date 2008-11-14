@@ -48,6 +48,15 @@ package inky.addons.transitions
 
 
 		/**
+		 * @inheritDoc
+		 */
+		public function get cancelable():Boolean
+		{
+			return true;
+		}
+
+
+		/**
 		 *
 		 * @inheritDoc
 		 * 
@@ -71,6 +80,15 @@ package inky.addons.transitions
 		//
 		// public methods
 		//
+
+
+		/**
+		 * @inheritDoc
+		 */
+		public function cancel():void
+		{
+			Tweener.removeTweens(this.target);
+		}
 
 
 		/**

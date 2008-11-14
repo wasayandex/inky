@@ -33,7 +33,17 @@ package inky.addons.transitions
 		//
 		// accessors
 		//
-		
+
+
+		/**
+		 * @inheritDoc
+		 */
+		public function get cancelable():Boolean
+		{
+			return false;
+		}
+
+
 		/**
 		 *
 		 * @inheritDoc
@@ -58,7 +68,17 @@ package inky.addons.transitions
 		//
 		// public methods
 		//
-		
+
+
+		/**
+		 * @inheritDoc
+		 */
+		public function cancel():void
+		{
+			throw new Error('SetValueAction is not cancelable.');
+		}
+
+
 		public function parseData(data:XML):void
 		{
 			for each (var item:XML in data.* + data.attributes())

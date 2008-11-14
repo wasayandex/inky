@@ -50,6 +50,15 @@ package inky.addons.transitions
 
 
 		/**
+		 * @inheritDoc
+		 */
+		public function get cancelable():Boolean
+		{
+			return false;
+		}
+
+
+		/**
 		 *
 		 * The target upon which the action acts.
 		 *
@@ -76,6 +85,15 @@ package inky.addons.transitions
 		//
 		// public methods
 		//
+
+
+		/**
+		 * @inheritDoc
+		 */
+		public function cancel():void
+		{
+			throw new Error('AnimatorAction is not cancelable.');
+		}
 
 
 		/**
