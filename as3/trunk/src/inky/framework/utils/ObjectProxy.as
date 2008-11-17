@@ -51,7 +51,7 @@ package inky.framework.utils
 		 */
 	    override flash_proxy function callProperty(methodName:*, ... args):*
 	    {
-	    	throw new TypeError('Error #1006: ' + methodName + ' is not a function.');
+			return this[methodName].apply(this, args);
 	    }
 
 

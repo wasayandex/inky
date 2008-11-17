@@ -86,7 +86,7 @@ package inky.framework.core
 		private static var _objects2SPaths:Dictionary = new Dictionary(true);
 		private var _options:SectionOptions;
 		private var _outroComplete:Boolean;
-		private var _sPath:SPath;
+		private static var _sections2SPaths = new Dictionary(true);
 		private var __subsectionContainer:DisplayObjectContainer;
 
 
@@ -330,7 +330,7 @@ package inky.framework.core
 		 */
 		public function get sPath():SPath
 		{
-			return this._sPath || this.inky_internal::getInfo().sPath;
+			return this.inky_internal::getInfo().sPath;
 		}
 
 
@@ -535,7 +535,7 @@ package inky.framework.core
 		public static function getSection(obj:Object):Section
 		{
 			var sPathStr:String = Section._objects2SPaths[obj];
-			var owner:Section = Section._getSectionBySPath(sPathStr);
+			var owner:Section = Section.getSectionBySPath(sPathStr);
 			if (!owner && (obj is DisplayObject))
 			{
 				var tmp:DisplayObject = (obj as DisplayObject).parent;
@@ -554,18 +554,23 @@ package inky.framework.core
 		}
 
 
-private static var _sections2SPaths = new Dictionary(true);
-public static function _getSectionBySPath(sPathStr:String):Section
-{
-	for (var o in Section._sections2SPaths)
-	{
-		if (Section._sections2SPaths[o] == sPathStr)
+		/**
+		 * @private
+		 *
+		 *	
+		 *	
+		 */
+		public static function getSectionBySPath(sPathStr:String):Section
 		{
-			return o;
+			for (var o in Section._sections2SPaths)
+			{
+				if (Section._sections2SPaths[o] == sPathStr)
+				{
+					return o;
+				}
+			}
+			return null;
 		}
-	}
-	return null;
-}
 
 
 		/**
@@ -976,7 +981,6 @@ public static function _getSectionBySPath(sPathStr:String):Section
 			this.__cumulativeLoadingProgressBar = undefined;
 			this._info = undefined;
 			this.__itemLoadingProgressBar = undefined;
-			this._sPath = undefined;
 			this._markupObjectManager = undefined;
 
 			// Remove event listeners.
@@ -1004,8 +1008,7 @@ public static function _getSectionBySPath(sPathStr:String):Section
 
 			this._options = new SectionOptions();
 			this._loadManager = new LoadManager(this);
-			this._markupObjectManager = new MarkupObjectManager(this);
-			
+
 			this.__subsectionContainer = this.getChildByName('_subsectionContainer') as DisplayObjectContainer || this;
 			
 			this._introComplete = 
@@ -1168,8 +1171,9 @@ public static function _getSectionBySPath(sPathStr:String):Section
  		inky_internal function setInfo(info:SectionInfo):void
 		{
 // TODO: Remove this method
-Section._sections2SPaths[this] = info.sPath.toString();
+			Section._sections2SPaths[this] = info.sPath.toString();
 			this._info = info;
+			this._markupObjectManager = MarkupObjectManager.getMarkupObjectManager(this.sPath);
 		}
 
 

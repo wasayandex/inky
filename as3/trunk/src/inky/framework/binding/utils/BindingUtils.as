@@ -68,7 +68,23 @@ package inky.framework.binding.utils
 	        {
 	            var assign:Function = function(e:Event):void
 	            {
-	                site[prop] = watcher.getValue();
+					// TODO: Does a try..catch here slow things down?
+					try
+					{
+						site[prop] = watcher.getValue();
+					}
+					catch (error:Error)
+					{
+						// TypeError: Error #2007: Parameter text must be non-null.
+						if (error.errorID == 2007)
+						{
+							site[prop] = '';
+						}
+						else
+						{
+							throw(error);
+						}
+					}
 	            };
 	            watcher.setHandler(assign);
 	            assign(null);

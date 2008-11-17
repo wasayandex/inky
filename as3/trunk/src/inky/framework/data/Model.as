@@ -2,8 +2,8 @@ package inky.framework.data
 {
 	import inky.framework.core.IInkyDataParser;
 	import inky.framework.core.Section;
-	import inky.framework.data.ModelData;
 	import inky.framework.managers.MarkupObjectManager;
+	import inky.framework.utils.ObjectProxy;
 	import flash.events.EventDispatcher;
 
 
@@ -43,9 +43,8 @@ package inky.framework.data
 	 * @since  2008.06.04
 	 *
 	 */
-	public class Model extends EventDispatcher implements IInkyDataParser
+	dynamic public class Model extends ObjectProxy implements IInkyDataParser
 	{
-		private var _data:ModelData;
 		namespace local = '';
 
 
@@ -57,25 +56,6 @@ package inky.framework.data
 		 */	
 	    public function Model()
 		{
-			this._data = new ModelData();
-		}
-
-
-
-
-		//
-		// accessors
-		//
-
-
-		/**
-		 *
-		 * The model's data.
-		 *
-		 */
-		public function get data():ModelData
-		{
-			return this._data;
 		}
 
 
@@ -91,10 +71,12 @@ package inky.framework.data
 		 */
 		public function parseData(xml:XML):void
 		{
-// TODO: Set properties that aren't nested in data node.
-			for each (var i:XML in xml.data.*)
+			var dataNodes:XMLList = xml.*;
+			dataNodes = dataNodes.length() ? dataNodes[0].* : null;
+
+			for each (var i:XML in dataNodes)
 			{
-				this._createModelData(this.data, i);
+				this._createModelData(this, i);
 			}
 		}
 
@@ -111,17 +93,18 @@ package inky.framework.data
 		 *	
 		 *	
 		 */
-		private function _createModelData(modelData:ModelData, xml:XML):void
+		private function _createModelData(modelData:ObjectProxy, xml:XML):void
 		{
 			if (!xml.*.(namespace() == local).length())
 			{
-				var mom:MarkupObjectManager = Section.getSection(this).markupObjectManager;
+				var section:Section = Section.getSection(this);
+				var mom:MarkupObjectManager = section ? section.markupObjectManager : MarkupObjectManager.masterMarkupObjectManager;
 				mom.setProperty(modelData, xml);
 			}
 			else
 			{
-// TODO: If node only has other modeldata objects, just use a regular object?
-				var newModelData:ModelData = new ModelData();
+// TODO: If node only has other ObjectProxy objects, just use a regular object?
+				var newModelData:ObjectProxy = new ObjectProxy();
 				modelData[xml.localName()] = newModelData;
 				for each (var i:XML in xml.*)
 				{
