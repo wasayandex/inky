@@ -1,19 +1,1 @@
-package inky.framework.validation
-{
-
-
-	/**
-	 *	
-	 *	..
-	 *
-	 *	@langversion ActionScript 3.0
-	 *	@playerversion Flash 9.0
-	 *
-	 *	@author Matthew Tretter
-	 *	@since  2008.09.09
-	 *	
-	 */
-	public interface IValidator
-	{
-	}
-}
+﻿package inky.framework.validation{	import flash.events.IEventDispatcher;	import inky.framework.validation.ValidationResultEvent;	/**	 *		 *	..	 *	 *	@langversion ActionScript 3.0	 *	@playerversion Flash 9.0	 *	 *	@author Matthew Tretter	 *	@since  2008.09.09	 *		 */	public interface IValidator extends IEventDispatcher	{		//		// accessors		//		/**		 *		 *			 */		function set property(property:String):void;		/**		 *		 *			 */		function set source(source:Object):void;		//		// public methods		//		/**		 *		 *			 */		function validate():ValidationResultEvent;	}}

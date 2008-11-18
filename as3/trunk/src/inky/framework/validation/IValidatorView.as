@@ -1,5 +1,6 @@
 package inky.framework.validation
 {
+	import inky.framework.validation.IValidator;
 
 
 	/**
@@ -15,5 +16,16 @@ package inky.framework.validation
 	 */
 	public interface IValidatorView
 	{
+		/**
+		 *
+		 *	
+		 */
+		function reset():void;
+		
+		/**
+		 *
+		 *	
+		 */
+		function set validator(validator:IValidator):void;
 	}
 }
