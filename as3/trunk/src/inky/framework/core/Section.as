@@ -168,7 +168,8 @@ package inky.framework.core
 			}
 
 			this.__cumulativeLoadingProgressBar = progressBar;
-			Section.setSection(this.__cumulativeLoadingProgressBar, this);
+// FIXME: this will trigger an error if the progress bar is on the stage.
+//			Section.setSection(this.__cumulativeLoadingProgressBar, this);
 		}
 
 
@@ -215,7 +216,8 @@ package inky.framework.core
 			if (!progressBar) return;
 
 			this.__itemLoadingProgressBar = progressBar;
-			Section.setSection(this.__itemLoadingProgressBar, this);
+// FIXME: this will trigger an error if the progress bar is on the stage.
+//			Section.setSection(this.__itemLoadingProgressBar, this);
 		}
 
 
@@ -830,6 +832,7 @@ package inky.framework.core
 		{
 			var sPath:String;
 
+
 			if (section is Section)
 			{
 				sPath = section.sPath.toString();
@@ -880,7 +883,7 @@ package inky.framework.core
 			}
 
 			e.currentTarget.removeEventListener(e.type, arguments.callee);
-			
+
 			if (this == this.master)
 			{
 				// Add a listener to initialize any timeline-placed markup objects
