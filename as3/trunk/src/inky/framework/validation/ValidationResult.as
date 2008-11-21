@@ -16,10 +16,11 @@ package inky.framework.validation
 	 */
 	public class ValidationResult
 	{
+		public var errors:Array;
 		public var isError:Boolean;
-		public var subField:String;
-		public var errorCode:String;
-		public var errorMessage:String;
+		public var field:String;
+		public var subFieldErrors:Object;
+		public var subFieldResults:Object;
 
 
 
@@ -29,12 +30,13 @@ package inky.framework.validation
 		 * 
 		 *
 		 */
-	    public function ValidationResult(isError:Boolean, subField:String = '', errorCode:String = '', errorMessage:String = '')
+	    public function ValidationResult(isError:Boolean, field:String = '', errors:Array = null, subFieldResults:Object = null, subFieldErrors:Object = null)
 	    {
 			this.isError = isError;
-			this.subField = subField;
-			this.errorCode = errorCode;
-			this.errorMessage = errorMessage;
+			this.field = field;
+			this.errors = errors || [];
+			this.subFieldResults = subFieldResults || {};
+			this.subFieldErrors = subFieldErrors || {};
 	    }
 
 
