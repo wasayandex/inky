@@ -30,7 +30,7 @@ package inky.framework.validation
 		 * 
 		 *
 		 */
-	    public function ValidationResult(isError:Boolean, field:String = '', errors:Array = null, subFieldResults:Object = null, subFieldErrors:Object = null)
+	    public function ValidationResult(isError:Boolean = false, field:String = '', errors:Array = null, subFieldResults:Object = null, subFieldErrors:Object = null)
 	    {
 			this.isError = isError;
 			this.field = field;
