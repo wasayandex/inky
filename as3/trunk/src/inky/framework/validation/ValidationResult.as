@@ -19,7 +19,6 @@ package inky.framework.validation
 		public var errors:Array;
 		public var isError:Boolean;
 		public var field:String;
-		public var subFieldErrors:Object;
 		public var subFieldResults:Object;
 
 
@@ -30,13 +29,12 @@ package inky.framework.validation
 		 * 
 		 *
 		 */
-	    public function ValidationResult(isError:Boolean = false, field:String = '', errors:Array = null, subFieldResults:Object = null, subFieldErrors:Object = null)
+	    public function ValidationResult(isError:Boolean = false, field:String = '', errors:Array = null, subFieldResults:Object = null)
 	    {
 			this.isError = isError;
 			this.field = field;
 			this.errors = errors || [];
 			this.subFieldResults = subFieldResults || {};
-			this.subFieldErrors = subFieldErrors || {};
 	    }
 
 

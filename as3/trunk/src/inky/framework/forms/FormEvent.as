@@ -17,7 +17,10 @@ package inky.framework.forms
 	 */
 	public class FormEvent extends Event
 	{
+		public static const ERROR:String = 'error';
 		public static const SUBMIT:String = 'submit';
+		public static const SUBMIT_CANCELLED:String = 'submitCancelled';
+		public static const VALIDATION_ERROR:String = 'validationError';
 
 
 
@@ -43,7 +46,7 @@ package inky.framework.forms
 		 *     cancelable property of the event object.
 		 *
 		 */
-		public function FormEvent(type:String, bubbles:Boolean, cancelable:Boolean)
+		public function FormEvent(type:String, bubbles:Boolean = false, cancelable:Boolean = false)
 		{
 			super(type, bubbles, cancelable);
 		}
