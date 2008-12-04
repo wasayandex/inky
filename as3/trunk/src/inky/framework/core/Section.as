@@ -168,8 +168,8 @@ package inky.framework.core
 			}
 
 			this.__cumulativeLoadingProgressBar = progressBar;
-// FIXME: this will trigger an error if the progress bar is on the stage.
-//			Section.setSection(this.__cumulativeLoadingProgressBar, this);
+// FIXME: this temporarily fixes a bug if the progressBar is already on stage and the section is not ready. it will assume that the section is the application.
+Section.setSection(this.__cumulativeLoadingProgressBar, this.sPath || '/');
 		}
 
 
@@ -216,8 +216,8 @@ package inky.framework.core
 			if (!progressBar) return;
 
 			this.__itemLoadingProgressBar = progressBar;
-// FIXME: this will trigger an error if the progress bar is on the stage.
-//			Section.setSection(this.__itemLoadingProgressBar, this);
+// FIXME: this temporarily fixes a bug if the progressBar is already on stage and the section is not ready. it will assume that the section is the application.
+Section.setSection(this.__itemLoadingProgressBar, this.sPath || '/');
 		}
 
 
@@ -332,7 +332,8 @@ package inky.framework.core
 		 */
 		public function get sPath():SPath
 		{
-			return this.inky_internal::getInfo().sPath;
+			var info:SectionInfo = this.inky_internal::getInfo();
+			return info ? info.sPath : null;
 		}
 
 
