@@ -9,7 +9,7 @@ package inky.framework.managers
 	import inky.framework.core.inky_internal;
 	import inky.framework.core.Section;
 	import inky.framework.core.SPath;
-	import inky.framework.data.SectionInfo;
+	import inky.framework.core.SectionInfo;
 	import inky.framework.events.NavigationEvent;
 	import inky.framework.events.SectionEvent;
 	import inky.framework.events.TransitionEvent;
@@ -134,8 +134,8 @@ package inky.framework.managers
 				sPath = sPath.normalize();
 
 				// Resolve the SPath.
-				sPath = this._masterSection.inky_internal::getInfo().resolveSPath(sPath);
-				var info:SectionInfo = this._masterSection.inky_internal::getInfo().getSectionInfoBySPath(sPath);
+				sPath = this._masterSection.info.resolveSPath(sPath);
+				var info:SectionInfo = this._masterSection.info.getSectionInfoBySPath(sPath);
 
 				// Dispatch gotoSection events.
 				var sectionChain:Array = [];
@@ -313,9 +313,9 @@ package inky.framework.managers
 		{
 			this._currentAddress = address;
 
-			sPath = sPath || this._nextSPath || this._masterSection.inky_internal::getInfo().routeMapper.getSPath(address);
+			sPath = sPath || this._nextSPath || this._masterSection.info.routeMapper.getSPath(address);
 			this._nextSPath = null;
-			var options:Object = this._masterSection.inky_internal::getInfo().routeMapper.getOptions(address, sPath);
+			var options:Object = this._masterSection.info.routeMapper.getOptions(address, sPath);
 
 			if (!sPath)
 			{
@@ -354,8 +354,8 @@ package inky.framework.managers
 			var i:int;
 
 			// Resolve the SPath.
-			sPath = this._masterSection.inky_internal::getInfo().resolveSPath(sPath);
-			var info:SectionInfo = this._masterSection.inky_internal::getInfo().getSectionInfoBySPath(sPath);
+			sPath = this._masterSection.info.resolveSPath(sPath);
+			var info:SectionInfo = this._masterSection.info.getSectionInfoBySPath(sPath);
 			this._sectionOptions = options || this._sectionOptions;
 
 			if (!info)
@@ -550,7 +550,7 @@ package inky.framework.managers
 		private function __addSubsection(cmd:Object):void
 		{
 			// Get the section's info.
-			var info:SectionInfo = this._masterSection.inky_internal::getInfo().getSectionInfoBySPath(this._currentSPath);
+			var info:SectionInfo = this._masterSection.info.getSectionInfoBySPath(this._currentSPath);
 
 			// Get the section's owner (the section to which the new one should be added).
 			var owner:Section = this._getLeafSection();
@@ -692,7 +692,7 @@ this._commandCompleteHandler();
 		 */
 		/*private function __initialize(cmd:Object):void
 		{
-			var info:SectionInfo = this._masterSection.getInfo();
+			var info:SectionInfo = this._masterSection.info;
 			var data:XML = info.inky_internal::getData();
 			var loadManager:LoadManager = this._masterSection.loadManager;
 

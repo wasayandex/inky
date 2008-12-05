@@ -30,7 +30,7 @@ package inky.framework.core
 	import inky.framework.core.IInkyDataParser;
 	import inky.framework.core.SectionOptions;
 	import inky.framework.core.SPath;
-	import inky.framework.data.SectionInfo;
+	import inky.framework.core.SectionInfo;
 	import inky.framework.display.ITransitioningObject;
 	import inky.framework.display.TransitioningMovieClip;
 	import inky.framework.display.TransitioningObjectState;
@@ -189,6 +189,16 @@ Section.setSection(this.__cumulativeLoadingProgressBar, this.sPath || '/');
 
 
 		/**
+		 *
+		 *	
+		 */
+		public function get info():SectionInfo
+		{
+			return this._info;
+		}
+
+
+		/**
 		 * 
 		 * A progress bar that shows the progress of the currently loading item.
 		 * You may set the progress bar directly or place an instance on the
@@ -288,17 +298,6 @@ Section.setSection(this.__itemLoadingProgressBar, this.sPath || '/');
 
 		/**
 		 *
-		 * The number of subsections that this section has.
-		 *	
-		 */
-		public function get numSubsections():int
-		{
-			return this.inky_internal::getInfo().numSubsections;
-		}
-
-
-		/**
-		 *
 		 *
 		 *
 		 */
@@ -332,8 +331,7 @@ Section.setSection(this.__itemLoadingProgressBar, this.sPath || '/');
 		 */
 		public function get sPath():SPath
 		{
-			var info:SectionInfo = this.inky_internal::getInfo();
-			return info ? info.sPath : null;
+			return this.info ? this.info.sPath : null;
 		}
 
 
@@ -811,7 +809,7 @@ Section.setSection(this.__itemLoadingProgressBar, this.sPath || '/');
 
 			if (this == this.master)
 			{
-				var info:SectionInfo = this.inky_internal::getInfo();
+				var info:SectionInfo = this.info;
 				for (var i:uint = 0; i < absoluteSPath.length; i++)
 				{
 					var name:String = absoluteSPath.getItemAt(i) as String;
@@ -1045,7 +1043,7 @@ Section.setSection(this.__itemLoadingProgressBar, this.sPath || '/');
 		 */
 		private function _initTimelineMarkupObject(e:Event):void
 		{
-			if (this.inky_internal::getInfo() && this.master && (e.currentTarget != e.target) && !(e.target is Section))
+			if (this.info && this.master && (e.currentTarget != e.target) && !(e.target is Section))
 			{
 				Section.getSection(e.target).markupObjectManager.setData(e.target);
 			}
@@ -1129,19 +1127,6 @@ Section.setSection(this.__itemLoadingProgressBar, this.sPath || '/');
 		// internal methods
 		//
 
-
-		/**
-		 *
-		 * @private
-		 * 
-		 * Gets the SectionInfo object for this Section.
-		 * 
-		 */
-		inky_internal function getInfo():SectionInfo
-		{
-// TODO: Remove this method
-			return this._info;
-		}
 
 		/**
 		 *

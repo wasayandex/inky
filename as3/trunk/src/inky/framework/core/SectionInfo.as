@@ -1,4 +1,4 @@
-package inky.framework.data
+package inky.framework.core
 {
 	import inky.framework.core.inky;
 	import inky.framework.core.inky_internal;

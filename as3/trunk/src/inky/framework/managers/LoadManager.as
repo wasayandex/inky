@@ -22,7 +22,7 @@ package inky.framework.managers
 	import inky.framework.core.inky;
 	import inky.framework.core.inky_internal;
 	import inky.framework.core.SPath;
-	import inky.framework.data.SectionInfo;
+	import inky.framework.core.SectionInfo;
 	import inky.framework.net.LoadQueue;
 	import inky.framework.net.IAssetLoader;
 	import inky.framework.net.SWFLoader;
@@ -321,7 +321,7 @@ package inky.framework.managers
 		private function _createPreloadLoadQueue(sPath:SPath):LoadQueue
 		{
 			// Get the section's data.
-			var info:SectionInfo = this._section.inky_internal::getInfo().getSectionInfoBySPath(sPath);
+			var info:SectionInfo = this._section.info.getSectionInfoBySPath(sPath);
 			var data:XML = info.inky_internal::getData();
 
 			// Create the preload asset list.

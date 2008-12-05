@@ -8,7 +8,7 @@ package inky.framework.core
 	import inky.framework.core.inky_internal;
 	import inky.framework.core.Section;
 	import inky.framework.core.SPath;
-	import inky.framework.data.SectionInfo;
+	import inky.framework.core.SectionInfo;
 	import inky.framework.events.SectionEvent;
 	import inky.framework.utils.Debugger;
 
