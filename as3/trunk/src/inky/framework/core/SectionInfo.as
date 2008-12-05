@@ -37,7 +37,7 @@ package inky.framework.core
 		private var _owner:SectionInfo;
 		private var _routeMapper:RouteMapper;
 		private var _source:String;
-		private var _subsectionInfosMap:Object;
+		private var _subsectionInfos:Array;
 
 // TODO: Make sure that only prefixed nodes are being used.
 		use namespace inky;
@@ -50,7 +50,7 @@ package inky.framework.core
 		 */
 		public function SectionInfo()
 		{
-			this._subsectionInfosMap = {};
+			this._subsectionInfos = [];
 		}
 
 
@@ -122,12 +122,16 @@ package inky.framework.core
 		 */
 		public function get numSubsections():int
 		{
+			return this._subsectionInfos.length;
+
+/*
 			var numSubsections:int = 0;
 			for (var key:String in this._subsectionInfosMap)
 			{
 				numSubsections++
 			}
 			return numSubsections;
+*/
 		}
 
 
@@ -202,7 +206,16 @@ package inky.framework.core
 		 */
 		public function getSubsectionInfoByName(name:String):SectionInfo
 		{
-			return this._subsectionInfosMap[name];
+			var info:SectionInfo;
+			for each (var i:SectionInfo in this._subsectionInfos)
+			{
+				if (i.name == name)
+				{
+					info = i;
+					break;
+				}
+			}
+			return info;
 		}
 
 
@@ -213,12 +226,7 @@ package inky.framework.core
 		 */
 		public function getSubsectionInfos():Array
 		{
-			var result:Array = [];
-			for each (var info:SectionInfo in this._subsectionInfosMap)
-			{
-				result.push(info);
-			}
-			return result;
+			return this._subsectionInfos.slice();
 		}
 
 
@@ -257,7 +265,7 @@ package inky.framework.core
 				var info:SectionInfo = new SectionInfo();
 				info._owner = this;
 				info.parseData(subsection);
-				this._subsectionInfosMap[subsection.@name] = info;
+				this._subsectionInfos.push(info);
 			}
 
 			// Parse class.
@@ -423,7 +431,7 @@ package inky.framework.core
 				this.routeMapper.connect(path, this.sPath);
 			}
 
-			for each (var info:SectionInfo in this._subsectionInfosMap)
+			for each (var info:SectionInfo in this._subsectionInfos)
 			{
 				info._getDefaultRoutes(defaultRouteRoot);
 			}
@@ -443,7 +451,8 @@ package inky.framework.core
 			{
 				this._defaultSubsection = this.resolveSPath(this._defaultSubsection);
 			}
-			for each (var info:SectionInfo in this._subsectionInfosMap)
+
+			for each (var info:SectionInfo in this._subsectionInfos)
 			{
 				info._updateDefaultSubsection();
 			}
