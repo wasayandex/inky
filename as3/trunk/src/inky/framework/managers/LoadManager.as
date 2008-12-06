@@ -326,8 +326,8 @@ package inky.framework.managers
 
 			// Create the preload asset list.
 // TODO: Only grab inky namespaced nodes.
-			var preloadAssetList:XMLList = (data..RuntimeLibraryLoader + data..Asset + data..SWFLoader + data..ImageLoader + data..XMLLoader + data..SoundLoader).((attribute('preload') == 'true') || (attribute('preload') == '{true}'));
-			var excludeAssets:XMLList = data.Section..RuntimeLibraryLoader + data.Section..Asset + data.Section..SWFLoader + data.Section..ImageLoader + data.Section..XMLLoader + data.Section..SoundLoader;
+			var preloadAssetList:XMLList = (data..RuntimeLibraryLoader + data..AssetLoader + data..SWFLoader + data..ImageLoader + data..XMLLoader + data..SoundLoader).((attribute('preload') == 'true') || (attribute('preload') == '{true}'));
+			var excludeAssets:XMLList = data.Section..RuntimeLibraryLoader + data.Section..AssetLoader + data.Section..SWFLoader + data.Section..ImageLoader + data.Section..XMLLoader + data.Section..SoundLoader;
 			var preloadAssets:Array = [];
 			var loader:Object;
 
