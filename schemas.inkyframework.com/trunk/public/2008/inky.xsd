@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns="http://inkyframework.com/2008/inky"
+	targetNamespace="http://inkyframework.com/2008/inky"
+	elementFormDefault="qualified"
+	attributeFormDefault="unqualified">
+<!--TODO: add the following tags
+	Object
+	Boolean
+	Number
+	String
+	Array
+	XML
+	XMLList
+	null
+	undefined
+	int
+	uint
+	Model
+	RuntimeLibraryLoader
+	SoundLoader
+	ActionGroup
+	ActionSequence
+	SetValueAction
+	AnimatorAction
+-->
+<!--TODO: allow ".." and "." in SPaths when they should be allowed. Disallow them when they shouldn't-->
+<!--TODO: Make Route path attribute a key?-->
+	<xs:annotation>
+		<xs:documentation>Inky XML Schema</xs:documentation>
+	</xs:annotation>
+
+	<xs:complexType name="Binding">
+		<xs:annotation>
+			<xs:documentation>
+Copies the value of a property in one object to a property in another object. 
+			</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="source" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>The object property that provides the data.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="destination" type="xs:string" use="required">
+			<xs:annotation>
+				<xs:documentation>The object property that receives the data.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="GraphicLoader" abstract="true">
+		<xs:complexContent>
+			<xs:extension base="AssetLoader">
+				<xs:attribute name="smartLoad" type="xs:boolean" use="optional" default="false">
+					<xs:annotation>
+						<xs:documentation>
+Specifies whether the asset should be automatically loaded when the
+GraphicLoader is added to the stage.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="ImageLoader">
+		<xs:annotation>
+			<xs:documentation>
+Loads an image.
+				</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="GraphicLoader"/>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="SWFLoader">
+		<xs:annotation>
+			<xs:documentation>
+Loads an swf.
+				</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="GraphicLoader"/>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="XMLLoader">
+		<xs:annotation>
+			<xs:documentation>Specifies XML to be loaded at runtime.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="AssetLoader"/>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="AssetLoader">
+		<xs:annotation>
+			<xs:documentation>Specifies a graphic asset to be loaded at runtime.</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="id" type="InkyIdentifier" use="optional" form="qualified"/>
+		<xs:attribute name="class" type="QualifiedClassName" use="optional" form="qualified"/>
+		<xs:attribute name="source" type="xs:anyURI" use="required">
+			<xs:annotation>
+				<xs:documentation>The source of the asset. The asset will be loaded from this URL on demand.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="preload" type="xs:boolean" use="optional" default="false">
+			<xs:annotation>
+				<xs:documentation>
+Specifies when to load the asset. If set to true, the asset will be loaded when
+you navigate to a section, before the section class is instantialized.
+Otherwise, the section will be instantialized even if the asset has not yet
+loaded.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:simpleType name="InkyIdentifier">
+		<xs:annotation>
+			<xs:documentation>
+A string used as a unique identifier for inky objects. Identifiers are used to
+reference objects when binding data.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:token">
+			<xs:pattern value="([a-zA-Z][\w]*\.)*[a-zA-Z][\w]*"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="QualifiedClassName">
+		<xs:annotation>
+			<xs:documentation>A qualified ActionScript class name.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:token">
+			<xs:pattern value="([a-zA-Z][\w]*\.)*[a-zA-Z][\w]*"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="RegExp">
+		<xs:annotation>
+			<xs:documentation>A regular expression.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:token">
+<!--TODO: come up with regexp that describes regexps!-->
+			<xs:pattern value=".*"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="Route">
+		<xs:annotation>
+			<xs:documentation>
+Defines a route for the Section element that contains it. A Route is an object
+that maps a URL to an SPath and vise versa.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="Default">
+				<xs:annotation>
+					<xs:documentation>Specifies a default value for a dynamic part of the containing Route.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:attribute name="for" type="RoutePathDynamicPartName" use="required">
+						<xs:annotation>
+							<xs:documentation>The name of the dynamic part that this default applies to.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="value" use="required">
+						<xs:annotation>
+							<xs:documentation>The default value of the specified dynamic part.</xs:documentation>
+						</xs:annotation>
+						<xs:simpleType>
+							<xs:restriction base="xs:token">
+<!--TODO: does this need to be limited?-->
+								<xs:pattern value=".*"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Requirement">
+				<xs:annotation>
+					<xs:documentation>Places a restriction on possible values of a dynamic part of the containing Route.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:attribute name="for" type="RoutePathDynamicPartName" use="required">
+						<xs:annotation>
+							<xs:documentation>The name of the dynamic part that this requirement applies to.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="value" type="RegExp" use="required">
+						<xs:annotation>
+							<xs:documentation>
+A regular expression pattern that describes valid values for the specified
+dynamic part. If the dynamic part does not meet this requirement, this route
+will not be used.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+		</xs:choice>
+		<xs:attribute name="path" type="RoutePath" use="required">
+			<xs:annotation>
+				<xs:documentation>
+The path to map to this section. The path may contain dynamic parts (indicated
+by a preceding colon), which can be given default values and requirements. When
+the user navigates to a Route, a hashmap will be created containing the dynamic
+parts of the URL they entered. This hashmap will be passed to the initialize
+method of the ActionScript Section object when the section is instantialized.
+For example, if the Route's path is defined as "#/movies/:name/:chapter/", and
+the user navigates to "#/movies/billy-the-kid/3/", the Section's initialize
+method will receive the object {name: 'billy-the-kid', chapter: 3} (assuming
+that all requirements are met).
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:simpleType name="RoutePath">
+		<xs:annotation>
+			<xs:documentation>
+A string that is generally analogous to a URL, except that it can contain
+dynamic parts (indicated by a colon). Because only the hash portion of the URL
+changes within an inky application, RoutePaths should always begin with "#".
+An example of a RoutePath that contains dynamic parts is
+"#/movies/:name/:chapter/".
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:token">
+<!--TODO: come up with regexp that describes routepaths, allowing for dynamic parts-->
+			<xs:pattern value=".*"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="RoutePathDynamicPartName">
+		<xs:annotation>
+			<xs:documentation>The name of a dynamic part of a route path.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:token">
+			<xs:pattern value="[a-zA-Z_][\w]*"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="Section">
+		<xs:annotation>
+			<xs:documentation>
+Data for an ActionScript Section object. After the Section has been created,
+this node will be used to provide it with data. For example,
+
+&lt;inky:Section class="MySection"&gt;
+	&lt;heading&gt;This is My Section&lt;/heading&gt;
+&lt;/inky:Section&gt;
+
+will cause the heading property of the section object to be set to the string
+"This is My Section".
+			</xs:documentation>
+		</xs:annotation>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="Binding" type="Binding"/>
+			<xs:element name="AssetLoader" type="AssetLoader"/>
+			<xs:element name="ImageLoader" type="ImageLoader"/>
+			<xs:element name="SWFLoader" type="SWFLoader"/>
+			<xs:element name="XMLLoader" type="XMLLoader"/>
+			<xs:element name="Route" type="Route">
+				<xs:key name="RouteDefaultForKey">
+					<xs:selector xpath="Default"/>
+					<xs:field xpath="for"/>
+				</xs:key>
+			</xs:element>
+			<xs:element name="Section" type="Section">
+				<xs:key name="SubsectionNameKey">
+					<xs:selector xpath="Section"/>
+					<xs:field xpath="@name"/>
+				</xs:key>
+			</xs:element>
+			<xs:any namespace="##any" processContents="lax"/>
+		</xs:choice>
+		<xs:attribute name="base" type="xs:anyURI" use="optional" form="qualified">
+			<xs:annotation>
+				<xs:documentation>A URL to which all source attributes within this section will be resolved.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="class" type="QualifiedClassName" use="optional" form="qualified">
+			<xs:annotation>
+				<xs:documentation>
+The qualified name of the Section's ActionScript class. This class will be
+instantialized by the Application and added to the stage when the user
+navigates to this section.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="id" type="InkyIdentifier" use="optional" form="qualified"/>
+		<xs:attribute name="href" type="xs:anyURI" use="optional">
+			<xs:annotation>
+				<xs:documentation>
+If this attribute is present, navigating to this section will cause the
+application to navigate to this URL.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="name" type="SectionName" use="required">
+			<xs:annotation>
+				<xs:documentation>
+The name of this Section. Section names are used to form SPaths, and as
+instance names when a Section is added to the display list.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="source" type="xs:anyURI" use="optional">
+			<xs:annotation>
+				<xs:documentation>
+The source of the SWF file that contains this section's class definition. If
+this attribute is present, the specified SWF will be loaded at runtime before
+the section class is instantiated.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:anyAttribute namespace="##local" processContents="lax"/>
+	</xs:complexType>
+
+	<xs:simpleType name="SectionName">
+		<xs:annotation>
+			<xs:documentation>
+A section name. Valid values begin with a letter or underscore, which is
+followed by zero or more word characters (letters, numbers, or underscores).
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:token">
+			<xs:pattern value="[a-zA-Z_][\w]*"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="SPath">
+		<xs:annotation>
+			<xs:documentation>
+A string representations of a section's position in the application. SPaths are
+lists of section names, joined by forward slashes. Like file paths, a single
+forward slash represents the root.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:token">
+			<xs:pattern value="/|/?([a-zA-Z][\w]*/)*([a-zA-Z][\w]*)"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:element name="Application">
+		<xs:annotation>
+			<xs:documentation>
+Represents an Inky Application object. The framework uses the data in this
+element to create objects and set their properties.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="Binding" type="Binding"/>
+				<xs:element name="AssetLoader" type="AssetLoader"/>
+				<xs:element name="ImageLoader" type="ImageLoader"/>
+				<xs:element name="SWFLoader" type="SWFLoader"/>
+				<xs:element name="XMLLoader" type="XMLLoader"/>
+				<xs:element name="Section" type="Section"/>
+				<xs:any namespace="##any" processContents="lax"/>
+			</xs:choice>
+			<xs:attribute name="base" type="xs:anyURI" use="optional" form="qualified"/>
+		</xs:complexType>
+	</xs:element>
+
+</xs:schema>
