@@ -5,18 +5,10 @@
 	elementFormDefault="qualified"
 	attributeFormDefault="unqualified">
 <!--TODO: add the following tags
-	Object
-	Boolean
-	Number
-	String
 	Array
 	XML
 	XMLList
-	null
-	undefined
-	int
-	uint
-	Model
+	Form
 	RuntimeLibraryLoader
 	SoundLoader
 	ActionGroup
@@ -24,11 +16,112 @@
 	SetValueAction
 	AnimatorAction
 -->
+<!--TODO: Allow nested nodes in addition to attributes (i.e.) smartLoad-->
 <!--TODO: allow ".." and "." in SPaths when they should be allowed. Disallow them when they shouldn't-->
 <!--TODO: Make Route path attribute a key?-->
 	<xs:annotation>
 		<xs:documentation>Inky XML Schema</xs:documentation>
 	</xs:annotation>
+
+<!--TODO: Move these where they belong-->
+<xs:element name="Application" type="Application" />
+<xs:element name="null" type="null"/>
+<xs:element name="undefined" type="undefined"/>
+<xs:element name="Boolean" type="Boolean" />
+<xs:element name="int" type="int" />
+<xs:element name="uint" type="uint" />
+<xs:element name="Number" type="Number" />
+<xs:element name="String" type="String" />
+<xs:element name="Object" type="Object" />
+<xs:element name="Model" type="Model" />
+
+
+
+	<xs:complexType name="Model">
+		<xs:annotation>
+			<xs:documentation>Represents a data model.</xs:documentation>
+		</xs:annotation>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
+			<xs:any namespace="##local" processContents="lax"/>
+		</xs:choice>
+		<xs:attribute name="id" type="InkyIdentifier" use="optional" form="qualified"/>
+		<xs:anyAttribute namespace="##local" processContents="lax"/>
+	</xs:complexType>
+
+	<xs:complexType name="Object">
+		<xs:annotation>
+			<xs:documentation>Represents a generic object.</xs:documentation>
+		</xs:annotation>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
+			<!-- TODO: How to allow only ##local children, but ##any within them? -->
+			<xs:any namespace="##any" processContents="lax"/>
+		</xs:choice>
+		<xs:attribute name="class" type="QualifiedClassName" use="optional" form="qualified">
+			<xs:annotation>
+				<xs:documentation>
+The class of the object. If present, the object will represent an instance of
+the provided class. Otherwise, it will be an instance of the Object class.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="id" type="InkyIdentifier" use="optional" form="qualified"/>
+		<xs:anyAttribute namespace="##local" processContents="lax"/>
+	</xs:complexType>
+
+
+	<xs:complexType name="null">
+		<xs:annotation>
+			<xs:documentation>Represents the value null</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:restriction base="xs:string" />
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="undefined">
+		<xs:annotation>
+			<xs:documentation>Represents the value undefined</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:restriction base="xs:string" />
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:simpleType name="Boolean">
+		<xs:annotation>
+			<xs:documentation>Represents a Boolean</xs:documentation>
+		</xs:annotation>
+		<!-- TODO: xs:boolean allows 0 and 1. We shouldn't. -->
+		<xs:restriction base="xs:boolean" />
+	</xs:simpleType>
+
+	<xs:simpleType name="int">
+		<xs:annotation>
+			<xs:documentation>Represents an int</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:int" />
+	</xs:simpleType>
+
+	<xs:simpleType name="uint">
+		<xs:annotation>
+			<xs:documentation>Represents a uint</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:unsignedInt" />
+	</xs:simpleType>
+
+	<xs:simpleType name="Number">
+		<xs:annotation>
+			<xs:documentation>Represents a Number</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:decimal" />
+	</xs:simpleType>
+
+	<xs:simpleType name="String">
+		<xs:annotation>
+			<xs:documentation>Represents a string</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string" />
+	</xs:simpleType>
 
 	<xs:complexType name="Binding">
 		<xs:annotation>
@@ -341,25 +434,23 @@ forward slash represents the root.
 		</xs:restriction>
 	</xs:simpleType>
 
-	<xs:element name="Application">
+	<xs:complexType name="Application">
 		<xs:annotation>
 			<xs:documentation>
 Represents an Inky Application object. The framework uses the data in this
 element to create objects and set their properties.
 			</xs:documentation>
 		</xs:annotation>
-		<xs:complexType>
-			<xs:choice minOccurs="0" maxOccurs="unbounded">
-				<xs:element name="Binding" type="Binding"/>
-				<xs:element name="AssetLoader" type="AssetLoader"/>
-				<xs:element name="ImageLoader" type="ImageLoader"/>
-				<xs:element name="SWFLoader" type="SWFLoader"/>
-				<xs:element name="XMLLoader" type="XMLLoader"/>
-				<xs:element name="Section" type="Section"/>
-				<xs:any namespace="##any" processContents="lax"/>
-			</xs:choice>
-			<xs:attribute name="base" type="xs:anyURI" use="optional" form="qualified"/>
-		</xs:complexType>
-	</xs:element>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="Binding" type="Binding"/>
+			<xs:element name="AssetLoader" type="AssetLoader"/>
+			<xs:element name="ImageLoader" type="ImageLoader"/>
+			<xs:element name="SWFLoader" type="SWFLoader"/>
+			<xs:element name="XMLLoader" type="XMLLoader"/>
+			<xs:element name="Section" type="Section"/>
+			<xs:any namespace="##any" processContents="lax"/>
+		</xs:choice>
+		<xs:attribute name="base" type="xs:anyURI" use="optional" form="qualified"/>
+	</xs:complexType>
 
 </xs:schema>
