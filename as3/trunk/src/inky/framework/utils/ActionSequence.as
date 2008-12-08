@@ -151,9 +151,10 @@ package inky.framework.utils
 		private function _startAction(index:Number):void
 		{
 			var action:IAction = this.getItemAt(index) as IAction;
-			
-			action.target = action.target || this.target;
-			
+			if (action.target == null)
+			{
+				action.target = this.target;
+			}
 			action.addEventListener(ActionEvent.ACTION_FINISH, this._transitionFinish);
 			action.start();
 		}
