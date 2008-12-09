@@ -32,6 +32,7 @@ package inky.framework.core
 		private var _defaultRouteRoot:SPath;
 		private var _defaultSubsection:SPath;
 		private var _href:String;
+		private var _index:int;
 		private var _isParsed:Boolean;
 		private var _name:String;
 		private var _owner:SectionInfo;
@@ -106,6 +107,17 @@ package inky.framework.core
 
 		/**
 		 *
+		 *
+		 *
+		 */
+		public function get index():int
+		{
+			return this._index;
+		}
+
+
+		/**
+		 *
 		 * 
 		 * 
 		 */
@@ -123,15 +135,6 @@ package inky.framework.core
 		public function get numSubsections():int
 		{
 			return this._subsectionInfos.length;
-
-/*
-			var numSubsections:int = 0;
-			for (var key:String in this._subsectionInfosMap)
-			{
-				numSubsections++
-			}
-			return numSubsections;
-*/
 		}
 
 
@@ -224,7 +227,7 @@ package inky.framework.core
 		 * 
 		 * 
 		 */
-		public function getSubsectionInfos():Array
+		public function getSubsectionInfoList():Array
 		{
 			return this._subsectionInfos.slice();
 		}
@@ -257,12 +260,14 @@ package inky.framework.core
 			this._href = this._getAttribute(value, 'href');
 
 			// Parse subsection data.
+			var index:int = 0;
 			for each (var subsection:XML in value.Section)
 			{
 				// Subsection owners MUST be set before the the data is
 				// parsed so that the subsection info can access
 				// its owner.
 				var info:SectionInfo = new SectionInfo();
+				info._index = index++;
 				info._owner = this;
 				info.parseData(subsection);
 				this._subsectionInfos.push(info);
