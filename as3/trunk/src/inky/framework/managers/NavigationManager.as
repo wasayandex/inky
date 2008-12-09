@@ -162,7 +162,7 @@ package inky.framework.managers
 
 				if (info.href)
 				{
-					this._masterSection.gotoLink(info.href);
+					this._masterSection.gotoURL(info.href);
 					return;
 				}
 
@@ -366,7 +366,7 @@ package inky.framework.managers
 			if (info.href)
 			{
 // TODO: Should be called on section that called this.
-				this._masterSection.gotoLink(info.href);
+				this._masterSection.gotoURL(info.href);
 				return;
 			}
 

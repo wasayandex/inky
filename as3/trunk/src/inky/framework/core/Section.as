@@ -577,7 +577,7 @@ Section.setSection(this.__itemLoadingProgressBar, this.sPath || '/');
 		/**
 		 *
 		 * Navigates to a new HTML page. This method should be favored over
-		 * navigateToURL. Calls to <code>gotoLink</code> are relayed up the
+		 * navigateToURL. Calls to <code>gotoURL</code> are relayed up the
 		 * hierarchy of sections so that overriding this method will change
 		 * the behavior for subsections as well.
 		 *
@@ -586,7 +586,7 @@ Section.setSection(this.__itemLoadingProgressBar, this.sPath || '/');
 		 *     navigate to.
 		 *
 		 */
-		public function gotoLink(url:Object):void
+		public function gotoURL(url:Object):void
 		{
 			if (this == this.master)
 			{
@@ -601,13 +601,13 @@ Section.setSection(this.__itemLoadingProgressBar, this.sPath || '/');
 				}
 				else
 				{
-					throw new ArgumentError('Section.gotoLink can only accept a String or URLRequest');
+					throw new ArgumentError('Section.gotoURL can only accept a String or URLRequest');
 				}
 				this.navigateToURL(request, '_self');
 			}
 			else
 			{
-				this.owner.gotoLink(url);
+				this.owner.gotoURL(url);
 			}
 		}
 
@@ -710,7 +710,7 @@ Section.setSection(this.__itemLoadingProgressBar, this.sPath || '/');
 		 *
 		 * All application url requests should come through this method, though
 		 * in general, this method should not be called directly. Instead use
-		 * <code>download()</code> or <code>gotoLink()</code>.
+		 * <code>download()</code> or <code>gotoURL()</code>.
 		 * 
 		 * @copy reference flash.utils.navigateToURL
 		 *
