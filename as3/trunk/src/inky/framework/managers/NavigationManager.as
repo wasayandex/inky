@@ -244,7 +244,12 @@ package inky.framework.managers
 		 */
 		private function _addressChangeHandler(e:SWFAddressEvent):void
 		{
-			this._gotoAddress(e.value == '/' ? '#/' : '#' + e.value);
+			// Sometimes SWFAddress will report false changes. We'll keep it honest by checking against the last value.
+			var address:String = e.value == '/' ? '#/' : '#' + e.value;
+			if (address != this._currentAddress)
+			{
+				this._gotoAddress(address);
+			}
 		}
 
 
