@@ -223,7 +223,7 @@ Section.setSection(this.__cumulativeLoadingProgressBar, this.sPath || '/');
 				oldProgressBar.source = null;
 			}
 			
-			if (!progressBar) return;
+			//if (!progressBar) return;
 
 			this.__itemLoadingProgressBar = progressBar;
 // FIXME: this temporarily fixes a bug if the progressBar is already on stage and the section is not ready. it will assume that the section is the application.
