@@ -128,7 +128,7 @@ package inky.framework.binding
 			var dotIndex:int = destination.lastIndexOf('.');
 			var destProp:String = destination.substr(dotIndex + 1);
 			destination = destination.substr(0, dotIndex);
-			var destObjFunc:Function = this._parseExpression(destination);
+			var destObjFunc:Function = this.parseExpression(destination);
 
 			return this._createBinding(destObjFunc, destProp, source);
 		}
@@ -148,6 +148,49 @@ package inky.framework.binding
 			}
 			
 			return this._createBinding(destObjFunc, destProp, source);
+		}
+
+
+		/**
+		 *
+		 * Creates a function that returns the result of the provided string
+		 * expression. Essentially a simple eval().
+		 *	
+		 */
+		public function parseExpression(expression:String, thisObj:Object = null):Function
+		{
+// TODO: Figure out a way to move this to inky.framework.utils.parseExpression (problem is reliance on _idMarkupObjects which should probably also be util)
+			// Trim whitespace.
+			expression = expression.replace(/^[\s]+|[\s]+$/, '');
+			var f:Function;
+			var dotIndex:int;
+			var propName:String;
+		
+			if ((dotIndex = expression.lastIndexOf('.')) != -1)
+			{
+				// The expression is a dot property access.
+				f = this.parseExpression(expression.substr(0, dotIndex), thisObj);
+				propName = expression.substr(dotIndex + 1).replace(/\s+/g, '');
+				return function():*
+				{
+					return f()[propName];
+				}
+			}
+			else if (expression == 'this')
+			{
+				return function():Object
+				{
+					return thisObj;
+				}
+			}
+			else
+			{
+				// The expression is an id.
+				return function():Object
+				{
+					return _idMarkupObjects[expression];
+				}
+			}
 		}
 
 
@@ -177,41 +220,6 @@ package inky.framework.binding
 			var binding:Binding = new Binding(srcObjFunc, srcPropChain, destObjFunc, destProp);
 			this._unresolvedBindings.push(binding);
 			return binding;
-		}
-
-
-		/**
-		 *
-		 * Creates a function that returns the result of the provided string
-		 * expression. Essentially a simple eval().
-		 *	
-		 */
-		private function _parseExpression(expression:String):Function
-		{
-			// Trim whitespace.
-			expression = expression.replace(/^[\s]+|[\s]+$/, '');
-			var f:Function;
-			var dotIndex:int;
-			var propName:String;
-		
-			if ((dotIndex = expression.lastIndexOf('.')) != -1)
-			{
-				// The expression is a dot property access.
-				f = this._parseExpression(expression.substr(0, dotIndex));
-				propName = expression.substr(dotIndex + 1).replace(/\s+/g, '');
-				return function():*
-				{
-					return f()[propName];
-				}
-			}
-			else
-			{
-				// The expression is an id.
-				return function():Object
-				{
-					return _idMarkupObjects[expression];
-				}
-			}
 		}
 
 
