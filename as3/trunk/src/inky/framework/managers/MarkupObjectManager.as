@@ -13,6 +13,7 @@ package inky.framework.managers
 	import inky.framework.binding.BindingManager;
 	import inky.framework.binding.events.PropertyChangeEvent;
 	import inky.framework.binding.events.PropertyChangeEventKind;
+	import inky.framework.controls.NavigationButton;
 	import inky.framework.core.inky;
 	import inky.framework.core.inky_internal;
 	import inky.framework.core.event_listener;
@@ -50,6 +51,7 @@ package inky.framework.managers
 		Model;
 		ActionSequence;
 		ActionGroup;
+		NavigationButton;
 
 		private var _bindingManager:BindingManager;
 		private var _initializedMarkupObjects:Dictionary;
@@ -169,6 +171,9 @@ package inky.framework.managers
 									break;
 								case 'Model':
 									className = 'inky.framework.data.Model';
+									break;
+								case 'NavigationButton':
+									className = 'inky.framework.controls.NavigationButton';
 									break;
 								case 'Array':
 									obj = [];
