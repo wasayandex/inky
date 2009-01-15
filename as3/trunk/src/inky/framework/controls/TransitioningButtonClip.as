@@ -7,8 +7,8 @@ package inky.framework.controls
 	import inky.framework.display.TransitioningObjectBehavior;
 	import inky.framework.display.TransitioningObjectState;
 	import inky.framework.events.TransitionEvent;
-	import inky.framework.transitions.PlayFrameLabelAction;
-	import inky.framework.utils.IAction;
+	import inky.framework.actions.PlayFrameLabelAction;
+	import inky.framework.actions.IAction;
 
 	
 	/**

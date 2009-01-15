@@ -26,8 +26,8 @@ package inky.framework.managers
 	import inky.framework.net.SoundLoader;
 	import inky.framework.net.SWFLoader;
 	import inky.framework.net.XMLLoader;
-	import inky.framework.utils.ActionGroup;
-	import inky.framework.utils.ActionSequence;
+	import inky.framework.actions.ActionGroup;
+	import inky.framework.actions.ActionSequence;
 	import inky.framework.utils.Debugger;
 	import inky.framework.utils.ObjectProxy;
 
@@ -162,10 +162,10 @@ package inky.framework.managers
 									className = 'inky.framework.transitions.AnimatorAction';
 									break;
 								case 'ActionGroup':
-									className = 'inky.framework.utils.ActionGroup';
+									className = 'inky.framework.actions.ActionGroup';
 									break;
 								case 'ActionSequence':
-									className = 'inky.framework.utils.ActionSequence';
+									className = 'inky.framework.actions.ActionSequence';
 									break;
 								case 'Section':
 									break;

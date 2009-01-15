@@ -41,7 +41,7 @@ package inky.framework.core
 	import inky.framework.managers.NavigationManager;
 	import inky.framework.net.IAssetLoader;
 	import inky.framework.net.LoadQueue;
-	import inky.framework.utils.IAction;
+	import inky.framework.actions.IAction;
 
 
     /**

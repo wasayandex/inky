@@ -1,10 +1,10 @@
-package inky.framework.transitions
+package inky.framework.actions
 {
 	import flash.display.FrameLabel;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
-	import inky.framework.events.ActionEvent;
-	import inky.framework.utils.IAction;
+	import inky.framework.actions.ActionEvent;
+	import inky.framework.actions.IAction;
 
 
 	/**

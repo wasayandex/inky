@@ -1,4 +1,4 @@
-package inky.framework.utils
+package inky.framework.actions
 {
 	import flash.events.IEventDispatcher;
 
@@ -7,30 +7,30 @@ package inky.framework.utils
      * 
      * Dispatched when an action finishes.
      *
-     * @eventType inky.framework.events.ActionEvent.ACTION_FINISH
+     * @eventType inky.framework.actions.ActionEvent.ACTION_FINISH
      *
      */
-	[Event(name="actionFinish", type="inky.framework.events.ActionEvent")]
+	[Event(name="actionFinish", type="inky.framework.actions.ActionEvent")]
 
 
     /**
      * 
      * Dispatched when an action starts.
      *
-     * @eventType inky.framework.events.ActionEvent.ACTION_START
+     * @eventType inky.framework.actions.ActionEvent.ACTION_START
      *
      */
-	[Event(name="actionStart", type="inky.framework.events.ActionEvent")]
+	[Event(name="actionStart", type="inky.framework.actions.ActionEvent")]
 
 
     /**
      * 
      * Dispatched when an action stops.
      *
-     * @eventType inky.framework.events.ActionEvent.ACTION_STOP
+     * @eventType inky.framework.actions.ActionEvent.ACTION_STOP
      *
      */
-	[Event(name="actionStop", type="inky.framework.events.ActionEvent")]
+	[Event(name="actionStop", type="inky.framework.actions.ActionEvent")]
 
 
 

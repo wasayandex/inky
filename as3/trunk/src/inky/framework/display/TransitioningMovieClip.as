@@ -1,7 +1,7 @@
 package inky.framework.display
 {
-	import inky.framework.transitions.PlayFrameLabelAction;
-	import inky.framework.utils.IAction;
+	import inky.framework.actions.PlayFrameLabelAction;
+	import inky.framework.actions.IAction;
 	import inky.framework.display.ITransitioningObject;
 	import inky.framework.display.TransitioningObjectBehavior;
 	import inky.framework.events.TransitionEvent;

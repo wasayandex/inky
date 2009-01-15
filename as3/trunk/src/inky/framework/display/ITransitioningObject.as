@@ -1,7 +1,7 @@
 package inky.framework.display
 {
 	import com.exanimo.display.IDisplayObject;
-	import inky.framework.utils.IAction;
+	import inky.framework.actions.IAction;
 	import flash.display.DisplayObject;
 	import flash.geom.Rectangle;
 
@@ -73,7 +73,7 @@ package inky.framework.display
 		 * the stage. This action will be started automatically when the
 		 * <code>remove()</code> method is called.
 		 * 
-		 * @see inky.framework.transitions.PlayFrameLabelAction
+		 * @see inky.framework.actions.PlayFrameLabelAction
 		 * @see #remove();
 		 * 
 		 */

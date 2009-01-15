@@ -1,8 +1,8 @@
-package inky.framework.utils
+package inky.framework.actions
 {
 	import flash.events.EventDispatcher;
-	import inky.framework.events.ActionEvent;
-	import inky.framework.utils.IAction;
+	import inky.framework.actions.ActionEvent;
+	import inky.framework.actions.IAction;
 
 
 	/**
@@ -96,7 +96,7 @@ package inky.framework.utils
 		public function start():void
 		{
 			this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_START, false, false));
-			this._fn.apply(this._args, this._scope);
+			this._fn.apply(this._scope, this._args);
 			this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_FINISH, false, false));
 		}
 

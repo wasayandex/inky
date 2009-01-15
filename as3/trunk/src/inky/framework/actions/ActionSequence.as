@@ -1,9 +1,9 @@
-package inky.framework.utils
+package inky.framework.actions
 {
-	import inky.framework.events.ActionEvent;
+	import inky.framework.actions.ActionEvent;
 	import inky.framework.core.IInkyDataParser;
 	import inky.framework.core.Section;
-	import inky.framework.utils.IAction;
+	import inky.framework.actions.IAction;
 	import com.exanimo.collections.IListIterator;
 	import com.exanimo.collections.ArrayList;
 
@@ -23,6 +23,7 @@ package inky.framework.utils
 	{
 		private var _target:Object;
 		private var _currentIndex:Number;
+		private var _running:Boolean;
 
 
 		/**
@@ -39,6 +40,7 @@ package inky.framework.utils
 			}
 
 			this._currentIndex = 0;
+			this._running = false;
 		}
 
 
@@ -120,10 +122,13 @@ package inky.framework.utils
 		 */
 		public function start():void
 		{
+			if (this._running) return;
+			this._running = true;
+
 			this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_START, false, false));
 			if (!this.length)
 			{
-				this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_FINISH, false, false));
+				this._sequenceFinish();
 				return;
 			}
 			
@@ -155,7 +160,7 @@ package inky.framework.utils
 			{
 				action.target = this.target;
 			}
-			action.addEventListener(ActionEvent.ACTION_FINISH, this._transitionFinish);
+			action.addEventListener(ActionEvent.ACTION_FINISH, this._actionFinishHandler);
 			action.start();
 		}
 
@@ -165,17 +170,34 @@ package inky.framework.utils
 		 *	Dispatches an ActionEvent once the entire ActionSequence is finished. Otherwise it will call on the next action to start.
 		 *	
 		 */
-		private function _transitionFinish(e:ActionEvent):void
+		private function _actionFinishHandler(e:ActionEvent):void
 		{
 			e.currentTarget.removeEventListener(e.type, arguments.callee);
 			this._currentIndex++;
 			
-			if (this._currentIndex >= this.length) this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_FINISH, false, false));
-			else this._startAction(this._currentIndex);			
+			if (this._currentIndex >= this.length)
+			{
+				this._sequenceFinish();
+			}
+			else
+			{
+				this._startAction(this._currentIndex);
+			}
+		}
+
+
+		/**
+		 *
+		 *	
+		 */
+		private function _sequenceFinish():void
+		{
+			this._running = false;
+			this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_FINISH, false, false));
 		}
 
 
 
-		
+
 	}
 }
