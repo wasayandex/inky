@@ -1,15 +1,16 @@
 package inky.framework.controls 
 {
+	import flash.display.DisplayObject;
 	import flash.display.Sprite;
-	import flash.events.MouseEvent;
-	import inky.framework.core.Section;
-	import inky.framework.core.SPath;
-	import inky.framework.utils.gotoSection;
+	import inky.framework.controls.INavigationButton;
+	import inky.framework.controls.NavigationButtonBehavior;
 
 	
 	/**
 	 *
-	 *  ..
+	 *  A basic implementation of the INavigationButton interface. This class
+	 *	can be used to 'wrap' any DisplayObject with its behavior by nesting the
+	 *	DisplayObject.
 	 *	
 	 * 	@langversion ActionScript 3
 	 *	@playerversion Flash 9.0.0
@@ -20,19 +21,21 @@ package inky.framework.controls
 	 *	@since  2009.01.12
 	 *
 	 */
-	public class NavigationButton extends Sprite
+	public class NavigationButton extends Sprite implements INavigationButton
 	{
-		private var _address:String;
-		private var _options:Object;
-		private var _sPath:String;
+		private var _proxy:NavigationButtonBehavior;
+		private var _selected:Boolean;
+		private var _targetButtons:Array;
 
 		
+		
 		/**
-		 *
+		 *	Creates an instance of the NavigationButton class.
 		 */
 		public function NavigationButton()
 		{
-			this.addEventListener(MouseEvent.CLICK, this._clickHandler);
+			this._proxy = new NavigationButtonBehavior(this);
+			this._targetButtons = [];
 		}
 		
 		
@@ -44,68 +47,140 @@ package inky.framework.controls
 		
 		
 		/**
-		 *
+		 *	@inheritDoc
 		 */
 		public function get address():String
 		{
-			return this._address;
+			return this._proxy.address;
 		}
 		/**
 		 * @private
 		 */
 		public function set address(address:String):void
 		{
-			this._address = address;
+			this._proxy.address = address;
 		}
-
-
+		
+		
 		/**
-		 *
+		 *	@inheritDoc
 		 */
 		public function get options():Object
 		{
-			return this._options;
+			return this._proxy.options;
 		}
 		/**
 		 * @private
 		 */
 		public function set options(options:Object):void
 		{
-			this._options = options;
+			this._proxy.options = options;
 		}
-
+		
 		
 		/**
-		 *
+		 *	
+		 *	The button's selected state. The state will be applied
+		 *	to any target buttons (DisplayObjects 'wrapped' by this button).
+		 *	
+		 *	@see #addTargetButton();
+		 *	
 		 */
-		public function get sPath():String
+		public function get selected():Boolean
 		{
-			return this._sPath;
+			return this._selected;
 		}
 		/**
 		 * @private
 		 */
-		public function set sPath(sPath:String):void
+		public function set selected(selected:Boolean):void
 		{
-			this._sPath = sPath;
+			this._selected = selected;
+			
+			for each (var obj:Object in this._targetButtons)
+			{
+				if (obj.hasOwnProperty('selected'))
+				{
+					if (obj.selected != selected)
+					{
+						obj.selected = selected;
+					}
+				}
+			}
 		}
-		
-		
-		
-		
-		
-		//
-		// private methods
-		//
 
 
 		/**
-		 *	@private
+		 *	@inheritDoc
 		 */
-		private function _clickHandler(e:MouseEvent):void
+		public function get sPath():Object
 		{
-			gotoSection(this.sPath, this.options);
+			return this._proxy.sPath;
 		}
+		/**
+		 * @private
+		 */
+		public function set sPath(sPath:Object):void
+		{
+			this._proxy.sPath = sPath;
+		}
+
+		
+		/**
+		 *	@inheritDoc
+		 */
+		public function get toggle():Boolean
+		{
+			return this._proxy.toggle;
+		}
+		public function set toggle(toggle:Boolean):void
+		{
+			this._proxy.toggle = toggle;
+		}
+		
+		
+		
+		
+		//
+		// public methods
+		//
+		
+		
+		/**
+		 *	@inheritDoc
+		 */
+		override public function addChild(child:DisplayObject):DisplayObject
+		{
+			this.addTargetButton(child);
+			return super.addChild(child);
+		}
+		
+
+		/**
+		 *	@inheritDoc
+		 */
+		override public function addChildAt(child:DisplayObject, index:int):DisplayObject
+		{
+			this.addTargetButton(child);
+			return super.addChildAt(child, index);
+		}
+		
+		
+		/**
+		 *
+		 *	Add a DisplayObject to the list of objects to be 'wrapped' by this button's behavior.
+		 *	Children of the button are automatically added to this list.
+		 *	
+		 *	@param	button	 
+		 *		A DisplayObject that will be 'wrapped' with this button's behavior.
+		 *	
+		 */
+		public function addTargetButton(button:DisplayObject):void
+		{
+			this._targetButtons.push(button);
+		}
+
+
 		
 	}
 	
