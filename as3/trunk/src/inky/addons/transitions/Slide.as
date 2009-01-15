@@ -1,7 +1,7 @@
 package inky.addons.transitions 
 {
 	import inky.addons.transitions.ActionDirection;
-	import inky.addons.transitions.TweenerAction;
+	import inky.framework.actions.TweenerAction;
 
 	
 	/**
