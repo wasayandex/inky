@@ -6,6 +6,7 @@ package inky.framework.managers
 	import flash.display.DisplayObjectContainer;
 	import flash.events.Event;
 	import flash.events.IEventDispatcher;
+	import flash.text.StyleSheet;
 	import flash.utils.describeType;
 	import flash.utils.getDefinitionByName;
 	import flash.utils.Dictionary;
@@ -152,6 +153,18 @@ package inky.framework.managers
 						{
 							switch (xml.localName())
 							{
+								case 'StyleSheet':
+									if (xml.hasSimpleContent())
+									{
+										var styleSheet:StyleSheet = new StyleSheet();
+										styleSheet.parseCSS(xml.toString());
+										obj = styleSheet;
+									}
+									else
+									{
+										throw new Error('StyleSheet nodes may not contain child nodes.');
+									}
+									break;
 								case 'TweenerAction':
 									className = 'inky.framework.transitions.TweenerAction';
 									break;
