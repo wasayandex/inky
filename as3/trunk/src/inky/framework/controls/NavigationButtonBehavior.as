@@ -116,14 +116,21 @@ package inky.framework.controls
 		 */
 		public function set toggle(toggle:Boolean):void
 		{
+			var section:Section = Section.getSection(this._obj);
 			this._toggle = toggle;
 
-			var section:Section = Section.getSection(this._obj);
 			if (toggle)
 			{
-				section.addEventListener(NavigationEvent.GOTO_SECTION, this._gotoSectionHandler);
+				if (!section)
+				{
+					throw new ArgumentError('No owner section found. Cannot set ' + this._obj + ' to toggle.');
+				}
+				else
+				{
+					section.addEventListener(NavigationEvent.GOTO_SECTION, this._gotoSectionHandler);
+				}
 			}
-			else
+			else if (section)
 			{
 				section.removeEventListener(NavigationEvent.GOTO_SECTION, this._gotoSectionHandler);
 			}
