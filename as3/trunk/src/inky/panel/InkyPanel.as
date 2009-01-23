@@ -61,7 +61,7 @@ public static var textField;
 		private function _init():void
 		{
 			// Load the JSFL library.
-			JSFLInterface.call('fl.runScript', 'file:///C:/Documents%20and%20Settings/matthew/Local%20Settings/Application%20Data/Adobe/Flash%20CS3/en/Configuration/WindowSWF/InkyPanel.jsfl');
+			JSFLInterface.call('fl.runScript', 'file:///Users/rpp/Library/Application%20Support/Adobe/Flash%20CS3/en/Configuration/WindowSWF/InkyPanel.jsfl');
 			
 			// Check for documentChanged.
 			this.addEventListener(Event.ENTER_FRAME, this._enterFrameHandler);
@@ -80,8 +80,7 @@ public static var textField;
 		private function _build(e:Event = null):void
 		{
 			var builder:Builder = new Builder();
-var source:String = 'file:///C:/Documents%20and%20Settings/matthew/Desktop/inky/examples/petsitters-1/deploy/PetsittersApplication.inky.xml';
-//var source:String = 'file:///Users/mjt/Desktop/inky/as3/trunk/examples/petsitters-1/deploy/PetsittersApplication.inky.xml';
+var source:String = 'file:///Users/rpp/Documents/Examples/inky/petsitters-1/deploy/flash/PetsittersApplication.inky.xml';
 			builder.build(source);
 		}		 		 		
 

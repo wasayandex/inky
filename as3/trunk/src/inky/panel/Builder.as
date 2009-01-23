@@ -78,6 +78,7 @@ package inky.panel
 			// Get the external sections.
 			this._swfMap = this._mapSWFs(this._inkyXML);
 
+trace(swcFilename)
 			// Publish the swc.
 			var swcFilename:String = JSFLInterface.call('getDocumentPath') + 'caliope.swc';
 			JSFLInterface.call('publishSWC', swcFilename);
@@ -176,9 +177,8 @@ private function _swcCompleteHandler(e:Event):void
 		}
 	}
 
-	this._printMap(excludeClasses);
-
-	//!
+	//this._printMap(excludeClasses);
+//	JSFLInterface.call('publishWithExcludes', excludeClasses);
 }
 
 
