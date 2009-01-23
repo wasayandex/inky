@@ -2,6 +2,7 @@ package inky.framework.controls
 {
 	import flash.display.DisplayObject;
 	import flash.display.Sprite;
+	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import inky.framework.core.Section;
 	import inky.framework.core.SPath;
@@ -119,21 +120,29 @@ package inky.framework.controls
 			var section:Section = Section.getSection(this._obj);
 			this._toggle = toggle;
 
-			if (toggle)
-			{
-				if (!section)
-				{
-					throw new ArgumentError('No owner section found. Cannot set ' + this._obj + ' to toggle.');
-				}
-				else
-				{
-					section.addEventListener(NavigationEvent.GOTO_SECTION, this._gotoSectionHandler);
-				}
-			}
-			else if (section)
-			{
-				section.removeEventListener(NavigationEvent.GOTO_SECTION, this._gotoSectionHandler);
-			}
+//TODO: Must be a better way to do this. See _addedToStageHandler.
+if (toggle)
+{
+	if (!section)
+	{
+		if (this._obj.parent)
+		{
+			throw new ArgumentError('No owner section found. Cannot set ' + this._obj + ' to toggle.');
+		}
+		else
+		{
+			this._obj.addEventListener(Event.ADDED_TO_STAGE, this._addedToStageHandler);
+		}
+	}
+	else
+	{
+		section.addEventListener(NavigationEvent.GOTO_SECTION, this._gotoSectionHandler);
+	}
+}
+else if (section)
+{
+	section.removeEventListener(NavigationEvent.GOTO_SECTION, this._gotoSectionHandler);
+}
 		}
 
 
@@ -142,6 +151,25 @@ package inky.framework.controls
 		//
 		// private methods
 		//
+		
+		
+/**
+ *	
+ *	TODO: Must be a better way to work around this!
+ *	If section is not found when toggle is set, the
+ *	toggle funcitonality will not work. This workaround
+ *	waits until the target object has a parent, and
+ *	tries again... but what if that fails, too?
+ *	
+ *	The problem typically manifests itself when the target object
+ *	is instanciated via XML (rather than a stage instance).
+ *	
+ */
+private function _addedToStageHandler(e:Event):void
+{
+	e.target.removeEventListener(e.type, arguments.callee);
+	this.toggle = this.toggle;
+}
 		
 
 		/**
@@ -178,13 +206,13 @@ package inky.framework.controls
 				var selected:Boolean = e.sPath.equals(this.sPath);
 				if (selected)
 				{
-					//TODO: Test this. Is it working??
-					for (var option:String in this.options)
-					{
+//TODO: Test this. Is it working??
+for (var option:String in this.options)
+{
 break;
-						selected = e.options.hasOwnProperty(option);
-						if (!selected) break;
-					}
+	selected = e.options.hasOwnProperty(option);
+	if (!selected) break;
+}
 				}
 				if (obj.selected != selected)
 				{
