@@ -20,7 +20,30 @@ package inky.framework.events
 	public class SectionEvent extends Event
 	{
 		public static const NAVIGATION_COMPLETE:String = 'navigationComplete';
-		public static const READY:String = 'ready';
+		
+        /**
+         * The <code>SectionEvent.SUBSECTION_INITIALIZE</code> constant defines the value of the <code>type</code> property
+         * of an <code>subsectionInitialize</code> event object. 
+         * 
+         * <p>This event has the following properties:</p>
+         *  <table class="innertable" width="100%">
+         *     <tr><th>Property</th><th>Value</th></tr>
+         *     <tr><td><code>bubbles</code></td><td><code>false</code></td></tr>
+         *     <tr><td><code>cancelable</code></td><td><code>false</code>; there is no default
+         *          behavior to cancel.</td></tr>
+         *     <tr><td><code>currentTarget</code></td><td>The object that is actively processing 
+         *          the event object with an event listener. </td></tr>
+		 *     <tr><td><code>target</code></td><td>The object that dispatched the event. The target is 
+         *           not always the object listening for the event. Use the <code>currentTarget</code>
+		 * 			property to access the object that is listening for the event.</td></tr>
+         *  </table>
+         *
+         * @eventType initialize
+         *
+         * @langversion 3.0
+         * @playerversion Flash 9.0.28.0
+         */
+		public static const SUBSECTION_INITIALIZE:String = 'subsectionInitialize';
 
 
 
@@ -35,7 +58,7 @@ package inky.framework.events
 		 *     The type of the event. Event listeners can access this
 		 *     information through the type property of the event object. A
 		 *     SectionEvent can have the following types of events:
-		 *     SectionEvent.NAVIGATION_COMPLETE, SectionEvent.READY.
+		 *     SectionEvent.NAVIGATION_COMPLETE, SectionEvent.INITIALIZE
 		 * @param bubbles
 		 *     Determines whether the SectionEvent object participates in the
 		 *     bubbling phase of the event flow. Event listeners can access this
@@ -46,7 +69,7 @@ package inky.framework.events
 		 *     cancelable property of the event object.
 		 *
 		 */
-		public function SectionEvent(type:String, bubbles:Boolean = false, cancelable:Boolean = true)
+		public function SectionEvent(type:String, bubbles:Boolean = false, cancelable:Boolean = false)
 		{
 			super(type, bubbles, cancelable);
 		}

@@ -585,6 +585,7 @@ package inky.framework.managers
 			subsection.markupObjectManager.setData(subsection, data);
 
 			// Initialize the subsection.
+			owner.dispatchEvent(new SectionEvent(SectionEvent.SUBSECTION_INITIALIZE, true));
 			this._initializeSection(subsection);
 			this._updateOptions(subsection);
 			
