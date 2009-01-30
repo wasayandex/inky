@@ -40,9 +40,11 @@ package inky.framework.managers
 		private var _currentSPath:SPath;
 		private var _currentSubsections:Dictionary;
 		private var _currentAddress:String;
-		private var _sectionOptions:Object;
+		private var _lastNav:Dictionary;
 		private var _masterSection:Section;
 		private var _nextSPath:SPath;
+		private var _navHistory:Array;
+		private var _sectionOptions:Object;
 
 
 		/**
@@ -67,6 +69,20 @@ package inky.framework.managers
 		//
 		// public methods
 		//
+
+
+		/**
+		 *
+		 *	
+		 */
+		public function closeSection(section:Section):void
+		{
+			var lastNav:Array = this._lastNav[section];
+			if (lastNav != null)
+				section.gotoSection.apply(null, lastNav);
+			else
+				this._gotoAddress('#/');
+		}
 
 
 		/**
@@ -220,6 +236,7 @@ package inky.framework.managers
 
 
 
+
 		//
 		// private methods
 		//
@@ -358,6 +375,13 @@ package inky.framework.managers
 		{
 			var i:int;
 
+			// Store the navigation in a history list.
+			this._navHistory.push([sPath, options]);
+			if (this._navHistory.length > 2)
+			{
+				this._navHistory = this._navHistory.slice(-2);
+			}
+
 			// Resolve the SPath.
 			sPath = this._masterSection.info.resolveSPath(sPath);
 			var info:SectionInfo = this._masterSection.info.getSectionInfoBySPath(sPath);
@@ -469,12 +493,14 @@ package inky.framework.managers
 		 */
 		private function _init():void
 		{
-			this._sectionOptions = {};
 			this._cmdQueue = [];
 			this._currentInitializeOptions = new Dictionary(true);
 			this._currentSPath = new SPath();
 			this._currentSPath.absolute = true;
 			this._currentSubsections = new Dictionary(true);
+			this._lastNav = new Dictionary(true);
+			this._navHistory = [];
+			this._sectionOptions = {};
 		}
 
 
@@ -576,6 +602,7 @@ package inky.framework.managers
 			var subsection:Section = new subsectionClass();
 			Section.setSection(subsection, owner);
 			this._currentSubsections[owner] = subsection;
+this._lastNav[subsection] = this._navHistory[this._navHistory.length - 2];
 
 			// Set the section's info.
 			subsection.inky_internal::setInfo(info);
@@ -705,6 +732,7 @@ this._commandCompleteHandler();
 			this._addCommandCompleteListener(cmd, loadManager, 'includeLoadComplete');
 			loadManager.loadXMLIncludes(data);
 		}*/
+
 
 
 

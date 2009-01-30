@@ -8,10 +8,12 @@ package inky.framework.core
 	import com.exanimo.utils.URLUtil;
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
+	import flash.display.InteractiveObject;
 	import flash.display.Loader;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.events.MouseEvent;
 	import flash.events.IEventDispatcher;
 	import flash.geom.Rectangle;
 	import flash.net.navigateToURL;
@@ -428,6 +430,19 @@ Section.setSection(this.__itemLoadingProgressBar, this.sPath || '/');
 		public function cancelFetchAsset(asset:Object):void
 		{
 			this.inky_internal::getLoadManager().cancelFetchAsset(asset);
+		}
+
+
+		/**
+		 *
+		 * Returns to the previous section. If you've deeplinked to this
+		 * section (i.e. there is no previous section), navigates back
+		 * to the first section of the application.
+		 *		
+		 */
+		public function close():void
+		{
+			this.inky_internal::getNavigationManager().closeSection(this);
 		}
 
 
@@ -932,6 +947,16 @@ Section.setSection(this.__itemLoadingProgressBar, this.sPath || '/');
 
 		/**
 		 *
+		 *	
+		 */
+		private function _closeButtonClickHandler(e:MouseEvent):void
+		{
+			this.close();
+		}
+
+
+		/**
+		 *
 		 *	Dispatches the appropriate navigation-related event,
 		 *	triggering the next command in the NavigationManager's queue.
 		 *	
@@ -1023,6 +1048,22 @@ Section.setSection(this.__itemLoadingProgressBar, this.sPath || '/');
 			this.cumulativeLoadingProgressBar = this.getChildByName('_cumulativeLoadingProgressBar') as DisplayObject || this.cumulativeLoadingProgressBar;
 			/*if (this.itemLoadingProgressBar) this.removeChild(this.itemLoadingProgressBar as DisplayObject);
 			if (this.cumulativeLoadingProgressBar) this.removeChild(this.cumulativeLoadingProgressBar as DisplayObject);*/
+			
+			this._initCloseButton();
+		}
+
+
+		/**
+		 *
+		 *	
+		 */
+		private function _initCloseButton():void
+		{
+			var closeButton:InteractiveObject = this.getChildByName('_closeButton') as InteractiveObject;
+			if (closeButton != null)
+			{
+				closeButton.addEventListener(MouseEvent.CLICK, this._closeButtonClickHandler);
+			}
 		}
 
 
