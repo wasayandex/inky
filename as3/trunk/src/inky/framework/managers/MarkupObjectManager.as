@@ -982,7 +982,7 @@ private static function _setOrphanAsset(context:Object, obj:Object, sPath:String
 		{
 // TODO: why is this necessary????? An error will be thrown if you do <inky:String>Hi</inky:String>, but it shouldn't be getting here.
 			if (propName == null) return;
-// TODO: this is hacky. What if we want to allow capitalized properties??
+// TODO: this is hacky. What if we want to allow capitalized properties? Instead, check for namespace.
 
 			var setValue:Boolean = false;
 			var typeDescription:XML;
@@ -1009,7 +1009,8 @@ private static function _setOrphanAsset(context:Object, obj:Object, sPath:String
 			if (value == 'false')
 			{
 				typeDescription = typeDescription || describeType(obj);
-				if (typeDescription.accessor.(attribute('name') == propName).@type == 'Boolean')
+				var propertyType:String = (typeDescription.accessor + typeDescription.variable).(attribute('name') == propName).@type;
+				if (propertyType == 'Boolean')
 				{
 					value = false;
 				}
