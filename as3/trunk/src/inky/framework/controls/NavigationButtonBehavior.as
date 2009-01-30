@@ -1,18 +1,16 @@
 package inky.framework.controls 
 {
-	import flash.display.DisplayObject;
 	import flash.display.Sprite;
-	import flash.events.Event;
 	import flash.events.MouseEvent;
-	import inky.framework.core.Section;
+	import inky.framework.core.Application;
 	import inky.framework.core.SPath;
 	import inky.framework.events.NavigationEvent;
 	import inky.framework.utils.gotoSection;
 	
 	/**
 	 *
-	 *  A decorator that provides INavigationButton behavior to a
-	 *	DisplayObject. Use this when you can't use NavigationButton.
+	 *  A decorator that provides INavigationButton behavior to an
+	 *	INavigationButton. Use this when you can't use NavigationButton.
 	 * 
 	 *	@see inky.framework.controls.INavigationButton
 	 *	
@@ -27,7 +25,7 @@ package inky.framework.controls
 	 */
 	public class NavigationButtonBehavior extends Object
 	{
-		private var _obj:DisplayObject;
+		private var _obj:INavigationButton;
 		private var _address:String;
 		private var _options:Object;
 		private var _sPath:Object;
@@ -42,7 +40,7 @@ package inky.framework.controls
 		 *		The object to decorate.
 		 *	
 		 */
-		public function NavigationButtonBehavior(obj:DisplayObject)
+		public function NavigationButtonBehavior(obj:INavigationButton)
 		{
 			this._obj = obj;
 			this._obj.addEventListener(MouseEvent.CLICK, this._clickHandler, false, 0, true);
@@ -106,7 +104,17 @@ package inky.framework.controls
 
 
 		/**
-		 *	@copy inky.framework.controls.INavigationButton#toggle
+		 *
+		 *	Determines whether this button's selected state is managed by 
+		 *	NavigationEvents. If set to true, the button will become 
+		 *	selected if the event's target SPath matches its own, and it
+		 *	will become deselected if the SPaths do not match. The button's
+		 *	options must also be present on the event's options, but the
+		 *	event may have other options that the button does not.
+		 *	
+		 *	@see com.exanimo.controls.IButton#toggle;
+		 *	@see inky.framework.events.NavigationEvent;
+		 *		
 		 */
 		public function get toggle():Boolean
 		{
@@ -117,32 +125,20 @@ package inky.framework.controls
 		 */
 		public function set toggle(toggle:Boolean):void
 		{
-			var section:Section = Section.getSection(this._obj);
+			var application:Application = Application.currentApplication;
 			this._toggle = toggle;
 
-//TODO: Must be a better way to do this. See _addedToStageHandler.
-if (toggle)
-{
-	if (!section)
-	{
-		if (this._obj.parent)
-		{
-			throw new ArgumentError('No owner section found. Cannot set ' + this._obj + ' to toggle.');
-		}
-		else
-		{
-			this._obj.addEventListener(Event.ADDED_TO_STAGE, this._addedToStageHandler);
-		}
-	}
-	else
-	{
-		section.addEventListener(NavigationEvent.GOTO_SECTION, this._gotoSectionHandler);
-	}
-}
-else if (section)
-{
-	section.removeEventListener(NavigationEvent.GOTO_SECTION, this._gotoSectionHandler);
-}
+			if (toggle)
+			{
+				if (!application)
+					throw new ArgumentError('No inky Application found. Cannot set ' + this._obj + ' to toggle.');
+				else
+					application.addEventListener(NavigationEvent.GOTO_SECTION, this._gotoSectionHandler, false, 0, true);
+			}
+			else if (application)
+			{
+				application.removeEventListener(NavigationEvent.GOTO_SECTION, this._gotoSectionHandler);
+			}
 		}
 
 
@@ -153,25 +149,6 @@ else if (section)
 		//
 		
 		
-/**
- *	
- *	TODO: Must be a better way to work around this!
- *	If section is not found when toggle is set, the
- *	toggle funcitonality will not work. This workaround
- *	waits until the target object has a parent, and
- *	tries again... but what if that fails, too?
- *	
- *	The problem typically manifests itself when the target object
- *	is instanciated via XML (rather than a stage instance).
- *	
- */
-private function _addedToStageHandler(e:Event):void
-{
-	e.target.removeEventListener(e.type, arguments.callee);
-	this.toggle = this.toggle;
-}
-		
-
 		/**
 		 *	
 		 *	Handles the click event and calls gotoSection.
@@ -210,14 +187,6 @@ private function _addedToStageHandler(e:Event):void
 					{
 						selected = (e.options.hasOwnProperty(option) && e.options[option] == this.options[option]);
 						if (!selected) break;
-					}
-					if (selected)
-					{
-						for (option in e.options)
-						{
-							selected = (this.options.hasOwnProperty(option) && this.options[option] == e.options[option]);
-							if (!selected) break;
-						}
 					}
 				}
 				if (obj.selected != selected)

@@ -1,6 +1,7 @@
 package inky.framework.controls 
 {
 	import flash.display.DisplayObject;
+	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import inky.framework.controls.INavigationButton;
 	import inky.framework.controls.NavigationButtonBehavior;
@@ -21,7 +22,7 @@ package inky.framework.controls
 	 *	@since  2009.01.12
 	 *
 	 */
-	public class NavigationButton extends Sprite implements INavigationButton
+	public class NavigationButton extends MovieClip implements INavigationButton
 	{
 		private var _proxy:NavigationButtonBehavior;
 		private var _selected:Boolean;

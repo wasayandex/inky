@@ -1,7 +1,6 @@
 package inky.framework.controls 
 {
-	import com.exanimo.display.IDisplayObject;
-
+	import com.exanimo.controls.IButton;
 	
 	/**
 	 *
@@ -9,6 +8,8 @@ package inky.framework.controls
 	 *	The button must be given an SPath (with or without options) to go to.
 	 *	It can optionally toggle itself based on whether or not a detected 
 	 *	NavigationEvent matches it's target SPath.
+	 *	
+	 *	@see com.exanimo.controls.IButton
 	 *	
 	 * 	@langversion ActionScript 3
 	 *	@playerversion Flash 9.0.0
@@ -19,7 +20,7 @@ package inky.framework.controls
 	 *	@since  2009.01.14
 	 *
 	 */
-	public interface INavigationButton extends IDisplayObject
+	public interface INavigationButton extends IButton
 	{
 		//
 		// accessors
@@ -67,23 +68,6 @@ package inky.framework.controls
 		 *	@private
 		 */
 		function set sPath(sPath:Object):void
-		
-
-		/**
-		 *
-		 *	Determines whether this button's selected state is managed by 
-		 *	NavigationEvents. If set to true, the button will become 
-		 *	selected if the event's target SPath matches its own, and it
-		 *	will become deselected if the SPaths do not match.
-		 *	
-		 *	@see inky.framework.events.NavigationEvent;
-		 *		
-		 */
-		function get toggle():Boolean
-		/**
-		 *	@private
-		 */
-		function set toggle(toggle:Boolean):void
 
 
 		
