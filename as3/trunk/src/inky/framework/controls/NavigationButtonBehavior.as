@@ -77,7 +77,7 @@ package inky.framework.controls
 		 */
 		public function get options():Object
 		{
-			return this._options;
+			return this._options || {};
 		}
 		/**
 		*	
@@ -206,13 +206,19 @@ private function _addedToStageHandler(e:Event):void
 				var selected:Boolean = e.sPath.equals(this.sPath);
 				if (selected)
 				{
-//TODO: Test this. Is it working??
-for (var option:String in this.options)
-{
-break;
-	selected = e.options.hasOwnProperty(option);
-	if (!selected) break;
-}
+					for (var option:String in this.options)
+					{
+						selected = (e.options.hasOwnProperty(option) && e.options[option] == this.options[option]);
+						if (!selected) break;
+					}
+					if (selected)
+					{
+						for (option in e.options)
+						{
+							selected = (this.options.hasOwnProperty(option) && this.options[option] == e.options[option]);
+							if (!selected) break;
+						}
+					}
 				}
 				if (obj.selected != selected)
 				{
