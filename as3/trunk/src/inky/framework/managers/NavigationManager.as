@@ -190,17 +190,17 @@ package inky.framework.managers
 
 					if ((url != null) && (url != this._currentAddress))
 					{
-						// SWFAddress will throw security errors sometimes. If it does,
-						// call the handler directly. (This way we still use url.)
+						this._nextSPath = sPath;
+						this._gotoAddress(url, sPath);
+						
+						// SWFAddress will throw security errors sometimes.
 						try
 						{
-							this._nextSPath = sPath;
 							SWFAddress.setValue(url.replace(/^#(.*)$/, '$1'));
 						}
 						catch(error:Error)
 						{
 							Debugger.traceWarning('There was an error generating the URL: ' + error.message);
-							this._gotoAddress(url, sPath);
 						}
 					}
 					else
