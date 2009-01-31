@@ -48,6 +48,8 @@ package inky.framework.managers
 	 */
 	public class MarkupObjectManager
 	{
+		namespace local = '';
+
 		// Force some classes to be compiled into the SWF.
 		Model;
 		ActionSequence;
@@ -107,7 +109,7 @@ package inky.framework.managers
 		 *     The marshalled object.
 		 *	
 		 */
-		public function createMarkupObject(xml:Object):Object
+		public function createMarkupObject(xml:Object, className:String = null):Object
 		{
 // TODO: Add support for <null />, <inky:Boolean />, etc.
 // TODO: If child exists but is not on first frame, a new instance will be created. That shouldn't happen!  Instead just initialize the child when it's added.
@@ -147,7 +149,7 @@ package inky.framework.managers
 						}
 
 						// Get class name from "inky:class" attribute.					
-						var className:String = xml.attributes().((namespace() == inky) && (localName() == 'class'));
+						className = className || xml.attributes().((namespace() == inky) && (localName() == 'class'));
 
 						if (!className && (xml.namespace() == inky))
 						{
@@ -435,7 +437,6 @@ Debugger.traceWarning(error);
 
 			// Initialize the object.
 			this.setData(obj, xml);
-
 			return obj;
 		}
 
@@ -655,6 +656,9 @@ if (section && (obj == section.master))
 		public function setProperty(obj:Object, value:XML):void
 		{
 			var propName:String = value.localName();
+			var markupObject:Object;
+			
+			// event listener attributes i.e. on:click="blah"
 			if (value.namespace() == event_listener)
 			{
 				if (obj is IEventDispatcher)
@@ -671,40 +675,55 @@ if (section && (obj == section.master))
 				{
 					throw new Error('Event listener markup found on non-IEventDispatcher ' + obj);
 				}
-			} 
-			else if (value.hasSimpleContent() && (value.length() == 1) /*&& value.nodeKind() == 'text'*/)
+			}
+			
+			// property setting attributes
+			else if (value.namespace() == local)
 			{
-				var str:String = value.toString();
-				var trimmedStr:String = str.replace(/^[\s]*/, '').replace(/[\s]*$/, '');
-				if ((trimmedStr.charAt(0) == '{') && (trimmedStr.charAt(trimmedStr.length - 1) == '}'))
+				if (value.hasSimpleContent())
 				{
-// TODO: check to see if <ImageLoader preload="{true}" /> causes memory leak!
-					// Value is bound to another value using {id} syntax
-					var binding:Binding = this._bindingManager.parseBinding2(obj, propName, trimmedStr.substr(1, -2));
-					this._bindingManager.executeBinding(binding);
-					return;
+					if ((value.nodeKind() == 'element') && (value.children().length() == 0))
+					{
+						// Value is shorthand object (i.e. <someProp inky:class="Object" objProp="1" />)
+						var typeDescription:XML = describeType(obj);
+						var className:String = (typeDescription.accessor + typeDescription.variable).(attribute('name') == propName).@type;
+// TODO: handle if type is an interface. (can't create an intance of it).
+						markupObject = this.createMarkupObject(value, className || 'Object');
+						this.setData(markupObject, value);
+						MarkupObjectManager._setValue(obj, propName, markupObject);
+					}
+					else
+					{
+						var str:String = value.toString();
+						var bindingMatch:Array = str.match(/^\s*{(.*)}\s*$/);
+						if (bindingMatch != null)
+						{
+							// Value is bound to another value using {id} syntax
+							var binding:Binding = this._bindingManager.parseBinding2(obj, propName, bindingMatch[1]);
+							this._bindingManager.executeBinding(binding);
+						}
+						else
+						{
+							MarkupObjectManager._setValue(obj, propName, str);
+						}
+					}
 				}
 				else
 				{
-					MarkupObjectManager._setValue(obj, propName, str);
-					return;
-				}
-			}
-			else
-			{
-// TODO: this is hacky. What if we want to allow capitalized properties??
-				// Parse an XML representation of data (i.e. <Array></Array>,
-				// <XML></XML>, <String></String>, etc). Initialize the object
-				// immediately to make sure that property values aren't set to
-				// empty Arrays, etc.
-				if (propName.substr(0, 1) == propName.substr(0, 1).toLowerCase())
-				{
-					var markupObject:Object = this.createMarkupObject(value.*);
+					// Parse an XML representation of data (i.e. <Array></Array>,
+					// <XML></XML>, <String></String>, etc). Initialize the object
+					// immediately to make sure that property values aren't set to
+					// empty Arrays, etc.
+					markupObject = this.createMarkupObject(value.*);
 					this.setData(markupObject);
 					MarkupObjectManager._setValue(obj, propName, markupObject);
 				}
 			}
-		}	
+			else
+			{
+// TODO: Should an error be thrown here?
+			}
+		}
 
 
 
@@ -980,44 +999,31 @@ private static function _setOrphanAsset(context:Object, obj:Object, sPath:String
 		 */
  		private static function _setValue(obj:Object, propName:*, value:Object):void
 		{
-// TODO: why is this necessary????? An error will be thrown if you do <inky:String>Hi</inky:String>, but it shouldn't be getting here.
-			if (propName == null) return;
-// TODO: this is hacky. What if we want to allow capitalized properties? Instead, check for namespace.
-
-			var setValue:Boolean = false;
+			var setValue:Boolean = obj.hasOwnProperty(propName);
 			var typeDescription:XML;
-			if (propName.substr(0, 1).toLowerCase() == propName.substr(0, 1))
-			{
-				if (obj.hasOwnProperty(propName))
-				{
-					setValue = true;
-				}
-				else
-				{
-					typeDescription = describeType(obj);
-					if (typeDescription.@isDynamic == 'true')
-					{
-						setValue = true;
-					}
-				}
-			}
 
-			// Automatically convert "false" (String) to false (Boolean) if the
-			// accessor specifies a Boolean type. IMPORTANT: because the
-			// accessor may be star-typed, it is better to use "{false}", which
-			// will always be evaluated as a Boolean.
-			if (value == 'false')
+			if (!setValue)
 			{
-				typeDescription = typeDescription || describeType(obj);
-				var propertyType:String = (typeDescription.accessor + typeDescription.variable).(attribute('name') == propName).@type;
-				if (propertyType == 'Boolean')
-				{
-					value = false;
-				}
+				typeDescription = describeType(obj);
+				setValue = typeDescription.@isDynamic == 'true';
 			}
 
 			if (setValue)
 			{
+				// Automatically convert "false" (String) to false (Boolean) if the
+				// accessor specifies a Boolean type. IMPORTANT: because the
+				// accessor may be star-typed, it is better to use "{false}", which
+				// will always be evaluated as a Boolean.
+				if (value == 'false')
+				{
+					typeDescription = typeDescription || describeType(obj);
+					var propertyType:String = (typeDescription.accessor + typeDescription.variable).(attribute('name') == propName).@type;
+					if (propertyType == 'Boolean')
+					{
+						value = false;
+					}
+				}
+
 				try
 				{
 					obj[propName] = value;
@@ -1030,6 +1036,10 @@ private static function _setOrphanAsset(context:Object, obj:Object, sPath:String
 						throw(error);
 					}
 				}
+			}
+			else
+			{
+				throw new Error('Could not set property ' + propName + ' on ' + obj);
 			}
 		}
 
