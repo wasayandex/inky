@@ -333,9 +333,7 @@ Section.setSection(this.__itemLoadingProgressBar, this.sPath || '/');
 		 */
 		public function get sPath():SPath
 		{
-//!
 			return NavigationManager.getSPath(this);
-//			return this.info ? this.info.sPath : null;
 		}
 
 
@@ -832,7 +830,6 @@ throw new Error('i took this out');
 		public static function setSection(obj:Object, section:Object):void
 		{
 			var sPath:String;
-
 
 			if (section is Section)
 			{

@@ -368,21 +368,22 @@ private static var _sectionInfos:Array = [];
 		{
 // FIXME
 if (!sPath.absolute) trace('Warning: SectionInfo.getSectionInfoBySPath: Shouldn\'t the SPath be absolute?' + sPath);
-var debug:Boolean = true;
-
-			var results:Array = [];			
+			var debug:Boolean = true;
+			var results:Array = [];
+			var paths:Array = [];
 			for each (var info:SectionInfo in SectionInfo._sectionInfos)
 			{
 				if (info.pathPattern.test(sPath.toString()))
 				{
 					results.push(info);
+					paths.push(info.path);
 					if (!debug)
 						break;
 				}
 
 				if (debug && (results.length > 1))
 				{
-					throw new Error('The SPath ' + sPath + ' matches more than one Section:\n\t' + results.join('\n\t'));
+					throw new Error('The SPath ' + sPath + ' matches more than one Section:\n\t' + paths.join('\n\t'));
 				}
 			}
 

@@ -579,8 +579,15 @@ private static var _sections2SPaths:Dictionary = new Dictionary(true);
 public static function getSPath(section:Section):SPath
 {
 	// FIXME: This shouldn't be required to fall back to '/'
-	return NavigationManager._sections2SPaths[section] || SPath.parse('/');
+	var sPath:SPath = NavigationManager._sections2SPaths[section];
+	if (sPath == null)
+	{
+		sPath =
+		NavigationManager._sections2SPaths[section] = SPath.parse('/');
+	}
+	return sPath;
 }
+
 
 		/**
 		 *
@@ -609,10 +616,11 @@ public static function getSPath(section:Section):SPath
 
 			// Create the subsection and add it to the section hierarchy.
 			var subsection:Section = new subsectionClass();
-NavigationManager._sections2SPaths[subsection] = this._currentSPath;
+			NavigationManager._sections2SPaths[subsection] = this._currentSPath.clone();
+trace('CREATED\t' + subsection + '\tat\t' + this._currentSPath);
 			Section.setSection(subsection, owner);
 			this._currentSubsections[owner] = subsection;
-this._lastNav[subsection] = this._navHistory[this._navHistory.length - 2];
+			this._lastNav[subsection] = this._navHistory[this._navHistory.length - 2];
 
 			// Set the section's info.
 			subsection.inky_internal::setInfo(info);
