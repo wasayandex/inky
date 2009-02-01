@@ -333,7 +333,9 @@ Section.setSection(this.__itemLoadingProgressBar, this.sPath || '/');
 		 */
 		public function get sPath():SPath
 		{
-			return this.info ? this.info.sPath : null;
+//!
+			return NavigationManager.getSPath(this);
+//			return this.info ? this.info.sPath : null;
 		}
 
 
@@ -819,23 +821,8 @@ Section.setSection(this.__itemLoadingProgressBar, this.sPath || '/');
 		 */
 		public function sectionExists(section:Object):Boolean
 		{
-			var sPath:SPath = section is String ? SPath.parse(section as String) : section as SPath;
-			var absoluteSPath:SPath = sPath.absolute ? sPath : sPath.resolve(this.sPath);
-
-			if (this == this.master)
-			{
-				var info:SectionInfo = this.info;
-				for (var i:uint = 0; i < absoluteSPath.length; i++)
-				{
-					var name:String = absoluteSPath.getItemAt(i) as String;
-					if (!(info = info.getSubsectionInfoByName(name))) return false;
-				}
-				return true;
-			}
-			else
-			{
-				return this.owner.sectionExists(absoluteSPath);
-			}
+//!
+throw new Error('i took this out');
 		}
 
 
@@ -1201,7 +1188,7 @@ Section.setSection(this.__itemLoadingProgressBar, this.sPath || '/');
  		inky_internal function setInfo(info:SectionInfo):void
 		{
 // TODO: Remove this method
-			Section._sections2SPaths[this] = info.sPath.toString();
+			Section._sections2SPaths[this] = this.sPath.toString();
 			this._info = info;
 			this._markupObjectManager = MarkupObjectManager.getMarkupObjectManager(this.sPath);
 		}

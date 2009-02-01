@@ -38,7 +38,7 @@ package inky.framework.core
 		private var _owner:SectionInfo;
 		private var _routeMapper:RouteMapper;
 		private var _source:String;
-		private var _subsectionInfos:Array;
+
 
 // TODO: Make sure that only prefixed nodes are being used.
 		use namespace inky;
@@ -51,7 +51,7 @@ package inky.framework.core
 		 */
 		public function SectionInfo()
 		{
-			this._subsectionInfos = [];
+			SectionInfo._sectionInfos.push(this);
 		}
 
 
@@ -134,7 +134,8 @@ package inky.framework.core
 		 */
 		public function get numSubsections():int
 		{
-			return this._subsectionInfos.length;
+//!
+throw Error('i took this out');
 		}
 
 
@@ -207,29 +208,10 @@ package inky.framework.core
 		 * 
 		 * 
 		 */
-		public function getSubsectionInfoByName(name:String):SectionInfo
-		{
-			var info:SectionInfo;
-			for each (var i:SectionInfo in this._subsectionInfos)
-			{
-				if (i.name == name)
-				{
-					info = i;
-					break;
-				}
-			}
-			return info;
-		}
-
-
-		/**
-		 *
-		 * 
-		 * 
-		 */
 		public function getSubsectionInfoList():Array
 		{
-			return this._subsectionInfos.slice();
+//!
+throw new Error('i took this out');
 		}
 
 
@@ -258,6 +240,16 @@ package inky.framework.core
 			
 			// Parse the href.
 			this._href = this._getAttribute(value, 'href');
+			
+			// Parse the path.
+			if (this.owner)
+			{
+				this._path = SPath.parse(value.@path.toString() || this._name).resolve(SPath.parse(this.owner.path)).toString();
+			}
+			else
+			{
+				this._path = '/';
+			}
 
 			// Parse subsection data.
 			var index:int = 0;
@@ -270,7 +262,6 @@ package inky.framework.core
 				info._index = index++;
 				info._owner = this;
 				info.parseData(subsection);
-				this._subsectionInfos.push(info);
 			}
 
 			// Parse class.
@@ -319,7 +310,6 @@ package inky.framework.core
 				// Parse the url.
 				var defaultRouteRoot:SPath = SPath.parse(value.attribute('defaultRouteRoot')).resolve(this.sPath);
 				this._getDefaultRoutes(defaultRouteRoot);
-
 				this._updateDefaultSubsection();
 			}
 		}
@@ -353,11 +343,21 @@ package inky.framework.core
 
 
 
+public function get pathPattern():RegExp
+{
+	// TODO: cache this?
+	return new RegExp('^' + this.path + '$');
+}
+private var _path:String;
+public function get path():String
+{
+	return this._path;
+}
 
 		//
 		// private methods
 		//
-
+private static var _sectionInfos:Array = [];
 
 		/**
 		 *
@@ -366,23 +366,27 @@ package inky.framework.core
 		 */
 		public function getSectionInfoBySPath(sPath:SPath):SectionInfo
 		{
-		// TODO:
-		if (!sPath.absolute) trace('Warning: SectionInfo.getSectionInfoBySPath: Shouldn\'t the SPath be absolute?' + sPath);
+// FIXME
+if (!sPath.absolute) trace('Warning: SectionInfo.getSectionInfoBySPath: Shouldn\'t the SPath be absolute?' + sPath);
+var debug:Boolean = true;
 
-			// Get the master info
-			var info:SectionInfo = this;
-			while (info.owner)
+			var results:Array = [];			
+			for each (var info:SectionInfo in SectionInfo._sectionInfos)
 			{
-				info = info.owner;
+				if (info.pathPattern.test(sPath.toString()))
+				{
+					results.push(info);
+					if (!debug)
+						break;
+				}
+
+				if (debug && (results.length > 1))
+				{
+					throw new Error('The SPath ' + sPath + ' matches more than one Section:\n\t' + results.join('\n\t'));
+				}
 			}
 
-			for (var i:uint = 0; i < sPath.length; i++)
-			{
-				info = info.getSubsectionInfoByName(sPath.getItemAt(i) as String);
-				if (!info) break;
-			}
-
-			return info;
+			return results[0];
 		}
 
 
@@ -435,12 +439,12 @@ package inky.framework.core
 			{
 				this.routeMapper.connect(path, this.sPath);
 			}
-
-			for each (var info:SectionInfo in this._subsectionInfos)
+//!
+/*			for each (var info:SectionInfo in this._subsectionInfos)
 			{
 				info._getDefaultRoutes(defaultRouteRoot);
 			}
-		}
+*/		}
 
 
 		/**
@@ -456,11 +460,11 @@ package inky.framework.core
 			{
 				this._defaultSubsection = this.resolveSPath(this._defaultSubsection);
 			}
-
-			for each (var info:SectionInfo in this._subsectionInfos)
+//!
+/*			for each (var info:SectionInfo in this._subsectionInfos)
 			{
 				info._updateDefaultSubsection();
-			}
+			}*/
 		}
 
 

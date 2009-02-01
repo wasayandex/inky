@@ -629,7 +629,6 @@ if (orphans)
 
 // TODO: Should this be here? It's a little random.
 // Initialize the navigation controller.
-//!
 var section:Section = Section.getSectionBySPath(this._sPath);
 if (section && (obj == section.master))
 {

@@ -312,6 +312,7 @@ package inky.framework.managers
 			{
 				section = section.currentSubsection;
 			}
+
 			return section;
 		}
 
@@ -350,10 +351,7 @@ package inky.framework.managers
 
 		/**
 		 *	
-		 * Performs the actual navigation process. Unlike gotoSection(), this
-		 * method is unrelated to the browser URL. Instead, this method is
-		 * called as a result of a changing URL or as a fallback when the
-		 * the application has a problem using URL-based navigation.
+		 * Performs the actual navigation process.
 		 *	
 		 * @see inky.framework.core.NavigationManager#gotoSection()
 		 * @see inky.framework.core.Section#gotoSection()
@@ -375,7 +373,8 @@ package inky.framework.managers
 		{
 			var i:int;
 
-			// Store the navigation in a history list.
+			// Store the navigation in a history list. This list is used to add
+			// the section.close() functionality.
 			this._navHistory.push([sPath, options]);
 			if (this._navHistory.length > 2)
 			{
@@ -450,11 +449,11 @@ package inky.framework.managers
 				leafSPath.removeItemAt(leafSPath.length - 1);
 			}
 			var section:Section = this._getLeafSection();
+
 			while (!section.sPath.equals(leafSPath))
 			{
 				section = section.owner;
 			}
-
 			this._cmdQueue.push({type: '__preload', name: sPath, context: section});
 			this._cmdQueue.push({type: '__removeProgressBars', context: section});
 
@@ -573,6 +572,16 @@ package inky.framework.managers
 		//
 
 
+
+
+private static var _sections2SPaths:Dictionary = new Dictionary(true);
+
+public static function getSPath(section:Section):SPath
+{
+	// FIXME: This shouldn't be required to fall back to '/'
+	return NavigationManager._sections2SPaths[section] || SPath.parse('/');
+}
+
 		/**
 		 *
 		 *	
@@ -600,6 +609,7 @@ package inky.framework.managers
 
 			// Create the subsection and add it to the section hierarchy.
 			var subsection:Section = new subsectionClass();
+NavigationManager._sections2SPaths[subsection] = this._currentSPath;
 			Section.setSection(subsection, owner);
 			this._currentSubsections[owner] = subsection;
 this._lastNav[subsection] = this._navHistory[this._navHistory.length - 2];
