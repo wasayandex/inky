@@ -35,6 +35,7 @@ package inky.framework.controls
 		 */
 		public function NavigationButton()
 		{
+			this.buttonMode = true;
 			this._proxy = new NavigationButtonBehavior(this);
 			this._targetButtons = [];
 		}
