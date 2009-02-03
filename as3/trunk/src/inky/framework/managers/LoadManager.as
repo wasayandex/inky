@@ -321,7 +321,7 @@ package inky.framework.managers
 		private function _createPreloadLoadQueue(sPath:SPath):LoadQueue
 		{
 			// Get the section's data.
-			var info:SectionInfo = this._section.info.getSectionInfoBySPath(sPath);
+			var info:SectionInfo = this._section.inky_internal::getInfo().getSectionInfoBySPath(sPath);
 			var data:XML = info.inky_internal::getData();
 
 			// Create the preload asset list.

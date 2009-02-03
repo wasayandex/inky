@@ -407,7 +407,8 @@ Debugger.traceWarning(error);
 			{
 				// Set the section on the object. If this is a preload asset,
 				// its section may not yet have been created.
-				this._setSection(obj, xml as XML);
+				if (!(obj is Section))
+					Section.setSection(obj, this._sPath);
 
 				// Call setData before adding the DisplayObject to its
 				// parent so that DisplayObjects are added in the correct
@@ -599,7 +600,8 @@ if (orphans)
 				// Set the section.
 				if (!(obj is XMLList) && !(obj is XML))
 				{
-					this._setSection(obj, data);
+					if (!(obj is Section))
+						Section.setSection(obj, this._sPath)
 				}
 
 				// Store id references to the object.
@@ -890,7 +892,7 @@ MarkupObjectManager._sPaths2MOMs[sPath]._markupObjects2Data[obj] = undefined;
 				var owner:DisplayObject = Section.getSection(obj);
 				var objectName:String = obj.name;
 				var tmp:DisplayObject = obj.parent;
-				var info:SectionInfo = context.info;
+				var info:SectionInfo = context.inky_internal::getInfo();
 				while (tmp && (tmp != owner))
 				{
 					objectName = tmp.name + '.' + objectName;
@@ -961,34 +963,6 @@ private static function _setOrphanAsset(context:Object, obj:Object, sPath:String
 	} 
 	MarkupObjectManager._orphanAssets[sPath].assets.push(obj);
 }
-
-
-		/**
-		 *
-		 *
-		 *	
-		 */
-		private function _setSection(obj:Object, xml:Object):void
-		{
-			// Determine the SPath of the object's section.
-			var node:XML = xml.parent();
-			var sectionNames:Array = [];
-			while (node)
-			{
-				if (node.name() == new QName(inky, 'Section'))
-				{
-					sectionNames.unshift(node.@name.toString());
-				}
-				node = node.parent();
-			}
-			
-			// Set the section of the object.
-			var sPath:String = sectionNames.length ? '/' + sectionNames.join('/') : null;
-			if (sPath)
-			{
-				Section.setSection(obj, sPath);
-			}
-		}
 
 
 		/**
