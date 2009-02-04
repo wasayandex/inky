@@ -64,6 +64,24 @@ package inky.framework.core
 		//
 
 
+/**
+ *	@private
+ */
+public static function get activeSection():Section
+{
+	var section:Section = Application.currentApplication;
+	if (!section) return null;
+
+	var leaf:Section = section.currentSubsection;
+	while (leaf)
+	{
+		section = leaf;
+		leaf = section.currentSubsection;
+	}
+	return section;
+}
+		
+
 		/**
 		 * @private
 		 */
