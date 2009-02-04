@@ -27,6 +27,7 @@ package inky.framework.controls
 		private var _proxy:NavigationButtonBehavior;
 		private var _selected:Boolean;
 		private var _targetButtons:Array;
+		private var _toggle:Boolean;
 
 		
 		
@@ -55,12 +56,22 @@ package inky.framework.controls
 		{
 			return this._proxy.address;
 		}
-		/**
-		 * @private
-		 */
 		public function set address(address:String):void
 		{
 			this._proxy.address = address;
+		}
+
+		
+		/**
+		 *	@inheritDoc
+		 */
+		public function get autoSelect():Boolean
+		{
+			return this._proxy.autoSelect;
+		}
+		public function set autoSelect(autoSelect:Boolean):void
+		{
+			this._proxy.autoSelect = autoSelect;
 		}
 		
 		
@@ -71,9 +82,6 @@ package inky.framework.controls
 		{
 			return this._proxy.options;
 		}
-		/**
-		 * @private
-		 */
 		public function set options(options:Object):void
 		{
 			this._proxy.options = options;
@@ -92,9 +100,6 @@ package inky.framework.controls
 		{
 			return this._selected;
 		}
-		/**
-		 * @private
-		 */
 		public function set selected(selected:Boolean):void
 		{
 			this._selected = selected;
@@ -119,25 +124,31 @@ package inky.framework.controls
 		{
 			return this._proxy.sPath;
 		}
-		/**
-		 * @private
-		 */
 		public function set sPath(sPath:Object):void
 		{
 			this._proxy.sPath = sPath;
 		}
-
+		
 		
 		/**
-		 *	@inheritDoc
+		 *  @inheritDoc
 		 */
 		public function get toggle():Boolean
 		{
-			return this._proxy.toggle;
+			return this._toggle;
 		}
 		public function set toggle(toggle:Boolean):void
 		{
-			this._proxy.toggle = toggle;
+			this._toggle = toggle;
+
+			if (toggle)
+			{
+				this.selected = this.selected;
+			}
+			else
+			{
+				this.selected = false;
+			}
 		}
 		
 		

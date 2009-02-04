@@ -53,6 +53,19 @@ package inky.framework.controls
 		{
 			this._proxy.address = address;
 		}
+
+		
+		/**
+		 *
+		 */
+		public function get autoSelect():Boolean
+		{
+			return this._proxy.autoSelect;
+		}
+		public function set autoSelect(autoSelect:Boolean):void
+		{
+			this._proxy.autoSelect = autoSelect;
+		}
 		
 		
 		/**
@@ -86,19 +99,7 @@ package inky.framework.controls
 			this._proxy.sPath = sPath;
 		}
 
-		
-		/**
-		 *
-		 */
-		override public function get toggle():Boolean
-		{
-			return this._proxy.toggle;
-		}
-		override public function set toggle(toggle:Boolean):void
-		{
-			super.toggle = toggle;
-			this._proxy.toggle = toggle;
-		}
+
 		
 	}
 	

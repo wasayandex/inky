@@ -39,8 +39,8 @@ package inky.framework.controls
 		 *	@private
 		 */
 		function set address(address:String):void
-
-
+		
+		
 		/**
 		 *
 		 *	The options object to be used in the gotoSection call.
