@@ -2,6 +2,7 @@ package inky.framework.binding.utils
 {
 	import flash.events.IEventDispatcher;
 	import flash.events.Event;
+	import flash.utils.Dictionary;
 	import inky.framework.binding.events.PropertyChangeEvent;
 	import inky.framework.binding.utils.IChangeWatcher;
 
@@ -30,12 +31,24 @@ package inky.framework.binding.utils
 		 */
 		public function ChangeWatcher(access:Object, handler:Function, next:ChangeWatcher = null)
 		{
-			this._events = [];
 			this._getter = access is String ? null : access.getter;
 			this._handler = handler;
 			this._host = null;
 			this._name = access is String ? access as String : access.name;
 			this._next = next;
+			
+			if (access is String)
+			{
+				this._getter = null;
+				this._name = access as String;
+				this._events = [PropertyChangeEvent.PROPERTY_CHANGE, Event.CHANGE];
+			}
+			else
+			{
+				this._getter = access.getter;
+				this._name = access.name;
+				this._events = access.eventType != null ? access.eventType is Array ? access.eventType : [access.eventType] : [PropertyChangeEvent.PROPERTY_CHANGE, Event.CHANGE];
+			}
 		}
 
 
@@ -84,7 +97,7 @@ package inky.framework.binding.utils
 				{
 					this._host.removeEventListener(eventType, this._wrappedHandler);
 				}
-				this._events = [];
+//				this._events = [];
 			}
 
 			this._host = newHost;
@@ -92,10 +105,11 @@ package inky.framework.binding.utils
 			// Add listeners to the new host.
 			if (this._host != null)
 			{
-				this._events = ChangeWatcher._getEvents(this._host, this._name);
+// TODO: Add the events associated with this._host and this._name
+//				this._events = ChangeWatcher._getEvents(this._host, this._name);
 				for each (eventType in this._events)
 				{
-					this._host.addEventListener(eventType, this._wrappedHandler, false, 0, true);
+					this._host.addEventListener(eventType, this._wrappedHandler, false, 0, false);
 				}
 			}
 
@@ -161,16 +175,6 @@ package inky.framework.binding.utils
 		/**
 		 *
 		 */
-		private static function _getEvents(host:Object, name:String):Array
-		{
-// TODO: Allow some way to specify which events to use.
-			return host is IEventDispatcher ? [PropertyChangeEvent.PROPERTY_CHANGE, Event.CHANGE] : [];
-		}
-
-
-		/**
-		 *
-		 */
 		private function _getHostPropertyValue():Object
 		{
 			var value:Object;
@@ -195,23 +199,23 @@ package inky.framework.binding.utils
 		/**
 		 *
 		 */
-		private function _wrappedHandler(event:Event):void
+		private function _wrappedHandler(e:Event):void
 		{
 			if (this._next)
 			{
 				this._next.reset(this._getHostPropertyValue());
 			}
 
-			if (event is PropertyChangeEvent)
+			if (e is PropertyChangeEvent)
 			{
-				if ((event as PropertyChangeEvent).property == this._name)
+				if ((e as PropertyChangeEvent).property == this._name)
 				{
-					this._handler(event as PropertyChangeEvent);
+					this._handler(e as PropertyChangeEvent);
 				}
 			}
 			else
 			{
-				this._handler(event);
+				this._handler(e);
 			}
 		}
 
