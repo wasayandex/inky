@@ -1,7 +1,7 @@
 package inky.addons.transitions
 {
-	import inky.framework.utils.IAction;
-	import inky.framework.events.ActionEvent;
+	import inky.framework.actions.IAction;
+	import inky.framework.actions.ActionEvent;
 	import inky.framework.core.IInkyDataParser;
 	import flash.events.EventDispatcher;
 	

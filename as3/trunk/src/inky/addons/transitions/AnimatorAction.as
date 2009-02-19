@@ -5,8 +5,8 @@ package inky.addons.transitions
 	import com.exanimo.collections.ArrayList;
 	import inky.framework.core.IInkyDataParser;
 	import inky.framework.core.Section;
-	import inky.framework.events.ActionEvent;
-	import inky.framework.utils.IAction;
+	import inky.framework.actions.ActionEvent;
+	import inky.framework.actions.IAction;
 	import flash.display.DisplayObject;
 	import flash.events.EventDispatcher;
 	import fl.motion.Animator;
