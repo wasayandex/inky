@@ -111,10 +111,9 @@ package inky.framework.actions
 		public function start():void
 		{
 			if (!this.target) return;
-			
+
+			this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_START, false, false));			
 			Tweener.addTween(this.target, {base: this, onComplete: this._completeHandler});
-			this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_START, false, false));
-			
 		}
 
 
