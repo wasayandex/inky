@@ -50,7 +50,7 @@ package inky.framework.actions
 		 */
 		public function get cancelable():Boolean
 		{			
-			return false;
+			return true;
 		}
 
 
@@ -86,7 +86,7 @@ package inky.framework.actions
 		 */
 		public function cancel():void
 		{
-			throw new Error('ActionGroup is not cancelable.');
+			
 		}
 
 
