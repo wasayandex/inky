@@ -96,9 +96,10 @@ package inky.framework.utils
 			// Get the route that matches the sPath.
 			for each (var route:Route in this._routes)
 			{
-				if (sPath.equals(route.sPath))
+				var match:Object = route.match(url);
+				if (match)
 				{
-					return route.match(url);
+					return match;
 				}
 			}
 	
