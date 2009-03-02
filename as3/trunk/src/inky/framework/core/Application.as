@@ -64,22 +64,22 @@ package inky.framework.core
 		//
 
 
-/**
- *	@private
- */
-public static function get activeSection():Section
-{
-	var section:Section = Application.currentApplication;
-	if (!section) return null;
+		/**
+		 *	@private
+		 */
+		public static function get activeSection():Section
+		{
+			var section:Section = Application.currentApplication;
+			if (!section) return null;
 
-	var leaf:Section = section.currentSubsection;
-	while (leaf)
-	{
-		section = leaf;
-		leaf = section.currentSubsection;
-	}
-	return section;
-}
+			var leaf:Section = section.currentSubsection;
+			while (leaf)
+			{
+				section = leaf;
+				leaf = section.currentSubsection;
+			}
+			return section;
+		}
 		
 
 		/**
@@ -157,7 +157,7 @@ public static function get activeSection():Section
 			this._data = data;
 
 			var info:SectionInfo = new SectionInfo();
-			info.parseData(this._data);
+			info.parseData(this._data, this.root.loaderInfo.parameters.overrideURL);
 			this.inky_internal::setInfo(info);
 			this.markupObjectManager.setData(this, this._data);
 		}

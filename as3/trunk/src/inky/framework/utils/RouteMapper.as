@@ -3,6 +3,7 @@ package inky.framework.utils
 	import inky.framework.core.SPath;
 	import inky.framework.utils.Debugger;
 	import inky.framework.utils.Route;
+	import com.exanimo.utils.ObjectUtil;
 
 
 	/**
@@ -53,30 +54,28 @@ package inky.framework.utils
 		 *     (optional)
 		 * 
 		 */
-		public function connect(path:String, sPath:SPath, defaultOptions:Object = null, requirements:Object = null):void
+		public function connect(path:String, sPath:SPath, defaultOptions:Object = null, requirements:Object = null):Route
 		{
-			// If this SPath is already routed elsewhere, throw an error. If it
-			// is routed to the same place, break.
-			for each (var route:Route in this._routes)
-			{
-				if (route.path == path)
-				{
-					if (!route.sPath.equals(sPath))
-					{
-// TODO:
-// BUG: this warning will never be traced because this line is executed before the debug property is set on the app.
-						Debugger.traceWarning('Duplicate route: the path ' + path + ' cannot be routed to ' + sPath + ' because it is already routed to ' + route.sPath); 
-					}
-					else
-					{
-						// This route is already stored.
-						return;
-					}
-				}
-			}
-
 			// Store the route.
-			this._routes.push(new Route(path, sPath, defaultOptions, requirements));
+			var route:Route = new Route(path, sPath.clone() as SPath, defaultOptions, requirements);
+			this._routes.push(route);
+			return route;
+		}
+
+
+		/**
+		 *	
+		 *	@private
+		 *	TODO: Unshifts the route instead of pushing it.  This is being used when an overrideURL is in effect.
+		 *	Eventually, we should look into whether connect should push or unshift, and hopefully get rid of this function.
+		 *	
+		 */
+		public function connect2(path:String, sPath:SPath, defaultOptions:Object = null, requirements:Object = null):Route
+		{
+			// Store the route.
+			var route:Route = new Route(path, sPath.clone() as SPath, defaultOptions, requirements);
+			this._routes.unshift(route);
+			return route;
 		}
 
 
@@ -151,7 +150,7 @@ package inky.framework.utils
 
 			for each (var route:Route in this._routes)
 			{
-				if (route.sPath.equals(sPath))
+				if (route.isRouteFor(sPath, options))
 				{
 					foundMatch = true;
 					break;

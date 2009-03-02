@@ -71,7 +71,21 @@ package inky.framework.utils
 			{
 				for (var requirementName:String in requirements)
 				{
-					this.setRequirement(requirementName, requirements[requirementName]);
+					var r:Object = requirements[requirementName];
+					var requirement:RegExp;
+					if (r is String)
+					{
+						requirement = new RegExp(r as String);
+					}
+					else if (r is RegExp)
+					{
+						requirement = r as RegExp;
+					}
+					else
+					{
+						throw new ArgumentError();
+					}
+					this.setRequirement(requirementName, requirement);
 				}
 			}
 		}
@@ -163,9 +177,9 @@ package inky.framework.utils
 		 * 
 		 * 
 		 */
-		public function setRequirement(name:String, value:RegExp):void
+		public function setRequirement(name:String, requirement:RegExp):void
 		{
-			this._requirements[name] = value;
+			this._requirements[name] = requirement;
 		}
 
 
@@ -264,6 +278,15 @@ package inky.framework.utils
 					break;
 				}
 			}
+/*
+Removed because routes now don't need to include all of the dynamic parts. For example, 
+
+<inky:Route path="#/my-favorite-image/">
+	<defaults groupName="residences" itemIndex="6" />
+	<requirements groupName="residences" itemIndex="6" />
+</inky:Route>
+
+The path contains neither dynamic part but specifies their values.
 
 			// If an option is not included in the route url, throw an error.
 			for (var k:String in options)
@@ -272,7 +295,7 @@ package inky.framework.utils
 				{
 					throw new ArgumentError('Could not generate url: the routed path ' + this.path + ' does not specify where to include the dynamic part "' + k + '". Create a route that includes the dynamic part "' + k + '".');	
 				}
-			}
+			}*/
 
 			// Make the url.
 			var urlArray:Array = [];
@@ -291,6 +314,33 @@ package inky.framework.utils
 
 
 		/**
+		 *	@private
+		 *	Determines whether this is a route for the given sPath and options.
+		 *	TODO: rename? expose?
+		 *	
+		 */
+		public function isRouteFor(sPath:SPath, options:Object = null):Boolean
+		{
+			var isRouteFor:Boolean = this.sPath.equals(sPath);
+			options = options || {};
+			if (isRouteFor)
+			{
+				for (var p:String in this._requirements)
+				{
+					var requirement:RegExp = this._requirements[p];
+					var value:String = options.hasOwnProperty(p) ? options[p] : this._defaultOptions[p];
+					if (!requirement.test(value))
+					{
+						isRouteFor = false;
+						break;
+					}
+				}
+			}
+			return isRouteFor;
+		}
+
+
+		/**
 		 *
 		 * Match the route against a url. If the url matches the route, this
 		 * function returns a hashmap of the dynamic parts (an "options"
@@ -305,6 +355,13 @@ package inky.framework.utils
 			if (o)
 			{
 				result = {};
+				// add the default options to compensate for a
+				// route that has no dynamic segments, but could have
+				// implied options (as in the case of an overrideURL.)
+				for (var p:String in this._defaultOptions)
+				{
+					result[p] = this._defaultOptions[p];
+				}
 				for (var i:uint = 0; i < o.length - 1; i++)
 				{
 					var optionName:String = this._dynamicSegmentNames[i];
@@ -314,6 +371,7 @@ package inky.framework.utils
 
 			return result;
 		}
+
 
 
 
