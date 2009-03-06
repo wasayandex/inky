@@ -4,6 +4,7 @@ package inky.framework.binding.utils
 	import flash.events.Event;
 	import flash.utils.Dictionary;
 	import inky.framework.binding.events.PropertyChangeEvent;
+	import inky.framework.binding.utils.BindingUtils;
 	import inky.framework.binding.utils.IChangeWatcher;
 
 
@@ -41,13 +42,12 @@ package inky.framework.binding.utils
 			{
 				this._getter = null;
 				this._name = access as String;
-				this._events = [PropertyChangeEvent.PROPERTY_CHANGE, Event.CHANGE];
 			}
 			else
 			{
 				this._getter = access.getter;
 				this._name = access.name;
-				this._events = access.eventType != null ? access.eventType is Array ? access.eventType : [access.eventType] : [PropertyChangeEvent.PROPERTY_CHANGE, Event.CHANGE];
+				this._events = access.eventType != null ? access.eventType is Array ? access.eventType : [access.eventType] : null;
 			}
 		}
 
@@ -89,15 +89,16 @@ package inky.framework.binding.utils
 		public function reset(newHost:Object):void
 		{
 			var eventType:String;
+			var eventTypes:Array;
 
 			// Remove the event listeners from the current host.
 			if (this._host != null)
 			{
-				for each (eventType in this._events)
+				eventTypes = this._events || BindingUtils.getPropertyBindingEvents(this._host.constructor, this._name);
+				for each (eventType in eventTypes)
 				{
 					this._host.removeEventListener(eventType, this._wrappedHandler);
 				}
-//				this._events = [];
 			}
 
 			this._host = newHost;
@@ -105,9 +106,8 @@ package inky.framework.binding.utils
 			// Add listeners to the new host.
 			if (this._host != null)
 			{
-// TODO: Add the events associated with this._host and this._name
-//				this._events = ChangeWatcher._getEvents(this._host, this._name);
-				for each (eventType in this._events)
+				eventTypes = this._events || BindingUtils.getPropertyBindingEvents(this._host.constructor, this._name);
+				for each (eventType in eventTypes)
 				{
 					this._host.addEventListener(eventType, this._wrappedHandler, false, 0, false);
 				}
