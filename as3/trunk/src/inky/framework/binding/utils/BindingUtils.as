@@ -2,6 +2,8 @@ package inky.framework.binding.utils
 {
 	import flash.events.Event;
 	import flash.text.TextField;
+	import flash.utils.describeType;
+	import flash.utils.getDefinitionByName;
 	import flash.utils.getQualifiedClassName;
 	import inky.framework.binding.events.PropertyChangeEvent;
 	import inky.framework.binding.utils.ChangeWatcher;
@@ -170,6 +172,7 @@ package inky.framework.binding.utils
 				}
 				else if (obj.hasOwnProperty('getter') && (obj['getter'] is Function))
 				{
+// FIXME: All this class -> string -> class stuff has gotta be slow.
 					var getter:Function = obj['getter'] as Function;
 					value = getter(value);
 				}
@@ -202,11 +205,20 @@ package inky.framework.binding.utils
 			{
 				events = p2e[property];
 			}
-// FIXME: Need to trace up the inheritance chain if not set on this class!
 			else
 			{
-				events = [PropertyChangeEvent.PROPERTY_CHANGE];
-				BindingUtils.setPropertyBindingEvents(cls, property, events);
+				var className:String = cls is String ? cls as String : getQualifiedClassName(cls).replace(/::/, '.');
+				if (className == "Object")
+				{
+					events = [PropertyChangeEvent.PROPERTY_CHANGE];
+					BindingUtils.setPropertyBindingEvents(cls, property, events);	
+				}
+				else
+				{
+					cls = cls is Class ? cls : getDefinitionByName(className);
+					var superClass:String = String(describeType(cls).factory.extendsClass[0].@type).replace(/::/, '.');
+					return BindingUtils.getPropertyBindingEvents(superClass, property);
+				}
 			}
 			return events;
 		}
@@ -247,7 +259,7 @@ package inky.framework.binding.utils
 			var className:String;
 			if (cls is Class)
 			{
-				className = getQualifiedClassName(cls).replace(/\W+/g, '.');
+				className = getQualifiedClassName(cls).replace(/::/, '.');
 			}
 			else if (cls is String)
 			{
