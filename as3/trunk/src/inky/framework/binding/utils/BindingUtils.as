@@ -202,6 +202,7 @@ package inky.framework.binding.utils
 			{
 				events = p2e[property];
 			}
+// FIXME: Need to trace up the inheritance chain if not set on this class!
 			else
 			{
 				events = [PropertyChangeEvent.PROPERTY_CHANGE];
