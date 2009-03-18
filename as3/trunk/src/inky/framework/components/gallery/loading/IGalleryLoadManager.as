@@ -1,7 +1,7 @@
 package inky.framework.components.gallery.loading
 {
 	import inky.framework.components.gallery.*;
-	import inky.framework.components.gallery.data.*;
+	import inky.framework.components.gallery.models.*;
 	import flash.display.Bitmap;
 	import flash.display.DisplayObject;
 	import flash.display.Loader;

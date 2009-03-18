@@ -1,6 +1,6 @@
 package inky.framework.components.gallery.parsers
 {
-	import inky.framework.components.gallery.data.GalleryModel;
+	import inky.framework.components.gallery.models.GalleryModel;
 	
 	public interface IGalleryDataParser
 	{

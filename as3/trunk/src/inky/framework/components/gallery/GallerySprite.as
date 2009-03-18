@@ -1,7 +1,7 @@
 package inky.framework.components.gallery
 {
 	import inky.framework.components.gallery.*;
-	import inky.framework.components.gallery.data.*;
+	import inky.framework.components.gallery.models.*;
 	import inky.framework.components.gallery.loading.*;
 	import inky.framework.components.gallery.events.*;
 	import flash.display.*;
