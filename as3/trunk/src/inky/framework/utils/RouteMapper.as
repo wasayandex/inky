@@ -3,7 +3,7 @@ package inky.framework.utils
 	import inky.framework.core.SPath;
 	import inky.framework.utils.Debugger;
 	import inky.framework.utils.Route;
-	import com.exanimo.utils.ObjectUtil;
+	import inky.framework.utils.ObjectUtil;
 
 
 	/**

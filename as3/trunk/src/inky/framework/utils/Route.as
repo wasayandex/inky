@@ -1,6 +1,6 @@
 package inky.framework.utils
 {
-	import com.exanimo.utils.ObjectUtil;
+	import inky.framework.utils.ObjectUtil;
 	import inky.framework.core.SPath;
 
 
