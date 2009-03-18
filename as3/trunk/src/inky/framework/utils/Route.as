@@ -325,14 +325,43 @@ The path contains neither dynamic part but specifies their values.
 			options = options || {};
 			if (isRouteFor)
 			{
-				for (var p:String in this._requirements)
+				var p:String;
+				
+				// Make sure each of the dynamic parts has a corresponding option.
+				for each (p in this._dynamicSegmentNames)
 				{
-					var requirement:RegExp = this._requirements[p];
-					var value:String = options.hasOwnProperty(p) ? options[p] : this._defaultOptions[p];
-					if (!requirement.test(value))
+					if (!options.hasOwnProperty(p) && (this.getDefaultOption(p) == null))
 					{
 						isRouteFor = false;
 						break;
+					}
+				}
+
+				// Make sure there are no extra options. (Strict mode only)
+				if (isRouteFor)
+				{
+					for (p in options)
+					{
+						if (this._dynamicSegmentNames.indexOf(p) == -1)
+						{
+							isRouteFor = false;
+							break;
+						}
+					}
+				}
+
+				// Make sure all the requirements are satisfied.
+				if (isRouteFor)
+				{
+					for (p in this._requirements)
+					{
+						var requirement:RegExp = this._requirements[p];
+						var value:String = options.hasOwnProperty(p) ? options[p] : this._defaultOptions[p];
+						if (!requirement.test(value))
+						{
+							isRouteFor = false;
+							break;
+						}
 					}
 				}
 			}
