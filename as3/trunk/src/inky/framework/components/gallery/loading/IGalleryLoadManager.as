@@ -25,8 +25,8 @@ package inky.framework.components.gallery.loading
 	 */
 	public interface IGalleryLoadManager
 	{
-		function getItemLoaderInfo(data:GalleryItemData):IEventDispatcher;
-		function getItemLoader(data:GalleryItemData):DisplayObject;
-		function loadItem(data:GalleryItemData):void;
+		function getItemLoaderInfo(data:GalleryItemModel):IEventDispatcher;
+		function getItemLoader(data:GalleryItemModel):DisplayObject;
+		function loadItem(data:GalleryItemModel):void;
 	}
 }
