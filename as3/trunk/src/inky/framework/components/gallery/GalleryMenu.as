@@ -1,10 +1,10 @@
 package com.hzdg.citypalms.gallery.controls
 {
 	import caurina.transitions.Tweener;
-	import com.exanimo.events.DataChangeEvent;
-	import com.exanimo.events.DataChangeType;
-	import com.exanimo.layout.*;
-	import com.exanimo.gallery.*;
+	import inky.framework.events.DataChangeEvent;
+	import inky.framework.events.DataChangeType;
+	import inky.framework.layout.*;
+	import inky.framework.components.gallery.*;
 	import flash.display.*;
 	import flash.events.Event;
 	import flash.events.MouseEvent;

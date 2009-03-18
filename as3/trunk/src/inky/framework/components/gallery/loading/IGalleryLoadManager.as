@@ -1,7 +1,7 @@
-package com.exanimo.gallery.loading
+package inky.framework.components.gallery.loading
 {
-	import com.exanimo.gallery.*;
-	import com.exanimo.gallery.data.*;
+	import inky.framework.components.gallery.*;
+	import inky.framework.components.gallery.data.*;
 	import flash.display.Bitmap;
 	import flash.display.DisplayObject;
 	import flash.display.Loader;

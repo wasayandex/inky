@@ -1,6 +1,6 @@
 package com.hzdg.citypalms.gallery.controls
 {
-	import com.exanimo.gallery.*;
+	import inky.framework.components.gallery.*;
 	import caurina.transitions.Tweener;
 	import caurina.transitions.properties.DisplayShortcuts;
 	import com.hzdg.citypalms.gallery.controls.*;

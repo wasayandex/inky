@@ -1,7 +1,7 @@
-package com.exanimo.gallery.parsers
+package inky.framework.components.gallery.parsers
 {
-	import com.exanimo.gallery.*;
-	import com.exanimo.gallery.parsers.*;
+	import inky.framework.components.gallery.*;
+	import inky.framework.components.gallery.parsers.*;
 
 
 	public class ThumbnailGalleryDataParser implements IGalleryDataParser

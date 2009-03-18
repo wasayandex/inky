@@ -1,6 +1,6 @@
-package com.exanimo.gallery.parsers
+package inky.framework.components.gallery.parsers
 {
-	import com.exanimo.gallery.data.GalleryModel;
+	import inky.framework.components.gallery.data.GalleryModel;
 	
 	public interface IGalleryDataParser
 	{

@@ -1,4 +1,4 @@
-package com.exanimo.gallery.events
+package inky.framework.components.gallery.events
 {
 	import flash.events.Event;
 
