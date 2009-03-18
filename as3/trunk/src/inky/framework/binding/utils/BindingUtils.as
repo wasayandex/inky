@@ -10,19 +10,19 @@ package inky.framework.binding.utils
 
 
 	/**
-	 *  The BindingUtils class defines utility methods
+	 *  The BindingUtil class defines utility methods
 	 *  for performing data binding from ActionScript.
 	 *  You can use the methods defined in this class to configure data bindings.
-	 *	Based on Flex's BindingUtils class
+	 *	Based on Flex's BindingUtil class
 	 */
-	public class BindingUtils
+	public class BindingUtil
 	{
 		private static var _propertyBindingEvents:Object = {};
 
 		// Set the default binding events for flash classes.
-		BindingUtils.setPropertyBindingEvents('fl.controls.ComboBox', 'text', [Event.CHANGE]);
-		BindingUtils.setPropertyBindingEvents('fl.controls.ComboBox', 'value', [Event.CHANGE]);
-		BindingUtils.setPropertyBindingEvents(TextField, 'text', [Event.CHANGE]);
+		BindingUtil.setPropertyBindingEvents('fl.controls.ComboBox', 'text', [Event.CHANGE]);
+		BindingUtil.setPropertyBindingEvents('fl.controls.ComboBox', 'value', [Event.CHANGE]);
+		BindingUtil.setPropertyBindingEvents(TextField, 'text', [Event.CHANGE]);
 
 
 
@@ -199,7 +199,7 @@ package inky.framework.binding.utils
 		 */	
 		public static function getPropertyBindingEvents(cls:Object, property:String):Array
 		{
-			var p2e:Object = BindingUtils._getProperty2EventsMap(cls);
+			var p2e:Object = BindingUtil._getProperty2EventsMap(cls);
 			var events:Array;
 			if (p2e.hasOwnProperty(property))
 			{
@@ -211,13 +211,13 @@ package inky.framework.binding.utils
 				if (className == "Object")
 				{
 					events = [PropertyChangeEvent.PROPERTY_CHANGE];
-					BindingUtils.setPropertyBindingEvents(cls, property, events);	
+					BindingUtil.setPropertyBindingEvents(cls, property, events);	
 				}
 				else
 				{
 					cls = cls is Class ? cls : getDefinitionByName(className);
 					var superClass:String = String(describeType(cls).factory.extendsClass[0].@type).replace(/::/, '.');
-					return BindingUtils.getPropertyBindingEvents(superClass, property);
+					return BindingUtil.getPropertyBindingEvents(superClass, property);
 				}
 			}
 			return events;

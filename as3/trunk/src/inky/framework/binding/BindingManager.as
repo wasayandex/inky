@@ -5,7 +5,7 @@ package inky.framework.binding
 	import flash.utils.describeType;
 	import flash.utils.Dictionary;
 	import inky.framework.binding.Binding;
-	import inky.framework.binding.utils.BindingUtils;
+	import inky.framework.binding.utils.BindingUtil;
 	import inky.framework.binding.events.PropertyChangeEvent;
 	import inky.framework.binding.events.PropertyChangeEventKind;
 
@@ -80,7 +80,7 @@ package inky.framework.binding
 	
 				if (srcObj)
 				{
-					var watcher = BindingUtils.bindProperty(destObj, destProp, srcObj, srcPropChain);
+					var watcher = BindingUtil.bindProperty(destObj, destProp, srcObj, srcPropChain);
 					this._watchers.push(watcher);
 					success = true;
 				}

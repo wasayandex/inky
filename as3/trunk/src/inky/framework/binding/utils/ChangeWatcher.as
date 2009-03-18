@@ -4,7 +4,7 @@ package inky.framework.binding.utils
 	import flash.events.Event;
 	import flash.utils.Dictionary;
 	import inky.framework.binding.events.PropertyChangeEvent;
-	import inky.framework.binding.utils.BindingUtils;
+	import inky.framework.binding.utils.BindingUtil;
 	import inky.framework.binding.utils.IChangeWatcher;
 
 
@@ -94,7 +94,7 @@ package inky.framework.binding.utils
 			// Remove the event listeners from the current host.
 			if (this._host != null)
 			{
-				eventTypes = this._events || BindingUtils.getPropertyBindingEvents(this._host.constructor, this._name);
+				eventTypes = this._events || BindingUtil.getPropertyBindingEvents(this._host.constructor, this._name);
 				for each (eventType in eventTypes)
 				{
 					this._host.removeEventListener(eventType, this._wrappedHandler);
@@ -106,7 +106,7 @@ package inky.framework.binding.utils
 			// Add listeners to the new host.
 			if (this._host != null)
 			{
-				eventTypes = this._events || BindingUtils.getPropertyBindingEvents(this._host.constructor, this._name);
+				eventTypes = this._events || BindingUtil.getPropertyBindingEvents(this._host.constructor, this._name);
 				for each (eventType in eventTypes)
 				{
 					this._host.addEventListener(eventType, this._wrappedHandler, false, 0, false);
