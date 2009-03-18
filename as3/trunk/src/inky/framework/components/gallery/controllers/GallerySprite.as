@@ -1,4 +1,4 @@
-package inky.framework.components.gallery
+package inky.framework.components.gallery.controllers
 {
 	import inky.framework.components.gallery.*;
 	import inky.framework.components.gallery.models.*;
