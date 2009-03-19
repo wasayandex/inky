@@ -1,6 +1,6 @@
 package inky.framework.managers
 {
-	import com.exanimo.collections.E4XHashMap;
+	import inky.framework.collections.E4XHashMap;
 	import com.exanimo.utils.URLUtil;
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;

@@ -1,8 +1,8 @@
 package inky.framework.managers 
 {
-	import com.exanimo.collections.ArrayList;
-	import com.exanimo.collections.IIterator;
-	import com.exanimo.collections.IList;
+	import inky.framework.collections.ArrayList;
+	import inky.framework.collections.IIterator;
+	import inky.framework.collections.IList;
 	import com.exanimo.controls.IProgressBar;
 	import com.exanimo.controls.ProgressBarMode;
 	import com.exanimo.events.LoadQueueEvent;
