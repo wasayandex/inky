@@ -1,6 +1,6 @@
 package inky.framework.utils
 {
-	import inky.framework.utils.ObjectUtil;
+	import inky.framework.utils.CloningUtil;
 	import inky.framework.core.SPath;
 
 
@@ -205,7 +205,7 @@ package inky.framework.utils
 			var tokenizedPath:Array = [];
 			for (i = 0; i < this._tokenizedPath.length; i++)
 			{
-				token = ObjectUtil.clone(this._tokenizedPath[i]);
+				token = CloningUtil.clone(this._tokenizedPath[i]);
 				if (token.type == 'dynamic')
 				{
 					var value:String;

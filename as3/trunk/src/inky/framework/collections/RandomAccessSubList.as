@@ -5,7 +5,7 @@ package inky.framework.collections
 	import inky.framework.collections.IList;
 	import inky.framework.collections.IListIterator;
 	import inky.framework.collections.ListIterator;
-	import inky.framework.utils.ObjectUtil;
+	import inky.framework.utils.EqualityUtil;
 
 
 	/**
@@ -146,7 +146,7 @@ package inky.framework.collections
 				var j:IIterator = o.iterator();
 				while (isEqual && i.hasNext())
 				{
-					isEqual = ObjectUtil.objectsAreEqual(i.next(), j.next());
+					isEqual = EqualityUtil.objectsAreEqual(i.next(), j.next());
 				}
 			}
 			return isEqual;
@@ -311,7 +311,7 @@ package inky.framework.collections
 			var i:IListIterator = this._list.listIterator(this._fromIndex);
 			for (var j:int = this._fromIndex; j < this._toIndex; j++)
 			{
-				if (ObjectUtil.objectsAreEqual(item, i.next()))
+				if (EqualityUtil.objectsAreEqual(item, i.next()))
 				{
 					index = j;
 					break;

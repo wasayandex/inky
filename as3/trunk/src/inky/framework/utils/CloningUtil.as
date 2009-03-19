@@ -1,7 +1,6 @@
 package inky.framework.utils
 {
 	import inky.framework.utils.ICloneable;
-	import inky.framework.utils.IEquatable;
 
 
 	/**
@@ -15,15 +14,15 @@ package inky.framework.utils
 	 *	@since  2008.03.17
 	 *
 	 */
-	public class ObjectUtil
+	public class CloningUtil
 	{
 		/**
 		 *
 		 *	
 		 */
-		public function ObjectUtil()
+		public function CloningUtil()
 		{
-			throw new Error('ObjectUtil contains static utility methods and cannot be instantialized.');
+			throw new Error('CloningUtil contains static utility methods and cannot be instantialized.');
 		}
 
 
@@ -67,7 +66,7 @@ package inky.framework.utils
 				clone = {};
 				for (var i:String in obj)
 				{
-					clone[i] = ObjectUtil.clone(obj[i]);
+					clone[i] = CloningUtil.clone(obj[i]);
 				}
 			}
 			else
@@ -76,32 +75,6 @@ package inky.framework.utils
 			}
 			
 			return clone;
-		}
-
-
-		/**
-		 *
-		 * 
-		 *	
-		 */
-		public static function objectsAreEqual(objA:Object, objB:Object):Boolean
-		{
-			var objectsAreEqual:Boolean;
-		
-			if (objA is IEquatable)
-			{
-				objectsAreEqual = objA.equals(objB);
-			}
-			else if (objB is IEquatable)
-			{
-				objectsAreEqual = objB.equals(objA);
-			}
-			else
-			{
-				objectsAreEqual = objA == objB;
-			}
-			
-			return objectsAreEqual;
 		}
 
 
