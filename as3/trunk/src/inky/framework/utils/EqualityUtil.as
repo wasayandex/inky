@@ -63,35 +63,35 @@ package inky.framework.utils
 		 *
 		 *	
 		 */
-		public static function propertiesMatch(objA:Object, objB:Object):Boolean
+		public static function propertiesAreEqual(objA:Object, objB:Object):Boolean
 		{
-			return EqualityUtil._propertiesMatch(objA, objB) && EqualityUtil._propertiesMatch(objB, objA);
+			return EqualityUtil._propertiesAreEqual(objA, objB) && EqualityUtil._propertiesAreEqual(objB, objA);
 		}
 
 
-		private static function _propertiesMatch(objA:Object, objB:Object):Boolean
+		private static function _propertiesAreEqual(objA:Object, objB:Object):Boolean
 		{
-			var propertiesMatch:Boolean;
+			var propertiesAreEqual:Boolean;
 			
 			if ((objA && !objB) || (objB && !objA))
 			{
-				propertiesMatch = false;
+				propertiesAreEqual = false;
 			}
 			else
 			{
-				propertiesMatch = true;
+				propertiesAreEqual = true;
 				var prop:String;
 				for (prop in objA)
 				{
 					if (!objB.hasOwnProperty(prop) || !EqualityUtil.objectsAreEqual(objA[prop], objB[prop]))
 					{
-						propertiesMatch = false;
+						propertiesAreEqual = false;
 						break;
 					}
 				}
 			}
 
-			return propertiesMatch;
+			return propertiesAreEqual;
 		}
 
 
