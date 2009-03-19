@@ -1,6 +1,6 @@
 package inky.framework.net
 {
-	import com.exanimo.net.LoadQueue;
+	import inky.framework.net.BaseLoadQueue;
 	import flash.net.URLRequest;
 	import flash.system.LoaderContext;
 	import inky.framework.core.inky_internal;
@@ -19,7 +19,7 @@ package inky.framework.net
 	 * @since  2008.06.02
 	 *
 	 */
-	public class LoadQueue extends com.exanimo.net.LoadQueue
+	public class LoadQueue extends BaseLoadQueue
 	{
 
 
