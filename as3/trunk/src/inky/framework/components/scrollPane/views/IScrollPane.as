@@ -1,7 +1,7 @@
-package com.exanimo.containers
+package inky.framework.components.scrollPane.views
 {
-	import com.exanimo.display.IDisplayObject;
-	import com.exanimo.controls.IScrollBar;
+	import inky.framework.display.IDisplayObject;
+	import inky.framework.components.scrollBar.views.IScrollBar;
 	import flash.display.DisplayObject;
 	import flash.net.URLRequest;
 	import flash.system.LoaderContext;
