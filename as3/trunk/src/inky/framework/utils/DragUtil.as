@@ -1,6 +1,6 @@
 /**
  *
- * SpriteUtil.as
+ * DragUtil.as
  *
  *     todo:
  *         - startDrag
@@ -22,15 +22,15 @@ package inky.framework.utils
 	
 	
 	
-	public class SpriteUtil
+	public class DragUtil
 	{
 		/**
 		 *
 		 *	
 		 */
-		public function SpriteUtil()
+		public function DragUtil()
 		{
-			throw new Error('SpriteUtil contains static utility methods and cannot be instantialized.');
+			throw new Error('DragUtil contains static utility methods and cannot be instantialized.');
 		}
 
 
@@ -66,13 +66,13 @@ package inky.framework.utils
 		 */
 		public static function startDrag(sprite:DisplayObject, lockCenter:Boolean = false, bounds:Rectangle = null):void
 		{
-			SpriteUtil.stopDrag(SpriteUtil._dragSprite);
+			DragUtil.stopDrag(DragUtil._dragSprite);
 			if (sprite)
 			{
-				sprite.addEventListener(Event.ENTER_FRAME, SpriteUtil._updateDrag);
-				SpriteUtil._clickOffset = new Point(sprite.parent.mouseX - sprite.x, sprite.parent.mouseY - sprite.y);
-				SpriteUtil._dragSprite = sprite;
-				SpriteUtil._dragBounds = bounds;
+				sprite.addEventListener(Event.ENTER_FRAME, DragUtil._updateDrag);
+				DragUtil._clickOffset = new Point(sprite.parent.mouseX - sprite.x, sprite.parent.mouseY - sprite.y);
+				DragUtil._dragSprite = sprite;
+				DragUtil._dragBounds = bounds;
 			}
 		}
 		
@@ -89,8 +89,8 @@ package inky.framework.utils
 		{
 			if (sprite)
 			{
-				sprite.removeEventListener(Event.ENTER_FRAME, SpriteUtil._updateDrag);
-				SpriteUtil._dragSprite = null;
+				sprite.removeEventListener(Event.ENTER_FRAME, DragUtil._updateDrag);
+				DragUtil._dragSprite = null;
 			}
 		}
 		
@@ -102,19 +102,19 @@ package inky.framework.utils
 		 */
 		private static function _updateDrag(e:Event = null):void
 		{
-			var parent:DisplayObject = SpriteUtil._dragSprite.parent;
+			var parent:DisplayObject = DragUtil._dragSprite.parent;
 
-			var x:Number = parent.mouseX - SpriteUtil._clickOffset.x;
-			var y:Number = parent.mouseY - SpriteUtil._clickOffset.y;
+			var x:Number = parent.mouseX - DragUtil._clickOffset.x;
+			var y:Number = parent.mouseY - DragUtil._clickOffset.y;
 			
-			if (SpriteUtil._dragBounds)
+			if (DragUtil._dragBounds)
 			{
-				x = Math.max(Math.min(x, SpriteUtil._dragBounds.x + SpriteUtil._dragBounds.width), SpriteUtil._dragBounds.x);
-				y = Math.max(Math.min(y, SpriteUtil._dragBounds.y + SpriteUtil._dragBounds.height), SpriteUtil._dragBounds.y);
+				x = Math.max(Math.min(x, DragUtil._dragBounds.x + DragUtil._dragBounds.width), DragUtil._dragBounds.x);
+				y = Math.max(Math.min(y, DragUtil._dragBounds.y + DragUtil._dragBounds.height), DragUtil._dragBounds.y);
 			}
 			
-			SpriteUtil._dragSprite.x = x;
-			SpriteUtil._dragSprite.y = y;
+			DragUtil._dragSprite.x = x;
+			DragUtil._dragSprite.y = y;
 		}
 
 
