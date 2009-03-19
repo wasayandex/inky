@@ -15,7 +15,7 @@ package inky.framework.components.gallery.views
 
 	/**
 	 *
-	 *  ..
+	 *  A class to help simplify making galleries. Just extend this and override the protected methods.
 	 *	
 	 * 	@langversion ActionScript 3
 	 *	@playerversion Flash 9.0.0
@@ -97,13 +97,13 @@ public function set loadManager(value:IGalleryLoadManager):void
 
 private function _groupChangeHandler(e:GalleryEvent):void
 {
-	this.groupUpdateHandler();
+	this.selectedGroupChangeHandler();
 }
 		
-protected function groupUpdateHandler():void
+protected function selectedGroupChangeHandler():void
 {
 }
-protected function itemUpdateHandler():void
+protected function selectedItemChangeHandler():void
 {
 }
 		
@@ -112,7 +112,7 @@ protected function itemUpdateHandler():void
 		 */
 		private function _itemChangeHandler(e:GalleryEvent):void
 		{
-			this.itemUpdateHandler();
+			this.selectedItemChangeHandler();
 		}
 
 
