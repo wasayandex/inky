@@ -105,7 +105,7 @@ package inky.framework.net
 			for (var i:uint = 0; i < this.numItems; i++)
 			{
 				item = this.getItemAt(i);
-				numConnections += item is LoadQueue ? item.numConnections : this._currentItems.indexOf(item) == - 1 ? 0 : 1;
+				numConnections += item is BaseLoadQueue ? item.numConnections : this._currentItems.indexOf(item) == - 1 ? 0 : 1;
 			}
 			return numConnections;
 		}
@@ -410,8 +410,8 @@ package inky.framework.net
 			// If the item is a LoadQueue, point its parent property to this
 			// LoadQueue. If it already has a parent, remove it from that
 			// first.
-			var lq:LoadQueue;
-			if ((lq = item as LoadQueue))
+			var lq:BaseLoadQueue;
+			if ((lq = item as BaseLoadQueue))
 			{
 				if (lq.parent && (lq.parent != this))
 				{
@@ -455,11 +455,11 @@ package inky.framework.net
 			this.removeItem(item);
 
 			// "Bubble" the ASSET_COMPLETE event
-			var tmp:LoadQueue = this;
+			var tmp:BaseLoadQueue = this;
 			while (tmp)
 			{
 				tmp.dispatchEvent(new LoadQueueEvent(LoadQueueEvent.ASSET_COMPLETE, false, false, item, this));
-				tmp = tmp._parent as LoadQueue;
+				tmp = tmp._parent as BaseLoadQueue;
 			}
 			
 			if (!this.numItems)
@@ -559,13 +559,13 @@ trace(e['text'] || e);
 		 *
 		 *	
 		 */
-		private function _getNumAssets(lq:LoadQueue):uint
+		private function _getNumAssets(lq:BaseLoadQueue):uint
 		{
 			var numAssets:int = 0;
 			for (var i:uint = 0; i < lq.numItems; i++)
 			{
 				var item:Object = lq.getItemAt(i);
-				numAssets += item is LoadQueue ? this._getNumAssets(item as LoadQueue) : 1;
+				numAssets += item is BaseLoadQueue ? this._getNumAssets(item as BaseLoadQueue) : 1;
 			}
 			return numAssets;
 		}
@@ -613,7 +613,7 @@ trace(e['text'] || e);
 					break;
 				}
 
-				var doLoad:Boolean = item is LoadQueue;
+				var doLoad:Boolean = item is BaseLoadQueue;
 
 				if (this._currentItems.indexOf(item) == -1)
 				{
@@ -643,11 +643,11 @@ trace(e['text'] || e);
 					}
 				
 					// "Bubble" the ASSET_OPEN event
-					var tmp:LoadQueue = this;
+					var tmp:BaseLoadQueue = this;
 					while (tmp)
 					{
 						tmp.dispatchEvent(new LoadQueueEvent(LoadQueueEvent.ASSET_OPEN, false, false, item, this));
-						tmp = tmp._parent as LoadQueue;
+						tmp = tmp._parent as BaseLoadQueue;
 					}
 				}
 			}
@@ -696,8 +696,8 @@ trace(e['text'] || e);
 			}
 
 // If the item is a LoadQueue, null its parent property.
-var lq:LoadQueue;
-if ((lq = item as LoadQueue))
+var lq:BaseLoadQueue;
+if ((lq = item as BaseLoadQueue))
 {
 	lq._parent = null;
 }
@@ -713,11 +713,11 @@ if ((lq = item as LoadQueue))
 			}
 
 			// "Bubble" the ASSET_REMOVED event
-			var tmp:LoadQueue = this;
+			var tmp:BaseLoadQueue = this;
 			while (tmp)
 			{
 				tmp.dispatchEvent(new LoadQueueEvent(LoadQueueEvent.ASSET_REMOVED, false, false, item, this));
-				tmp = tmp._parent as LoadQueue;
+				tmp = tmp._parent as BaseLoadQueue;
 			}
 
 			return item;
