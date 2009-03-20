@@ -1,1 +1,0 @@
-﻿package{	import inky.framework.components.listViews.IListItemView;	import flash.display.Sprite;	import flash.text.TextField;	/**	 *	 *		 */	public class ExampleListItem extends Sprite implements IListItemView	{		/**		 * @inheritDoc		 */		public function set dataProvider(dataProvider:Object):void		{			this.numberField.text = dataProvider.index;		}	}}
