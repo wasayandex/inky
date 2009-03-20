@@ -1,7 +1,7 @@
 package inky.framework.display
 {
-	import com.exanimo.display.IDisplayObject;
 	import inky.framework.actions.IAction;
+	import inky.framework.display.IDisplayObject;
 	import flash.display.DisplayObject;
 	import flash.geom.Rectangle;
 

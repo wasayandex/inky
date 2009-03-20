@@ -1,6 +1,6 @@
 package inky.framework.controls 
 {
-	import com.exanimo.controls.IButton;
+	import inky.framework.components.IButton;
 	
 	/**
 	 *
@@ -9,7 +9,7 @@ package inky.framework.controls
 	 *	It can optionally toggle itself based on whether or not a detected 
 	 *	NavigationEvent matches it's target SPath.
 	 *	
-	 *	@see com.exanimo.controls.IButton
+	 *	@see inky.framework.components.IButton
 	 *	
 	 * 	@langversion ActionScript 3
 	 *	@playerversion Flash 9.0.0

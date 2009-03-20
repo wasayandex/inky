@@ -1,7 +1,8 @@
-package com.exanimo.controls
+package inky.framework.components.progressBar.views
+
 {
-	import com.exanimo.controls.IProgressBar;
-	import com.exanimo.controls.ProgressBarMode;
+	import inky.framework.components.progressBar.views.IProgressBar;
+	import inky.framework.components.progressBar.ProgressBarMode;
 	import flash.display.Loader;
 	import flash.display.MovieClip;
 	import flash.events.Event;

@@ -3,8 +3,8 @@ package inky.framework.managers
 	import inky.framework.collections.ArrayList;
 	import inky.framework.collections.IIterator;
 	import inky.framework.collections.IList;
-	import com.exanimo.controls.IProgressBar;
-	import com.exanimo.controls.ProgressBarMode;
+	import inky.framework.components.progressBar.views.IProgressBar;
+	import inky.framework.components.progressBar.ProgressBarMode;
 	import com.exanimo.events.LoadQueueEvent;
 	import com.exanimo.utils.URLUtil;
 	import flash.display.DisplayObject;

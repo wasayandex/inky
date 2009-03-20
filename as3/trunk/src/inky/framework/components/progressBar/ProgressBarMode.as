@@ -1,4 +1,5 @@
-package com.exanimo.controls
+package inky.framework.components.progressBar
+
 {
 	public class ProgressBarMode
 	{

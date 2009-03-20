@@ -1,4 +1,5 @@
-package com.exanimo.controls
+package inky.framework.components
+
 {
 	import flash.display.InteractiveObject;
 

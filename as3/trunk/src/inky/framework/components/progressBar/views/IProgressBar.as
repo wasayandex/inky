@@ -1,6 +1,7 @@
-package com.exanimo.controls
+package inky.framework.components.progressBar.views
+
 {
-	import com.exanimo.display.IDisplayObject;
+	import inky.framework.display.IDisplayObject;
 
 
 	/**
