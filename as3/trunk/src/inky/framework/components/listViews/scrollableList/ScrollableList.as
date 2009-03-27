@@ -43,7 +43,7 @@
 		private var _model:IList;
 		private var _numItemsFinallyVisible:uint;  // The number of items visible at max scroll position.
 		private var _orientation:String;
-		private var _positionCache:Object;
+		private var _positionCache:Array;
 		private var _unusedItems:Object;		
 		private var _sizeCache:Array;
 		private var _widthOrHeight:String;
@@ -195,6 +195,7 @@ this._updateContent(firstVisibleItemIndex);
 					// Make sure we don't scroll "past" the content.
 					if (pos >= this.model.length - this._numItemsFinallyVisible)
 					{
+// FIXME: 
 						target = Math.max(target, mask[this._widthOrHeight] - this._getItemPosition(this.model.length - 1) - this._getItemSize(this.model.length - 1));
 					}
 					newPos[this._xOrY] = Math.min(0, target);
@@ -372,18 +373,25 @@ private function _invalidateHandler(e:LayoutEvent):void
 		{
 			// Get the item index.
 			var index:int = -1;
-			for (var p:String in this._listItems)
+			/*for (var p:String in this._listItems)
 			{
 				if (this._listItems[p] == item)
 				{
 					index = parseInt(p);
 					break;
 				}
-			}
-
+			}*/
+for (var i:int = 0; i < this.model.length; i++)
+{
+	if ((this._listItems[i] == item) || (this._unusedItems[i]))
+	{
+		index = i;
+		break;
+	}
+}
 			if (index != -1)
 			{
-				this._invalidateItemSizeAt(index);
+				this._invalidateItemSizeAt(item, index);
 			}
 		}
 
@@ -392,28 +400,39 @@ private function _invalidateHandler(e:LayoutEvent):void
 		 *
 		 *	
 		 */
-		private function _invalidateItemSizeAt(index:int):void
+		private function _invalidateItemSizeAt(item:Object, index:int):void
 		{
+if (index < 0) return;
+if (this._sizeCache[index] == item[this._widthOrHeight]) return;
+
 			var startIndex:int;
 			var endIndex:int;
-			
+//if (index < 3) trace("invalidating\t" + index)
 			if (index < this._firstVisibleItemIndex)
 			{
 				// If the item is not visible, we need to validate previous items (because position is determined relative to visible items)
 				startIndex = 0;
 				endIndex = index;
+for (var i:int = startIndex; i <= endIndex; i++)
+{
+//if (i < 3) trace('clear ' + i);
+	delete this._positionCache[i];
+}
 			}
 			else
 			{
 				// If the item is visible, we need to invalidate subsequent items.
 				startIndex = index;
 				endIndex = this.model.length - 1;
+this._positionCache.length = startIndex;				
+//at inky.framework.components.listViews.scrollableList::ScrollableList/_invalidateItemSizeAt()
 			}
 			
-			for (var i:int = startIndex; i <= endIndex; i++)
+			/*for (var i:int = startIndex; i <= endIndex; i++)
 			{
+//if (i < 3) trace('clear ' + i);
 				delete this._positionCache[i];
-			}
+			}*/
 
 			delete this._sizeCache[index];
 			
@@ -432,7 +451,7 @@ private function _invalidateHandler(e:LayoutEvent):void
 			this._unusedItems = {};
 			this._sizeCache = [];
 			this._listItems = {};
-			this._positionCache = {};
+			this._positionCache = [];
 			
 			// Determine the number of items that are visible at max scroll position.
 			var mask:DisplayObject = this.getScrollMask();
@@ -529,6 +548,7 @@ private function _invalidateHandler(e:LayoutEvent):void
 				var model:Object = this.model.getItemAt(index);
 				if (!EqualityUtil.objectsAreEqual(listItem.model, model))
 				{
+//if (index < 3) trace("setting model on " + index)
 					listItem.model = model;
 				}
 
@@ -538,7 +558,7 @@ private function _invalidateHandler(e:LayoutEvent):void
 
 				pos = this._getItemPosition(index);
 				listItem[this._xOrY] = pos;
-
+//if (index < 3) trace("pos of\t" + index + "\tto\t" + pos);
 				// The next item will need to know the new first visible item.
 				this._firstVisibleItemIndex = startIndex;
 
