@@ -32,6 +32,8 @@
 	 */
 	public class ScrollableList extends BaseScrollPane implements IListView
 	{
+//!e
+public var itemSize:Number;
 		private static var HORIZONTAL:String = "horizontal"; // Should be in another class.
 		private static var VERTICAL:String = "vertical";
 		
@@ -106,6 +108,12 @@
 		// public methods
 		//
 
+
+//!e
+public function scrollToPosition(index:uint):void
+{
+	this[this._orientation + "ScrollPosition"] = index;
+}
 
 
 		/**
@@ -270,6 +278,8 @@ this._updateContent(firstVisibleItemIndex);
 		 */
 		private function _getItemPosition(index:int):Number
 		{
+//!e
+return index * this.itemSize;
 			var position:Number = this._positionCache[index];
 
 			if (isNaN(position))
@@ -306,6 +316,8 @@ this._updateContent(firstVisibleItemIndex);
 		 */
 		private function _getItemSize(index:int):Number
 		{
+//!e
+return this.itemSize;
 			var size:Number = NaN;//this._sizeCache[index];
 
 			if (isNaN(size))
@@ -515,7 +527,8 @@ this._positionCache.length = startIndex;
 				// Already showing the correct units.
 				return;
 			}*/
-
+//!e
+if (startIndex < 0) return;
 			var listItem:Object;
 			var index:int = startIndex;
 			var mask:DisplayObject = this.getScrollMask();

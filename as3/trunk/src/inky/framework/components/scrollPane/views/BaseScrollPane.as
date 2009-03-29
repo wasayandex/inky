@@ -92,7 +92,7 @@
 				this.__contentContainer = new Sprite();
 				this.addChild(this.__contentContainer);
 			}
-//!			this.__contentContainer.mask = this.__mask;
+			this.__contentContainer.mask = this.__mask;
 
 			this.addEventListener(MouseEvent.MOUSE_WHEEL, this._mouseWheelHandler);
 
