@@ -1,25 +1,73 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <gallery>
 	<group name="amenities" label="Amenities">
-		<item source="images/large/12998941_a4488c05a7_o.jpg" thumbnailSource="images/thumbnails/12998941_a4488c05a7_o.jpg" />
-		<item source="images/large/138731417_57944c7546_b.jpg" thumbnailSource="images/thumbnails/138731417_57944c7546_b.jpg" />
-		<item source="images/large/206147363_13b147e829_b.jpg" thumbnailSource="images/thumbnails/206147363_13b147e829_b.jpg" />
-		<item source="images/large/312537169_ed97af47c2_o.jpg" thumbnailSource="images/thumbnails/312537169_ed97af47c2_o.jpg" />
-		<item source="images/large/387162551_ac9109cf51_o.jpg" thumbnailSource="images/thumbnails/387162551_ac9109cf51_o.jpg" />
-		<item source="images/large/419604550_7acf8dd7eb_o.jpg" thumbnailSource="images/thumbnails/419604550_7acf8dd7eb_o.jpg" />
-		<item source="images/large/457304324_3bf0c23622_o.jpg" thumbnailSource="images/thumbnails/457304324_3bf0c23622_o.jpg" />
-		<item source="images/large/497851367_c5e4ac7470_b.jpg" thumbnailSource="images/thumbnails/497851367_c5e4ac7470_b.jpg" />
-		<item source="images/large/1510322864_58cfa43e2a_b.jpg" thumbnailSource="images/thumbnails/1510322864_58cfa43e2a_b.jpg" />
-		<item source="images/large/2249968851_3211ddc800_b.jpg" thumbnailSource="images/thumbnails/2249968851_3211ddc800_b.jpg" />
-		<item source="images/large/2392207765_8f080fa97a_b.jpg" thumbnailSource="images/thumbnails/2392207765_8f080fa97a_b.jpg" />
-		<item source="images/large/3115082469_50b569139c_o.jpg" thumbnailSource="images/thumbnails/3115082469_50b569139c_o.jpg" />		
+		<item>
+			<image size="regular" source="images/large/12998941_a4488c05a7_o.jpg" />
+			<image size="thumbnail" source="images/thumbnails/12998941_a4488c05a7_o.jpg" />
+		</item>
+		<item>
+			<image size="regular" source="images/large/138731417_57944c7546_b.jpg" />
+			<image size="thumbnail" source="images/thumbnails/138731417_57944c7546_b.jpg" />
+		</item>
+		<item>
+			<image size="regular" source="images/large/206147363_13b147e829_b.jpg" />
+			<image size="thumbnail" source="images/thumbnails/206147363_13b147e829_b.jpg" />
+		</item>
+		<item>
+			<image size="regular" source="images/large/312537169_ed97af47c2_o.jpg" />
+			<image size="thumbnail" source="images/thumbnails/312537169_ed97af47c2_o.jpg" />
+		</item>
+		<item>
+			<image size="regular" source="images/large/387162551_ac9109cf51_o.jpg" />
+			<image size="thumbnail" source="images/thumbnails/387162551_ac9109cf51_o.jpg" />
+		</item>
+		<item>
+			<image size="regular" source="images/large/419604550_7acf8dd7eb_o.jpg" />
+			<image size="thumbnail" source="images/thumbnails/419604550_7acf8dd7eb_o.jpg" />
+		</item>
+		<item>
+			<image size="regular" source="images/large/457304324_3bf0c23622_o.jpg" />
+			<image size="thumbnail" source="images/thumbnails/457304324_3bf0c23622_o.jpg" />
+		</item>
+		<item>
+			<image size="regular" source="images/large/497851367_c5e4ac7470_b.jpg" />
+			<image size="thumbnail" source="images/thumbnails/497851367_c5e4ac7470_b.jpg" />
+		</item>
+		<item>
+			<image size="regular" source="images/large/1510322864_58cfa43e2a_b.jpg" />
+			<image size="thumbnail" source="images/thumbnails/1510322864_58cfa43e2a_b.jpg" />
+		</item>
+		<item>
+			<image size="regular" source="images/large/2249968851_3211ddc800_b.jpg" />
+			<image size="thumbnail" source="images/thumbnails/2249968851_3211ddc800_b.jpg" />
+		</item>
+		<item>
+			<image size="regular" source="images/large/2392207765_8f080fa97a_b.jpg" />
+			<image size="thumbnail" source="images/thumbnails/2392207765_8f080fa97a_b.jpg" />
+		</item>
+		<item>
+			<image size="regular" source="images/large/3115082469_50b569139c_o.jpg" />
+			<image size="thumbnail" source="images/thumbnails/3115082469_50b569139c_o.jpg" />
+		</item>
 	</group>
 	<group name="neighborhood" label="Neighborhood">
-		<item source="images/large/2726871494_6eb9f8bde2_o.jpg" thumbnailSource="images/thumbnails/2726871494_6eb9f8bde2_o.jpg" />
-		<item source="images/large/3148653405_b1de396663_b.jpg" thumbnailSource="images/thumbnails/3148653405_b1de396663_b.jpg" />
+		<item>
+			<image size="regular" source="images/large/2726871494_6eb9f8bde2_o.jpg" />
+			<image size="thumbnail" source="images/thumbnails/2726871494_6eb9f8bde2_o.jpg" />
+		</item>
+		<item>
+			<image size="regular" source="images/large/3148653405_b1de396663_b.jpg" />
+			<image size="thumbnail" source="images/thumbnails/3148653405_b1de396663_b.jpg" />
+		</item>
 	</group>
 	<group name="residences" label="Residences">
-		<item source="images/large/3222185336_218e636a4e_o.jpg" thumbnailSource="images/thumbnails/3222185336_218e636a4e_o.jpg" />
-		<item source="images/large/3359415634_116539ff30_o.jpg" thumbnailSource="images/thumbnails/3359415634_116539ff30_o.jpg" />
+		<item>
+			<image size="regular" source="images/large/3222185336_218e636a4e_o.jpg" />
+			<image size="thumbnail" source="images/thumbnails/3222185336_218e636a4e_o.jpg" />
+		</item>
+		<item>
+			<image size="regular" source="images/large/3359415634_116539ff30_o.jpg" />
+			<image size="thumbnail" source="images/thumbnails/3359415634_116539ff30_o.jpg" />
+		</item>
 	</group>
 </gallery>
