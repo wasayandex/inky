@@ -118,9 +118,8 @@
 		public function set spacing(value:Number):void
 		{
 			this._spacing = value;
-			this._redraw();
+			this._invalidateAllPositions();
 		}
-
 
 
 
@@ -180,7 +179,22 @@ else
 		firstVisibleItemIndex--;
 	}
 }
-this._redraw();
+this._updateContent(firstVisibleItemIndex);
+
+			/*var container:DisplayObjectContainer = this.getContentContainer();
+			var mask:DisplayObject = this.getScrollMask();
+
+			// Get the index of the first visible item.
+			var firstVisibleItemIndex:int = 0;
+			var combinedSize:Number = 0;
+			var y:Number = container[this._xOrY];
+
+			while (container[this._xOrY] + this._getItemPosition(firstVisibleItemIndex + 1) < mask[this._xOrY])
+			{
+				firstVisibleItemIndex++;
+			}
+
+			this._updateContent(firstVisibleItemIndex);*/
 		}
 
 
@@ -336,7 +350,7 @@ var size:Number = this._sizeCache[index];
 		 */
 		private function _init():void
 		{
-			this._spacing = 0;
+			this._spacing = 5;
 			
 			if (this.horizontalScrollBar && this.verticalScrollBar)
 			{
@@ -374,6 +388,12 @@ private function _invalidateHandler(e:LayoutEvent):void
 	}
 }
 
+
+private function _invalidateAllPositions():void
+{
+	this._positionCache = [];
+	this._redraw();
+}
 
 		/**
 		 *
@@ -416,18 +436,6 @@ private function _invalidateHandler(e:LayoutEvent):void
 			delete this._sizeCache[index];
 			this._redraw();
 		}
-
-
-
-
-
-
-		private function _redraw():void
-		{
-			this._updateContent(this._firstVisibleItemIndex);
-		}
-
-
 
 
 		/**
@@ -595,6 +603,11 @@ private function _invalidateHandler(e:LayoutEvent):void
 		}
 
 
+
+		private function _redraw():void
+		{
+			this._updateContent(this._firstVisibleItemIndex);
+		}
 
 
 		/**
