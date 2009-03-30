@@ -2,9 +2,10 @@ package
 {
 	import flash.display.*;
 	import flash.text.*;
+	import inky.framework.components.listViews.IListItemView;
 
 
-	public class Thumbnail extends Sprite
+	public class Thumbnail extends Sprite implements IListItemView
 	{
 		private var _model:Object;
 		
