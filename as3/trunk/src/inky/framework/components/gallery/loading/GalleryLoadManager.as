@@ -79,8 +79,9 @@
 
 		public function loadItem(data:GalleryItemModel):void
 		{
-			var ldr:Loader = this.getItemLoader(data) as Loader;
-			ldr.load(new URLRequest(data.source));
+trace(data.images.getItemAt(0) + "\t" + data.images.getItemAt(0).source);
+			/*var ldr:Loader = this.getItemLoader(data) as Loader;
+			ldr.load(new URLRequest(data.source));*/
 		}
 
 

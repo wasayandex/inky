@@ -4,6 +4,7 @@
 	import inky.framework.components.gallery.models.*;
 	import inky.framework.components.gallery.loading.*;
 	import inky.framework.components.gallery.events.*;
+	import inky.framework.components.gallery.views.IGalleryItemView;
 	import flash.display.*;
 	import flash.events.MouseEvent;
 	import flash.events.Event;
@@ -28,30 +29,52 @@
 	 */
 	public class SelectedItemGallery extends GallerySprite
 	{
-
+		private var _itemViews:Array;
 
 
 		public function SelectedItemGallery()
 		{
-			this.addEventListener(MouseEvent.CLICK, this._clickHandler);
+			this._init();
 		}
-		private function _clickHandler(e:MouseEvent):void
+		
+		
+		private function _init():void
 		{
-			this.model.selectItemAt((this.model.selectedItemIndex + 1) % this.model.selectedGroupData.items.length);
+			this._itemViews = [];
+			for (var i:int = 0; i < this.numChildren; i++)
+			{
+				var child:DisplayObject = this.getChildAt(i);
+				if (child is IGalleryItemView)
+				{
+					this._itemViews.push(child);
+				}
+			}
+			
+this.addEventListener(MouseEvent.CLICK, this._clickHandler);
 		}
+
+
+
+private function _clickHandler(e:MouseEvent):void
+{
+	this.model.selectItemAt((this.model.selectedItemIndex + 1) % this.model.selectedGroupData.items.length);
+}
+
 
 		override protected function selectedItemChangeHandler():void
 		{
-			var data:GalleryItemModel = this.model.selectedItemData;
+			var data:GalleryItemModel = this.model.selectedItemModel;
 			if (data)
 			{
-				var loader:DisplayObject = this.loadManager.getItemLoader(data);
-				this.addChild(loader);
-				this.loadManager.loadItem(data);
+				// Update the gallery item view(s)
+				for each (var itemView:IGalleryItemView in this._itemViews)
+				{
+					itemView.model = data;
+				}
 			}
 			else
 			{
-				// Clear it.
+				// Clear it?
 			}
 		}
 
