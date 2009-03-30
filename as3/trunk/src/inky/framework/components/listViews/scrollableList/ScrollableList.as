@@ -4,7 +4,7 @@
 	import inky.framework.components.scrollPane.views.BaseScrollPane;
 	import inky.framework.components.scrollBar.ScrollPolicy;
 	import inky.framework.components.listViews.IListView;
-	import inky.framework.components.listViews.IListItemView;
+	import inky.framework.components.IComponentView;
 	import inky.framework.components.scrollBar.events.ScrollEvent;
 	import inky.framework.components.scrollPane.views.IScrollPane;
 	import inky.framework.controls.*;
@@ -238,9 +238,9 @@ this._updateContent(firstVisibleItemIndex);
 		 * @param markAsUsed
 		 *	
 		 */
-		private function _getItemFor(index:int):IListItemView
+		private function _getItemFor(index:int):IComponentView
 		{
-			var listItem:IListItemView = this._indexes2Items[index] || this._unusedItems[index];
+			var listItem:IComponentView = this._indexes2Items[index] || this._unusedItems[index];
 
 			if (!listItem)
 			{
@@ -362,7 +362,7 @@ private function _invalidateHandler(e:LayoutEvent):void
 	{
 		if (e.property == this._widthOrHeight)
 		{
-			this._invalidateItemSize(e.target as IListItemView);
+			this._invalidateItemSize(e.target as IComponentView);
 		}
 	}
 }
@@ -372,7 +372,7 @@ private function _invalidateHandler(e:LayoutEvent):void
 		 *
 		 *	
 		 */
-		private function _invalidateItemSize(item:IListItemView):void
+		private function _invalidateItemSize(item:IComponentView):void
 		{
 			// Get the item index.
 			var index:Number = this._items2Indexes[item];
@@ -488,7 +488,7 @@ private function _invalidateHandler(e:LayoutEvent):void
 				return;
 			}*/
 
-			var listItem:IListItemView;
+			var listItem:IComponentView;
 			var index:int = startIndex;
 			var mask:DisplayObject = this.getScrollMask();
 			var maskSize:Number = mask[this._widthOrHeight];
@@ -568,7 +568,7 @@ private function _invalidateHandler(e:LayoutEvent):void
 
 
 
-		private function _markItemUnused(item:IListItemView, index:int):void
+		private function _markItemUnused(item:IComponentView, index:int):void
 		{
 			delete this._items2Indexes[item];
 			delete this._indexes2Items[index];
