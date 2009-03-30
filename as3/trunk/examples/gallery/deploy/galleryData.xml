@@ -1,90 +1,25 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <gallery>
 	<group name="amenities" label="Amenities">
-		<item source="images/amenities/images/amenities2.jpg" thumbnailSource="images/amenities/thumbnails/amenities2.jpg" />
-		<item source="images/amenities/images/amenities3.jpg" thumbnailSource="images/amenities/thumbnails/amenities3.jpg" />
-		<item source="images/amenities/images/amenities4.jpg" thumbnailSource="images/amenities/thumbnails/amenities4.jpg" />
-		<item source="images/amenities/images/amenities5.jpg" thumbnailSource="images/amenities/thumbnails/amenities5.jpg" />
-		<item source="images/amenities/images/amenities6.jpg" thumbnailSource="images/amenities/thumbnails/amenities6.jpg" />
-		<item source="images/amenities/images/amenities7.jpg" thumbnailSource="images/amenities/thumbnails/amenities7.jpg" />
-		<item source="images/amenities/images/amenities8.jpg" thumbnailSource="images/amenities/thumbnails/amenities8.jpg" />
-		<item source="images/amenities/images/residences13.jpg" thumbnailSource="images/amenities/thumbnails/residences13.jpg" />
-		<item source="images/amenities/images/citypalms3486.jpg" thumbnailSource="images/amenities/thumbnails/citypalms3486.jpg" />
-		<item source="images/amenities/images/citypalms3579.jpg" thumbnailSource="images/amenities/thumbnails/citypalms3579.jpg" />
-		<item source="images/amenities/images/citypalms3641.jpg" thumbnailSource="images/amenities/thumbnails/citypalms3641.jpg" />
-		<item source="images/amenities/images/citypalms3790.jpg" thumbnailSource="images/amenities/thumbnails/citypalms3790.jpg" />
-		<item source="images/amenities/images/citypalms4148.jpg" thumbnailSource="images/amenities/thumbnails/citypalms4148.jpg" />
-		<item source="images/amenities/images/amenities2.jpg" thumbnailSource="images/amenities/thumbnails/amenities2.jpg" />
-		<item source="images/amenities/images/amenities3.jpg" thumbnailSource="images/amenities/thumbnails/amenities3.jpg" />
-		<item source="images/amenities/images/amenities4.jpg" thumbnailSource="images/amenities/thumbnails/amenities4.jpg" />
-		<item source="images/amenities/images/amenities5.jpg" thumbnailSource="images/amenities/thumbnails/amenities5.jpg" />
-		<item source="images/amenities/images/amenities6.jpg" thumbnailSource="images/amenities/thumbnails/amenities6.jpg" />
-		<item source="images/amenities/images/amenities7.jpg" thumbnailSource="images/amenities/thumbnails/amenities7.jpg" />
-		<item source="images/amenities/images/amenities8.jpg" thumbnailSource="images/amenities/thumbnails/amenities8.jpg" />
-		<item source="images/amenities/images/residences13.jpg" thumbnailSource="images/amenities/thumbnails/residences13.jpg" />
-		<item source="images/amenities/images/citypalms3486.jpg" thumbnailSource="images/amenities/thumbnails/citypalms3486.jpg" />
-		<item source="images/amenities/images/citypalms3579.jpg" thumbnailSource="images/amenities/thumbnails/citypalms3579.jpg" />
-		<item source="images/amenities/images/citypalms3641.jpg" thumbnailSource="images/amenities/thumbnails/citypalms3641.jpg" />
-		<item source="images/amenities/images/citypalms3790.jpg" thumbnailSource="images/amenities/thumbnails/citypalms3790.jpg" />
-		<item source="images/amenities/images/citypalms4148.jpg" thumbnailSource="images/amenities/thumbnails/citypalms4148.jpg" />
-		<item source="images/amenities/images/amenities2.jpg" thumbnailSource="images/amenities/thumbnails/amenities2.jpg" />
-		<item source="images/amenities/images/amenities3.jpg" thumbnailSource="images/amenities/thumbnails/amenities3.jpg" />
-		<item source="images/amenities/images/amenities4.jpg" thumbnailSource="images/amenities/thumbnails/amenities4.jpg" />
-		<item source="images/amenities/images/amenities5.jpg" thumbnailSource="images/amenities/thumbnails/amenities5.jpg" />
-		<item source="images/amenities/images/amenities6.jpg" thumbnailSource="images/amenities/thumbnails/amenities6.jpg" />
-		<item source="images/amenities/images/amenities7.jpg" thumbnailSource="images/amenities/thumbnails/amenities7.jpg" />
-		<item source="images/amenities/images/amenities8.jpg" thumbnailSource="images/amenities/thumbnails/amenities8.jpg" />
-		<item source="images/amenities/images/residences13.jpg" thumbnailSource="images/amenities/thumbnails/residences13.jpg" />
-		<item source="images/amenities/images/citypalms3486.jpg" thumbnailSource="images/amenities/thumbnails/citypalms3486.jpg" />
-		<item source="images/amenities/images/citypalms3579.jpg" thumbnailSource="images/amenities/thumbnails/citypalms3579.jpg" />
-		<item source="images/amenities/images/citypalms3641.jpg" thumbnailSource="images/amenities/thumbnails/citypalms3641.jpg" />
-		<item source="images/amenities/images/citypalms3790.jpg" thumbnailSource="images/amenities/thumbnails/citypalms3790.jpg" />
-		<item source="images/amenities/images/citypalms4148.jpg" thumbnailSource="images/amenities/thumbnails/citypalms4148.jpg" />
-		<item source="images/amenities/images/amenities2.jpg" thumbnailSource="images/amenities/thumbnails/amenities2.jpg" />
-		<item source="images/amenities/images/amenities3.jpg" thumbnailSource="images/amenities/thumbnails/amenities3.jpg" />
-		<item source="images/amenities/images/amenities4.jpg" thumbnailSource="images/amenities/thumbnails/amenities4.jpg" />
-		<item source="images/amenities/images/amenities5.jpg" thumbnailSource="images/amenities/thumbnails/amenities5.jpg" />
-		<item source="images/amenities/images/amenities6.jpg" thumbnailSource="images/amenities/thumbnails/amenities6.jpg" />
-		<item source="images/amenities/images/amenities7.jpg" thumbnailSource="images/amenities/thumbnails/amenities7.jpg" />
-		<item source="images/amenities/images/amenities8.jpg" thumbnailSource="images/amenities/thumbnails/amenities8.jpg" />
-		<item source="images/amenities/images/residences13.jpg" thumbnailSource="images/amenities/thumbnails/residences13.jpg" />
-		<item source="images/amenities/images/citypalms3486.jpg" thumbnailSource="images/amenities/thumbnails/citypalms3486.jpg" />
-		<item source="images/amenities/images/citypalms3579.jpg" thumbnailSource="images/amenities/thumbnails/citypalms3579.jpg" />
-		<item source="images/amenities/images/citypalms3641.jpg" thumbnailSource="images/amenities/thumbnails/citypalms3641.jpg" />
-		<item source="images/amenities/images/citypalms3790.jpg" thumbnailSource="images/amenities/thumbnails/citypalms3790.jpg" />
-		<item source="images/amenities/images/citypalms4148.jpg" thumbnailSource="images/amenities/thumbnails/citypalms4148.jpg" />
+		<item source="images/large/12998941_a4488c05a7_o.jpg" thumbnailSource="images/thumbnails/12998941_a4488c05a7_o.jpg" />
+		<item source="images/large/138731417_57944c7546_b.jpg" thumbnailSource="images/thumbnails/138731417_57944c7546_b.jpg" />
+		<item source="images/large/206147363_13b147e829_b.jpg" thumbnailSource="images/thumbnails/206147363_13b147e829_b.jpg" />
+		<item source="images/large/312537169_ed97af47c2_o.jpg" thumbnailSource="images/thumbnails/312537169_ed97af47c2_o.jpg" />
+		<item source="images/large/387162551_ac9109cf51_o.jpg" thumbnailSource="images/thumbnails/387162551_ac9109cf51_o.jpg" />
+		<item source="images/large/419604550_7acf8dd7eb_o.jpg" thumbnailSource="images/thumbnails/419604550_7acf8dd7eb_o.jpg" />
+		<item source="images/large/457304324_3bf0c23622_o.jpg" thumbnailSource="images/thumbnails/457304324_3bf0c23622_o.jpg" />
+		<item source="images/large/497851367_c5e4ac7470_b.jpg" thumbnailSource="images/thumbnails/497851367_c5e4ac7470_b.jpg" />
+		<item source="images/large/1510322864_58cfa43e2a_b.jpg" thumbnailSource="images/thumbnails/1510322864_58cfa43e2a_b.jpg" />
+		<item source="images/large/2249968851_3211ddc800_b.jpg" thumbnailSource="images/thumbnails/2249968851_3211ddc800_b.jpg" />
+		<item source="images/large/2392207765_8f080fa97a_b.jpg" thumbnailSource="images/thumbnails/2392207765_8f080fa97a_b.jpg" />
+		<item source="images/large/3115082469_50b569139c_o.jpg" thumbnailSource="images/thumbnails/3115082469_50b569139c_o.jpg" />		
 	</group>
 	<group name="neighborhood" label="Neighborhood">
-		<item source="images/neighborhood/images/neighborhood1.jpg" thumbnailSource="images/neighborhood/thumbnails/neighborhood1.jpg" />
-		<item source="images/neighborhood/images/neighborhood2.jpg" thumbnailSource="images/neighborhood/thumbnails/neighborhood2.jpg" />
-		<item source="images/neighborhood/images/neighborhood3.jpg" thumbnailSource="images/neighborhood/thumbnails/neighborhood3.jpg" />
-		<item source="images/neighborhood/images/neighborhood4.jpg" thumbnailSource="images/neighborhood/thumbnails/neighborhood4.jpg" />
-		<item source="images/neighborhood/images/neighborhood5.jpg" thumbnailSource="images/neighborhood/thumbnails/neighborhood5.jpg" />
-		<item source="images/neighborhood/images/neighborhood6.jpg" thumbnailSource="images/neighborhood/thumbnails/neighborhood6.jpg" />
-		<item source="images/neighborhood/images/neighborhood7.jpg" thumbnailSource="images/neighborhood/thumbnails/neighborhood7.jpg" />
-		<item source="images/neighborhood/images/neighborhood8.jpg" thumbnailSource="images/neighborhood/thumbnails/neighborhood8.jpg" />
-		<item source="images/neighborhood/images/neighborhood9.jpg" thumbnailSource="images/neighborhood/thumbnails/neighborhood9.jpg" />
-		<item source="images/neighborhood/images/neighborhood10.jpg" thumbnailSource="images/neighborhood/thumbnails/neighborhood10.jpg" />
-		<item source="images/neighborhood/images/neighborhood11.jpg" thumbnailSource="images/neighborhood/thumbnails/neighborhood11.jpg" />
-		<item source="images/neighborhood/images/neighborhood12.jpg" thumbnailSource="images/neighborhood/thumbnails/neighborhood12.jpg" />
+		<item source="images/large/2726871494_6eb9f8bde2_o.jpg" thumbnailSource="images/thumbnails/2726871494_6eb9f8bde2_o.jpg" />
+		<item source="images/large/3148653405_b1de396663_b.jpg" thumbnailSource="images/thumbnails/3148653405_b1de396663_b.jpg" />
 	</group>
 	<group name="residences" label="Residences">
-		<item source="images/residences/images/residences1.jpg" thumbnailSource="images/residences/thumbnails/residences1.jpg" />
-		<item source="images/residences/images/residences2.jpg" thumbnailSource="images/residences/thumbnails/residences2.jpg" />
-		<item source="images/residences/images/residences4.jpg" thumbnailSource="images/residences/thumbnails/residences4.jpg" />
-		<item source="images/residences/images/residences5.jpg" thumbnailSource="images/residences/thumbnails/residences5.jpg" />
-		<item source="images/residences/images/residences6.jpg" thumbnailSource="images/residences/thumbnails/residences6.jpg" />
-		<item source="images/residences/images/residences7.jpg" thumbnailSource="images/residences/thumbnails/residences7.jpg" />
-		<item source="images/residences/images/residences8.jpg" thumbnailSource="images/residences/thumbnails/residences8.jpg" />
-		<item source="images/residences/images/residences9.jpg" thumbnailSource="images/residences/thumbnails/residences9.jpg" />
-		<item source="images/residences/images/residences10.jpg" thumbnailSource="images/residences/thumbnails/residences10.jpg" />
-		<item source="images/residences/images/residences11.jpg" thumbnailSource="images/residences/thumbnails/residences11.jpg" />
-		<item source="images/residences/images/residences12.jpg" thumbnailSource="images/residences/thumbnails/residences12.jpg" />
-		<item source="images/residences/images/residences14.jpg" thumbnailSource="images/residences/thumbnails/residences14.jpg" />
-		<item source="images/residences/images/residences15.jpg" thumbnailSource="images/residences/thumbnails/residences15.jpg" />
-		<item source="images/residences/images/residences16.jpg" thumbnailSource="images/residences/thumbnails/residences16.jpg" />
-		<item source="images/residences/images/residences17.jpg" thumbnailSource="images/residences/thumbnails/residences17.jpg" />
-		<item source="images/residences/images/residences18.jpg" thumbnailSource="images/residences/thumbnails/residences18.jpg" />
-		<item source="images/residences/images/sink.jpg" thumbnailSource="images/residences/thumbnails/sink.jpg" />
+		<item source="images/large/3222185336_218e636a4e_o.jpg" thumbnailSource="images/thumbnails/3222185336_218e636a4e_o.jpg" />
+		<item source="images/large/3359415634_116539ff30_o.jpg" thumbnailSource="images/thumbnails/3359415634_116539ff30_o.jpg" />
 	</group>
 </gallery>
