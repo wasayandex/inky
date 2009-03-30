@@ -17,6 +17,7 @@
 	import flash.events.Event;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import flash.utils.Dictionary;
 
 
 	/**
@@ -39,11 +40,12 @@
 		private var _firstVisibleItemIndex:int;
 		private var _itemViewClass:Class;
 		private var _isValidating:Boolean;
-		private var _listItems:Object;
+		private var _indexes2Items:Object;
+		private var _items2Indexes:Dictionary;
 		private var _model:IList;
 		private var _numItemsFinallyVisible:uint;  // The number of items visible at max scroll position.
 		private var _orientation:String;
-		private var _positionCache:Object;
+		private var _positionCache:Array;
 		private var _unusedItems:Object;		
 		private var _sizeCache:Array;
 		private var _widthOrHeight:String;
@@ -195,6 +197,7 @@ this._updateContent(firstVisibleItemIndex);
 					// Make sure we don't scroll "past" the content.
 					if (pos >= this.model.length - this._numItemsFinallyVisible)
 					{
+// FIXME: 
 						target = Math.max(target, mask[this._widthOrHeight] - this._getItemPosition(this.model.length - 1) - this._getItemSize(this.model.length - 1));
 					}
 					newPos[this._xOrY] = Math.min(0, target);
@@ -235,9 +238,9 @@ this._updateContent(firstVisibleItemIndex);
 		 * @param markAsUsed
 		 *	
 		 */
-		private function _getItemFor(index:int):Object
+		private function _getItemFor(index:int):IListItemView
 		{
-			var listItem:Object = this._listItems[index] || this._unusedItems[index];
+			var listItem:IListItemView = this._indexes2Items[index] || this._unusedItems[index];
 
 			if (!listItem)
 			{
@@ -269,6 +272,7 @@ this._updateContent(firstVisibleItemIndex);
 		 */
 		private function _getItemPosition(index:int):Number
 		{
+//!return index * 10;
 			var position:Number = this._positionCache[index];
 
 			if (isNaN(position))
@@ -280,7 +284,7 @@ this._updateContent(firstVisibleItemIndex);
 				}
 				else if (index == this._firstVisibleItemIndex)
 				{
-					position = this._listItems[index].y;
+					position = this._indexes2Items[index].y;
 				}
 				else if (index < this._firstVisibleItemIndex)
 				{
@@ -305,8 +309,8 @@ this._updateContent(firstVisibleItemIndex);
 		 */
 		private function _getItemSize(index:int):Number
 		{
-			var size:Number = NaN;//this._sizeCache[index];
-
+//			var size:Number = NaN;//this._sizeCache[index];
+var size:Number = this._sizeCache[index];
 			if (isNaN(size))
 			{
 				var item:Object = this._getItemFor(index);
@@ -371,19 +375,10 @@ private function _invalidateHandler(e:LayoutEvent):void
 		private function _invalidateItemSize(item:IListItemView):void
 		{
 			// Get the item index.
-			var index:int = -1;
-			for (var p:String in this._listItems)
+			var index:Number = this._items2Indexes[item];
+			if (!isNaN(index))
 			{
-				if (this._listItems[p] == item)
-				{
-					index = parseInt(p);
-					break;
-				}
-			}
-
-			if (index != -1)
-			{
-				this._invalidateItemSizeAt(index);
+				this._invalidateItemSizeAt(item, index);
 			}
 		}
 
@@ -392,31 +387,26 @@ private function _invalidateHandler(e:LayoutEvent):void
 		 *
 		 *	
 		 */
-		private function _invalidateItemSizeAt(index:int):void
+		private function _invalidateItemSizeAt(item:Object, index:int):void
 		{
-			var startIndex:int;
-			var endIndex:int;
-			
+			// If the item's size hasn't actually changed, don't redraw.
+			if (this._sizeCache[index] == item[this._widthOrHeight]) return;
+
 			if (index < this._firstVisibleItemIndex)
 			{
 				// If the item is not visible, we need to validate previous items (because position is determined relative to visible items)
-				startIndex = 0;
-				endIndex = index;
+				for (var i:int = 0; i <= index; i++)
+				{
+					delete this._positionCache[i];
+				}
 			}
 			else
 			{
 				// If the item is visible, we need to invalidate subsequent items.
-				startIndex = index;
-				endIndex = this.model.length - 1;
+				this._positionCache.length = index;				
 			}
 			
-			for (var i:int = startIndex; i <= endIndex; i++)
-			{
-				delete this._positionCache[i];
-			}
-
 			delete this._sizeCache[index];
-			
 			this._updateContent(this._firstVisibleItemIndex);
 		}
 
@@ -431,8 +421,9 @@ private function _invalidateHandler(e:LayoutEvent):void
 			this._firstVisibleItemIndex = -1;
 			this._unusedItems = {};
 			this._sizeCache = [];
-			this._listItems = {};
-			this._positionCache = {};
+			this._indexes2Items = {};
+			this._items2Indexes = new Dictionary(true);
+			this._positionCache = [];
 			
 			// Determine the number of items that are visible at max scroll position.
 			var mask:DisplayObject = this.getScrollMask();
@@ -497,7 +488,7 @@ private function _invalidateHandler(e:LayoutEvent):void
 				return;
 			}*/
 
-			var listItem:Object;
+			var listItem:IListItemView;
 			var index:int = startIndex;
 			var mask:DisplayObject = this.getScrollMask();
 			var maskSize:Number = mask[this._widthOrHeight];
@@ -509,11 +500,10 @@ private function _invalidateHandler(e:LayoutEvent):void
 // TODO: Because we don't yet know many list items will fit in the viewport, we don't know if we can reuse items with index > startindex. Figure out how to know. We could use _getItemPosition to figure it out, but then we'd be constantly setting the model on instances that wouldn't be used with the model.
 			for (i = 0; i < startIndex; i++)
 			{
-				listItem = this._listItems[i];
+				listItem = this._indexes2Items[i];
 				if (listItem)
 				{
-					delete this._listItems[i];
-					this._unusedItems[i] = listItem;
+					this._markItemUnused(listItem, i);
 				}
 			}
 
@@ -534,7 +524,8 @@ private function _invalidateHandler(e:LayoutEvent):void
 
 				// Mark the item as used.
 				delete this._unusedItems[index];
-				this._listItems[index] = listItem;
+				this._indexes2Items[index] = listItem;
+				this._items2Indexes[listItem] = index;
 
 				pos = this._getItemPosition(index);
 				listItem[this._xOrY] = pos;
@@ -553,14 +544,13 @@ private function _invalidateHandler(e:LayoutEvent):void
 
 			// Update list of unused items.
 			var endIndex:int = index;
-			for (var p:String in this._listItems)
+			for (var p:String in this._indexes2Items)
 			{
 				i = parseInt(p);
 				if (i < startIndex || i > endIndex)
 				{
-					listItem = this._listItems[i];
-					delete this._listItems[i];
-					this._unusedItems[i] = listItem;
+					listItem = this._indexes2Items[i];
+					this._markItemUnused(listItem, i);
 				}
 			}
 
@@ -573,6 +563,19 @@ private function _invalidateHandler(e:LayoutEvent):void
 			this._updateScrollBars();
 
 		}
+
+
+
+
+
+		private function _markItemUnused(item:IListItemView, index:int):void
+		{
+			delete this._items2Indexes[item];
+			delete this._indexes2Items[index];
+			this._unusedItems[index] = item;
+		}
+
+
 
 
 		/**
