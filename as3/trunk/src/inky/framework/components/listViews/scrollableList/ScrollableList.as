@@ -350,7 +350,7 @@ var size:Number = this._sizeCache[index];
 		 */
 		private function _init():void
 		{
-			this._spacing = 5;
+			this._spacing = 0;
 			
 			if (this.horizontalScrollBar && this.verticalScrollBar)
 			{
