@@ -48,6 +48,7 @@
 		private var _positionCache:Array;
 		private var _unusedItems:Object;		
 		private var _sizeCache:Array;
+		private var _spacing:Number;
 		private var _widthOrHeight:String;
 		private var _xOrY:String;
 
@@ -99,6 +100,25 @@
 		{
 			this._model = model;
 			this._setContent();
+		}
+
+
+		/**
+		 *
+		 *
+		 *
+		 */
+		public function get spacing():Number
+		{
+			return this._spacing;
+		}
+		/**
+		 * @private
+		 */
+		public function set spacing(value:Number):void
+		{
+			this._spacing = value;
+			this._redraw();
 		}
 
 
@@ -160,22 +180,7 @@ else
 		firstVisibleItemIndex--;
 	}
 }
-this._updateContent(firstVisibleItemIndex);
-
-			/*var container:DisplayObjectContainer = this.getContentContainer();
-			var mask:DisplayObject = this.getScrollMask();
-
-			// Get the index of the first visible item.
-			var firstVisibleItemIndex:int = 0;
-			var combinedSize:Number = 0;
-			var y:Number = container[this._xOrY];
-
-			while (container[this._xOrY] + this._getItemPosition(firstVisibleItemIndex + 1) < mask[this._xOrY])
-			{
-				firstVisibleItemIndex++;
-			}
-
-			this._updateContent(firstVisibleItemIndex);*/
+this._redraw();
 		}
 
 
@@ -288,11 +293,11 @@ this._updateContent(firstVisibleItemIndex);
 				}
 				else if (index < this._firstVisibleItemIndex)
 				{
-					position = this._getItemPosition(index + 1) - this._getItemSize(index);
+					position = this._getItemPosition(index + 1) - this._getItemSize(index) - this._spacing;
 				}
 				else if (index > this._firstVisibleItemIndex)
 				{
-					position = this._getItemPosition(index - 1) + this._getItemSize(index - 1);
+					position = this._getItemPosition(index - 1) + this._getItemSize(index - 1) + this._spacing;
 				}
 				
 				this._positionCache[index] = position;
@@ -331,6 +336,8 @@ var size:Number = this._sizeCache[index];
 		 */
 		private function _init():void
 		{
+			this._spacing = 0;
+			
 			if (this.horizontalScrollBar && this.verticalScrollBar)
 			{
 // FIXME: should work with both, in case for example items in a vertically oriented list are too wide.
@@ -407,8 +414,20 @@ private function _invalidateHandler(e:LayoutEvent):void
 			}
 			
 			delete this._sizeCache[index];
+			this._redraw();
+		}
+
+
+
+
+
+
+		private function _redraw():void
+		{
 			this._updateContent(this._firstVisibleItemIndex);
 		}
+
+
 
 
 		/**

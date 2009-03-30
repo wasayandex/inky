@@ -60,7 +60,7 @@
 
 		public function equals(obj:Object):Boolean
 		{
-			return EqualityUtil.propertiesAreEqual(this, obj);
+			return this == obj;
 		}
 
 
