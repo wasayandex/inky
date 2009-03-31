@@ -347,7 +347,7 @@
 			var result:ArrayList = new ArrayList();
 			var testValue:Object;
 
-			for (var i:Object = this.iterator(); i.hasNext();)
+			for (var i:IIterator = this.iterator(); i.hasNext();)
 			{
 				var addToList:Boolean = true;
 				var testObject:Object = Object(i.next());
@@ -360,7 +360,7 @@
 					}
 					else if (testValue is RegExp)
 					{
-						addToList = testValue.test(testObject[prop]);
+						addToList = testObject[prop] is String && testValue.test(testObject[prop]);
 					}
 					else
 					{
