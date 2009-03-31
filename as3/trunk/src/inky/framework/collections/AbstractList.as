@@ -2,7 +2,7 @@
 {
 	import inky.framework.collections.ICollection;
 	import inky.framework.collections.IIterator;
-	import inky.framework.collections.IList;
+	import inky.framework.collections.ISearchableList;
 	import inky.framework.collections.IListIterator;
 	import inky.framework.collections.ListIterator;
 	import inky.framework.collections.RandomAccessSubList;
@@ -18,7 +18,7 @@
 	 * @version    2008.06.21
 	 *
 	 */
-	public class AbstractList extends EventDispatcher implements IList
+	public class AbstractList extends EventDispatcher implements ISearchableList
 	{
 // TODO: Throw errors on concurrent modifications. (Esp. where subLists are concerned)
 // TODO: Protect from instantiation?
@@ -159,6 +159,25 @@
 				}
 			}
 			return isEqual;
+		}
+		
+		
+		/**
+		 *	@inheritDoc
+		 */
+		public function find(restrictions:Object):ICollection
+		{
+			return this._find(restrictions);
+		}
+
+
+		/**
+		 *	@inheritDoc
+		 */
+		public function findFirst(restrictions:Object):Object
+		{
+			var list:ArrayList = this._find(restrictions, true) as ArrayList;
+			return list.length > 0 ? list.getItemAt(0) : null;
 		}
 		
 		
@@ -317,7 +336,56 @@
 		// private methods
 		//
 
+		
+		/**
+		 *	
+		 *	
+		 *	
+		 */
+		private function _find(restrictions:Object, stopOnFirstMatch:Boolean = false):ICollection
+		{
+			var result:ArrayList = new ArrayList();
+			var testValue:Object;
 
+			for (var i:Object = this.iterator(); i.hasNext();)
+			{
+				var addToList:Boolean = true;
+				var testObject:Object = Object(i.next());
+				for (var prop:String in restrictions)
+				{
+					testValue = restrictions[prop];
+					if (testValue is Function)
+					{
+						addToList = testValue(testObject[prop]);
+					}
+					else if (testValue is RegExp)
+					{
+						addToList = testValue.test(testObject[prop]);
+					}
+					else
+					{
+						addToList = EqualityUtil.objectsAreEqual(testValue, testObject[prop]);
+					}
+					
+					if (!addToList)
+					{
+						break;
+					}
+				}
+
+				if (addToList)
+				{
+					result.addItem(testObject);
+					if (stopOnFirstMatch)
+					{
+						break;
+					}
+				}
+			}
+			return result;
+		}
+		
+		
 		/**
 		 *
 		 *

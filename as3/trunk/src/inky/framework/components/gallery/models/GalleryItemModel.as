@@ -28,7 +28,7 @@
 	dynamic public class GalleryItemModel extends EventDispatcher implements IEquatable
 	{
 		private var _group:GalleryGroupModel;
-		private var _images:IList;
+		private var _images:ISearchableList;
 		private var _selected:Boolean;
 
 
@@ -45,7 +45,7 @@
 			this._group = group;
 		}
 
-		public function get images():IList
+		public function get images():ISearchableList
 		{
 			return this._images;
 		}
