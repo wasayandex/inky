@@ -358,9 +358,9 @@
 					{
 						addToList = testValue(testObject[prop]);
 					}
-					else if (testValue is RegExp)
+					else if (testValue is RegExp && testObject[prop] is String)
 					{
-						addToList = testObject[prop] is String && testValue.test(testObject[prop]);
+						addToList = testValue.test(testObject[prop]);
 					}
 					else
 					{
