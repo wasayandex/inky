@@ -1,6 +1,6 @@
-package inky.framework.net
+package inky.framework.loading.loaders
 {
-	import inky.framework.net.GraphicLoader;
+	import inky.framework.loading.loaders.GraphicLoader;
 
 
 	/**

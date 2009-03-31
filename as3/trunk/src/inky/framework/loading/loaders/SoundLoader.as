@@ -1,4 +1,4 @@
-package inky.framework.net
+package inky.framework.loading.loaders
 {
 	import flash.events.Event;
 	import flash.events.IEventDispatcher;
@@ -6,7 +6,7 @@ package inky.framework.net
 	import flash.events.ProgressEvent;
 	import flash.media.Sound;
 	import inky.framework.events.AssetLoaderEvent;
-	import inky.framework.net.AbstractAssetLoader;
+	import inky.framework.loading.loaders.AbstractAssetLoader;
 
 
 	/**

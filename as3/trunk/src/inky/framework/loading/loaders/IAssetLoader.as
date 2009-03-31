@@ -1,4 +1,4 @@
-package inky.framework.net
+package inky.framework.loading.loaders
 {
 	import flash.events.IEventDispatcher;
 

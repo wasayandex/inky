@@ -22,11 +22,11 @@ package inky.framework.managers
 	import inky.framework.core.Section;
 	import inky.framework.data.Model;
 	import inky.framework.core.SectionInfo;
-	import inky.framework.net.ImageLoader;
-	import inky.framework.net.RuntimeLibraryLoader;
-	import inky.framework.net.SoundLoader;
-	import inky.framework.net.SWFLoader;
-	import inky.framework.net.XMLLoader;
+	import inky.framework.loading.loaders.ImageLoader;
+	import inky.framework.loading.loaders.RuntimeLibraryLoader;
+	import inky.framework.loading.loaders.SoundLoader;
+	import inky.framework.loading.loaders.SWFLoader;
+	import inky.framework.loading.loaders.XMLLoader;
 	import inky.framework.actions.ActionGroup;
 	import inky.framework.actions.ActionSequence;
 	import inky.framework.utils.Debugger;

@@ -1,4 +1,4 @@
-package inky.framework.net
+package inky.framework.loading.loaders
 {
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
@@ -9,7 +9,7 @@ package inky.framework.net
 	import inky.framework.core.Application;
 	import inky.framework.core.Section;
 	import inky.framework.events.AssetLoaderEvent;
-	import inky.framework.net.IAssetLoader;
+	import inky.framework.loading.loaders.IAssetLoader;
 
 
 	/**

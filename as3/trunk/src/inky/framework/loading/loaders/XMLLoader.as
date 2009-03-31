@@ -1,4 +1,4 @@
-package inky.framework.net
+package inky.framework.loading.loaders
 {
 	import flash.events.Event;
 	import flash.events.HTTPStatusEvent;
@@ -10,7 +10,7 @@ package inky.framework.net
 	import flash.net.URLLoaderDataFormat;
 	import flash.utils.getDefinitionByName;
 	import inky.framework.events.AssetLoaderEvent;
-	import inky.framework.net.AbstractAssetLoader;
+	import inky.framework.loading.loaders.AbstractAssetLoader;
 
 
 	/**

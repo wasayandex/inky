@@ -24,8 +24,8 @@
 	import inky.framework.core.SPath;
 	import inky.framework.core.SectionInfo;
 	import inky.framework.loading.LoadQueue;
-	import inky.framework.net.IAssetLoader;
-	import inky.framework.net.SWFLoader;
+	import inky.framework.loading.loaders.IAssetLoader;
+	import inky.framework.loading.loaders.SWFLoader;
 
 
 	/**
@@ -92,7 +92,7 @@
 		 * 
 		 * @see #fetchAsset()
 		 * @see #fetchAssetNow()
-		 * @see inky.framework.net.IAssetLoader#close()
+		 * @see inky.framework.loading.loaders.IAssetLoader#close()
 		 *
 		 */		 		 		 		
 		public function cancelFetchAsset(asset:Object):void
@@ -148,7 +148,7 @@
 		 *	
 		 * @see #fetchAssetNow()
 		 * @see #cancelFetchAsset()
-		 * @see inky.framework.net.IAssetLoader#load()
+		 * @see inky.framework.loading.loaders.IAssetLoader#load()
 		 * 
 		 */
 		public function fetchAsset(asset:Object, callback:Function = null):void
@@ -173,7 +173,7 @@
 		 *	
 		 * @see #fetchAsset()
 		 * @see #cancelFetchAsset()
-		 * @see inky.framework.net.IAssetLoader#loadNow()
+		 * @see inky.framework.loading.loaders.IAssetLoader#loadNow()
 		 * 
 		 */
 		public function fetchAssetNow(asset:Object, callback:Function = null):void

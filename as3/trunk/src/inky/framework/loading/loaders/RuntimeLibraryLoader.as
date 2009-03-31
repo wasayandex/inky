@@ -1,6 +1,6 @@
-package inky.framework.net
+package inky.framework.loading.loaders
 {
-	import inky.framework.net.SWFLoader;
+	import inky.framework.loading.loaders.SWFLoader;
 
 
 	/**

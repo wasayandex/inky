@@ -1,4 +1,4 @@
-package inky.framework.net
+package inky.framework.loading.loaders
 {
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
@@ -7,8 +7,8 @@ package inky.framework.net
 	import flash.utils.getQualifiedClassName;
 	import inky.framework.core.Section;
 	import inky.framework.events.AssetLoaderEvent;
-	import inky.framework.net.AssetLoaderBehavior;
-	import inky.framework.net.IAssetLoader;
+	import inky.framework.loading.loaders. AssetLoaderBehavior;
+	import inky.framework.loading.loaders.IAssetLoader;
 
 
 	/**
@@ -17,7 +17,7 @@ package inky.framework.net
 	 * AbstractAssetLoader uses the AssetLoaderBehavior decorator for its
 	 * functionality.
 	 * 
-	 * @see inky.framework.net.AssetLoaderBehavior
+	 * @see inky.framework.loading.loaders. AssetLoaderBehavior
 	 * 
 	 *  @langversion ActionScript 3
 	 *  @playerversion Flash 9.0.0
@@ -42,7 +42,7 @@ package inky.framework.net
 			//
 			// Prevent class from being instantialized.
 			//
-			if (getQualifiedClassName(this) == 'inky.framework.net::AbstractAssetLoader')
+			if (getQualifiedClassName(this) == 'inky.framework.loading.loaders::AbstractAssetLoader')
 			{
 				throw new ArgumentError('Error #2012: AbstractAssetLoader$ class cannot be instantiated.');
 			}

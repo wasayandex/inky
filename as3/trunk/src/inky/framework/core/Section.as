@@ -41,7 +41,7 @@
 	import inky.framework.managers.LoadManager;
 	import inky.framework.managers.MarkupObjectManager;
 	import inky.framework.managers.NavigationManager;
-	import inky.framework.net.IAssetLoader;
+	import inky.framework.loading.loaders.IAssetLoader;
 	import inky.framework.loading.LoadQueue;
 	import inky.framework.actions.IAction;
 
@@ -414,7 +414,7 @@ Section.setSection(this.__itemLoadingProgressBar, this.sPath || '/');
 		 * 
 		 * @see #fetchAsset()
 		 * @see #fetchAssetNow()
-		 * @see inky.framework.net.IAssetLoader#close()
+		 * @see inky.framework.loading.loaders.IAssetLoader#close()
 		 *
 		 */		 		 		 		
 		public function cancelFetchAsset(asset:Object):void
@@ -507,7 +507,7 @@ Section.setSection(this.__itemLoadingProgressBar, this.sPath || '/');
 		 *
 		 * @see #fetchAssetNow()
 		 * @see #cancelFetchAsset()
-		 * @see inky.framework.net.IAssetLoader#load()
+		 * @see inky.framework.loading.loaders.IAssetLoader#load()
 		 * 
 		 */
 		public function fetchAsset(asset:Object, callback:Function = null):void
@@ -526,7 +526,7 @@ Section.setSection(this.__itemLoadingProgressBar, this.sPath || '/');
 		 *
 		 * @see #fetchAsset()
 		 * @see #cancelFetchAsset()
-		 * @see inky.framework.net.IAssetLoader#loadNow()
+		 * @see inky.framework.loading.loaders.IAssetLoader#loadNow()
 		 * 
 		 */
 		public function fetchAssetNow(asset:Object, callback:Function = null):void

@@ -1,4 +1,4 @@
-package inky.framework.net
+package inky.framework.loading.loaders
 {
 	import flash.display.Loader;
 	import flash.display.Sprite;
@@ -13,8 +13,8 @@ package inky.framework.net
 	import flash.system.LoaderContext;	
 	import flash.utils.getQualifiedClassName;
 	import inky.framework.events.AssetLoaderEvent;
-	import inky.framework.net.AssetLoaderBehavior;
-	import inky.framework.net.IAssetLoader;
+	import inky.framework.loading.loaders. AssetLoaderBehavior;
+	import inky.framework.loading.loaders.IAssetLoader;
 
 
 	/**
@@ -22,8 +22,8 @@ package inky.framework.net
 	 *  Loads a graphic. The GraphicLoader class is an abstract class that
 	 *	is extended by the ImageLoader and SWFLoader classes.
 	 *	
-	 *	@see inky.framework.net.ImageLoader
-	 *	@see inky.framework.net.SWFLoader
+	 *	@see inky.framework.loading.loaders.ImageLoader
+	 *	@see inky.framework.loading.loaders.SWFLoader
 	 * 
 	 *  @langversion ActionScript 3
 	 *  @playerversion Flash 9.0.0
@@ -51,7 +51,7 @@ package inky.framework.net
 			//
 			// Prevent class from being instantialized.
 			//
-			if (getQualifiedClassName(this) == 'inky.framework.net::GraphicLoader')
+			if (getQualifiedClassName(this) == 'inky.framework.loading.loaders::GraphicLoader')
 			{
 				throw new ArgumentError('Error #2012: GraphicLoader$ class cannot be instantiated.');
 			}

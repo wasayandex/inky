@@ -1,10 +1,10 @@
-package inky.framework.net
+package inky.framework.loading.loaders
 {
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.Loader;
 	import flash.display.PixelSnapping;
-	import inky.framework.net.GraphicLoader;
+	import inky.framework.loading.loaders.GraphicLoader;
 
 
 	/**
