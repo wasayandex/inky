@@ -139,6 +139,7 @@
 				if (this[this._orientation + "ScrollBar"])
 				{
 					this[this._orientation + "ScrollBar"].maxScrollPosition = this.model.length - this._numItemsFinallyVisible + 1;
+this[this._orientation + "ScrollBar"].pageSize = this._numItemsFinallyVisible;
 				}
 			}
 		}
@@ -206,7 +207,7 @@ this._updateContent(firstVisibleItemIndex);
 			var pos:Number = Math.round(this[this._orientation + "ScrollPosition"]);
 			var newPos:Object = {x: this.__contentContainer.x, y: this.__contentContainer.y};
 			var mask:DisplayObject = this.getScrollMask();
-			
+
 			if (!isNaN(pos))
 			{
 				if (this.model != null)
