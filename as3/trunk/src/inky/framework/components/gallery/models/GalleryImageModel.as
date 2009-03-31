@@ -11,6 +11,8 @@ package inky.framework.components.gallery.models
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.net.URLRequest;
+	import inky.framework.loading.loaders.IAssetLoader;
+	import inky.framework.loading.loaders.ImageLoader;
 
 
 	/**
@@ -29,6 +31,7 @@ package inky.framework.components.gallery.models
 	dynamic public class GalleryImageModel extends EventDispatcher implements IEquatable
 	{
 		private var _item:GalleryItemModel;
+		private var _loader:IAssetLoader;
 		private var _source:String;
 
 
@@ -48,6 +51,24 @@ package inky.framework.components.gallery.models
 		gallery_model function setItem(item:GalleryItemModel):void
 		{
 			this._item = item;
+		}
+
+
+
+
+		/**
+		 *
+		 *
+		 *
+		 */
+		public function get loader():IAssetLoader
+		{
+			if (!this._loader)
+			{
+				this._loader = new ImageLoader();
+				this._loader.source = this.source;
+			}
+			return this._loader;
 		}
 
 
