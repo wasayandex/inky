@@ -105,7 +105,17 @@
 
 		/**
 		 *
+		 *	
+		 */
+		public function get orientation():String
+		{
+			return this._orientation;
+		}
+
+
+		/**
 		 *
+		 * The number of pixels between each item.
 		 *
 		 */
 		public function get spacing():Number
@@ -123,10 +133,54 @@
 
 
 
+
 		//
 		// public methods
 		//
 
+
+		/**
+		 *
+		 *	
+		 */
+		public function getItemPosition(index:int):Number
+		{
+			return this._getItemPosition(index);
+		}
+
+
+		/**
+		 *
+		 */
+		public function scrollTo(index:int):void
+		{
+			if ((index < 0) || (index >= this.model.length))
+			{
+				throw new RangeError();
+			}
+
+			var newPos:Object = {x: this.__contentContainer.x, y: this.__contentContainer.y};
+			var mask:DisplayObject = this.getScrollMask();
+
+			if (!isNaN(index))
+			{
+				if (this.model != null)
+				{
+					var target:Number = -this._getItemPosition(index);
+
+					// Make sure we don't scroll "past" the content.
+					if (index >= this.model.length - this._numItemsFinallyVisible)
+					{
+		// FIXME: 
+						target = Math.max(target, mask[this._widthOrHeight] - this._getItemPosition(this.model.length - 1) - this._getItemSize(this.model.length - 1));
+					}
+					newPos[this._xOrY] = Math.min(0, target);
+				}
+			}
+
+			this.moveContent(newPos.x, newPos.y);
+			this.updateContent();
+		}
 
 
 		/**
@@ -136,10 +190,11 @@
 		{
 			if (model)
 			{
+// TODO: Instead use this.maxHorizontalScrollPosition and horizontalPageSize
 				if (this[this._orientation + "ScrollBar"])
 				{
 					this[this._orientation + "ScrollBar"].maxScrollPosition = this.model.length - this._numItemsFinallyVisible + 1;
-this[this._orientation + "ScrollBar"].pageSize = this._numItemsFinallyVisible;
+					this[this._orientation + "ScrollBar"].pageSize = this._numItemsFinallyVisible;
 				}
 			}
 		}
@@ -154,78 +209,47 @@ this[this._orientation + "ScrollBar"].pageSize = this._numItemsFinallyVisible;
 
 		/**
 		 *
-		 * Updates the contents of the container based on its position.
-		 *		
 		 */
-		protected function updateContent():void
+		override protected function scrollHandler(e:ScrollEvent):void
 		{
-var firstVisibleItemIndex:int = this._firstVisibleItemIndex;
-var mask:DisplayObject = this.getScrollMask();
-var maskSize:Number = mask[this._widthOrHeight];
-var maskPosition:Number = mask[this._xOrY];
-var container:DisplayObjectContainer = this.getContentContainer();
-var containerPosition:Number = container[this._xOrY];
-
-if (this._getItemPosition(firstVisibleItemIndex) + this._getItemSize(firstVisibleItemIndex) + containerPosition < maskPosition)
-{
-	while ((firstVisibleItemIndex< this.model.length) && (this._getItemPosition(firstVisibleItemIndex) + this._getItemSize(firstVisibleItemIndex) + containerPosition < maskPosition))
-	{
-		firstVisibleItemIndex++;
-	}
-}
-else
-{
-	while ((firstVisibleItemIndex > 0) && (this._getItemPosition(firstVisibleItemIndex) + containerPosition > maskPosition))
-	{
-		firstVisibleItemIndex--;
-	}
-}
-this._updateContent(firstVisibleItemIndex);
-
-			/*var container:DisplayObjectContainer = this.getContentContainer();
-			var mask:DisplayObject = this.getScrollMask();
-
-			// Get the index of the first visible item.
-			var firstVisibleItemIndex:int = 0;
-			var combinedSize:Number = 0;
-			var y:Number = container[this._xOrY];
-
-			while (container[this._xOrY] + this._getItemPosition(firstVisibleItemIndex + 1) < mask[this._xOrY])
+			var index:Number = Math.round(this[this._orientation + "ScrollPosition"]);
+			if (!isNaN(index))
 			{
-				firstVisibleItemIndex++;
+				this.scrollTo(index);
 			}
-
-			this._updateContent(firstVisibleItemIndex);*/
 		}
 
 
 		/**
 		 *
+		 * Updates the contents of the container based on its position.
+		 *		
 		 */
-		override protected function scrollHandler(e:ScrollEvent):void
+		protected function updateContent():void
 		{
-			var pos:Number = Math.round(this[this._orientation + "ScrollPosition"]);
-			var newPos:Object = {x: this.__contentContainer.x, y: this.__contentContainer.y};
+// TODO: Can this be improved?
+			var firstVisibleItemIndex:int = this._firstVisibleItemIndex;
 			var mask:DisplayObject = this.getScrollMask();
+			var maskSize:Number = mask[this._widthOrHeight];
+			var maskPosition:Number = mask[this._xOrY];
+			var container:DisplayObjectContainer = this.getContentContainer();
+			var containerPosition:Number = container[this._xOrY];
 
-			if (!isNaN(pos))
+			if (this._getItemPosition(firstVisibleItemIndex) + this._getItemSize(firstVisibleItemIndex) + containerPosition < maskPosition)
 			{
-				if (this.model != null)
+				while ((firstVisibleItemIndex< this.model.length) && (this._getItemPosition(firstVisibleItemIndex) + this._getItemSize(firstVisibleItemIndex) + containerPosition < maskPosition))
 				{
-					var target:Number = -this._getItemPosition(pos);
-					
-					// Make sure we don't scroll "past" the content.
-					if (pos >= this.model.length - this._numItemsFinallyVisible)
-					{
-// FIXME: 
-						target = Math.max(target, mask[this._widthOrHeight] - this._getItemPosition(this.model.length - 1) - this._getItemSize(this.model.length - 1));
-					}
-					newPos[this._xOrY] = Math.min(0, target);
+					firstVisibleItemIndex++;
 				}
 			}
-
-			this.moveContent(newPos.x, newPos.y);
-			this.updateContent();
+			else
+			{
+				while ((firstVisibleItemIndex > 0) && (this._getItemPosition(firstVisibleItemIndex) + containerPosition > maskPosition))
+				{
+					firstVisibleItemIndex--;
+				}
+			}
+			this._updateContent(firstVisibleItemIndex);
 		}
 
 
@@ -378,23 +402,31 @@ var size:Number = this._sizeCache[index];
 		}
 
 
-private function _invalidateHandler(e:LayoutEvent):void
-{
-	if (e.target.parent == this.__contentContainer)
-	{
-		if (e.property == this._widthOrHeight)
+		/**
+		 *
+		 */
+		private function _invalidateAllPositions():void
 		{
-			this._invalidateItemSize(e.target as IComponentView);
+			this._positionCache = [];
+			this._redraw();
 		}
-	}
-}
 
 
-private function _invalidateAllPositions():void
-{
-	this._positionCache = [];
-	this._redraw();
-}
+		/**
+		 *
+		 *	
+		 */
+		private function _invalidateHandler(e:LayoutEvent):void
+		{
+			if (e.target.parent == this.__contentContainer)
+			{
+				if (e.property == this._widthOrHeight)
+				{
+					this._invalidateItemSize(e.target as IComponentView);
+				}
+			}
+		}
+
 
 		/**
 		 *
@@ -436,6 +468,27 @@ private function _invalidateAllPositions():void
 			
 			delete this._sizeCache[index];
 			this._redraw();
+		}
+
+
+		/**
+		 *
+		 *	
+		 */
+		private function _markItemUnused(item:IComponentView, index:int):void
+		{
+			delete this._items2Indexes[item];
+			delete this._indexes2Items[index];
+			this._unusedItems[index] = item;
+		}
+
+
+		/**
+		 *
+		 */
+		private function _redraw():void
+		{
+			this._updateContent(this._firstVisibleItemIndex);
 		}
 
 
@@ -485,7 +538,6 @@ private function _invalidateAllPositions():void
 				throw new Error("itemViewClass is not set!");
 			}
 
-			this[this._orientation + 'ScrollBar'].minScrollPosition = 0
 			this._updateContent(0);
 			this.update();
 		}
@@ -590,24 +642,6 @@ private function _invalidateAllPositions():void
 
 			this._updateScrollBars();
 
-		}
-
-
-
-
-
-		private function _markItemUnused(item:IComponentView, index:int):void
-		{
-			delete this._items2Indexes[item];
-			delete this._indexes2Items[index];
-			this._unusedItems[index] = item;
-		}
-
-
-
-		private function _redraw():void
-		{
-			this._updateContent(this._firstVisibleItemIndex);
 		}
 
 
