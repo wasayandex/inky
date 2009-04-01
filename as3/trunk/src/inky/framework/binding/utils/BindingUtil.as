@@ -123,7 +123,7 @@ package inky.framework.binding.utils
 	     *  See the <code>bindProperty()</code> method for more information.
 	     *
 	     */
-	    public static function bindSetter(setter:Function, host:Object, chain:Object):void
+	    public static function bindSetter(setter:Function, host:Object, chain:Object):IChangeWatcher
 	    {
 	        var watcher:ChangeWatcher = ChangeWatcher.watch(host, chain, null);
         
@@ -136,6 +136,8 @@ package inky.framework.binding.utils
 	            watcher.setHandler(invoke);
 	            invoke(null);
 	        }
+	
+			return watcher;
 	    }
 
 
