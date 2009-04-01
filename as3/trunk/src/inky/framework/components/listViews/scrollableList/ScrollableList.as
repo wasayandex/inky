@@ -4,7 +4,6 @@
 	import inky.framework.components.scrollPane.views.BaseScrollPane;
 	import inky.framework.components.scrollBar.ScrollPolicy;
 	import inky.framework.components.listViews.IListView;
-	import inky.framework.components.IComponentView;
 	import inky.framework.components.scrollBar.events.ScrollEvent;
 	import inky.framework.components.scrollPane.views.IScrollPane;
 	import inky.framework.controls.*;
@@ -324,9 +323,9 @@
 		 * @param markAsUsed
 		 *	
 		 */
-		private function _getItemFor(index:int):IComponentView
+		private function _getItemFor(index:int):Object
 		{
-			var listItem:IComponentView = this._indexes2Items[index] || this._unusedItems[index];
+			var listItem:Object = this._indexes2Items[index] || this._unusedItems[index];
 
 			if (!listItem)
 			{
@@ -475,7 +474,7 @@
 			{
 				if (e.property == this._widthOrHeight)
 				{
-					this._invalidateItemSize(e.target as IComponentView);
+					this._invalidateItemSize(e.target);
 				}
 			}
 		}
@@ -485,7 +484,7 @@
 		 *
 		 *	
 		 */
-		private function _invalidateItemSize(item:IComponentView):void
+		private function _invalidateItemSize(item:Object):void
 		{
 			// Get the item index.
 			var index:Number = this._items2Indexes[item];
@@ -528,7 +527,7 @@
 		 *
 		 *	
 		 */
-		private function _markItemUnused(item:IComponentView, index:int):void
+		private function _markItemUnused(item:Object, index:int):void
 		{
 			delete this._items2Indexes[item];
 			delete this._indexes2Items[index];
@@ -557,7 +556,7 @@
 		 */
 		private function _redrawFrom(startIndex:int):void
 		{
-			var listItem:IComponentView;
+			var listItem:Object;
 			var index:int = startIndex;
 			var mask:DisplayObject = this.getScrollMask();
 			var maskSize:Number = mask[this._widthOrHeight];

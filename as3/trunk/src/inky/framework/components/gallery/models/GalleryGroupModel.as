@@ -2,6 +2,8 @@
 {
 	import inky.framework.binding.events.PropertyChangeEvent;
 	import inky.framework.collections.*;
+	import inky.framework.collections.events.CollectionEvent;
+	import inky.framework.collections.events.CollectionEventKind;
 	import inky.framework.utils.EqualityUtil;
 	import inky.framework.utils.IEquatable;
 	import flash.display.Bitmap;
@@ -34,6 +36,7 @@
 		public function GalleryGroupModel()
 		{
 			this._items = new ArrayList();
+			this._items.addEventListener(CollectionEvent.COLLECTION_CHANGE, this._collectionChangeHandler);
 		}
 
 
@@ -98,6 +101,53 @@
 			}
 		}
 
+
+		/**
+		 *
+		 */
+		private function _collectionChangeHandler(e:CollectionEvent):void
+		{
+			var item:Object;
+			switch (e.kind)
+			{
+				case CollectionEventKind.ADD:
+				{
+					for each (item in e.items)
+					{
+						item.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, this._itemPropertyChangeHandler);
+					}
+					break;
+				}
+				case CollectionEventKind.REMOVE:
+				{
+					for each (item in e.items)
+					{
+						item.removeEventListener(PropertyChangeEvent.PROPERTY_CHANGE, this._itemPropertyChangeHandler);
+						break;
+					}
+				}
+			}
+		}
+
+
+		/**
+		 *
+		 */
+		private function _itemPropertyChangeHandler(e:PropertyChangeEvent):void
+		{
+			if (e.newValue && (e.property == "selected"))
+			{
+				for (var i:IIterator = this.items.iterator(); i.hasNext(); )
+				{
+					var item:Object = i.next();
+					var selected:Boolean = item == e.currentTarget;
+					if (selected != item.selected)
+					{
+						item.selected = selected;
+					}
+				}
+			}
+		}
 
 
 
