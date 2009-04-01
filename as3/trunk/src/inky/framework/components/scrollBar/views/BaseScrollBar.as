@@ -37,6 +37,7 @@
 		private var _lineScrollSize:Number;
 		private var _maxScrollPosition:Number;
 		private var _minScrollPosition:Number;
+		private var _minThumbSize:Number;
 		private var _originalThumbPosition:Point;
 		private var _pageScrollSize:Number;	
 		private var _pageSize:Number;
@@ -76,6 +77,7 @@
 	
 			this._minScrollPosition = 0;
 			this._maxScrollPosition = 0;
+			this._minThumbSize = 10;
 			this._scrollPosition = 0;
 
 			this.direction = ScrollBarDirection.VERTICAL;
@@ -270,6 +272,24 @@
 		{
 			this._maxScrollPosition = Math.max(this.minScrollPosition || 0, maxScrollPosition);
 			this._update();
+		}
+
+
+		/**
+		 *
+		 *
+		 *
+		 */
+		public function get minThumbSize():Number
+		{
+			return this._minThumbSize;
+		}
+		/**
+		 * @private
+		 */
+		public function set minThumbSize(value:Number):void
+		{
+			this._minThumbSize = value;
 		}
 
 
@@ -617,7 +637,8 @@
 					// sizes of rotated DisplayObjects in Flash. See
 					// <http://www.gskinner.com/blog/archives/2007/08/annoying_as3_bu.html>
 					var prop:String = this.__thumb.rotation % 180 ? this._xOrY == 'x' ? 'scaleY' : 'scaleX' : 'scale' + this._xOrY.toUpperCase();
-					this.__thumb[prop] = this.__track.getRect(this)[this._widthOrHeight] * this.pageSize / (this.pageSize + this.maxScrollPosition - this.minScrollPosition) / this.__thumb[this._widthOrHeight];
+					var size:Number = Math.max(this.minThumbSize, this.__track.getRect(this)[this._widthOrHeight] * this.pageSize / (this.pageSize + this.maxScrollPosition - this.minScrollPosition));
+					this.__thumb[prop] = size / this.__thumb[this._widthOrHeight];
 				}
 			}
 
