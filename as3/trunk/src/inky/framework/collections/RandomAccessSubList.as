@@ -1,11 +1,14 @@
-package inky.framework.collections
+﻿package inky.framework.collections
 {
 	import inky.framework.collections.ICollection;
 	import inky.framework.collections.IIterator;
 	import inky.framework.collections.IList;
 	import inky.framework.collections.IListIterator;
 	import inky.framework.collections.ListIterator;
+	import inky.framework.collections.events.CollectionEvent;
+	import inky.framework.collections.events.CollectionEventKind;
 	import inky.framework.utils.EqualityUtil;
+	import flash.events.EventDispatcher;
 
 
 	/**
@@ -16,13 +19,12 @@ package inky.framework.collections
 	 * @version    2008.06.21
 	 *
 	 */
-	public class RandomAccessSubList implements IList
+	public class RandomAccessSubList extends EventDispatcher implements IList
 	{
 		private var _fromIndex:uint;
 		private var _list:IList;
 		private var _toIndex:uint;
-
-
+// FIXME: Event locations aren't correct.
 
 
  	 	/**
@@ -76,6 +78,7 @@ package inky.framework.collections
 		{
 			this._list.addItemAt(item, index + this._fromIndex);
 			this._toIndex++;
+			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.ADD, -1, -1, [item]));
 		}
 
 
@@ -86,6 +89,7 @@ package inky.framework.collections
 		{
 			this._list.addItemsAt(collection, index + this._fromIndex);
 			this._toIndex += collection.length;
+			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.ADD, -1, -1, collection.toArray()));
 		}
 
 
@@ -174,6 +178,15 @@ package inky.framework.collections
 		/**
 		 * @inheritDoc
 		 */
+		public function getSubList(fromIndex:uint, toIndex:uint):IList
+		{
+			return new RandomAccessSubList(this, fromIndex, toIndex);
+		}
+
+
+		/**
+		 * @inheritDoc
+		 */
 		public function isEmpty():Boolean
 		{
 			return this.length == 0;
@@ -203,10 +216,12 @@ package inky.framework.collections
 		 */
 		public function removeAll():void
 		{
+			var removedItems:Array = this.toArray();
 			while (this.length > 0)
 			{
-				this.removeItemAt(0);
+				this._removeItemAt(0);
 			}
+			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.REMOVE, -1, -1, removedItems));
 		}
 
 
@@ -215,7 +230,9 @@ package inky.framework.collections
 		 */
 		public function removeItem(item:Object):Object
 		{
-			return this.removeItemAt(this.getItemIndex(item));
+			var removedItem:Object = this._removeItemAt(this.getItemIndex(item));
+			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.REMOVE, -1, -1, [removedItem]));
+			return removedItem;
 		}
 
 
@@ -224,8 +241,9 @@ package inky.framework.collections
 		 */
 		public function removeItemAt(index:uint):Object
 		{
-			this._toIndex--;
-			return this._list.removeItemAt(index + this._fromIndex);
+			var removedItem:Object = this._removeItemAt(index);
+			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.REMOVE, -1, -1, [removedItem]));
+			return removedItem;
 		}
 
 
@@ -236,8 +254,9 @@ package inky.framework.collections
 		{
 			for (var i:IIterator = collection.iterator(); i.hasNext(); )
 			{
-				this.removeItem(i.next());
+				this._removeItemAt(this.getItemIndex(i.next()));
 			}
+			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.REMOVE, -1, -1, collection.toArray()));			
 		}
 
 
@@ -246,6 +265,7 @@ package inky.framework.collections
 		 */
 		public function replaceItemAt(newItem:Object, index:uint):Object
 		{
+// FIXME: Dispatch events
 			this._toIndex--;
 			return this._list.replaceItemAt(newItem, index + this._fromIndex);
 		}
@@ -256,6 +276,7 @@ package inky.framework.collections
 		 */
 		public function retainItems(collection:ICollection):void
 		{
+// FIXME: Dispatch events
 			for (var i:IIterator = this.iterator(); i.hasNext(); )
 			{
 				if (!collection.containsItem(i.next()))
@@ -264,15 +285,6 @@ package inky.framework.collections
 				}
 			}
 		}
-
-		
-		/**
-		 * @inheritDoc
-		 */
-		public function subList(fromIndex:uint, toIndex:uint):IList
-		{
-			return new RandomAccessSubList(this, fromIndex, toIndex);
-		} 
 		
 		
 		/**
@@ -287,7 +299,7 @@ package inky.framework.collections
 		/**
 		 * @inheritDoc
 		 */
-		public function toString():String
+		override public function toString():String
 		{
 			return '[' + this.toArray().toString() + ']';
 		}	
@@ -319,6 +331,17 @@ package inky.framework.collections
 			}
 
 			return index;
+		}
+
+		
+		/**
+		 *
+		 *	
+		 */
+		private function _removeItemAt(index:int):Object
+		{
+			this._toIndex--;
+			return this._list.removeItemAt(index + this._fromIndex);
 		}
 
 

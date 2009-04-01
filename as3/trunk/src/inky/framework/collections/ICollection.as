@@ -2,6 +2,7 @@ package inky.framework.collections
 {
 	import inky.framework.collections.IIterable;
 	import inky.framework.utils.IEquatable;
+	import flash.events.IEventDispatcher;
 
 
 	/**
@@ -15,7 +16,7 @@ package inky.framework.collections
 	 * @since  2008.06.21
 	 *
 	 */
-    public interface ICollection extends IEquatable, IIterable
+    public interface ICollection extends IEquatable, IIterable, IEventDispatcher
     {
 
 

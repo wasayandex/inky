@@ -119,7 +119,52 @@ package inky.framework.collections
 		 *
 		 */
 		function getItemIndex(item:Object):int;
-		
+
+
+		/**
+		 *
+		 * <p>Returns a view of the portion of this list between the specified
+		 * fromIndex, inclusive, and toIndex, exclusive. (If fromIndex and
+		 * toIndex are equal, the returned list is empty.) The returned list is
+		 * backed by this list, so non-structural changes in the returned list
+		 * are reflected in this list, and vice-versa. The returned list
+		 * supports all of the optional list operations supported by this list.
+		 * </p>
+		 * 		 
+		 * <p>This method eliminates the need for explicit range operations (of
+		 * the sort that commonly exist for arrays). Any operation that expects
+		 * a list can be used as a range operation by passing a subList view
+		 * instead of a whole list. For example, the following idiom removes a
+		 * range of elements from a list:</p>
+		 * 
+		 * <listing>
+		 * list.getSubList(from, to).clear();
+		 * </listing>
+		 * 
+		 * <p>Similar idioms may be constructed for indexOf and lastIndexOf, and
+		 * all of the algorithms in the Collections class can be applied to a
+		 * subList.</p>
+		 * 
+		 * <p>The semantics of the list returned by this method become undefined
+		 * if the backing list (i.e., this list) is structurally modified in any
+		 * way other than via the returned list. (Structural modifications are
+		 * those that change the size of this list, or otherwise perturb it in
+		 * such a fashion that iterations in progress may yield incorrect
+		 * results.)</p>
+		 * 
+		 * @param fromIndex
+		 *     low endpoint (inclusive) of the subList.
+		 * @param toIndex
+		 *     high endpoint (exclusive) of the subList.
+		 * @return
+		 *     a view of the specified range within this list.
+		 * @throws RangeError
+		 *     for an illegal endpoint index value (toIndex > length ||
+		 *     fromIndex > toIndex).		 		 		 		 		 		 		 		 		  
+		 *		 
+		 */
+		function getSubList(fromIndex:uint, toIndex:uint):IList
+
 		
 		/**
 		 *
@@ -181,54 +226,9 @@ package inky.framework.collections
 		 *
 		 */
 		function replaceItemAt(newItem:Object, index:uint):Object;
+
 		
 		
-		/**
-		 *
-		 * <p>Returns a view of the portion of this list between the specified
-		 * fromIndex, inclusive, and toIndex, exclusive. (If fromIndex and
-		 * toIndex are equal, the returned list is empty.) The returned list is
-		 * backed by this list, so non-structural changes in the returned list
-		 * are reflected in this list, and vice-versa. The returned list
-		 * supports all of the optional list operations supported by this list.
-		 * </p>
-		 * 		 
-		 * <p>This method eliminates the need for explicit range operations (of
-		 * the sort that commonly exist for arrays). Any operation that expects
-		 * a list can be used as a range operation by passing a subList view
-		 * instead of a whole list. For example, the following idiom removes a
-		 * range of elements from a list:</p>
-		 * 
-		 * <listing>
-		 * list.subList(from, to).clear();
-		 * </listing>
-		 * 
-		 * <p>Similar idioms may be constructed for indexOf and lastIndexOf, and
-		 * all of the algorithms in the Collections class can be applied to a
-		 * subList.</p>
-		 * 
-		 * <p>The semantics of the list returned by this method become undefined
-		 * if the backing list (i.e., this list) is structurally modified in any
-		 * way other than via the returned list. (Structural modifications are
-		 * those that change the size of this list, or otherwise perturb it in
-		 * such a fashion that iterations in progress may yield incorrect
-		 * results.)</p>
-		 * 
-		 * @param fromIndex
-		 *     low endpoint (inclusive) of the subList.
-		 * @param toIndex
-		 *     high endpoint (exclusive) of the subList.
-		 * @return
-		 *     a view of the specified range within this list.
-		 * @throws RangeError
-		 *     for an illegal endpoint index value (toIndex > length ||
-		 *     fromIndex > toIndex).		 		 		 		 		 		 		 		 		  
-		 *		 
-		 */
-		function subList(fromIndex:uint, toIndex:uint):IList 
-
-
-
 
     }
 }

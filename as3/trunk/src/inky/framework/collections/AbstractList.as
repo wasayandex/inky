@@ -6,6 +6,8 @@
 	import inky.framework.collections.IListIterator;
 	import inky.framework.collections.ListIterator;
 	import inky.framework.collections.RandomAccessSubList;
+	import inky.framework.collections.events.CollectionEvent;
+	import inky.framework.collections.events.CollectionEventKind;
 	import inky.framework.utils.EqualityUtil;
 	import flash.events.EventDispatcher;
 
@@ -22,6 +24,7 @@
 	{
 // TODO: Throw errors on concurrent modifications. (Esp. where subLists are concerned)
 // TODO: Protect from instantiation?
+// FIXME: Event locations aren't correct.
 		private var _list:Array;
 
 
@@ -67,6 +70,7 @@
 		public function addItem(item:Object):void
 		{
 			this._list.push(item);
+			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.ADD, -1, -1, [item]));
 		}
 
 		/**
@@ -79,6 +83,7 @@
 				throw new RangeError("The supplied index (" + index + ") is out of bounds.");
 			}
 			this._list.splice(index, 0, item);
+			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.ADD, -1, -1, [item]));
 		}
 
 
@@ -87,10 +92,13 @@
 		 */
 		public function addItemsAt(collection:ICollection, index:uint):void
 		{
+			var p:int = index;
 			for (var i:IIterator = collection.iterator(); i.hasNext(); )
 			{
-				this._list.splice(index, i, i.next());
+				this._list.splice(p, i, i.next());
+				p++;
 			}
+			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.ADD, -1, -1, collection.toArray()));
 		}
 
 
@@ -100,10 +108,12 @@
 		public function addItems(collection:ICollection):void
 		{
 // TODO: check for null value
+			var index:int = this.length;
 			for (var i:IIterator = collection.iterator(); i.hasNext(); )
 			{
 				this._list.push(i.next());
 			}
+			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.ADD, -1, -1, collection.toArray()));
 		}
 
 
@@ -206,6 +216,15 @@
 		/**
 		 * @inheritDoc
 		 */
+		public function getSubList(fromIndex:uint, toIndex:uint):IList
+		{
+			return new RandomAccessSubList(this, fromIndex, toIndex);
+		}
+
+
+		/**
+		 * @inheritDoc
+		 */
 		public function isEmpty():Boolean
 		{
 			return this._list.length == 0;
@@ -235,7 +254,9 @@
 		 */
 		public function removeAll():void
 		{
+			var removedItems:Array = this.toArray();
 			this._list = [];
+			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.REMOVE, -1, -1, removedItems));
 		}
 
 
@@ -244,7 +265,9 @@
 		 */
 		public function removeItem(item:Object):Object
 		{
-			return this._removeItem(item);
+			var index:int = this.getItemIndex(item);
+			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.REMOVE, -1, -1, [item]));
+			return item;
 		}
 
 
@@ -255,6 +278,7 @@
 		{
 			var item:Object = this._list[index];
 			this._list.splice(index, 1);
+			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.REMOVE, -1, -1, [item]));
 			return item;
 		}
 
@@ -268,6 +292,7 @@
 			{
 				this._removeItem(i.next());
 			}
+			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.REMOVE, -1, -1, collection.toArray()));
 		}
 
 
@@ -283,6 +308,7 @@
 			
 			var oldItem:Object = this._list[index];
 			this._list[index] = newItem;
+// FIXME: Dispatch replace event!
 			return oldItem;
 		}
 		
@@ -300,17 +326,9 @@
 					this._list.splice(i--, 1);
 				}
 			}
+// TODO: Dispatch REMOVE (?) event.
 		}
 
-		
-		/**
-		 * @inheritDoc
-		 */
-		public function subList(fromIndex:uint, toIndex:uint):IList
-		{
-			return new RandomAccessSubList(this, fromIndex, toIndex);
-		} 
-		
 		
 		/**
 		 * @inheritDoc
