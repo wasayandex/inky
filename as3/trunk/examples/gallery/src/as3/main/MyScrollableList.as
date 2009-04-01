@@ -18,7 +18,7 @@
 
 		public function MyScrollableList()
 		{
-//			this.spacing = 10;
+			this.spacing = 10;
 		}
 
 
@@ -45,7 +45,7 @@ trace('..........' + this.maxHorizontalScrollPosition)*/
 		override protected function moveContent(x:Number, y:Number):void
 		{
 			var contentContainer:DisplayObjectContainer = this.getContentContainer();
-			Tweener.addTween(contentContainer, {x: x, y: y, time: 3, onUpdate: this.updateContent});
+			Tweener.addTween(contentContainer, {x: x, y: y, time: 3, onUpdate: this.invalidate});
 		}
 
 
