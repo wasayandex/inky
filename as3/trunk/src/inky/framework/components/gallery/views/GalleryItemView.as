@@ -208,7 +208,7 @@
 		 */
 		protected function clearContainer():void
 		{
-			while (this.container.numChildren)
+			while (this.container.numChildren > 1)
 			{
 				this.container.removeChildAt(0);
 			}
@@ -301,32 +301,30 @@
 		{
 			this.__progressBar = IProgressBar(this.getChildByName('_progressBar'));
 			this.__container = DisplayObjectContainer(this.getChildByName('_container'));
+			
 			if (!this.__container)
 			{
+				this.__container = new Sprite();
+
 				var shape:Shape;
 				for (var i:int = 0; i < this.numChildren; i++)
 				{
 					shape = Shape(this.getChildAt(i));
 					if (shape)
-					{
 						break;
-					}
 				}
-				if (!shape)
+				if (shape)
 				{
-					throw new Error('GalleryItemView must have a container or a shape to define the dimensions of the Item.')
+					this.__container.x = shape.x;
+					this.__container.y = shape.y;
+					this.addChildAt(this.__container, this.getChildIndex(shape));
+					this.__container.addChild(shape);
+					shape.x = 0;
+					shape.y = 0;
 				}
-
-				var container:Sprite = new Sprite();
-				container.graphics.beginFill(0x00FF00, 0);
-				container.graphics.drawRect(0, 0, shape.width, shape.height);
-				container.graphics.endFill();
-				container.x = shape.x;
-				container.y = shape.y;
-				this.addChild(container);
-				this.removeChild(shape);
-				this.__container = container;
 			}
+			if (!this.__container.width || !this.__container.height)
+				throw new Error('GalleryItemView must have a shape to define the dimensions of the item container.')
 		}
 		
 
