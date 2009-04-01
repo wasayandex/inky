@@ -39,13 +39,16 @@ trace('..........' + this.maxHorizontalScrollPosition)*/
 
 
 
+
+
+
 		/**
 		 *
 		 */
 		override protected function moveContent(x:Number, y:Number):void
 		{
 			var contentContainer:DisplayObjectContainer = this.getContentContainer();
-			Tweener.addTween(contentContainer, {x: x, y: y, time: 3, onUpdate: this.invalidate});
+			Tweener.addTween(contentContainer, {x: x, y: y, time: 1, onUpdate: this.invalidate});
 		}
 
 

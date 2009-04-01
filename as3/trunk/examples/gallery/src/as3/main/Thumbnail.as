@@ -1,32 +1,86 @@
 ﻿package
 {
-	import flash.display.*;
-	import flash.text.*;
-	import inky.framework.components.IComponentView;
+	import inky.framework.binding.utils.BindingUtil;
+	import inky.framework.binding.utils.IChangeWatcher;
+	import inky.framework.components.gallery.models.GalleryItemModel;
+	import inky.framework.components.gallery.views.GalleryItemView;
+	import flash.events.MouseEvent;
 
 
-	public class Thumbnail extends Sprite implements IComponentView
+
+
+	public class Thumbnail extends GalleryItemView
 	{
-		private var _model:Object;
-		
+		private var _modelChangeWatchers:Array;
+
 
 		/**
 		 *
-		 *
-		 *
 		 */
-		public function get model():Object
+		public function Thumbnail()
 		{
-			return this._model;
+			this._modelChangeWatchers = [];
+			this.buttonMode = true;
+			this.featureSize = "thumbnail";
+			this.addEventListener(MouseEvent.CLICK, this._clickHandler);
 		}
+
+
+
+
+		//
+		// accessors
+		//
+
+
 		/**
 		 * @private
 		 */
-		public function set model(value:Object):void
+		override public function set model(value:GalleryItemModel):void
 		{
-			this.labelField.text = value.group.items.getItemIndex(value);
-			this._model = value;
+			while (this._modelChangeWatchers.length)
+			{
+				this._modelChangeWatchers.pop().unwatch();
+			}
+
+			if (value)
+			{
+				this._modelChangeWatchers.push(BindingUtil.bindSetter(this._setSelected, value, "selected"));
+			}
+
+			super.model = value;
 		}
-	
+
+
+
+
+		//
+		// private methods
+		//
+
+
+		/**
+		 *
+		 */
+		private function _clickHandler(e:MouseEvent):void
+		{
+			if (this.model)
+			{
+				this.model.selected = true;
+			}
+		}
+
+
+		/**
+		 *
+		 */
+		private function _setSelected(value:Boolean):void
+		{
+			this.getChildByName("selectedIndicator").visible = value;
+		}
+
+
+
+
 	}
 }
