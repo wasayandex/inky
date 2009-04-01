@@ -39,7 +39,6 @@
 		private var __contentContainer:DisplayObjectContainer;
 		private var _firstVisibleItemIndex:int;
 		private var _itemViewClass:Class;
-		private var _isValidating:Boolean;
 		private var _indexes2Items:Object;
 		private var _items2Indexes:Dictionary;
 		private var _model:IList;
@@ -98,8 +97,34 @@
 		 */
 		public function set model(model:IList):void
 		{
-			this._model = model;
-			this._setContent();
+			if (!EqualityUtil.objectsAreEqual(model, this._model))
+			{
+				this._model = model;
+				this._firstVisibleItemIndex = -1;
+				this._unusedItems = {};
+				this._sizeCache = [];
+				this._indexes2Items = {};
+				this._items2Indexes = new Dictionary(true);
+				this._positionCache = [];
+
+				// Determine the number of items that are visible at max scroll position.
+// TODO: Move this to its own function, because it needs to be called when one of the finallyVisibleItem's size changes
+				var mask:DisplayObject = this.getScrollMask();
+				var maskSize:Number = mask[this._widthOrHeight];
+				var numItems:int = 0;
+				var combinedSize:Number = 0;
+				var j:int = this.model.length - 1;
+				while ((j >= 0) && (combinedSize < maskSize))
+				{
+					numItems++;
+					combinedSize += this._getItemSize(j);
+					j--;
+				}
+				this._numItemsFinallyVisible = numItems;
+				this._updateScrollBar();
+				this._clearContent();
+				this.invalidate();	
+			}
 		}
 
 
@@ -151,12 +176,71 @@
 
 		/**
 		 *
+		 *	Invalidates the component, marking it for redrawing before the next frame.
+		 *	
+		 */
+		public function invalidate():void
+		{
+			if (this.stage)
+			{
+				this._invalidate()
+			}
+			else
+			{
+				this.addEventListener(Event.ADDED_TO_STAGE, this._invalidate);
+			}
+		}
+
+
+		/**
+		 *
+		 * Updates the contents of the container based on its position.
+		 *		
+		 */
+		public function redraw():void
+		{
+			var firstVisibleItemIndex:int = this._firstVisibleItemIndex;
+			
+			if (firstVisibleItemIndex == -1)
+			{
+				firstVisibleItemIndex = 0;
+			}
+			else
+			{
+				var mask:DisplayObject = this.getScrollMask();
+				var maskSize:Number = mask[this._widthOrHeight];
+				var maskPosition:Number = mask[this._xOrY];
+				var container:DisplayObjectContainer = this.getContentContainer();
+				var containerPosition:Number = container[this._xOrY];
+
+				if (this._getItemPosition(firstVisibleItemIndex) + this._getItemSize(firstVisibleItemIndex) + containerPosition < maskPosition)
+				{
+					while ((firstVisibleItemIndex< this.model.length) && (this._getItemPosition(firstVisibleItemIndex) + this._getItemSize(firstVisibleItemIndex) + containerPosition < maskPosition))
+					{
+						firstVisibleItemIndex++;
+					}
+				}
+				else
+				{
+					while ((firstVisibleItemIndex > 0) && (this._getItemPosition(firstVisibleItemIndex) + containerPosition > maskPosition))
+					{
+						firstVisibleItemIndex--;
+					}
+				}
+			}
+
+			this._redrawFrom(firstVisibleItemIndex);
+		}
+
+
+		/**
+		 *
 		 */
 		public function scrollTo(index:int):void
 		{
 			if ((index < 0) || (index >= this.model.length))
 			{
-				throw new RangeError();
+				throw new RangeError("The supplied index " + index + " is out of bounds.");
 			}
 
 			var newPos:Object = {x: this.__contentContainer.x, y: this.__contentContainer.y};
@@ -171,7 +255,7 @@
 					// Make sure we don't scroll "past" the content.
 					if (index >= this.model.length - this._numItemsFinallyVisible)
 					{
-		// FIXME: 
+// FIXME: 
 						target = Math.max(target, mask[this._widthOrHeight] - this._getItemPosition(this.model.length - 1) - this._getItemSize(this.model.length - 1));
 					}
 					newPos[this._xOrY] = Math.min(0, target);
@@ -179,7 +263,7 @@
 			}
 
 			this.moveContent(newPos.x, newPos.y);
-			this.updateContent();
+			this.invalidate();
 		}
 
 
@@ -188,15 +272,6 @@
 		 */	
 		override public function update():void
 		{
-			if (model)
-			{
-// TODO: Instead use this.maxHorizontalScrollPosition and horizontalPageSize
-				if (this[this._orientation + "ScrollBar"])
-				{
-					this[this._orientation + "ScrollBar"].maxScrollPosition = this.model.length - this._numItemsFinallyVisible + 1;
-					this[this._orientation + "ScrollBar"].pageSize = this._numItemsFinallyVisible;
-				}
-			}
 		}
 
 
@@ -217,39 +292,6 @@
 			{
 				this.scrollTo(index);
 			}
-		}
-
-
-		/**
-		 *
-		 * Updates the contents of the container based on its position.
-		 *		
-		 */
-		protected function updateContent():void
-		{
-// TODO: Can this be improved?
-			var firstVisibleItemIndex:int = this._firstVisibleItemIndex;
-			var mask:DisplayObject = this.getScrollMask();
-			var maskSize:Number = mask[this._widthOrHeight];
-			var maskPosition:Number = mask[this._xOrY];
-			var container:DisplayObjectContainer = this.getContentContainer();
-			var containerPosition:Number = container[this._xOrY];
-
-			if (this._getItemPosition(firstVisibleItemIndex) + this._getItemSize(firstVisibleItemIndex) + containerPosition < maskPosition)
-			{
-				while ((firstVisibleItemIndex< this.model.length) && (this._getItemPosition(firstVisibleItemIndex) + this._getItemSize(firstVisibleItemIndex) + containerPosition < maskPosition))
-				{
-					firstVisibleItemIndex++;
-				}
-			}
-			else
-			{
-				while ((firstVisibleItemIndex > 0) && (this._getItemPosition(firstVisibleItemIndex) + containerPosition > maskPosition))
-				{
-					firstVisibleItemIndex--;
-				}
-			}
-			this._updateContent(firstVisibleItemIndex);
 		}
 
 
@@ -316,7 +358,6 @@
 		 */
 		private function _getItemPosition(index:int):Number
 		{
-//!return index * 10;
 			var position:Number = this._positionCache[index];
 
 			if (isNaN(position))
@@ -353,8 +394,7 @@
 		 */
 		private function _getItemSize(index:int):Number
 		{
-//			var size:Number = NaN;//this._sizeCache[index];
-var size:Number = this._sizeCache[index];
+			var size:Number = this._sizeCache[index];
 			if (isNaN(size))
 			{
 				var item:Object = this._getItemFor(index);
@@ -372,6 +412,8 @@ var size:Number = this._sizeCache[index];
 
 		/**
 		 *
+		 *	Called by the constructor.
+		 *	
 		 */
 		private function _init():void
 		{
@@ -397,8 +439,19 @@ var size:Number = this._sizeCache[index];
 			}
 
 			this.__contentContainer = this.getContentContainer();
-			this.__contentContainer.addEventListener(LayoutEvent.INVALIDATE, this._invalidateHandler);
+			this.__contentContainer.addEventListener(LayoutEvent.INVALIDATE, this._itemInvalidatedHandler);
 			this[this._orientation + 'LineScrollSize'] = 1;
+		}
+
+
+		/**
+		 *
+		 *	
+		 */
+		private function _invalidate(e:Event = null):void
+		{
+			this.stage.addEventListener(Event.RENDER, this._redraw, false, 0, true);
+			this.stage.invalidate();
 		}
 
 
@@ -408,7 +461,7 @@ var size:Number = this._sizeCache[index];
 		private function _invalidateAllPositions():void
 		{
 			this._positionCache = [];
-			this._redraw();
+			this.invalidate();
 		}
 
 
@@ -416,7 +469,7 @@ var size:Number = this._sizeCache[index];
 		 *
 		 *	
 		 */
-		private function _invalidateHandler(e:LayoutEvent):void
+		private function _itemInvalidatedHandler(e:LayoutEvent):void
 		{
 			if (e.target.parent == this.__contentContainer)
 			{
@@ -467,7 +520,7 @@ var size:Number = this._sizeCache[index];
 			}
 			
 			delete this._sizeCache[index];
-			this._redraw();
+			this.invalidate();
 		}
 
 
@@ -486,88 +539,24 @@ var size:Number = this._sizeCache[index];
 		/**
 		 *
 		 */
-		private function _redraw():void
+		private function _redraw(e:Event):void
 		{
-			this._updateContent(this._firstVisibleItemIndex);
-		}
-
-
-		/**
-		 *
-		 *	
-		 */
-		private function _setContent():void
-		{
-			this._isValidating = false;
-			this._firstVisibleItemIndex = -1;
-			this._unusedItems = {};
-			this._sizeCache = [];
-			this._indexes2Items = {};
-			this._items2Indexes = new Dictionary(true);
-			this._positionCache = [];
-			
-			// Determine the number of items that are visible at max scroll position.
-			var mask:DisplayObject = this.getScrollMask();
-			var maskSize:Number = mask[this._widthOrHeight];
-			var numItems:int = 0;
-			var combinedSize:Number = 0;
-			var j:int = this.model.length - 1;
-			while (combinedSize < maskSize)
+			if (e)
 			{
-				numItems++;
-				combinedSize += this._getItemSize(j);
-				j--;
-			}
-			this._numItemsFinallyVisible = numItems;
-
-			this.addEventListener(Event.ENTER_FRAME, this._setContentNow);			
-		}
-		
-
-		/**
-		 *
-		 */
-		private function _setContentNow(e:Event):void
-		{
-			e.currentTarget.removeEventListener(e.type, arguments.callee);
-			this._clearContent();
-
-			if (this._model == null) return;
-			if (this._itemViewClass == null)
-			{
-				throw new Error("itemViewClass is not set!");
+				e.currentTarget.removeEventListener(e.type, arguments.callee);
 			}
 
-			this._updateContent(0);
-			this.update();
+			this.redraw()
 		}
 
 
 		/**
 		 *
+		 *	A helper method for redraw(). Do not call this method directly.
 		 *	
 		 */
-		private function _updateContent(startIndex:int):void
+		private function _redrawFrom(startIndex:int):void
 		{
-			if (this._isValidating) return;
-			this._isValidating = true;
-			this.__updateContent(startIndex);
-			this._isValidating = false;
-		}
-
-
-		/**
-		 *
-		 *	
-		 */
-		private function __updateContent(startIndex:int):void
-		{
-			/*if (startIndex == this._firstVisibleItemIndex)
-			{
-				// Already showing the correct units.
-				return;
-			}*/
-
 			var listItem:IComponentView;
 			var index:int = startIndex;
 			var mask:DisplayObject = this.getScrollMask();
@@ -637,11 +626,8 @@ var size:Number = this._sizeCache[index];
 			// Hide the unused items.
 			for each (listItem in this._unusedItems)
 			{
-//				listItem.visible = false;
+				listItem.visible = false;
 			}
-
-			this._updateScrollBars();
-
 		}
 
 
@@ -651,10 +637,18 @@ var size:Number = this._sizeCache[index];
 		 * of the items in the list and the scroll policy.
 		 *	
 		 */
-		private function _updateScrollBars():void
+		private function _updateScrollBar():void
 		{
+			if (model)
+			{
+// TODO: Instead use this.maxHorizontalScrollPosition and horizontalPageSize
+				if (this[this._orientation + "ScrollBar"])
+				{
+					this[this._orientation + "ScrollBar"].maxScrollPosition = this.model.length - this._numItemsFinallyVisible + 1;
+					this[this._orientation + "ScrollBar"].pageSize = this._numItemsFinallyVisible;
+				}
+			}
 		/*
-		// FIXME: this needs to be based on what the height would be with all the elements, not what it is!
 			var contentSize:Number = listItem[this._xOrY] + listItem[this._widthOrHeight];
 			this[this._orientation + "ScrollBar"].enabled = this.__contentContainer[this._widthOrHeight] > mask[this._widthOrHeight];
 
