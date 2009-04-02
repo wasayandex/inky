@@ -233,15 +233,16 @@
 
 
 		/**
-		 *
+		 * @inheritDoc
 		 */
-		public function scrollTo(index:int):void
+		public function showItemAt(index:int):void
 		{
 			if ((index < 0) || (index >= this.model.length))
 			{
 				throw new RangeError("The supplied index " + index + " is out of bounds.");
 			}
 
+			this._setScrollPosition(index);
 			var newPos:Object = {x: this.__contentContainer.x, y: this.__contentContainer.y};
 			var mask:DisplayObject = this.getScrollMask();
 
@@ -286,10 +287,10 @@
 		 */
 		override protected function scrollHandler(e:ScrollEvent):void
 		{
-			var index:Number = Math.round(this[this._orientation + "ScrollPosition"]);
+			var index:Number = Math.round(this._getScrollPosition());
 			if (!isNaN(index))
 			{
-				this.scrollTo(index);
+				this.showItemAt(index);
 			}
 		}
 
@@ -406,6 +407,15 @@
 			}
 
 			return size;
+		}
+
+
+		/**
+		 *
+		 */
+		private function _getScrollPosition():Number
+		{
+			return this[this._orientation + "ScrollPosition"];
 		}
 
 
@@ -627,6 +637,17 @@
 			{
 				listItem.visible = false;
 			}
+		}
+
+
+		/**
+		 *
+		 *	
+		 */
+		private function _setScrollPosition(index:int):void
+		{
+			var capProp:String = this._orientation == "horizontal" ? "Horizontal" : "Vertical";
+			this[this._orientation + "ScrollPosition"] = Math.min(index, this["max" + capProp + "ScrollPosition"]);
 		}
 
 

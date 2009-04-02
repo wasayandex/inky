@@ -57,7 +57,7 @@ this.addEventListener(MouseEvent.CLICK, this._clickHandler);
 
 private function _clickHandler(e:MouseEvent):void
 {
-	this.model.selectItemAt((this.model.selectedItemIndex + 1) % this.model.selectedGroupData.items.length);
+	this.model.selectItemAt((this.model.selectedItemIndex + 1) % this.model.selectedGroupModel.items.length);
 }
 
 

@@ -327,7 +327,8 @@
 			this._updateThumb();
 
 			// Dispatch a ScrollEvent.
-			this._dispatchScrollEvent(oldScrollPosition);
+			if (oldScrollPosition != scrollPosition)
+				this._dispatchScrollEvent(oldScrollPosition);
 		}
 		
 

@@ -31,10 +31,10 @@
 		BindingUtil.setPropertyBindingEvents(GalleryModel, 'selectedItemIndex', [GalleryEvent.SELECTED_ITEM_CHANGE]);
 		BindingUtil.setPropertyBindingEvents(GalleryModel, 'selectedGroupName', [GalleryEvent.SELECTED_GROUP_CHANGE]);
 		BindingUtil.setPropertyBindingEvents(GalleryModel, 'selectedItemModel', [GalleryEvent.SELECTED_ITEM_CHANGE]);
-		BindingUtil.setPropertyBindingEvents(GalleryModel, 'selectedGroupData', [GalleryEvent.SELECTED_GROUP_CHANGE]);
+		BindingUtil.setPropertyBindingEvents(GalleryModel, 'selectedGroupModel', [GalleryEvent.SELECTED_GROUP_CHANGE]);
 
 
-		private var _selectedGroupData:GalleryGroupModel;
+		private var _selectedGroupModel:GalleryGroupModel;
 		private var _selectedItemModel:GalleryItemModel;
 		private var _groups:IMap;
 		private var _name:String;
@@ -89,7 +89,7 @@
 		 */
 		public function get selectedGroupName():String
 		{
-			return this._selectedGroupData ? this._selectedGroupData.name : null;
+			return this._selectedGroupModel ? this._selectedGroupModel.name : null;
 		}
 
 
@@ -97,9 +97,9 @@
 		 *
 		 *	
 		 */
-		public function get selectedGroupData():GalleryGroupModel
+		public function get selectedGroupModel():GalleryGroupModel
 		{
-			return this._selectedGroupData;
+			return this._selectedGroupModel;
 		}
 
 
@@ -144,15 +144,17 @@ if (name == null)
 			else if (this.selectedGroupName != name)
 			{
 				var newData:GalleryGroupModel = this._groups.getItemByKey(name) as GalleryGroupModel;
-				if (!newData.equals(this.selectedGroupData))
+				if (!newData.equals(this.selectedGroupModel))
 				{
-					var oldData:GalleryGroupModel = this._selectedGroupData;
-					this._selectedGroupData = newData;
+					var oldData:GalleryGroupModel = this._selectedGroupModel;
+					this._selectedGroupModel = newData;
 					if (oldData)
 					{
 						oldData.selected = false;
+						oldData.removeEventListener(GalleryEvent.SELECTED_ITEM_CHANGE, this._groupSelectedItemChangeHandler);
 					}
 					newData.selected = true;
+					newData.addEventListener(GalleryEvent.SELECTED_ITEM_CHANGE, this._groupSelectedItemChangeHandler, false, 0, true);
 					this.dispatchEvent(new GalleryEvent(GalleryEvent.SELECTED_GROUP_CHANGE));
 				}
 			}
@@ -164,19 +166,19 @@ if (name == null)
 		 */
 		public function selectItemAt(index:uint):void
 		{
-			if (!this._groups || !this._selectedGroupData)
+			if (!this._groups || !this._selectedGroupModel)
 			{
 				throw new ArgumentError("You cannot select an item unless you've first selected a group");
 			}
 			else
 			{
-				if (index < -1 || index >= this.selectedGroupData.items.length)
+				if (index < -1 || index >= this.selectedGroupModel.items.length)
 				{
 					throw new RangeError("Index " + index + " out of bounds.");
 				}
 				else
 				{
-					var newData:GalleryItemModel = this.selectedGroupData.items.getItemAt(index) as GalleryItemModel;
+					var newData:GalleryItemModel = this.selectedGroupModel.items.getItemAt(index) as GalleryItemModel;
 					if (!newData.equals(this.selectedItemModel))
 					{
 						var oldData:GalleryItemModel = this.selectedItemModel;
@@ -190,6 +192,15 @@ if (name == null)
 					}
 				}
 			}
+		}
+
+
+
+
+		private function _groupSelectedItemChangeHandler(e:GalleryEvent):void
+		{
+			this.selectItemAt(this._selectedGroupModel.items.getItemIndex(e.currentTarget.selectedItemModel));
+//			this.dispatchEvent(new GalleryEvent(GalleryEvent.SELECTED_ITEM_CHANGE));
 		}
 
 

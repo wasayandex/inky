@@ -19,7 +19,7 @@
 	 * @version    2008.06.21
 	 *
 	 */
-	public class RandomAccessSubList extends EventDispatcher implements IList
+	public class RandomAccessSubList extends EventDispatcher implements ISearchableList
 	{
 		private var _fromIndex:uint;
 		private var _list:IList;
@@ -155,8 +155,27 @@
 			}
 			return isEqual;
 		}
-		
-		
+
+
+		/**
+		 *	@inheritDoc
+		 */
+		public function find(restrictions:Object):ICollection
+		{
+			return this._find(restrictions);
+		}
+
+
+		/**
+		 *	@inheritDoc
+		 */
+		public function findFirst(restrictions:Object):Object
+		{
+			var list:ArrayList = this._find(restrictions, true) as ArrayList;
+			return list.length > 0 ? list.getItemAt(0) : null;
+		}
+
+
 		/**
 		 * @inheritDoc
 		 */
@@ -310,6 +329,56 @@
 		//
 		// private methods
 		//
+
+
+		/**
+		 *	
+		 *	
+		 *	
+		 */
+		private function _find(restrictions:Object, stopOnFirstMatch:Boolean = false):ICollection
+		{
+// TODO: This is copy and pasted from AbstractList. Centralize it!
+			var result:ArrayList = new ArrayList();
+			var testValue:Object;
+
+			for (var i:IIterator = this.iterator(); i.hasNext();)
+			{
+				var addToList:Boolean = true;
+				var testObject:Object = Object(i.next());
+				for (var prop:String in restrictions)
+				{
+					testValue = restrictions[prop];
+					if (testValue is Function)
+					{
+						addToList = testValue(testObject[prop]);
+					}
+					else if (testValue is RegExp && testObject[prop] is String)
+					{
+						addToList = testValue.test(testObject[prop]);
+					}
+					else
+					{
+						addToList = EqualityUtil.objectsAreEqual(testValue, testObject[prop]);
+					}
+					
+					if (!addToList)
+					{
+						break;
+					}
+				}
+
+				if (addToList)
+				{
+					result.addItem(testObject);
+					if (stopOnFirstMatch)
+					{
+						break;
+					}
+				}
+			}
+			return result;
+		}
 
 
 		/**

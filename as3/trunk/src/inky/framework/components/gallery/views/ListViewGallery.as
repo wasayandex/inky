@@ -70,9 +70,15 @@
 			{
 				throw new Error("galleryItemViewClass is not set!");
 			}
-			this._listView.model = this.model.selectedGroupData.items;
+			this._listView.model = this.model.selectedGroupModel.items;
 		}
 
+
+		override protected function selectedItemChangeHandler():void
+		{
+			this._listView.showItemAt(this.model.selectedItemIndex);
+			super.selectedItemChangeHandler();
+		}
 
 
 /*		override protected function selectedItemChangeHandler():void

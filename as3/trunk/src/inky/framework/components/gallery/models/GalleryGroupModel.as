@@ -4,6 +4,7 @@
 	import inky.framework.collections.*;
 	import inky.framework.collections.events.CollectionEvent;
 	import inky.framework.collections.events.CollectionEventKind;
+	import inky.framework.components.gallery.events.GalleryEvent;
 	import inky.framework.utils.EqualityUtil;
 	import inky.framework.utils.IEquatable;
 	import flash.display.Bitmap;
@@ -32,6 +33,7 @@
 		private var _name:String;
 		private var _items:ISearchableList;
 		private var _selected:Boolean;
+		private var _selectedItem:Object;
 
 		public function GalleryGroupModel()
 		{
@@ -68,6 +70,20 @@
 		}
 
 
+		public function get selectedItemModel():Object
+		{
+			var selectedItemModel:Object;
+			for (var i:IIterator = this.items.iterator(); i.hasNext(); )
+			{
+				var item:Object = i.next();
+				if (item.selected)
+				{
+					selectedItemModel = item;
+					break;
+				}
+			}
+			return selectedItemModel;
+		}
 
 
 
@@ -114,7 +130,7 @@
 				{
 					for each (item in e.items)
 					{
-						item.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, this._itemPropertyChangeHandler);
+						item.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, this._itemPropertyChangeHandler, false, 0, true);
 					}
 					break;
 				}
@@ -137,14 +153,33 @@
 		{
 			if (e.newValue && (e.property == "selected"))
 			{
+				var selectedItem:Object;
 				for (var i:IIterator = this.items.iterator(); i.hasNext(); )
 				{
 					var item:Object = i.next();
+					if (item == e.currentTarget)
+					{
+						if (!item.selected)
+						{
+							item.selected = true;
+						}
+						selectedItem = item;
+					}
+					else if (item.selected)
+					{
+						item.selected = false;
+					}
 					var selected:Boolean = item == e.currentTarget;
 					if (selected != item.selected)
 					{
 						item.selected = selected;
 					}
+				}
+
+				if (!EqualityUtil.objectsAreEqual(selectedItem, this._selectedItem))
+				{
+					this._selectedItem = selectedItem;
+					this.dispatchEvent(new GalleryEvent(GalleryEvent.SELECTED_ITEM_CHANGE));
 				}
 			}
 		}
