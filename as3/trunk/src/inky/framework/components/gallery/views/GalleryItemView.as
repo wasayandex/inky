@@ -210,10 +210,10 @@
 		 */
 		protected function clearContainer():void
 		{
-			/*while (this.container.numChildren > 1)
+			while (this.container.numChildren > 1)
 			{
 				this.container.removeChildAt(this.numChildren - 1);
-			}*/
+			}
 		}
 		
 		
