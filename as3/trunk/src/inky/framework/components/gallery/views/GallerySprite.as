@@ -1,4 +1,4 @@
-package inky.framework.components.gallery.views
+﻿package inky.framework.components.gallery.views
 {
 	import inky.framework.components.gallery.*;
 	import inky.framework.components.gallery.models.*;
@@ -7,10 +7,12 @@ package inky.framework.components.gallery.views
 	import flash.display.*;
 	import flash.events.MouseEvent;
 	import flash.events.Event;
+	import flash.events.KeyboardEvent;
 	import flash.filters.BlurFilter;
 	import flash.filters.BitmapFilterQuality;
 	import flash.geom.*;
 	import flash.net.URLRequest;
+	import flash.ui.Keyboard;
 
 
 	/**
@@ -30,11 +32,36 @@ package inky.framework.components.gallery.views
 	{
 		private var _loadManager:IGalleryLoadManager;
 		private var _model:GalleryModel;
+		private var _keyboardNavigationEnabled:Boolean;
+
+
+		public function GallerySprite()
+		{
+			this._init();
+		}
+
+
+		private function _init():void
+		{
+			var nextItemButton:Sprite = this.getChildByName("_nextItemButton") as Sprite;
+			if (nextItemButton)
+				nextItemButton.addEventListener(MouseEvent.CLICK, this._next);
+			var previousItemButton:Sprite = this.getChildByName("_previousItemButton") as Sprite;
+			if (previousItemButton)
+				previousItemButton.addEventListener(MouseEvent.CLICK, this._previous);
+		}
 
 
 
-
-
+		private function _next(e:MouseEvent):void
+		{
+			this.next();
+		}
+		
+		private function _previous(e:MouseEvent):void
+		{
+			this.previous();
+		}
 
 
 
@@ -87,6 +114,73 @@ public function set loadManager(value:IGalleryLoadManager):void
 			this._model = model;
 		}
 
+
+
+
+
+		/**
+		 *
+		 */
+		public function get keyboardNavigationEnabled():Boolean
+		{
+			return this._keyboardNavigationEnabled;
+		}
+		/**
+		 * @private
+		 */
+		public function set keyboardNavigationEnabled(value:Boolean):void
+		{
+			this._keyboardNavigationEnabled = value;
+			if (this.stage)
+				this._setKeyboardNavigationEnabled();
+			else
+				this.addEventListener(Event.ADDED_TO_STAGE, this._setKeyboardNavigationEnabled);
+		}
+		
+		
+		
+		private function _setKeyboardNavigationEnabled(e:Event = null):void
+		{
+			if (this._keyboardNavigationEnabled)
+			{
+				this.stage.addEventListener(KeyboardEvent.KEY_DOWN, this._keyDownHandler);
+			}
+			else
+			{
+				this.stage.removeEventListener(KeyboardEvent.KEY_DOWN, this._keyDownHandler);
+			}
+		}
+
+
+
+		private function _keyDownHandler(e:KeyboardEvent):void
+		{
+			switch (e.keyCode)
+			{
+				case Keyboard.RIGHT:
+				{
+					this.next();
+					break;
+				}
+				case Keyboard.LEFT:
+				{
+					this.previous();
+					break;
+				}
+			}
+		}
+
+
+		public function next():void
+		{
+			this.model.selectItemAt((this.model.selectedItemIndex + 1) % this.model.selectedGroupModel.items.length);
+		}
+
+
+		public function previous():void
+		{
+			this.model.selectItemAt((this.model.selectedItemIndex - 1 + this.model.selectedGroupModel.items.length) % this.model.selectedGroupModel.items.length);
+		}
 
 
 

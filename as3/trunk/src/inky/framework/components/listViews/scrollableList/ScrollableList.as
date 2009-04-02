@@ -175,6 +175,16 @@
 
 		/**
 		 *
+		 *	
+		 */
+		public function getItemSize(index:int):Number
+		{
+			return this._getItemSize(index);
+		}
+
+
+		/**
+		 *
 		 *	Invalidates the component, marking it for redrawing before the next frame.
 		 *	
 		 */
@@ -358,31 +368,38 @@
 		 */
 		private function _getItemPosition(index:int):Number
 		{
+var er;
+er = 1;
 			var position:Number = this._positionCache[index];
-
+try {
 			if (isNaN(position))
 			{
+er = 2;
 				// Determine the position
-				if (this._firstVisibleItemIndex == -1)
+				if (index == this._firstVisibleItemIndex)
 				{
-					position = 0;
+er = 3;
+					position = this._indexes2Items[index] ? this._indexes2Items[index][this._xOrY] : 0;
 				}
-				else if (index == this._firstVisibleItemIndex)
+				else if ((index < this._firstVisibleItemIndex) && (index < this.model.length))
 				{
-					position = this._indexes2Items[index].y;
-				}
-				else if (index < this._firstVisibleItemIndex)
-				{
+er = 4;
 					position = this._getItemPosition(index + 1) - this._getItemSize(index) - this._spacing;
 				}
-				else if (index > this._firstVisibleItemIndex)
+				else if ((index > this._firstVisibleItemIndex) && (index > 0))
 				{
+er = 5;
 					position = this._getItemPosition(index - 1) + this._getItemSize(index - 1) + this._spacing;
 				}
-				
+				else
+				{
+er = 6;
+					position = 0;
+				}
+er = 7;
 				this._positionCache[index] = position;
 			}
-
+}catch(f){trace("TELL MATTHEW YOU SAW THIS ERROR NUMBER: " +er)}
 			return position;
 		}
 
@@ -589,16 +606,19 @@
 			while (index < this.model.length)
 			{
 				listItem = this._getItemFor(index);
-				listItem.visible = true;
-				if (listItem.parent != this.__contentContainer)
-				{
-					this.__contentContainer.addChild(listItem as DisplayObject);
-				}
+
 				var model:Object = this.model.getItemAt(index);
 				if (!EqualityUtil.objectsAreEqual(listItem.model, model))
 				{
 					listItem.model = model;
 				}
+
+				if (listItem.parent != this.__contentContainer)
+				{
+					this.__contentContainer.addChild(listItem as DisplayObject);
+				}
+
+				listItem.visible = true;
 
 				// Mark the item as used.
 				delete this._unusedItems[index];

@@ -49,16 +49,9 @@
 					this._itemViews.push(child);
 				}
 			}
-			
-this.addEventListener(MouseEvent.CLICK, this._clickHandler);
 		}
 
 
-
-private function _clickHandler(e:MouseEvent):void
-{
-	this.model.selectItemAt((this.model.selectedItemIndex + 1) % this.model.selectedGroupModel.items.length);
-}
 
 
 		override protected function selectedItemChangeHandler():void
