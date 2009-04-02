@@ -3,6 +3,7 @@
 	import inky.framework.binding.utils.BindingUtil;
 	import inky.framework.components.gallery.*;
 	import inky.framework.components.gallery.parsers.*;
+	import inky.framework.components.gallery.models.GalleryModel;
 	import flash.display.*;
 	import flash.events.Event;
 	import flash.net.*;
@@ -23,18 +24,18 @@
 		
 		private function _loaderCompleteHandler(e:Event):void
 		{
-			var data:XML = new XML(e.currentTarget.data);
-			this.gallery.model = new GalleryDataParser().parse(data);
-			this.thumbnailGallery.model = new ThumbnailGalleryDataParser().parse(data);
+			var model:GalleryModel = new GalleryDataParser().parse(new XML(e.currentTarget.data));
+			this.gallery.model =
+			this.thumbnailGallery.model = model;
 			this.thumbnailGallery.galleryItemViewClass = Thumbnail;
 
 			this.gallery.model.selectGroupByName("amenities");
 			this.gallery.model.selectItemAt(0);
 
-			BindingUtil.bindSetter(this.thumbnailGallery.model.selectGroupByName, this.gallery.model, "selectedGroupName");
+			/*BindingUtil.bindSetter(this.thumbnailGallery.model.selectGroupByName, this.gallery.model, "selectedGroupName");
 			BindingUtil.bindSetter(this.gallery.model.selectGroupByName, this.thumbnailGallery.model, "selectedGroupName");
 			BindingUtil.bindSetter(this.thumbnailGallery.model.selectItemAt, this.gallery.model, "selectedItemIndex");
-			BindingUtil.bindSetter(this.gallery.model.selectItemAt, this.thumbnailGallery.model, "selectedItemIndex");
+			BindingUtil.bindSetter(this.gallery.model.selectItemAt, this.thumbnailGallery.model, "selectedItemIndex");*/
 		}
 
 	
