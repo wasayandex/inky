@@ -139,35 +139,42 @@ package inky.framework.components.mapPane.views
 		//
 		// private functions
 		//
+
+//TODO: Re-Position MapView to account for new scale?		
+private function _zoomInOutHandler(event:MouseEvent):void
+{	
+	if (event.currentTarget is IButton)
+	{
+		if (this._enabledButton) this._enabledButton.enabled = false;
+		this._enabledButton = event.currentTarget as IButton;
+		this._enabledButton.enabled = true;
+	}
+	
+	var time:Number;
+	var xScale:Number;
+	var yScale:Number;
+	var mapView:DisplayObject = this.mapView as DisplayObject;
+	
+	// Check to see which button was pressed and set it's target scale for the tween
+	if (event.currentTarget == this._zoomInButton)
+	{
+		time = ((this.maximumZoom - mapView.scaleX) / this.maximumZoom) * 2;
+		xScale = yScale = this.maximumZoom;	
+	}
+	else if (event.currentTarget == this._zoomOutButton)
+	{
+		time = ((mapView.scaleX - this.minimumZoom) / this.minimumZoom) * 2;
+		xScale = yScale = this.minimumZoom;
+	}
+	
+	Tweener.addTween(mapView, {scaleX: xScale, scaleY: yScale, time: time, base: this._baseTween, onComplete: this.scrollPane.update});
+}
 		
-		private function _zoomInOutHandler(event:MouseEvent):void
-		{	
-			if (IButton(event.currentTarget))
-			{
-				if (this._enabledButton) this._enabledButton.enabled = false;
-				this._enabledButton = IButton(event.currentTarget);
-				this._enabledButton.enabled = true;
-			}
-			
-			var time:Number;
-			var mapView:DisplayObject = DisplayObject(this.mapView);
-			switch (event.currentTarget as DisplayObject)
-			{
-				case this._zoomInButton:
-					time = (this.maximumZoom - mapView.scaleX) / this.maximumZoom;
-					Tweener.addTween(mapView, {scaleX: this.maximumZoom, scaleY: this.maximumZoom, time: time, base: this._baseTween});
-					break;
-				case this._zoomOutButton:
-					time = (mapView.scaleX - this.minimumZoom) / this.minimumZoom;
-					Tweener.addTween(mapView, {scaleX: this.minimumZoom, scaleX: this.minimumZoom, time: time, base: this._baseTween});
-					break;
-			}
-		}
-		
-		private function _stopZoomHandler():void
-		{
-			Tweener.pauseTweens(this.mapView, "scaleX", "scaleY");
-		}
+private function _stopZoomHandler(event:MouseEvent):void
+{			
+	this.scrollPane.update();
+	Tweener.pauseTweens(this.mapView as DisplayObject, "scaleX", "scaleY");
+}
 		
 		private function _checkForObject(dataType:Class):Object
 		{
