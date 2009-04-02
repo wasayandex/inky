@@ -1,7 +1,7 @@
 package inky.framework.components.scrollPane.views
 {
-	import inky.framework.display.IDisplayObject;
-	import inky.framework.components.scrollBar.views.IScrollBar;
+	import com.exanimo.display.IDisplayObject;
+	import com.exanimo.controls.IScrollBar;
 	import flash.display.DisplayObject;
 	import flash.net.URLRequest;
 	import flash.system.LoaderContext;
@@ -172,6 +172,14 @@ package inky.framework.components.scrollPane.views
 		function get useBitmapScrolling():Boolean;
 		function set useBitmapScrolling(useBitmapScrolling:Boolean):void;
 
+		/**
+		*	When set to true the user is able to drag the ScrollPane's source within the 
+		*	bounds of the ScrollPane. When set to false the value is turned off.
+		*	
+		*	@default false	
+		*/
+		function set draggable(draggable:Boolean):void;
+		function get draggable():Boolean;
 
 		/**
 		 *
