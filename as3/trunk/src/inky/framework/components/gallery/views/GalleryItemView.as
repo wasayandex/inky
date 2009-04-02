@@ -33,8 +33,10 @@
 	public class GalleryItemView extends Sprite implements IGalleryItemView
 	{
 		private var __container:DisplayObjectContainer;
+		private var _containerBounds:Rectangle;
 		private var _featureSize:String;
 		private var _model:GalleryItemModel;
+		private var _orientation:String;
 		private var _previewSize:String;
 		private var __progressBar:IProgressBar;
 
@@ -208,10 +210,10 @@
 		 */
 		protected function clearContainer():void
 		{
-			while (this.container.numChildren > 1)
+			/*while (this.container.numChildren > 1)
 			{
-				this.container.removeChildAt(0);
-			}
+				this.container.removeChildAt(this.numChildren - 1);
+			}*/
 		}
 		
 		
@@ -263,25 +265,31 @@
 		//
 		// private methods
 		//
-
-
-		/**
-		 *	
-		 */
 		private function _drawBitmap(object:DisplayObject):Bitmap
 		{
-			var bounds:Rectangle = this.container.getBounds(this.container);
-			var scale:Number = Math.max(bounds.width / object.width, bounds.height / object.height);
-			var xOffset:Number = (bounds.width - (object.width * scale)) / 2;
-			var yOffset:Number = (bounds.height - (object.height * scale)) / 2;
+			var w:Number = this._containerBounds.width;
+			var h:Number = this._containerBounds.height;
+			var scale:Number;
 
-			//draw the asset according to fit the dimensions of the item container
-			var bitmapData:BitmapData = new BitmapData(bounds.width, bounds.height);
-			bitmapData.draw(object, new Matrix(scale, 0, 0, scale, xOffset, yOffset));
+			if (!this._orientation)
+			{
+				var scaleX:Number = w / object.width;
+				var scaleY:Number = h / object.height;
+				scale = Math.max(scaleX, scaleY);
+				this._orientation = scale == scaleX ? 'x' : 'y';
+			}
+			else
+			{
+				scale = this._orientation == 'x' ? w / object.width : h / object.height;
+			}
+
+			var xOffset:Number = (w - (object.width * scale)) / 2;
+			var yOffset:Number = (h - (object.height * scale)) / 2;
 			
+			var bitmapData:BitmapData = new BitmapData(Math.round(w), Math.round(h));
+			bitmapData.draw(object, new Matrix(scale, 0, 0, scale, xOffset, yOffset));
 			return new Bitmap(bitmapData);
 		}
-		
 		
 		
 		/**
@@ -323,7 +331,9 @@
 					shape.y = 0;
 				}
 			}
-			if (!this.__container.width || !this.__container.height)
+			
+			this._containerBounds = this._container.getBounds(this._container);
+			if (!this._containerBounds.width || !this._containerBounds.height)
 				throw new Error('GalleryItemView must have a shape to define the dimensions of the item container.')
 		}
 		
