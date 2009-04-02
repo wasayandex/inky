@@ -5,6 +5,7 @@ package inky.framework.components.progressBar.views
 	import inky.framework.components.progressBar.ProgressBarMode;
 	import flash.display.Loader;
 	import flash.display.MovieClip;
+	import flash.display.DisplayObject;
 	import flash.events.Event;
 	import flash.events.ProgressEvent;
 	import flash.events.TimerEvent;
@@ -221,6 +222,9 @@ package inky.framework.components.progressBar.views
 		 */
 		public function update():void
 		{
+			var bar:DisplayObject = this.getChildByName('_bar');
+			if (bar)
+				bar.scaleX = this.percentComplete / 100;
 		}
 
 

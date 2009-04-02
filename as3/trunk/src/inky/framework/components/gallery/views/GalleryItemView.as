@@ -172,7 +172,7 @@ package inky.framework.components.gallery.views
 		 */
 		public function get progressBarDelay():uint
 		{
-			return this._progressBarDelay;
+			return this._progressBarDelay || 500;
 		}
 		/**
 		 * @private
@@ -266,15 +266,7 @@ package inky.framework.components.gallery.views
 			return this._loader;
 		}
 		
-		/**
-		 *	
-		 */
-		/*protected function getLoaderInfo():LoaderInfo
-		{
-			return this.getLoader().contentLoaderInfo;
-		}*/
-		
-		
+
 		/**
 		 *	
 		 */
