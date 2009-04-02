@@ -1,4 +1,4 @@
-﻿package inky.framework.components.gallery.views 
+package inky.framework.components.gallery.views 
 {
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
@@ -7,14 +7,18 @@
 	import flash.display.Shape;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.events.TimerEvent;
 	import flash.geom.Matrix;
 	import flash.geom.Rectangle;
+	import flash.utils.Timer;
 	import inky.framework.components.gallery.models.GalleryImageModel;
 	import inky.framework.components.gallery.models.GalleryItemModel;
 	import inky.framework.components.gallery.views.IGalleryItemView;
 	import inky.framework.components.progressBar.views.IProgressBar;
 	import inky.framework.display.ITransitioningObject;
 	import inky.framework.events.AssetLoaderEvent;
+	import inky.framework.loading.loaders.IAssetLoader;
+	import inky.framework.loading.loaders.ImageLoader;
 
 	
 	/**
@@ -38,7 +42,9 @@
 		private var _model:GalleryItemModel;
 		private var _orientation:String;
 		private var _previewSize:String;
+		private var _progressBarDelay:uint;
 		private var __progressBar:IProgressBar;
+		private var _loader:IAssetLoader;
 
 		
 		/**
@@ -103,16 +109,15 @@
 		{
 			if (this._model)
 			{
-				for (var i:int = 0; i < this._model.images.length; i++)
-				{
-					var model:GalleryImageModel = GalleryImageModel(value.images.getItemAt(i));
-					if (model.loader)
-					{
-						model.loader.removeEventListener(AssetLoaderEvent.READY, this._featureReadyHandler);
-						model.loader.removeEventListener(AssetLoaderEvent.READY, this._previewReadyHandler);
-					}
-				}
 				this.clearContainer();
+				
+				var loader:IAssetLoader = this.getLoader();
+				loader.removeEventListener(AssetLoaderEvent.READY, this._featureReadyHandler);
+				loader.removeEventListener(AssetLoaderEvent.READY, this._previewReadyHandler);
+
+				if (this.progressBar)
+					this.progressBar.source = null;
+
 			}
 
 			this._model = value;
@@ -121,17 +126,11 @@
 			{
 				var feature:GalleryImageModel = GalleryImageModel(value.images.findFirst({size: this.featureSize}));
 				var preview:GalleryImageModel = GalleryImageModel(value.images.findFirst({size: this.previewSize}));
-
+				
 				if (preview)
-				{
-					preview.loader.addEventListener(AssetLoaderEvent.READY, this._previewReadyHandler);
-					preview.loader.load();
-				}
+					this._startPreviewLoad(preview);
 				else
-				{
-					feature.loader.addEventListener(AssetLoaderEvent.READY, this._featureReadyHandler);
-					feature.load();
-				}
+					this._startFeatureLoad(feature);
 			}
 		}
 
@@ -167,6 +166,22 @@
 			this.__progressBar = value;
 		}
 		
+		
+		/**
+		 *
+		 */
+		public function get progressBarDelay():uint
+		{
+			return this._progressBarDelay;
+		}
+		/**
+		 * @private
+		 */
+		public function set progressBarDelay(value:uint):void
+		{
+			this._progressBarDelay = value;
+		}
+
 
 
 
@@ -243,6 +258,26 @@
 		/**
 		 *	
 		 */
+		protected function getLoader():IAssetLoader
+		{
+			if (!this._loader)
+				this._loader = new ImageLoader();
+
+			return this._loader;
+		}
+		
+		/**
+		 *	
+		 */
+		/*protected function getLoaderInfo():LoaderInfo
+		{
+			return this.getLoader().contentLoaderInfo;
+		}*/
+		
+		
+		/**
+		 *	
+		 */
 		protected function removeProgressBar():void
 		{
 			if (this.progressBar && this.progressBar.parent)
@@ -265,6 +300,28 @@
 		//
 		// private methods
 		//
+		
+		
+		/**
+		 *	
+		 */
+		private function _addProgressBarNow(e:TimerEvent):void
+		{
+			e.target.removeEventListener(e.type, arguments.callee);
+			var source:Object = this.progressBar.source;
+			if (source && source is IAssetLoader)
+			{
+				if (source.bytesTotal > 0 && source.bytesTotal == source.bytesLoaded)
+					return;
+				else
+					this.addProgressBar();
+			}
+		}
+
+		
+		/**
+		 *	
+		 */
 		private function _drawBitmap(object:DisplayObject):Bitmap
 		{
 			var w:Number = this._containerBounds.width;
@@ -307,12 +364,14 @@
 		 */
 		private function _init():void
 		{
-			this.__progressBar = IProgressBar(this.getChildByName('_progressBar'));
-			this.__container = DisplayObjectContainer(this.getChildByName('_container'));
-			
-			if (!this.__container)
+			this.progressBar = IProgressBar(this.getChildByName('_progressBar'));
+			if (this.progressBar)
+				this.removeChild(DisplayObject(this.progressBar));
+
+			this.container = DisplayObjectContainer(this.getChildByName('_container'));
+			if (!this.container)
 			{
-				this.__container = new Sprite();
+				this.container = new Sprite();
 
 				var shape:Shape;
 				for (var i:int = 0; i < this.numChildren; i++)
@@ -323,16 +382,16 @@
 				}
 				if (shape)
 				{
-					this.__container.x = shape.x;
-					this.__container.y = shape.y;
-					this.addChildAt(this.__container, this.getChildIndex(shape));
-					this.__container.addChild(shape);
+					this.container.x = shape.x;
+					this.container.y = shape.y;
+					this.addChildAt(this.container, this.getChildIndex(shape));
+					this.container.addChild(shape);
 					shape.x = 0;
 					shape.y = 0;
 				}
 			}
 			
-			this._containerBounds = this.__container.getBounds(this.__container);
+			this._containerBounds = this.container.getBounds(this.container);
 			if (!this._containerBounds.width || !this._containerBounds.height)
 				throw new Error('GalleryItemView must have a shape to define the dimensions of the item container.')
 		}
@@ -345,12 +404,50 @@
 		{
 			e.target.removeEventListener(e.type, arguments.callee);
 			this.initializePreview(e.target);
-			
-			var feature:GalleryImageModel = GalleryImageModel(this.model.images.findFirst({size: this.featureSize}));
-			feature.loader.addEventListener(AssetLoaderEvent.READY, this._featureReadyHandler);
-			feature.loader.load();
+			this._startFeatureLoad(GalleryImageModel(this.model.images.findFirst({size: this.featureSize})));
+		}
+		
+
+		/**
+		 *	
+		 */
+		private function _startPreviewLoad(preview:GalleryImageModel):void
+		{
+			var loader:IAssetLoader = this.getLoader();
+			loader.source = preview.source;
+			loader.addEventListener(AssetLoaderEvent.READY, this._previewReadyHandler);
+			this._startLoad();
 		}
 
+
+		/**
+		 *	
+		 */
+		private function _startFeatureLoad(feature:GalleryImageModel):void
+		{
+			var loader:IAssetLoader = this.getLoader();
+			loader.source = feature.source;
+			loader.addEventListener(AssetLoaderEvent.READY, this._featureReadyHandler);
+			this._startLoad();
+		}
+
+
+		/**
+		 *	
+		 */
+		private function _startLoad():void
+		{
+			var loader:IAssetLoader = this.getLoader();
+			loader.load();
+
+			if (this.progressBar)
+			{
+				this.progressBar.source = loader;
+				var timeout:Timer = new Timer(this.progressBarDelay);
+				timeout.addEventListener(TimerEvent.TIMER, this._addProgressBarNow);
+				timeout.start();
+			}
+		}
 
 
 

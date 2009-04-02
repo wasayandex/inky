@@ -9,6 +9,7 @@
 	import inky.framework.binding.events.PropertyChangeEvent;
 	import inky.framework.events.AssetLoaderEvent;
 	import inky.framework.loading.loaders.IAssetLoader;
+	import inky.framework.utils.EqualityUtil;
 
 
 	/**
@@ -321,7 +322,7 @@
 			}
 			return this._loader;
 		}
-
+private var _loadedSource:Object;
 
 		/**
 		 *
@@ -339,13 +340,13 @@
 			}
 			
 			var info:Object = this.getLoaderInfoFunction();
-			if (info && info.bytesTotal && (info.bytesLoaded == info.bytesTotal))
+			if (info && info.bytesTotal && (info.bytesLoaded == info.bytesTotal) && this._sourcesAreEqual(this.source, this._loadedSource))
 			{
 				this._target.dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, false, false, info.bytesLoaded, info.bytesTotal));
 				this._target.dispatchEvent(new AssetLoaderEvent(AssetLoaderEvent.READY));
 				return;
 			}
-
+this._loadedSource = this.source;
 			// If this loader belongs to a section, delegate the loading to it.
 			var section:Object = AssetLoaderBehavior._sectionClass ? AssetLoaderBehavior._sectionClass.getSection(this._target) || AssetLoaderBehavior._applicationClass.currentApplication : null;
 			if (section)
@@ -363,6 +364,32 @@
 			{
 				this.loadAsset();
 			}
+		}
+
+		
+		/**
+		 *	
+		 */
+		private function _sourcesAreEqual(a:Object, b:Object):Boolean
+		{
+			var eq:Boolean = (Boolean(a) == Boolean(b)) && (a.constructor == b.constructor);
+	
+			if (eq)
+			{
+				if (a is String)
+				{
+					eq = a == b;
+				}
+				else if (a is URLRequest) 
+				{
+					eq = (a.url == b.url) && EqualityUtil.propertiesAreEqual(a.vars, b.vars);
+				}
+				else
+				{
+					eq = false;
+				}
+			}
+			return eq;
 		}
 
 
