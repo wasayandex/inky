@@ -364,6 +364,11 @@ package inky.framework.components.gallery.views
 			this.container = DisplayObjectContainer(this.getChildByName('_container'));
 			if (!this.container)
 			{
+				if (this.totalFrames > 1)
+				{
+					throw new Error("GalleryItemViews with more than one frame must contain a child named _container");
+				}
+
 				this.container = new Sprite();
 
 				var shape:Shape;
