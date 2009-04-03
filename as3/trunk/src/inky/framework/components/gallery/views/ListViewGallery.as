@@ -64,7 +64,7 @@
 		}
 
 
-		override protected function selectedGroupChangeHandler():void
+		override protected function selectedGroupChanged():void
 		{
 			if (!this._listView.itemViewClass)
 			{
@@ -74,14 +74,14 @@
 		}
 
 
-		override protected function selectedItemChangeHandler():void
+		override protected function selectedItemChanged():void
 		{
 			this._listView.showItemAt(this.model.selectedItemIndex);
-			super.selectedItemChangeHandler();
+			super.selectedItemChanged();
 		}
 
 
-/*		override protected function selectedItemChangeHandler():void
+/*		override protected function selectedItemChanged():void
 		{
 			var data:GalleryItemModel = this.model.selectedItemModel;
 			if (data)

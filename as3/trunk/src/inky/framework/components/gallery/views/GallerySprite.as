@@ -191,13 +191,13 @@ public function set loadManager(value:IGalleryLoadManager):void
 
 private function _groupChangeHandler(e:GalleryEvent):void
 {
-	this.selectedGroupChangeHandler();
+	this.selectedGroupChanged();
 }
 		
-protected function selectedGroupChangeHandler():void
+protected function selectedGroupChanged():void
 {
 }
-protected function selectedItemChangeHandler():void
+protected function selectedItemChanged():void
 {
 }
 		
@@ -206,7 +206,7 @@ protected function selectedItemChangeHandler():void
 		 */
 		private function _itemChangeHandler(e:GalleryEvent):void
 		{
-			this.selectedItemChangeHandler();
+			this.selectedItemChanged();
 		}
 
 

@@ -61,7 +61,7 @@
 
 
 
-		override protected function selectedItemChangeHandler():void
+		override protected function selectedItemChanged():void
 		{
 			var data:GalleryItemModel = this.model.selectedItemModel;
 			if (data)
