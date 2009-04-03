@@ -111,8 +111,6 @@ package inky.framework.components.gallery.views
 		{
 			if (this._model)
 			{
-				this.clearContainer();
-				
 				var loader:IAssetLoader = this.getLoader();
 				loader.removeEventListener(AssetLoaderEvent.READY, this._featureReadyHandler);
 				loader.removeEventListener(AssetLoaderEvent.READY, this._previewReadyHandler);
@@ -134,6 +132,8 @@ package inky.framework.components.gallery.views
 				else
 					this._startFeatureLoad(feature);
 			}
+			
+			this.modelUpdated();
 		}
 
 
@@ -257,19 +257,9 @@ package inky.framework.components.gallery.views
 		 */
 		protected function featureLoaded():void
 		{
-			this.clearContainer();
+			this.removePreview();
 			this.removeProgressBar();
 			this.addFeature();
-		}
-		
-		
-		/**
-		 *	
-		 */
-		protected function previewLoaded():void
-		{
-			this.clearContainer();
-			this.addPreview();
 		}
 		
 		
@@ -284,6 +274,36 @@ package inky.framework.components.gallery.views
 			return this._loader;
 		}
 		
+		
+		/**
+		 *	
+		 */
+		protected function modelUpdated():void
+		{
+			this.clearContainer();
+		}
+		
+		
+		/**
+		 *	
+		 */
+		protected function previewLoaded():void
+		{
+			this.addPreview();
+		}
+		
+		
+		/**
+		 *	
+		 */
+		protected function removePreview():void
+		{
+			if (this._preview && this.container.contains(this._preview))
+			{
+				this.container.removeChild(this._preview);
+			}
+		}
+
 
 		/**
 		 *	
