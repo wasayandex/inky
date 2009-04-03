@@ -39,14 +39,15 @@ package inky.framework.components.gallery.views
 	{
 		private var __container:DisplayObjectContainer;
 		private var _containerBounds:Rectangle;
+		private var _feature:DisplayObject;
 		private var _featureSize:String;
 		private var _model:GalleryItemModel;
 		private var _orientation:String;
+		private var _preview:DisplayObject;
 		private var _previewSize:String;
 		private var _progressBarDelay:uint;
 		private var __progressBar:IProgressBar;
 		private var _loader:IAssetLoader;
-
 		
 		/**
 		 *
@@ -194,18 +195,18 @@ package inky.framework.components.gallery.views
 		/**
 		 *	
 		 */
-		protected function addFeature(feature:DisplayObject):void
+		protected function addFeature():void
 		{
-			this.container.addChild(feature);
+			this.container.addChild(this._feature);
 		}
 		
 
 		/**
 		 *	
 		 */
-		protected function addPreview(preview:DisplayObject):void
+		protected function addPreview():void
 		{
-			this.container.addChild(preview);
+			this.container.addChild(this._preview);
 		}
 		
 
@@ -236,23 +237,39 @@ package inky.framework.components.gallery.views
 		/**
 		 *	
 		 */
-		protected function initializeFeature(feature:Object):void
+		protected function createFeature(featureLoader:Object):DisplayObject
 		{
-			var bmp:Bitmap = this._drawBitmap(DisplayObject(feature));
-			this.clearContainer();
-			this.removeProgressBar();
-			this.addFeature(bmp);
+			return this._drawBitmap(DisplayObject(featureLoader));
 		}
 		
 		
 		/**
 		 *	
 		 */
-		protected function initializePreview(preview:Object):void
+		protected function createPreview(previewLoader:Object):DisplayObject
 		{
-			var bmp:Bitmap = this._drawBitmap(DisplayObject(preview));
+			return this._drawBitmap(DisplayObject(previewLoader));
+		}
+
+		
+		/**
+		 *	
+		 */
+		protected function featureLoaded():void
+		{
 			this.clearContainer();
-			this.addPreview(bmp);
+			this.removeProgressBar();
+			this.addFeature();
+		}
+		
+		
+		/**
+		 *	
+		 */
+		protected function previewLoaded():void
+		{
+			this.clearContainer();
+			this.addPreview();
 		}
 		
 		
@@ -348,7 +365,8 @@ package inky.framework.components.gallery.views
 		private function _featureReadyHandler(e:AssetLoaderEvent):void
 		{
 			e.target.removeEventListener(e.type, arguments.callee);
-			this.initializeFeature(e.target);
+			this._feature = this.createFeature(e.target);
+			this.featureLoaded();
 		}
 		
 		
@@ -401,7 +419,8 @@ package inky.framework.components.gallery.views
 		private function _previewReadyHandler(e:AssetLoaderEvent):void
 		{
 			e.target.removeEventListener(e.type, arguments.callee);
-			this.initializePreview(e.target);
+			this._preview = this.createPreview(e.target);
+			this.previewLoaded();
 			this._startFeatureLoad(GalleryImageModel(this.model.images.findFirst({size: this.featureSize})));
 		}
 		
