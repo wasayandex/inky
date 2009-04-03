@@ -237,18 +237,18 @@ package inky.framework.components.gallery.views
 		/**
 		 *	
 		 */
-		protected function createFeature(featureLoader:Object):DisplayObject
+		protected function createFeature(featureLoader:DisplayObject):DisplayObject
 		{
-			return this._drawBitmap(DisplayObject(featureLoader));
+			return this._drawBitmap(featureLoader);
 		}
 		
 		
 		/**
 		 *	
 		 */
-		protected function createPreview(previewLoader:Object):DisplayObject
+		protected function createPreview(previewLoader:DisplayObject):DisplayObject
 		{
-			return this._drawBitmap(DisplayObject(previewLoader));
+			return this._drawBitmap(previewLoader);
 		}
 
 		
@@ -365,7 +365,7 @@ package inky.framework.components.gallery.views
 		private function _featureReadyHandler(e:AssetLoaderEvent):void
 		{
 			e.target.removeEventListener(e.type, arguments.callee);
-			this._feature = this.createFeature(e.target);
+			this._feature = this.createFeature(DisplayObject(e.target));
 			this.featureLoaded();
 		}
 		
@@ -419,7 +419,7 @@ package inky.framework.components.gallery.views
 		private function _previewReadyHandler(e:AssetLoaderEvent):void
 		{
 			e.target.removeEventListener(e.type, arguments.callee);
-			this._preview = this.createPreview(e.target);
+			this._preview = this.createPreview(DisplayObject(e.target));
 			this.previewLoaded();
 			this._startFeatureLoad(GalleryImageModel(this.model.images.findFirst({size: this.featureSize})));
 		}
