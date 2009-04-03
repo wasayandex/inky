@@ -1,10 +1,10 @@
 ﻿package inky.framework.components.scrollPane.views
 {
-	import com.exanimo.containers.IScrollPane;
-	import com.exanimo.controls.IScrollBar;
-	import com.exanimo.controls.ScrollBarDirection;
-	import com.exanimo.controls.ScrollPolicy;
-	import com.exanimo.events.ScrollEvent;
+	import inky.framework.components.scrollPane.views.IScrollPane;
+	import inky.framework.components.scrollBar.views.IScrollBar;
+	import inky.framework.components.scrollBar.ScrollBarDirection;
+	import inky.framework.components.scrollBar.ScrollPolicy;
+	import inky.framework.components.scrollBar.events.ScrollEvent;
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.Loader;
@@ -52,7 +52,8 @@
 		private var _maxHorizontalScrollPosition:Number;
 		private var _oldXPosition:Number;
 		private var _oldYPosition:Number;
-		
+
+
 		/**
 		 *
 		 * Creates a new BaseScrollPane instance. If the symbol attached to this
@@ -85,11 +86,10 @@
 					throw new Error('ScrollPane is missing a mask.');
 				}
 			}
-						
+
 			this._verticalScrollPolicy = ScrollPolicy.AUTO;
 			this._horizontalScrollPolicy = ScrollPolicy.AUTO;
-			this._draggable = false;
-			
+
 			// Create the content container.
 			this.__contentContainer = this.getChildByName('_contentContainer') as Sprite;
 			if (this.__contentContainer == null)
@@ -317,6 +317,7 @@
 		{
 			this.__contentContainer.cacheAsBitmap = useBitmapScrolling;
 		}
+
 		
 		/**
 		 * @inheritDoc
@@ -333,7 +334,8 @@
 		{
 			return this._draggable;
 		}
-		
+
+
 		/**
 		 * @inheritDoc
 		 */
@@ -442,13 +444,13 @@
 		public function update():void
 		{
 			var bounds:Rectangle = this.__contentContainer.getBounds(this.__contentContainer);
-			
+
 			if (this.draggable)
 			{
 				this._maxVerticalScrollPosition = (bounds.height + bounds.y) - this.__mask.height;
 				this._maxHorizontalScrollPosition = (bounds.width + bounds.x) - this.__mask.width;
 			}
-			
+
 			if (this.verticalScrollBar)
 			{
 				var contentHeight:Number = bounds.height + bounds.y;
@@ -520,11 +522,11 @@
 		protected function moveContent(x:Number, y:Number):void
 		{
 			var contentContainer:DisplayObjectContainer = this.getContentContainer();
-			if (this.verticalScrollBar || this.draggable)
+			if (this.verticalScrollBar)
 			{
 				contentContainer.y = y;
 			}
-			if (this.horizontalScrollBar || this.draggable)
+			if (this.horizontalScrollBar)
 			{
 				contentContainer.x = x;
 			}
@@ -536,7 +538,8 @@
 		//
 		// private methods
 		//
-		
+
+
 		/**
 		*	
 		*	
@@ -552,38 +555,37 @@
 				case MouseEvent.MOUSE_UP:
 					this._oldXPosition = undefined;
 					this._oldYPosition = undefined;
-									
+
 					this.stage.removeEventListener(MouseEvent.MOUSE_UP, this._draggableMouseHandler);
 					this.stage.removeEventListener(MouseEvent.MOUSE_MOVE, this._mouseMoveHandler);				
 					break;
 			}
 		}
 
-private function _mouseMoveHandler(e:MouseEvent):void
-{	
-	if (!this._oldXPosition) this._oldXPosition = e.currentTarget.mouseX;
-	if (!this._oldYPosition) this._oldYPosition = e.currentTarget.mouseY;
+		private function _mouseMoveHandler(e:MouseEvent):void
+		{	
+			if (!this._oldXPosition) this._oldXPosition = e.currentTarget.mouseX;
+			if (!this._oldYPosition) this._oldYPosition = e.currentTarget.mouseY;
 
-	var xPosition:Number;
-	var yPosition:Number;
-	var contentContainer:DisplayObject = this.getContentContainer();
+			var xPosition:Number;
+			var yPosition:Number;
+			var contentContainer:DisplayObject = this.getContentContainer();
 
-	xPosition = contentContainer.x - (this._oldXPosition - e.currentTarget.mouseX);
-	yPosition = contentContainer.y - (this._oldYPosition - e.currentTarget.mouseY);
+			xPosition = contentContainer.x - (this._oldXPosition - e.currentTarget.mouseX);
+			yPosition = contentContainer.y - (this._oldYPosition - e.currentTarget.mouseY);
 
+			if (Math.abs(xPosition) <= this._maxHorizontalScrollPosition && xPosition <= 0 && Math.abs(yPosition) <= this._maxVerticalScrollPosition && yPosition <= 0)
+			{
+				if (this.horizontalScrollBar) this.horizontalScrollBar.scrollPosition += (this._oldXPosition - e.currentTarget.mouseX);
+				if (this.verticalScrollBar) this.verticalScrollBar.scrollPosition += (this._oldYPosition - e.currentTarget.mouseY);
 
-	if (Math.abs(xPosition) <= this._maxHorizontalScrollPosition && xPosition <= 0 && Math.abs(yPosition) <= this._maxVerticalScrollPosition && yPosition <= 0)
-	{
-		if (this.horizontalScrollBar) this.horizontalScrollBar.scrollPosition += (this._oldXPosition - e.currentTarget.mouseX);
-		if (this.verticalScrollBar) this.verticalScrollBar.scrollPosition += (this._oldYPosition - e.currentTarget.mouseY);
-	
-		if (!this.horizontalScrollBar || !this.verticalScrollBar) this.moveContent(xPosition, yPosition);
-	}		
+				if (!this.horizontalScrollBar || !this.verticalScrollBar) this.moveContent(xPosition, yPosition);
+			}		
 
-	this._oldXPosition = e.currentTarget.mouseX;
-	this._oldYPosition = e.currentTarget.mouseY;
-}
-		
+			this._oldXPosition = e.currentTarget.mouseX;
+			this._oldYPosition = e.currentTarget.mouseY;
+		}
+
 		/**
 		 *
 		 * Initializes the ScrollPane onces its source has completed loading.

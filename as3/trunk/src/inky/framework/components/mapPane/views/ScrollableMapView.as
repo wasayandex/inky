@@ -167,7 +167,7 @@ private function _zoomInOutHandler(event:MouseEvent):void
 		xScale = yScale = this.minimumZoom;
 	}
 	
-	Tweener.addTween(mapView, {scaleX: xScale, scaleY: yScale, time: time, base: this._baseTween, onComplete: this.scrollPane.update});
+	Tweener.addTween(mapView, {scaleX: xScale, scaleY: yScale, time: time, base: this._baseTween, onUpdate: this.scrollPane.update});
 }
 		
 private function _stopZoomHandler(event:MouseEvent):void
