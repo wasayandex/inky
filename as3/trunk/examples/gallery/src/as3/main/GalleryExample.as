@@ -35,9 +35,9 @@
 			this.gallery.model.selectGroupByName("amenities");
 			this.gallery.model.selectItemAt(0);
 			
-			this._timer = new GalleryTimer(3000);
+			/*this._timer = new GalleryTimer(3000);
 			this._timer.registerGallery(model);
-			this._timer.start();
+			this._timer.start();*/
 		}
 
 	
