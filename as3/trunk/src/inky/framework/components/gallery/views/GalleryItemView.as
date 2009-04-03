@@ -6,6 +6,7 @@ package inky.framework.components.gallery.views
 	import flash.display.DisplayObjectContainer;
 	import flash.display.Shape;
 	import flash.display.Sprite;
+	import flash.display.MovieClip;
 	import flash.events.Event;
 	import flash.events.TimerEvent;
 	import flash.geom.Matrix;
@@ -34,7 +35,7 @@ package inky.framework.components.gallery.views
 	 *	@since  2009.03.30
 	 *
 	 */
-	public class GalleryItemView extends Sprite implements IGalleryItemView
+	public class GalleryItemView extends MovieClip implements IGalleryItemView
 	{
 		private var __container:DisplayObjectContainer;
 		private var _containerBounds:Rectangle;
@@ -227,7 +228,7 @@ package inky.framework.components.gallery.views
 		{
 			while (this.container.numChildren > 1)
 			{
-				this.container.removeChildAt(this.numChildren - 1);
+				this.container.removeChildAt(this.container.numChildren - 1);
 			}
 		}
 		

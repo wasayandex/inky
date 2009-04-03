@@ -41,13 +41,20 @@
 		private function _init():void
 		{
 			this._itemViews = [];
+			var numItemViews:int = 0;
 			for (var i:int = 0; i < this.numChildren; i++)
 			{
 				var child:DisplayObject = this.getChildAt(i);
 				if (child is IGalleryItemView)
 				{
 					this._itemViews.push(child);
+					numItemViews++;
 				}
+			}
+			
+			if (numItemViews == 0)
+			{
+				throw new Error("SelectedItemGallery could not find any GalleryItemViews");
 			}
 		}
 
