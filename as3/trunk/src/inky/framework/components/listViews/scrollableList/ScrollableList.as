@@ -39,6 +39,7 @@
 		private var _firstVisibleItemIndex:int;
 		private var _itemViewClass:Class;
 		private var _indexes2Items:Object;
+		private var _initializedForModel:Boolean;
 		private var _items2Indexes:Dictionary;
 		private var _model:IList;
 		private var _numItemsFinallyVisible:uint;  // The number of items visible at max scroll position.
@@ -105,23 +106,7 @@
 				this._indexes2Items = {};
 				this._items2Indexes = new Dictionary(true);
 				this._positionCache = [];
-
-				// Determine the number of items that are visible at max scroll position.
-// TODO: Move this to its own function, because it needs to be called when one of the finallyVisibleItem's size changes
-				var mask:DisplayObject = this.getScrollMask();
-				var maskSize:Number = mask[this._widthOrHeight];
-				var numItems:int = 0;
-				var combinedSize:Number = 0;
-				var j:int = this.model.length - 1;
-				while ((j >= 0) && (combinedSize < maskSize))
-				{
-					numItems++;
-					combinedSize += this._getItemSize(j);
-					j--;
-				}
-				this._numItemsFinallyVisible = numItems;
-				this._updateScrollBar();
-				this._clearContent();
+				this._initializedForModel = false;
 				this.invalidate();	
 			}
 		}
@@ -134,6 +119,32 @@
 		public function get orientation():String
 		{
 			return this._orientation;
+		}
+		/**
+		 *
+		 */
+		public function set orientation(value:String):void
+		{
+// FIXME: when can this be set?
+			this._orientation = value;
+			
+			if (value == HORIZONTAL)
+			{
+				this._widthOrHeight = "width";
+				this._xOrY = "x";
+			}
+			else if (value == VERTICAL)
+			{
+				this._widthOrHeight = "height";
+				this._xOrY = "y";
+			}
+			else
+			{
+				throw new Error("ScrollableList orientation can only be horizontal or vertical");
+			}
+			
+			if (this[this._orientation + "ScrollBar"])
+				this[this._orientation + 'LineScrollSize'] = 1;
 		}
 
 
@@ -208,6 +219,16 @@
 		 */
 		public function redraw():void
 		{
+			if (!this.orientation)
+			{
+				throw new Error("You must set the orientation on your ScrollableList");
+			}
+
+			if (!this._initializedForModel)
+			{
+				this._initializeForModel();
+			}
+			
 			var firstVisibleItemIndex:int = this._firstVisibleItemIndex;
 			
 			if (firstVisibleItemIndex == -1)
@@ -247,6 +268,11 @@
 		 */
 		public function showItemAt(index:int):void
 		{
+			if (!this.orientation)
+			{
+				throw new Error("You must set the orientation on your ScrollableList");
+			}
+			
 			if ((index < 0) || (index >= this.model.length))
 			{
 				throw new RangeError("The supplied index " + index + " is out of bounds.");
@@ -453,20 +479,37 @@ er = 7;
 			
 			if (this.horizontalScrollBar)
 			{
-				this._orientation = HORIZONTAL;
-				this._widthOrHeight = "width";
-				this._xOrY = "x";
+				this.orientation = HORIZONTAL;
 			}
-			else
+			else if (this.verticalScrollBar)
 			{
-				this._orientation = VERTICAL;
-				this._widthOrHeight = "height";
-				this._xOrY = "y";
+				this.orientation = VERTICAL;
 			}
 
 			this.__contentContainer = this.getContentContainer();
 			this.__contentContainer.addEventListener(LayoutEvent.INVALIDATE, this._itemInvalidatedHandler);
-			this[this._orientation + 'LineScrollSize'] = 1;
+		}
+
+
+		private function _initializeForModel():void
+		{
+			// Determine the number of items that are visible at max scroll position.
+// TODO: Move this to its own function, because it needs to be called when one of the finallyVisibleItem's size changes
+			var mask:DisplayObject = this.getScrollMask();
+			var maskSize:Number = mask[this._widthOrHeight];
+			var numItems:int = 0;
+			var combinedSize:Number = 0;
+			var j:int = this.model.length - 1;
+			while ((j >= 0) && (combinedSize < maskSize))
+			{
+				numItems++;
+				combinedSize += this._getItemSize(j);
+				j--;
+			}
+			this._numItemsFinallyVisible = numItems;
+			this._updateScrollBar();
+			this._clearContent();
+			this._initializedForModel = true;
 		}
 
 
