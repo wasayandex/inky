@@ -508,6 +508,15 @@
 
 
 		/**
+		 * @inheritDoc
+		 */
+		protected function getScrollMask():DisplayObject
+		{
+			return this.__mask;
+		}
+
+
+		/**
 		 *
 		 * Moves the ScrollPane's content. Called as a result of ScrollEvents.
 		 * Subclasses can override this method to provide custom scrolling
@@ -691,12 +700,6 @@
 			this.moveContent(this.horizontalScrollBar ? -this.horizontalScrollPosition : this.__contentContainer.x, this.verticalScrollBar ? -this.verticalScrollPosition : this.__contentContainer.y);
 		}
 
-
-
-public function getScrollMask():DisplayObject
-{
-	return this.__mask;
-}
 
 
 
