@@ -48,5 +48,10 @@ package inky.framework.components.mapPane.models
 		{
 			this._label = label;
 		}
+		
+		public function getLabel():String
+		{
+			return this._label;
+		}
 	}
 }

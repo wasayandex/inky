@@ -576,16 +576,13 @@
 			if (!this._oldXPosition) this._oldXPosition = e.currentTarget.mouseX;
 			if (!this._oldYPosition) this._oldYPosition = e.currentTarget.mouseY;
 
-			var xPosition:Number;
-			var yPosition:Number;
 			var contentContainer:DisplayObject = this.getContentContainer();
+			var xPosition:Number = contentContainer.x - (this._oldXPosition - e.currentTarget.mouseX);
+			var yPosition:Number = contentContainer.y - (this._oldYPosition - e.currentTarget.mouseY);
 
-			xPosition = contentContainer.x - (this._oldXPosition - e.currentTarget.mouseX);
-			yPosition = contentContainer.y - (this._oldYPosition - e.currentTarget.mouseY);
-
-			if (Math.abs(xPosition) <= this._maxHorizontalScrollPosition && xPosition <= 0 && Math.abs(yPosition) <= this._maxVerticalScrollPosition && yPosition <= 0)
+			if (Math.abs(xPosition) <= this._maxHorizontalScrollPosition && xPosition <= this.__mask.x && Math.abs(yPosition) <= this._maxVerticalScrollPosition && yPosition <= this.__mask.y)
 			{
-				if (this.horizontalScrollBar) this.horizontalScrollBar.scrollPosition += (this._oldXPosition - e.currentTarget.mouseX);
+				if (this.horizontalScrollBar) this.horizontalScrollBar.scrollPosition += (this._oldXPosition - e.currentTarget.mouseX) ;
 				if (this.verticalScrollBar) this.verticalScrollBar.scrollPosition += (this._oldYPosition - e.currentTarget.mouseY);
 
 				if (!this.horizontalScrollBar || !this.verticalScrollBar) this.moveContent(xPosition, yPosition);

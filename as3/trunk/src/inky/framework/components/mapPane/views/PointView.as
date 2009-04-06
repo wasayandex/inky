@@ -2,15 +2,12 @@ package inky.framework.components.mapPane.views
 {
 	import inky.framework.components.mapPane.models.PointModel;
 	import inky.framework.controls.TransitioningButtonClip;
+	import inky.framework.components.mapPane.views.IPointView;
 
-	public class PointView extends TransitioningButtonClip
+	public class PointView extends TransitioningButtonClip implements IPointView
 	{
 		private var _model:PointModel;
 		
-		public function PointView()
-		{
-		}
-
 		//
 		// accessors
 		//
