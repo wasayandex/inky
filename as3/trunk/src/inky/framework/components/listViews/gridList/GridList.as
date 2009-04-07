@@ -148,7 +148,22 @@
 
 		
 		
+
+		//
+		// public methods
+		//
 		
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function showItemAt(index:int):void
+		{
+		}
+
+
+
+
 		//
 		// private methods
 		//
