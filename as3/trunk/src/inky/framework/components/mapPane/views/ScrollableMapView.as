@@ -7,9 +7,10 @@ package inky.framework.components.mapPane.views
 	import inky.framework.components.IButton;
 	import inky.framework.components.mapPane.models.MapModel;
 	import inky.framework.components.mapPane.views.IMapView;
+	import inky.framework.components.mapPane.views.IScrollableMapView;
 	import inky.framework.components.scrollPane.views.IScrollPane;
 	
-	public class ScrollableMapView extends Sprite
+	public class ScrollableMapView extends Sprite implements IScrollableMapView
 	{
 		private var __mapView:IMapView;
 		private var __scrollPane:IScrollPane;
@@ -153,21 +154,20 @@ private function _zoomInOutHandler(event:MouseEvent):void
 	var time:Number;
 	var xScale:Number;
 	var yScale:Number;
-	var mapView:DisplayObject = this.mapView as DisplayObject;
 	
 	// Check to see which button was pressed and set it's target scale for the tween
 	if (event.currentTarget == this._zoomInButton)
 	{
-		time = ((this.maximumZoom - mapView.scaleX) / this.maximumZoom) * 2;
+		time = ((this.maximumZoom - this.mapView.scaleX) / this.maximumZoom) * 2;
 		xScale = yScale = this.maximumZoom;	
 	}
 	else if (event.currentTarget == this._zoomOutButton)
 	{
-		time = ((mapView.scaleX - this.minimumZoom) / this.minimumZoom) * 2;
+		time = ((this.mapView.scaleX - this.minimumZoom) / this.minimumZoom) * 2;
 		xScale = yScale = this.minimumZoom;
 	}
 	
-	Tweener.addTween(mapView, {scaleX: xScale, scaleY: yScale, time: time, base: this._baseTween, onUpdate: this.scrollPane.update});
+	Tweener.addTween(this.mapView, {scaleX: xScale, scaleY: yScale, time: time, base: this._baseTween, onUpdate: this.scrollPane.update});
 }
 		
 private function _stopZoomHandler(event:MouseEvent):void
@@ -188,7 +188,6 @@ private function _stopZoomHandler(event:MouseEvent):void
 					break;
 				}
 			}
-			if (!object) throw new Error("object of type " + dataType + " could not be found!");
 			
 			return object;
 		}

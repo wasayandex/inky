@@ -4,8 +4,9 @@ package inky.framework.components.mapPane.views
 	import inky.framework.components.mapPane.models.MapModel;
 	import inky.framework.components.mapPane.views.IMapView;
 	import inky.framework.components.scrollPane.views.IScrollPane;
+	import inky.framework.display.IDisplayObject;
 
-	public interface IScrollableMapView 
+	public interface IScrollableMapView extends IDisplayObject
 	{
 		/**
 		*	Gets and Sets the scrollpane.

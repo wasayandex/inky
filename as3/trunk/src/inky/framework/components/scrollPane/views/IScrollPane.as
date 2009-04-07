@@ -54,7 +54,7 @@ package inky.framework.components.scrollPane.views
 		/**
 		 * @private
 		 */		 		
-		function set horizontalLineScrollSize(horizontalLineScrollSize:Number):void;
+		function set horizontalLineScrollSize(value:Number):void;
 
 
 		/**
@@ -71,7 +71,7 @@ package inky.framework.components.scrollPane.views
 		/**
 		 * @private
 		 */		 		
-		function set horizontalPageScrollSize(horizontalPageScrollSize:Number):void;
+		function set horizontalPageScrollSize(value:Number):void;
 
 
 		/**
@@ -112,7 +112,7 @@ package inky.framework.components.scrollPane.views
 		/**
 		 * @private
 		 */		 		
-		function set horizontalScrollPosition(horizontalScrollPosition:Number):void;
+		function set horizontalScrollPosition(value:Number):void;
 
 
 		/**
@@ -125,7 +125,7 @@ package inky.framework.components.scrollPane.views
 		/**
 		 * @private
 		 */		 		
-		function set maxHorizontalScrollPosition(maxHorizontalScrollPosition:Number):void;
+		function set maxHorizontalScrollPosition(value:Number):void;
 
 
 		/**
@@ -138,7 +138,7 @@ package inky.framework.components.scrollPane.views
 		/**
 		 * @private
 		 */	
-		function set maxVerticalScrollPosition(maxVerticalScrollPosition:Number):void;
+		function set maxVerticalScrollPosition(value:Number):void;
 		
 
 		/**

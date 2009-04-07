@@ -8,7 +8,7 @@ package inky.framework.components.mapPane.models
 	{
 		private var _points:IList;
 				
-		public function getPointModels():IList
+		public function get pointModels():IList
 		{
 			return this._points ? this._points : this._points = new ArrayList();
 		}
@@ -20,7 +20,7 @@ package inky.framework.components.mapPane.models
 		
 		public function addPointModel(pointModel:PointModel):void
 		{
-			this.getPointModels().addItem(pointModel);
+			this.pointModels.addItem(pointModel);
 		}
 	}
 }

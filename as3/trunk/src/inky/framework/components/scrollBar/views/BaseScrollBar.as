@@ -1,5 +1,7 @@
 ﻿package inky.framework.components.scrollBar.views
 {
+	import inky.framework.binding.events.PropertyChangeEvent;
+	import inky.framework.binding.utils.BindingUtil;
 	import inky.framework.components.scrollBar.views.IScrollBar;
 	import inky.framework.components.scrollBar.ScrollBarDirection;
 	import inky.framework.components.scrollBar.events.ScrollEvent;
@@ -30,6 +32,9 @@
 	 */
 	public class BaseScrollBar extends Sprite implements IScrollBar
 	{
+		BindingUtil.setPropertyBindingEvents(BaseScrollBar, "scrollPosition", [ScrollEvent.SCROLL]);
+
+
 		private var _direction:String;
 		private var _directionPolarity:Number;
 		private var __downArrow:InteractiveObject;
@@ -168,9 +173,14 @@
 		/**
 		 * @private
 		 */	
-		public function set pageScrollSize(pageScrollSize:Number):void
+		public function set pageScrollSize(value:Number):void
 		{
-			this._pageScrollSize = pageScrollSize;
+			if (value != this._pageScrollSize)
+			{
+				var oldValue:Number = this._pageScrollSize;
+				this._pageScrollSize = value;
+				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "pageScrollSize", oldValue, value));
+			}
 		}
 
 
@@ -184,10 +194,15 @@
 		/**
 		 * @private
 		 */	
-		public function set pageSize(pageSize:Number):void
+		public function set pageSize(value:Number):void
 		{
-			this._pageSize = pageSize;
-			this._updateThumb();
+			if (value != this._pageSize)
+			{
+				var oldValue:Number = this._pageSize;
+				this._pageSize = value;
+				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "pageSize", oldValue, value));
+				this._updateThumb();
+			}
 		}
 
 
@@ -235,9 +250,14 @@
 		/**
 		 * @private
 		 */	
-		public function set lineScrollSize(lineScrollSize:Number):void
+		public function set lineScrollSize(value:Number):void
 		{
-			this._lineScrollSize = lineScrollSize;
+			if (value != this._lineScrollSize)
+			{
+				var oldValue:Number = this._lineScrollSize;
+				this._lineScrollSize = value;
+				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "lineScrollSize", oldValue, value));
+			}
 		}
 
 
@@ -251,10 +271,15 @@
 		/**
 		 * @private
 		 */	
-		public function set minScrollPosition(minScrollPosition:Number):void
+		public function set minScrollPosition(value:Number):void
 		{
-			this._minScrollPosition = minScrollPosition;
-			this._updateThumb();
+			if (value != this._minScrollPosition)
+			{
+				var oldValue:Number = this._minScrollPosition;
+				this._minScrollPosition = value;
+				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "minScrollPosition", oldValue, value));
+				this._updateThumb();
+			}
 		}
 
 
@@ -268,10 +293,15 @@
 		/**
 		 * @private
 		 */	
-		public function set maxScrollPosition(maxScrollPosition:Number):void
+		public function set maxScrollPosition(value:Number):void
 		{
-			this._maxScrollPosition = Math.max(this.minScrollPosition || 0, maxScrollPosition);
-			this._update();
+			if (value != this._maxScrollPosition)
+			{
+				var oldValue:Number = this._maxScrollPosition;
+				this._maxScrollPosition = value;
+				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "maxScrollPosition", oldValue, value));
+				this._update();
+			}
 		}
 
 
@@ -614,6 +644,7 @@
 			var pct:Number = (thumbRect[this._xOrY] - trackRect[this._xOrY]) / (trackRect[this._widthOrHeight] - thumbRect[this._widthOrHeight]);
 			var oldScrollPosition:Number = this._scrollPosition;
 			this._scrollPosition = pct * (this.maxScrollPosition - this.minScrollPosition) + this.minScrollPosition;
+// TODO: Only dispatch if changes (but watch for first update)
 			this._dispatchScrollEvent(oldScrollPosition);
 		}
 		

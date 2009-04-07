@@ -8,7 +8,9 @@
 	import flash.events.MouseEvent;
 	import inky.framework.components.ITooltip;
 	import inky.framework.components.mapPane.views.IMapView;
+	import inky.framework.components.mapPane.views.IPointView;
 	import inky.framework.components.mapPane.models.MapModel;
+	import inky.framework.components.mapPane.models.PointModel;
 	
 	/**
 	 *
@@ -112,11 +114,27 @@
 		{
 			this._referencePoint = point;
 		}
-		public function get topLeftCornner():Point
+		public function get referencePoint():Point
 		{
 			return this._referencePoint || new Point();
 		}
-
+		
+		//
+		// public functions
+		//
+		
+		public function getPointByModel(model:PointModel):IPointView
+		{
+			var pointView:IPointView;
+			for (var i:int = 0; i < this.source.numChildren; i++)
+			{
+				var child:IPointView = this.source.getChildAt(i) as IPointView;
+				if (child && child.model == model) pointView = child;
+			}
+			
+			return pointView;
+		}
+		
 		//
 		// protected functions
 		//
@@ -126,21 +144,21 @@
 		*/
 		protected function setContent():void
 		{
-			for (var i:int = 0; i < this.model.getPointModels().length; i++)
+			for (var i:int = 0; i < this.model.pointModels.length; i++)
 			{
-				var itemView:Object = new this._pointViewClass();
-				var model:Object = this.model.getPointModels().getItemAt(i);
-				model.x += this.topLeftCornner.x;
-				model.y += this.topLeftCornner.y;
+				var pointView:Object = new this._pointViewClass();
+				var model:Object = this.model.pointModels.getItemAt(i);
+				model.x += this.referencePoint.x;
+				model.y += this.referencePoint.y;
 				
-				itemView.model = model;
+				pointView.model = model;
 				
 				if (this.__tooltip)
 				{
-					InteractiveObject(itemView).addEventListener(MouseEvent.ROLL_OVER, this._pointMouseHandler);
-					InteractiveObject(itemView).addEventListener(MouseEvent.ROLL_OUT, this._pointMouseHandler);
+					InteractiveObject(pointView).addEventListener(MouseEvent.ROLL_OVER, this._pointMouseHandler);
+					InteractiveObject(pointView).addEventListener(MouseEvent.ROLL_OUT, this._pointMouseHandler);
 				}
-				this.source.addChild(itemView as InteractiveObject);
+				this.source.addChild(pointView as InteractiveObject);
 			}
 		}				
 		

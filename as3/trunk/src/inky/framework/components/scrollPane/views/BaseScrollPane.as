@@ -1,5 +1,7 @@
 ﻿package inky.framework.components.scrollPane.views
 {
+	import inky.framework.binding.utils.BindingUtil;
+	import inky.framework.binding.events.PropertyChangeEvent;
 	import inky.framework.components.scrollPane.views.IScrollPane;
 	import inky.framework.components.scrollBar.views.IScrollBar;
 	import inky.framework.components.scrollBar.ScrollBarDirection;
@@ -40,6 +42,14 @@
 	{
 		private var __content:DisplayObject;
 		private var __contentContainer:Sprite;
+		private var _horizontalLineScrollSize:Number;
+		private var _horizontalPageScrollSize:Number;
+		private var _horizontalScrollPosition:Number;
+		private var _maxHorizontalScrollPosition:Number;
+		private var _maxVerticalScrollPosition:Number;
+		private var _verticalLineScrollSize:Number;
+		private var _verticalPageScrollSize:Number;
+		private var _verticalScrollPosition:Number;
 		private var __horizontalScrollBar:IScrollBar;
 		private var _horizontalScrollPolicy:String;
 		private var _loader:Loader;
@@ -48,8 +58,6 @@
 		private var __verticalScrollBar:IScrollBar;
 		private var _verticalScrollPolicy:String;
 		private var _draggable:Boolean;
-		private var _maxVerticalScrollPosition:Number;
-		private var _maxHorizontalScrollPosition:Number;
 		private var _oldXPosition:Number;
 		private var _oldYPosition:Number;
 
@@ -67,41 +75,7 @@
 		 */		 		 		 		
 		public function BaseScrollPane()
 		{
-			// Find the mask.
-			if (!(this.__mask = this.getChildByName('_mask')))
-			{ 
-				var child:DisplayObject;
-				for (var i:int = this.numChildren - 1; i >= 0; i--)
-				{
-					child = this.getChildAt(i);
-					if (child is Shape)
-					{
-						this.__mask = child;
-						break;
-					}
-				}
-				
-				if (!this.__mask)
-				{				
-					throw new Error('ScrollPane is missing a mask.');
-				}
-			}
-
-			this._verticalScrollPolicy = ScrollPolicy.AUTO;
-			this._horizontalScrollPolicy = ScrollPolicy.AUTO;
-
-			// Create the content container.
-			this.__contentContainer = this.getChildByName('_contentContainer') as Sprite;
-			if (this.__contentContainer == null)
-			{
-				this.__contentContainer = new Sprite();
-				this.addChild(this.__contentContainer);
-			}
-			this.__contentContainer.mask = this.__mask;
-
-			this.addEventListener(MouseEvent.MOUSE_WHEEL, this._mouseWheelHandler);
-
-			this._initChildren();
+			this._init();
 		}
 
 
@@ -126,15 +100,20 @@
 		 */
 		public function get horizontalLineScrollSize():Number
 		{
-			return this.horizontalScrollBar.lineScrollSize;
+			return this._horizontalLineScrollSize;
 		}
 		/**
 		 * @private
 		 */		 		
-		public function set horizontalLineScrollSize(horizontalLineScrollSize:Number):void
+		public function set horizontalLineScrollSize(value:Number):void
 		{
-			this.horizontalScrollBar.lineScrollSize = horizontalLineScrollSize;
-			this.update();
+			if (value != this._horizontalLineScrollSize)
+			{
+				var oldValue:Number = this._horizontalLineScrollSize;
+				this._horizontalLineScrollSize = value;
+				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "horizontalLineScrollSize", oldValue, value));
+				this.update();
+			}
 		}
 
 
@@ -143,15 +122,20 @@
 		 */
 		public function get horizontalPageScrollSize():Number
 		{
-			return this.horizontalScrollBar.pageScrollSize;
+			return this._horizontalPageScrollSize;
 		}
 		/**
 		 * @private
 		 */	
-		public function set horizontalPageScrollSize(horizontalPageScrollSize:Number):void
+		public function set horizontalPageScrollSize(value:Number):void
 		{
-			this.horizontalScrollBar.pageScrollSize = horizontalPageScrollSize;
-			this.update();
+			if (value != this._horizontalPageScrollSize)
+			{
+				var oldValue:Number = this._horizontalPageScrollSize;
+				this._horizontalPageScrollSize = value;
+				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "horizontalPageScrollSize", oldValue, value));
+				this.update();
+			}
 		}
 
 
@@ -186,14 +170,21 @@
 		 */
 		public function get horizontalScrollPosition():Number
 		{
-			return this.horizontalScrollBar.scrollPosition
+			return this._horizontalScrollPosition;
 		}
+		
 		/**
 		 * @private
 		 */
-		public function set horizontalScrollPosition(horizontalScrollPosition:Number):void
+		public function set horizontalScrollPosition(value:Number):void
 		{
-			this.horizontalScrollBar.scrollPosition = horizontalScrollPosition;
+			if (value != this._horizontalScrollPosition)
+			{
+				var oldValue:Number = this._horizontalScrollPosition;
+				this._horizontalScrollPosition = value;
+				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "horizontalScrollPosition", oldValue, value));
+				this.update();
+			}
 		}
 
 
@@ -202,15 +193,20 @@
 		 */
 		public function get maxHorizontalScrollPosition():Number
 		{
-			return this.horizontalScrollBar.maxScrollPosition;
+			return this._maxHorizontalScrollPosition;
 		}
 		/**
 		 * @private
 		 */
-		public function set maxHorizontalScrollPosition(maxHorizontalScrollPosition:Number):void
+		public function set maxHorizontalScrollPosition(value:Number):void
 		{
-			this.horizontalScrollBar.maxScrollPosition = maxHorizontalScrollPosition;
-			this.update();
+			if (value != this._maxHorizontalScrollPosition)
+			{
+				var oldValue:Number = this._maxHorizontalScrollPosition;
+				this._maxHorizontalScrollPosition = value;
+				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "maxHorizontalScrollPosition", oldValue, value));
+				this.update();
+			}
 		}
 
 
@@ -219,15 +215,20 @@
 		 */
 		public function get maxVerticalScrollPosition():Number
 		{
-			return this.verticalScrollBar.maxScrollPosition;
+			return this._maxVerticalScrollPosition;
 		}
 		/**
 		 * @private
 		 */
-		public function set maxVerticalScrollPosition(maxVerticalScrollPosition:Number):void
+		public function set maxVerticalScrollPosition(value:Number):void
 		{
-			this.verticalScrollBar.maxScrollPosition = maxVerticalScrollPosition;
-			this.update();
+			if (value != this._maxVerticalScrollPosition)
+			{
+				var oldValue:Number = this._maxVerticalScrollPosition;
+				this._maxVerticalScrollPosition = value;
+				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "maxVerticalScrollPosition", oldValue, value));
+				this.update();
+			}
 		}
 		
 
@@ -341,15 +342,20 @@
 		 */
 		public function get verticalLineScrollSize():Number
 		{
-			return this.verticalScrollBar.lineScrollSize;
+			return this._verticalLineScrollSize;
 		}
 		/**
 		 * @private
 		 */
-		public function set verticalLineScrollSize(verticalLineScrollSize:Number):void
+		public function set verticalLineScrollSize(value:Number):void
 		{
-			this.verticalScrollBar.lineScrollSize = verticalLineScrollSize;
-			this.update();
+			if (value != this._verticalLineScrollSize)
+			{
+				var oldValue:Number = this._verticalLineScrollSize;
+				this._verticalLineScrollSize = value;
+				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "verticalLineScrollSize", oldValue, value));
+				this.update();
+			}
 		}
 		
 		
@@ -358,15 +364,20 @@
 		 */
 		public function get verticalPageScrollSize():Number
 		{
-			return this.verticalScrollBar.pageScrollSize;
+			return this._verticalPageScrollSize;
 		}
 		/**
 		 * @private
 		 */
-		public function set verticalPageScrollSize(verticalPageScrollSize:Number):void
+		public function set verticalPageScrollSize(value:Number):void
 		{
-			this.verticalScrollBar.pageScrollSize = verticalPageScrollSize;
-			this.update();
+			if (value != this._verticalPageScrollSize)
+			{
+				var oldValue:Number = this._verticalPageScrollSize;
+				this._verticalPageScrollSize = value;
+				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "verticalPageScrollSize", oldValue, value));
+				this.update();
+			}
 		}
 		
 		
@@ -401,14 +412,20 @@
 		 */
 		public function get verticalScrollPosition():Number
 		{
-			return this.verticalScrollBar.scrollPosition
+			return this._verticalScrollPosition;
 		}
 		/**
 		 * @private
 		 */
-		public function set verticalScrollPosition(verticalScrollPosition:Number):void
+		public function set verticalScrollPosition(value:Number):void
 		{
-			this.verticalScrollBar.scrollPosition = verticalScrollPosition;
+			if (value != this._verticalScrollPosition)
+			{
+				var oldValue:Number = this._verticalScrollPosition;
+				this._verticalScrollPosition = value;
+				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "verticalScrollPosition", oldValue, value));
+				this.update();
+			}
 		}
 
 
@@ -447,15 +464,17 @@
 
 			if (this.draggable)
 			{
-				this._maxVerticalScrollPosition = (bounds.height + bounds.y) - this.__mask.height;
-				this._maxHorizontalScrollPosition = (bounds.width + bounds.x) - this.__mask.width;
+				this.maxVerticalScrollPosition = (bounds.height + bounds.y) - this.__mask.height;
+				this.maxHorizontalScrollPosition = (bounds.width + bounds.x) - this.__mask.width;
+				this.dragHandler();
 			}
 
 			if (this.verticalScrollBar)
 			{
 				var contentHeight:Number = bounds.height + bounds.y;
 				this.verticalScrollBar.enabled = this.__contentContainer.height > this.__mask.height;
-				this.verticalScrollBar.maxScrollPosition = contentHeight - this.__mask.height;
+
+				this.maxVerticalScrollPosition = Math.max(contentHeight - this.__mask.height, 0);
 
 				if (this.verticalScrollPolicy == ScrollPolicy.AUTO)
 				{
@@ -470,7 +489,7 @@
 			{
 				var contentWidth:Number = bounds.width + bounds.x;
 				this.horizontalScrollBar.enabled = this.__contentContainer.width > this.__mask.width;
-				this.horizontalScrollBar.maxScrollPosition = contentWidth - this.__mask.width;
+				this.maxHorizontalScrollPosition = Math.max(contentWidth - this.__mask.width, 0);
 
 				if (this.horizontalScrollPolicy == ScrollPolicy.AUTO)
 				{
@@ -553,6 +572,50 @@
 		*	
 		*	
 		*/
+		private function _init():void
+		{
+			// Find the mask.
+			if (!(this.__mask = this.getChildByName('_mask')))
+			{ 
+				var child:DisplayObject;
+				for (var i:int = this.numChildren - 1; i >= 0; i--)
+				{
+					child = this.getChildAt(i);
+					if (child is Shape)
+					{
+						this.__mask = child;
+						break;
+					}
+				}
+
+				if (!this.__mask)
+				{				
+					throw new Error('ScrollPane is missing a mask.');
+				}
+			}
+
+			this._horizontalLineScrollSize =
+			this._verticalLineScrollSize = 4;
+			this._verticalScrollPolicy = ScrollPolicy.AUTO;
+			this._horizontalScrollPolicy = ScrollPolicy.AUTO;
+
+			// Create the content container.
+			this.__contentContainer = this.getChildByName('_contentContainer') as Sprite;
+			if (this.__contentContainer == null)
+			{
+				this.__contentContainer = new Sprite();
+				this.addChild(this.__contentContainer);
+			}
+			this.__contentContainer.mask = this.__mask;
+			this.addEventListener(MouseEvent.MOUSE_WHEEL, this._mouseWheelHandler);
+			this._initChildren();
+		}
+
+
+		/**
+		 *	
+		 *	
+		 */
 		private function _draggableMouseHandler(e:MouseEvent):void
 		{						
 			switch (e.type)
@@ -572,7 +635,7 @@
 		}
 
 		private function _mouseMoveHandler(e:MouseEvent):void
-		{	
+		{
 			if (!this._oldXPosition) this._oldXPosition = e.currentTarget.mouseX;
 			if (!this._oldYPosition) this._oldYPosition = e.currentTarget.mouseY;
 
@@ -580,7 +643,7 @@
 			var xPosition:Number = contentContainer.x - (this._oldXPosition - e.currentTarget.mouseX);
 			var yPosition:Number = contentContainer.y - (this._oldYPosition - e.currentTarget.mouseY);
 
-			if (Math.abs(xPosition) <= this._maxHorizontalScrollPosition && xPosition <= this.__mask.x && Math.abs(yPosition) <= this._maxVerticalScrollPosition && yPosition <= this.__mask.y)
+			if (Math.abs(xPosition) <= this.maxHorizontalScrollPosition && xPosition <= this.__mask.x && Math.abs(yPosition) <= this.maxVerticalScrollPosition && yPosition <= this.__mask.y)
 			{
 				if (this.horizontalScrollBar) this.horizontalScrollBar.scrollPosition += (this._oldXPosition - e.currentTarget.mouseX) ;
 				if (this.verticalScrollBar) this.verticalScrollBar.scrollPosition += (this._oldYPosition - e.currentTarget.mouseY);
@@ -619,34 +682,39 @@
 			if (this.verticalScrollBar)
 			{
 				this.verticalScrollBar.addEventListener(ScrollEvent.SCROLL, this._scrollHandler);
-				this.verticalScrollBar.pageScrollSize =
-				this.verticalScrollBar.pageSize = this.__mask.height;
+				this.verticalPageScrollSize = this.__mask.height;
 				this.verticalScrollBar.direction = ScrollBarDirection.VERTICAL;
-				
-				if ((this as Object)._verticalScrollBar)
-				{
-					(this as Object)._verticalScrollBar = null;
-				}
+
+				BindingUtil.bindProperty(this.verticalScrollBar, "lineScrollSize", this, "verticalLineScrollSize");
+				BindingUtil.bindProperty(this, "verticalLineScrollSize", this, ["verticalScrollBar", "lineScrollSize"]);
+				BindingUtil.bindProperty(this.verticalScrollBar, "pageScrollSize", this, "verticalPageScrollSize");
+				BindingUtil.bindProperty(this, "verticalPageScrollSize", this, ["verticalScrollBar", "pageScrollSize"]);
+				BindingUtil.bindProperty(this.verticalScrollBar, "scrollPosition", this, "verticalScrollPosition");
+				BindingUtil.bindProperty(this, "verticalScrollPosition", this, ["verticalScrollBar", "scrollPosition"]);
+				BindingUtil.bindProperty(this.verticalScrollBar, "maxScrollPosition", this, "maxVerticalScrollPosition");
+				BindingUtil.bindProperty(this, "maxVerticalScrollPosition", this, ["verticalScrollBar", "maxScrollPosition"]);
 			}
 
 			if (this.horizontalScrollBar)
 			{
 				this.horizontalScrollBar.addEventListener(ScrollEvent.SCROLL, this._scrollHandler);
-				this.horizontalScrollBar.pageScrollSize =
-				this.horizontalScrollBar.pageSize = this.__mask.width;
+				this.horizontalPageScrollSize = this.__mask.width;
 				this.horizontalScrollBar.direction = ScrollBarDirection.HORIZONTAL;
-				
-				if ((this as Object)._horizontalScrollBar)
-				{
-					(this as Object)._horizontalScrollBar = null;
-				}
+
+				BindingUtil.bindProperty(this.horizontalScrollBar, "lineScrollSize", this, "horizontalLineScrollSize");
+				BindingUtil.bindProperty(this, "horizontalLineScrollSize", this, ["horizontalScrollBar", "lineScrollSize"]);
+				BindingUtil.bindProperty(this.horizontalScrollBar, "pageScrollSize", this, "horizontalPageScrollSize");
+				BindingUtil.bindProperty(this, "horizontalPageScrollSize", this, ["horizontalScrollBar", "pageScrollSize"]);
+				BindingUtil.bindProperty(this.horizontalScrollBar, "scrollPosition", this, "horizontalScrollPosition");
+				BindingUtil.bindProperty(this, "horizontalScrollPosition", this, ["horizontalScrollBar", "scrollPosition"]);
+				BindingUtil.bindProperty(this.horizontalScrollBar, "maxScrollPosition", this, "maxHorizontalScrollPosition");
+				BindingUtil.bindProperty(this, "maxHorizontalScrollPosition", this, ["horizontalScrollBar", "maxScrollPosition"]);
 			}
 			
 			// If the ScrollPane has a _content clip, use it as the source.
 			var tmp:DisplayObject;
 			if ((tmp = this.getChildByName('_content')))
 			{
-				(this as Object)._content = null;
 				this.source = tmp;
 			}
 		}	
@@ -658,14 +726,14 @@
 		 *
 		 */
 		private function _mouseWheelHandler(e:MouseEvent):void
-		{
+		{			
 			if (this.verticalScrollBar && this.verticalScrollBar.enabled)
 			{
-				this.verticalScrollBar.scrollPosition -= e.delta / 3 * (this.verticalScrollBar.lineScrollSize || this.verticalScrollBar.pageScrollSize || this.verticalScrollBar.pageSize);
+				this.verticalScrollPosition -= e.delta / 3 * (this.verticalLineScrollSize || this.verticalPageScrollSize || this.verticalScrollBar.pageSize);
 			}
 			else if (this.horizontalScrollBar && this.horizontalScrollBar.enabled)
 			{
-				this.horizontalScrollBar.scrollPosition -= e.delta / 3 * (this.horizontalScrollBar.lineScrollSize || this.horizontalScrollBar.pageScrollSize || this.horizontalScrollBar.pageSize);
+				this.horizontalScrollPosition -= e.delta / 3 * (this.horizontalLineScrollSize || this.horizontalPageScrollSize || this.horizontalScrollBar.pageSize);
 			}
 		}
 		
@@ -692,9 +760,25 @@
 			this.dispatchEvent(e);
 		}
 
+
+
+		protected function dragHandler():void
+		{
+			this._scrollAndDragHandler();
+		}
+		
+		private function _scrollAndDragHandler():void
+		{
+			var x:Number = this.horizontalScrollBar ? -this.horizontalScrollPosition : this.__contentContainer.x;
+			var y:Number = this.verticalScrollBar ? -this.verticalScrollPosition : this.__contentContainer.y;
+			this.moveContent(x, y);
+		}
+
+
+
 		protected function scrollHandler(e:ScrollEvent):void
 		{
-			this.moveContent(this.horizontalScrollBar ? -this.horizontalScrollPosition : this.__contentContainer.x, this.verticalScrollBar ? -this.verticalScrollPosition : this.__contentContainer.y);
+			this._scrollAndDragHandler();
 		}
 
 

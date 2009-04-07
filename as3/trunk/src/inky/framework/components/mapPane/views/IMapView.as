@@ -1,8 +1,10 @@
 package inky.framework.components.mapPane.views
 {
+	import flash.geom.Point;
 	import inky.framework.components.mapPane.models.MapModel;
+	import inky.framework.display.IDisplayObject;
 	
-	public interface IMapView
+	public interface IMapView extends IDisplayObject
 	{
 		
 		/**	
@@ -22,7 +24,7 @@ package inky.framework.components.mapPane.views
 		function get pointViewClass():Class;
 				
 		/**
-		*	Gets and Sets the source for the MapPane. Essentially, this is the background of the map 
+		*	Gets and Sets the source for the MapPane. This is the background of the map 
 		*	that is dragged and zoomed into. Currently, this only supports DisplayObjects.
 		*	
 		*	@param source
@@ -30,5 +32,15 @@ package inky.framework.components.mapPane.views
 		*/
 		function set source(source:Object):void;
 		function get source():Object;
+		
+		/**
+		*	Gets and sets the reference point for the map. This returns a Point object containg
+		*	the x and y values. By default it returns a Point with (0, 0) values. 
+		*	
+		*	@param point
+		*/
+		function set referencePoint(point:Point):void
+		function get referencePoint():Point;
+		
 	}
 }
