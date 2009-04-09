@@ -89,7 +89,7 @@ package inky.framework.components.gallery.views
 		 */
 		public function get featureSize():String
 		{
-			return this._featureSize || 'regular';
+			return this._featureSize;
 		}
 		/**
 		 * @private
@@ -141,7 +141,7 @@ package inky.framework.components.gallery.views
 		 */
 		public function get previewSize():String
 		{
-			return this._previewSize || 'thumbnail';
+			return this._previewSize;
 		}
 		/**
 		 * @private
