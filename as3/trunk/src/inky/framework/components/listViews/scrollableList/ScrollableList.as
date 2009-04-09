@@ -323,6 +323,9 @@
 		 */
 		override protected function scrollHandler(e:ScrollEvent):void
 		{
+// TODO: Because the super constructor's bindings access something that calls this, orientation 
+// is null (not yet initialized). Should orientation have a default value?  
+if (!this.orientation) return;
 			var index:Number = Math.round(this._getScrollPosition());
 			if (!isNaN(index))
 			{
@@ -476,7 +479,7 @@ er = 7;
 // FIXME: should work with both, in case for example items in a vertically oriented list are too wide.
 				throw new Error("A ScrollableList can have either a horizontal or vertical scroll bar, but not both (yet)");
 			}
-			
+
 			if (this.horizontalScrollBar)
 			{
 				this.orientation = HORIZONTAL;

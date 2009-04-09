@@ -66,38 +66,37 @@
 
 		override protected function selectedGroupChanged():void
 		{
-			if (!this._listView.itemViewClass)
+if (!this.model) return;			
+			var data:GalleryGroupModel;
+			if (this.model && (data = this.model.selectedGroupModel))
 			{
-				throw new Error("galleryItemViewClass is not set!");
+				if (!this._listView.itemViewClass)
+				{
+					throw new Error("galleryItemViewClass is not set!");
+				}
+				this._listView.model = this.model.selectedGroupModel.items;
 			}
-			this._listView.model = this.model.selectedGroupModel.items;
+			else
+			{
+				// Clear it?
+			}
 		}
 
 
 		override protected function selectedItemChanged():void
 		{
-			this._listView.showItemAt(this.model.selectedItemIndex);
-			super.selectedItemChanged();
-		}
-
-
-/*		override protected function selectedItemChanged():void
-		{
-			var data:GalleryItemModel = this.model.selectedItemModel;
-			if (data)
+if (!this.model) return;
+			var index:uint;
+			if (this.model && ((index = this.model.selectedItemIndex) >= 0))
 			{
-trace(data);
-				var loader:DisplayObject = this.loadManager.getItemLoader(data);
-				this.addChild(loader);
-				this.loadManager.loadItem(data);
-				
+				this._listView.showItemAt(this.model.selectedItemIndex);
+				super.selectedItemChanged();
 			}
 			else
 			{
-				// Clear it.
-trace("clear");
+				// Clear it?
 			}
-		}*/
+		}
 
 
 	}

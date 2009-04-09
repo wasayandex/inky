@@ -1,9 +1,12 @@
 ﻿package inky.framework.components.gallery.views
 {
+	import inky.framework.binding.events.PropertyChangeEvent;
+	import inky.framework.binding.utils.BindingUtil;
 	import inky.framework.components.gallery.*;
 	import inky.framework.components.gallery.models.*;
 	import inky.framework.components.gallery.loading.*;
 	import inky.framework.components.gallery.events.*;
+	import inky.framework.utils.EqualityUtil;
 	import flash.display.*;
 	import flash.events.MouseEvent;
 	import flash.events.Event;
@@ -37,6 +40,8 @@
 
 		public function GallerySprite()
 		{
+			BindingUtil.bindSetter(this._groupChangeHandler, this, ["model", "selectedGroupModel"]);
+			BindingUtil.bindSetter(this._itemChangeHandler, this, ["model", "selectedItemModel"]);
 			this._init();
 		}
 
@@ -99,19 +104,12 @@ public function set loadManager(value:IGalleryLoadManager):void
 		 */
 		public function set model(model:GalleryModel):void
 		{
-			if (this._model)
+			var oldModel:GalleryModel = this._model;
+			if (!EqualityUtil.objectsAreEqual(oldModel, model))
 			{
-				this._model.removeEventListener(GalleryEvent.SELECTED_ITEM_CHANGE, this._itemChangeHandler);
-				this._model.removeEventListener(GalleryEvent.SELECTED_GROUP_CHANGE, this._groupChangeHandler);
+				this._model = model;
+				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, 'model', oldModel, model));
 			}
-
-			if (model)
-			{
-				model.addEventListener(GalleryEvent.SELECTED_ITEM_CHANGE, this._itemChangeHandler, false, 0, true);
-				model.addEventListener(GalleryEvent.SELECTED_GROUP_CHANGE, this._groupChangeHandler, false, 0, true);
-			}
-
-			this._model = model;
 		}
 
 
@@ -189,7 +187,7 @@ public function set loadManager(value:IGalleryLoadManager):void
 		//
 
 
-private function _groupChangeHandler(e:GalleryEvent):void
+private function _groupChangeHandler(e:Object):void
 {
 	this.selectedGroupChanged();
 }
@@ -204,7 +202,7 @@ protected function selectedItemChanged():void
 		/**
 		 *
 		 */
-		private function _itemChangeHandler(e:GalleryEvent):void
+		private function _itemChangeHandler(e:Object):void
 		{
 			this.selectedItemChanged();
 		}

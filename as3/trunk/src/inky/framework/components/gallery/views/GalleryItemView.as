@@ -12,6 +12,7 @@ package inky.framework.components.gallery.views
 	import flash.geom.Matrix;
 	import flash.geom.Rectangle;
 	import flash.utils.Timer;
+	import inky.framework.binding.events.PropertyChangeEvent;
 	import inky.framework.components.gallery.models.GalleryImageModel;
 	import inky.framework.components.gallery.models.GalleryItemModel;
 	import inky.framework.components.gallery.views.IGalleryItemView;
@@ -20,6 +21,7 @@ package inky.framework.components.gallery.views
 	import inky.framework.events.AssetLoaderEvent;
 	import inky.framework.loading.loaders.IAssetLoader;
 	import inky.framework.loading.loaders.ImageLoader;
+	import inky.framework.utils.EqualityUtil;
 
 	
 	/**
@@ -48,6 +50,7 @@ package inky.framework.components.gallery.views
 		private var _progressBarDelay:uint;
 		private var __progressBar:IProgressBar;
 		private var _loader:IAssetLoader;
+		private var _loadingSize:String;
 		
 		/**
 		 *
@@ -109,31 +112,27 @@ package inky.framework.components.gallery.views
 		 */
 		public function set model(value:GalleryItemModel):void
 		{
-			if (this._model)
+			if (this.progressBar)
+				this.progressBar.source = null;
+
+			var oldModel:GalleryItemModel = this._model;
+			if (!EqualityUtil.objectsAreEqual(oldModel, value))
 			{
-				var loader:IAssetLoader = this.getLoader();
-				loader.removeEventListener(AssetLoaderEvent.READY, this._featureReadyHandler);
-				loader.removeEventListener(AssetLoaderEvent.READY, this._previewReadyHandler);
+				if (value)
+				{
+					var feature:GalleryImageModel = GalleryImageModel(value.images.findFirst({size: this.featureSize}));
+					var preview:GalleryImageModel = GalleryImageModel(value.images.findFirst({size: this.previewSize}));
 
-				if (this.progressBar)
-					this.progressBar.source = null;
+					if (preview)
+						this._startLoad(preview, "preview");
+					else
+						this._startLoad(feature, "feature");
+				}
 
+				this._model = value;
+				this.modelUpdated();
+				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, 'model', oldModel, value));
 			}
-
-			this._model = value;
-			
-			if (this._model)
-			{
-				var feature:GalleryImageModel = GalleryImageModel(value.images.findFirst({size: this.featureSize}));
-				var preview:GalleryImageModel = GalleryImageModel(value.images.findFirst({size: this.previewSize}));
-				
-				if (preview)
-					this._startPreviewLoad(preview);
-				else
-					this._startFeatureLoad(feature);
-			}
-			
-			this.modelUpdated();
 		}
 
 
@@ -266,12 +265,30 @@ package inky.framework.components.gallery.views
 		/**
 		 *	
 		 */
+		protected function getFeature():DisplayObject
+		{ 
+			return this._feature; 
+		}
+
+
+		/**
+		 *	
+		 */
 		protected function getLoader():IAssetLoader
 		{
 			if (!this._loader)
 				this._loader = new ImageLoader();
 
 			return this._loader;
+		}
+		
+		
+		/**
+		 *	
+		 */
+		protected function getPreview():DisplayObject
+		{ 
+			return this._preview; 
 		}
 		
 		
@@ -395,6 +412,9 @@ package inky.framework.components.gallery.views
 		 */
 		private function _init():void
 		{
+			this.previewSize = 'thumbnail';
+			this.featureSize = 'regular';
+
 			this.progressBar = IProgressBar(this.getChildByName('_progressBar'));
 			if (this.progressBar)
 				this.removeChild(DisplayObject(this.progressBar));
@@ -436,45 +456,41 @@ package inky.framework.components.gallery.views
 		/**
 		 *	
 		 */
-		private function _previewReadyHandler(e:AssetLoaderEvent):void
+		private function _readyHandler(e:AssetLoaderEvent):void
 		{
-			e.target.removeEventListener(e.type, arguments.callee);
-			this._preview = this.createPreview(DisplayObject(e.target));
-			this.previewLoaded();
-			this._startFeatureLoad(GalleryImageModel(this.model.images.findFirst({size: this.featureSize})));
-		}
-		
+			if (this._loadingSize == "feature")
+			{
+				this._feature = this.createFeature(DisplayObject(e.target));
+				this.featureLoaded();
+			}
+			else if (this._loadingSize == "preview")
+			{
+				this._preview = this.createPreview(DisplayObject(e.target));
+				this.previewLoaded();
 
-		/**
-		 *	
-		 */
-		private function _startPreviewLoad(preview:GalleryImageModel):void
-		{
-			var loader:IAssetLoader = this.getLoader();
-			loader.source = preview.source;
-			loader.addEventListener(AssetLoaderEvent.READY, this._previewReadyHandler);
-			this._startLoad();
-		}
-
-
-		/**
-		 *	
-		 */
-		private function _startFeatureLoad(feature:GalleryImageModel):void
-		{
-			var loader:IAssetLoader = this.getLoader();
-			loader.source = feature.source;
-			loader.addEventListener(AssetLoaderEvent.READY, this._featureReadyHandler);
-			this._startLoad();
+				var feature:GalleryImageModel = GalleryImageModel(this.model.images.findFirst({size: this.featureSize}));
+				if (feature)
+				{
+					this._startLoad(feature, "feature");
+				}
+			}
+			else
+			{
+				throw new Error(this._loadingSize)
+			}
 		}
 
 
 		/**
 		 *	
 		 */
-		private function _startLoad():void
+		private function _startLoad(model:GalleryImageModel, loadingSize:String):void
 		{
 			var loader:IAssetLoader = this.getLoader();
+			this._loadingSize = loadingSize;
+
+			loader.source = model.source;
+			loader.addEventListener(AssetLoaderEvent.READY, this._readyHandler);
 			loader.load();
 
 			if (this.progressBar)
@@ -485,6 +501,7 @@ package inky.framework.components.gallery.views
 				timeout.start();
 			}
 		}
+
 
 
 

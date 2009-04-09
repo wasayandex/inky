@@ -9,6 +9,7 @@
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.net.URLRequest;
+	import inky.framework.binding.events.PropertyChangeEvent;
 	import inky.framework.binding.utils.*;
 
 
@@ -189,6 +190,7 @@ if (name == null)
 						}
 						newData.selected = true;
 						this.dispatchEvent(new GalleryEvent(GalleryEvent.SELECTED_ITEM_CHANGE));
+						this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, 'selectedItemModel', oldData, newData));
 					}
 				}
 			}

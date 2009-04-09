@@ -63,8 +63,8 @@
 
 		override protected function selectedItemChanged():void
 		{
-			var data:GalleryItemModel = this.model.selectedItemModel;
-			if (data)
+			var data:GalleryItemModel;
+			if (this.model && (data = this.model.selectedItemModel))
 			{
 				// Update the gallery item view(s)
 				for each (var itemView:IGalleryItemView in this._itemViews)
