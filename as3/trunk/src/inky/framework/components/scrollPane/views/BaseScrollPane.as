@@ -58,8 +58,8 @@
 		private var __verticalScrollBar:IScrollBar;
 		private var _verticalScrollPolicy:String;
 		private var _draggable:Boolean;
-		private var _oldXPosition:Number;
-		private var _oldYPosition:Number;
+		private var _oldMouseXPosition:Number;
+		private var _oldMouseYPosition:Number;
 
 
 		/**
@@ -550,11 +550,11 @@
 		protected function moveContent(x:Number, y:Number):void
 		{
 			var contentContainer:DisplayObjectContainer = this.getContentContainer();
-			if (this.verticalScrollBar)
+			if (this.verticalScrollBar || this.draggable)
 			{
 				contentContainer.y = y;
 			}
-			if (this.horizontalScrollBar)
+			if (this.horizontalScrollBar || this.draggable)
 			{
 				contentContainer.x = x;
 			}
@@ -621,38 +621,56 @@
 			switch (e.type)
 			{
 				case MouseEvent.MOUSE_DOWN:
-					this.stage.addEventListener(MouseEvent.MOUSE_UP, this._draggableMouseHandler);
 					this.stage.addEventListener(MouseEvent.MOUSE_MOVE, this._mouseMoveHandler);
+					this.stage.addEventListener(MouseEvent.MOUSE_UP, this._draggableMouseHandler);
 					break;
 				case MouseEvent.MOUSE_UP:
-					this._oldXPosition = undefined;
-					this._oldYPosition = undefined;
+					this._oldMouseXPosition = undefined;
+					this._oldMouseYPosition = undefined;
 
-					this.stage.removeEventListener(MouseEvent.MOUSE_UP, this._draggableMouseHandler);
 					this.stage.removeEventListener(MouseEvent.MOUSE_MOVE, this._mouseMoveHandler);				
+					this.stage.removeEventListener(MouseEvent.MOUSE_UP, this._draggableMouseHandler);
 					break;
 			}
 		}
 
 		private function _mouseMoveHandler(e:MouseEvent):void
 		{
-			if (!this._oldXPosition) this._oldXPosition = e.currentTarget.mouseX;
-			if (!this._oldYPosition) this._oldYPosition = e.currentTarget.mouseY;
-
+			// If the old X and Y position are undefined set the current mouse X and Y coordinates are their value
+			if (!this._oldMouseXPosition) this._oldMouseXPosition = e.currentTarget.mouseX;
+			if (!this._oldMouseYPosition) this._oldMouseYPosition = e.currentTarget.mouseY;
+			
+			// Find the new X and Y positions for the content container
 			var contentContainer:DisplayObject = this.getContentContainer();
-			var xPosition:Number = contentContainer.x - (this._oldXPosition - e.currentTarget.mouseX);
-			var yPosition:Number = contentContainer.y - (this._oldYPosition - e.currentTarget.mouseY);
+			var xPosition:Number = contentContainer.x - (this._oldMouseXPosition - e.currentTarget.mouseX);
+			var yPosition:Number = contentContainer.y - (this._oldMouseYPosition - e.currentTarget.mouseY);
+			var horizontalScrollPosition:Number;
+			var verticalScrollPosition:Number;
 
+			// Check to make sure the map isn't dragged outside of the map bounds.
 			if (Math.abs(xPosition) <= this.maxHorizontalScrollPosition && xPosition <= this.__mask.x && Math.abs(yPosition) <= this.maxVerticalScrollPosition && yPosition <= this.__mask.y)
+			{				
+				horizontalScrollPosition = this.horizontalScrollPosition + (this._oldMouseXPosition - e.currentTarget.mouseX) + 2;
+				verticalScrollPosition = this.verticalScrollPosition + (this._oldMouseYPosition - e.currentTarget.mouseY) + 2;
+			}
+			else
 			{
-				if (this.horizontalScrollBar) this.horizontalScrollBar.scrollPosition += (this._oldXPosition - e.currentTarget.mouseX) ;
-				if (this.verticalScrollBar) this.verticalScrollBar.scrollPosition += (this._oldYPosition - e.currentTarget.mouseY);
+				horizontalScrollPosition = this.horizontalScrollPosition;
+				xPosition = contentContainer.x;
+				
+				verticalScrollPosition = this.verticalScrollPosition;
+				yPosition = contentContainer.y;
+			}
 
-				if (!this.horizontalScrollBar || !this.verticalScrollBar) this.moveContent(xPosition, yPosition);
-			}		
+			// Set the horizontal and vertical scroll positions if there are any scrollbars
+			this.horizontalScrollPosition = horizontalScrollPosition;
+			this.verticalScrollPosition = verticalScrollPosition;
 
-			this._oldXPosition = e.currentTarget.mouseX;
-			this._oldYPosition = e.currentTarget.mouseY;
+			// Check to see if there are any scrollbars. If there isn't then use moveContent()
+			if (!this.horizontalScrollBar || !this.verticalScrollBar) this.moveContent(xPosition, yPosition);
+			
+			this._oldMouseXPosition = e.currentTarget.mouseX;
+			this._oldMouseYPosition = e.currentTarget.mouseY;
 		}
 
 		/**
@@ -678,7 +696,7 @@
 		{
 			this.__verticalScrollBar = this.getChildByName('_verticalScrollBar') as IScrollBar;
 			this.__horizontalScrollBar = this.getChildByName('_horizontalScrollBar') as IScrollBar;
-
+		
 			if (this.verticalScrollBar)
 			{
 				this.verticalScrollBar.addEventListener(ScrollEvent.SCROLL, this._scrollHandler);

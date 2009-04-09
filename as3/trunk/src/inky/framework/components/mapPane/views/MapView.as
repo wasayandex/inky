@@ -126,7 +126,8 @@
 		public function getPointByModel(model:PointModel):IPointView
 		{
 			var pointView:IPointView;
-			for (var i:int = 0; i < this.source.numChildren; i++)
+			var length:int = this.source.numChildren;
+			for (var i:int = 0; i < length; i++)
 			{
 				var child:IPointView = this.source.getChildAt(i) as IPointView;
 				if (child && child.model == model) pointView = child;
@@ -144,10 +145,11 @@
 		*/
 		protected function setContent():void
 		{
-			for (var i:int = 0; i < this.model.pointModels.length; i++)
+			var length:int = this.model.pointModels.length;
+			for (var i:int = 0; i < length; i++)
 			{
-				var pointView:Object = new this._pointViewClass();
-				var model:Object = this.model.pointModels.getItemAt(i);
+				var pointView:IPointView = new this._pointViewClass();
+				var model:PointModel = this.model.pointModels.getItemAt(i) as PointModel;
 				model.x += this.referencePoint.x;
 				model.y += this.referencePoint.y;
 				
@@ -155,10 +157,10 @@
 				
 				if (this.__tooltip)
 				{
-					InteractiveObject(pointView).addEventListener(MouseEvent.ROLL_OVER, this._pointMouseHandler);
-					InteractiveObject(pointView).addEventListener(MouseEvent.ROLL_OUT, this._pointMouseHandler);
+					pointView.addEventListener(MouseEvent.ROLL_OVER, this._pointMouseHandler);
+					pointView.addEventListener(MouseEvent.ROLL_OUT, this._pointMouseHandler);
 				}
-				this.source.addChild(pointView as InteractiveObject);
+				this.source.addChild(pointView);
 			}
 		}				
 		
