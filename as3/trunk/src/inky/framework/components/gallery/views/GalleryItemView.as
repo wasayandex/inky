@@ -13,6 +13,8 @@ package inky.framework.components.gallery.views
 	import flash.geom.Rectangle;
 	import flash.utils.Timer;
 	import inky.framework.binding.events.PropertyChangeEvent;
+	import inky.framework.collections.ArrayList;
+	import inky.framework.collections.IIterator;
 	import inky.framework.components.gallery.models.GalleryImageModel;
 	import inky.framework.components.gallery.models.GalleryItemModel;
 	import inky.framework.components.gallery.views.IGalleryItemView;
@@ -22,7 +24,6 @@ package inky.framework.components.gallery.views
 	import inky.framework.loading.loaders.IAssetLoader;
 	import inky.framework.loading.loaders.ImageLoader;
 	import inky.framework.utils.EqualityUtil;
-
 	
 	/**
 	 *
@@ -41,11 +42,13 @@ package inky.framework.components.gallery.views
 	{
 		private var __container:DisplayObjectContainer;
 		private var _containerBounds:Rectangle;
-		private var _feature:DisplayObject;
+//		private var _feature:DisplayObject;
+		private var _features:ArrayList;
 		private var _featureSize:String;
 		private var _model:GalleryItemModel;
 		private var _orientation:String;
-		private var _preview:DisplayObject;
+		private var _previews:ArrayList;
+//		private var _preview:DisplayObject;
 		private var _previewSize:String;
 		private var _progressBarDelay:uint;
 		private var __progressBar:IProgressBar;
@@ -194,18 +197,28 @@ package inky.framework.components.gallery.views
 		/**
 		 *	
 		 */
-		protected function addFeature():void
+		protected function addFeature(feature:DisplayObject):void
 		{
-			this.container.addChild(this._feature);
+			for (var i:IIterator = this._features.iterator(); i.hasNext();)
+			{
+				this.removeFeature(DisplayObject(i.next()));
+			}
+			this._features.addItem(feature);
+			this.container.addChild(feature);
 		}
 		
 
 		/**
 		 *	
 		 */
-		protected function addPreview():void
+		protected function addPreview(preview:DisplayObject):void
 		{
-			this.container.addChild(this._preview);
+			for (var i:IIterator = this._previews.iterator(); i.hasNext();)
+			{
+				this.removePreview(DisplayObject(i.next()));
+			}
+			this._previews.addItem(preview);
+			this.container.addChild(preview);
 		}
 		
 
@@ -226,9 +239,16 @@ package inky.framework.components.gallery.views
 		 */
 		protected function clearContainer():void
 		{
-			while (this.container.numChildren > 1)
+			var i:IIterator;
+
+			for (i = this._features.iterator(); i.hasNext();)
 			{
-				this.container.removeChildAt(this.container.numChildren - 1);
+				this.removeFeature(DisplayObject(i.next()));
+			}
+
+			for (i = this._previews.iterator(); i.hasNext();)
+			{
+				this.removePreview(DisplayObject(i.next()));
 			}
 		}
 		
@@ -254,23 +274,14 @@ package inky.framework.components.gallery.views
 		/**
 		 *	
 		 */
-		protected function featureLoaded():void
+		protected function featureLoaded(feature:DisplayObject):void
 		{
-			this.removePreview();
 			this.removeProgressBar();
-			this.addFeature();
+			this.clearContainer();
+			this.addFeature(feature);
 		}
 		
 		
-		/**
-		 *	
-		 */
-		protected function getFeature():DisplayObject
-		{ 
-			return this._feature; 
-		}
-
-
 		/**
 		 *	
 		 */
@@ -286,39 +297,37 @@ package inky.framework.components.gallery.views
 		/**
 		 *	
 		 */
-		protected function getPreview():DisplayObject
-		{ 
-			return this._preview; 
-		}
-		
-		
-		/**
-		 *	
-		 */
 		protected function modelUpdated():void
 		{
-			this.clearContainer();
 		}
 		
 		
 		/**
 		 *	
 		 */
-		protected function previewLoaded():void
+		protected function previewLoaded(preview:DisplayObject):void
 		{
-			this.addPreview();
+			this.addPreview(preview);
 		}
 		
 		
 		/**
 		 *	
 		 */
-		protected function removePreview():void
+		protected function removeFeature(feature:DisplayObject):void
 		{
-			if (this._preview && this.container.contains(this._preview))
-			{
-				this.container.removeChild(this._preview);
-			}
+			this._removeFromContainer(feature);
+			this._features.removeItem(feature);
+		}
+
+
+		/**
+		 *	
+		 */
+		protected function removePreview(preview:DisplayObject):void
+		{
+			this._removeFromContainer(preview);
+			this._previews.removeItem(preview);
 		}
 
 
@@ -402,8 +411,7 @@ package inky.framework.components.gallery.views
 		private function _featureReadyHandler(e:AssetLoaderEvent):void
 		{
 			e.target.removeEventListener(e.type, arguments.callee);
-			this._feature = this.createFeature(DisplayObject(e.target));
-			this.featureLoaded();
+			this.featureLoaded(this.createFeature(DisplayObject(e.target)));
 		}
 		
 		
@@ -414,7 +422,9 @@ package inky.framework.components.gallery.views
 		{
 			this.previewSize = 'thumbnail';
 			this.featureSize = 'regular';
-
+			this._previews = new ArrayList();
+			this._features = new ArrayList();
+			
 			this.progressBar = IProgressBar(this.getChildByName('_progressBar'));
 			if (this.progressBar)
 				this.removeChild(DisplayObject(this.progressBar));
@@ -460,23 +470,35 @@ package inky.framework.components.gallery.views
 		{
 			if (this._loadingSize == "feature")
 			{
-				this._feature = this.createFeature(DisplayObject(e.target));
-				this.featureLoaded();
+				var feature:DisplayObject = this.createFeature(DisplayObject(e.target));
+				this.featureLoaded(feature);
 			}
 			else if (this._loadingSize == "preview")
 			{
-				this._preview = this.createPreview(DisplayObject(e.target));
-				this.previewLoaded();
+				var preview:DisplayObject = this.createPreview(DisplayObject(e.target));
+				this.previewLoaded(preview);
 
-				var feature:GalleryImageModel = GalleryImageModel(this.model.images.findFirst({size: this.featureSize}));
-				if (feature)
+				var featureModel:GalleryImageModel = GalleryImageModel(this.model.images.findFirst({size: this.featureSize}));
+				if (featureModel)
 				{
-					this._startLoad(feature, "feature");
+					this._startLoad(featureModel, "feature");
 				}
 			}
 			else
 			{
 				throw new Error(this._loadingSize)
+			}
+		}
+		
+		
+		/**
+		 *	
+		 */
+		private function _removeFromContainer(object:DisplayObject):void
+		{
+			if (this.container.contains(object))
+			{
+				this.container.removeChild(object);
 			}
 		}
 

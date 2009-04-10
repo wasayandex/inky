@@ -88,35 +88,38 @@ package inky.framework.binding.utils
 		 */
 		public function reset(newHost:Object):void
 		{
-			var eventType:String;
-			var eventTypes:Array;
-
-			// Remove the event listeners from the current host.
-			if (this._host != null)
+			if (newHost != this._host)
 			{
-				eventTypes = this._events || BindingUtil.getPropertyBindingEvents(this._host.constructor, this._name);
-				for each (eventType in eventTypes)
+				var eventType:String;
+				var eventTypes:Array;
+
+				// Remove the event listeners from the current host.
+				if (this._host != null)
 				{
-					this._host.removeEventListener(eventType, this._wrappedHandler);
+					eventTypes = this._events || BindingUtil.getPropertyBindingEvents(this._host.constructor, this._name);
+					for each (eventType in eventTypes)
+					{
+						this._host.removeEventListener(eventType, this._wrappedHandler);
+					}
 				}
-			}
 
-			this._host = newHost;
+				this._host = newHost;
 
-			// Add listeners to the new host.
-			if (this._host != null)
-			{
-				eventTypes = this._events || BindingUtil.getPropertyBindingEvents(this._host.constructor, this._name);
-				for each (eventType in eventTypes)
+				// Add listeners to the new host.
+				if (this._host != null)
 				{
-					this._host.addEventListener(eventType, this._wrappedHandler, false, 0, false);
+					eventTypes = this._events || BindingUtil.getPropertyBindingEvents(this._host.constructor, this._name);
+					for each (eventType in eventTypes)
+					{
+						this._host.addEventListener(eventType, this._wrappedHandler, false, 0, false);
+					}
 				}
-			}
 
-			// Reset the next item in the chain.
-			if (this._next)
-			{
-				this._next.reset(this._getHostPropertyValue());
+				// Reset the next item in the chain.
+				if (this._next)
+				{
+					this._next.reset(this._getHostPropertyValue());
+				}
 			}
 		}
 

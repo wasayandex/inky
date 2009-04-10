@@ -219,6 +219,7 @@
 		 */
 		public function redraw():void
 		{
+// TODO: redraw when the model is null.
 			if (!this.orientation)
 			{
 				throw new Error("You must set the orientation on your ScrollableList");
@@ -272,7 +273,7 @@
 			{
 				throw new Error("You must set the orientation on your ScrollableList");
 			}
-			
+
 			if ((index < 0) || (index >= this.model.length))
 			{
 				throw new RangeError("The supplied index " + index + " is out of bounds.");
@@ -324,7 +325,7 @@
 		override protected function scrollHandler(e:ScrollEvent):void
 		{
 // TODO: Because the super constructor's bindings access something that calls this, orientation 
-// is null (not yet initialized). Should orientation have a default value?  
+// is null (not yet initialized). Should orientation have a default value?
 if (!this.orientation) return;
 			var index:Number = Math.round(this._getScrollPosition());
 			if (!isNaN(index))
@@ -498,21 +499,39 @@ er = 7;
 		{
 			// Determine the number of items that are visible at max scroll position.
 // TODO: Move this to its own function, because it needs to be called when one of the finallyVisibleItem's size changes
+			if (!this.model) 
+				return;
+var tr:uint = 0;
+try {
 			var mask:DisplayObject = this.getScrollMask();
+tr = 1;
 			var maskSize:Number = mask[this._widthOrHeight];
+tr = 2;
 			var numItems:int = 0;
+tr = 3;
 			var combinedSize:Number = 0;
+tr = 4;
 			var j:int = this.model.length - 1;
+tr = 5;
 			while ((j >= 0) && (combinedSize < maskSize))
 			{
 				numItems++;
 				combinedSize += this._getItemSize(j);
 				j--;
 			}
+tr = 6;
 			this._numItemsFinallyVisible = numItems;
+tr = 7;
 			this._updateScrollBar();
+tr = 8;
 			this._clearContent();
+tr = 9;
 			this._initializedForModel = true;
+}
+catch(e:Error)
+{
+trace("_initializeForModel breaks at: " +tr, " model? " + this.model)
+}
 		}
 
 

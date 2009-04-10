@@ -699,34 +699,36 @@
 		
 			if (this.verticalScrollBar)
 			{
-				this.verticalScrollBar.addEventListener(ScrollEvent.SCROLL, this._scrollHandler);
 				this.verticalPageScrollSize = this.__mask.height;
 				this.verticalScrollBar.direction = ScrollBarDirection.VERTICAL;
 
-				BindingUtil.bindProperty(this.verticalScrollBar, "lineScrollSize", this, "verticalLineScrollSize");
 				BindingUtil.bindProperty(this, "verticalLineScrollSize", this, ["verticalScrollBar", "lineScrollSize"]);
-				BindingUtil.bindProperty(this.verticalScrollBar, "pageScrollSize", this, "verticalPageScrollSize");
+				BindingUtil.bindProperty(this.verticalScrollBar, "lineScrollSize", this, "verticalLineScrollSize");
 				BindingUtil.bindProperty(this, "verticalPageScrollSize", this, ["verticalScrollBar", "pageScrollSize"]);
-				BindingUtil.bindProperty(this.verticalScrollBar, "scrollPosition", this, "verticalScrollPosition");
+				BindingUtil.bindProperty(this.verticalScrollBar, "pageScrollSize", this, "verticalPageScrollSize");
 				BindingUtil.bindProperty(this, "verticalScrollPosition", this, ["verticalScrollBar", "scrollPosition"]);
-				BindingUtil.bindProperty(this.verticalScrollBar, "maxScrollPosition", this, "maxVerticalScrollPosition");
+				BindingUtil.bindProperty(this.verticalScrollBar, "scrollPosition", this, "verticalScrollPosition");
 				BindingUtil.bindProperty(this, "maxVerticalScrollPosition", this, ["verticalScrollBar", "maxScrollPosition"]);
+				BindingUtil.bindProperty(this.verticalScrollBar, "maxScrollPosition", this, "maxVerticalScrollPosition");
+
+				this.verticalScrollBar.addEventListener(ScrollEvent.SCROLL, this._scrollHandler);
 			}
 
 			if (this.horizontalScrollBar)
 			{
-				this.horizontalScrollBar.addEventListener(ScrollEvent.SCROLL, this._scrollHandler);
 				this.horizontalPageScrollSize = this.__mask.width;
 				this.horizontalScrollBar.direction = ScrollBarDirection.HORIZONTAL;
 
-				BindingUtil.bindProperty(this.horizontalScrollBar, "lineScrollSize", this, "horizontalLineScrollSize");
 				BindingUtil.bindProperty(this, "horizontalLineScrollSize", this, ["horizontalScrollBar", "lineScrollSize"]);
-				BindingUtil.bindProperty(this.horizontalScrollBar, "pageScrollSize", this, "horizontalPageScrollSize");
+				BindingUtil.bindProperty(this.horizontalScrollBar, "lineScrollSize", this, "horizontalLineScrollSize");
 				BindingUtil.bindProperty(this, "horizontalPageScrollSize", this, ["horizontalScrollBar", "pageScrollSize"]);
-				BindingUtil.bindProperty(this.horizontalScrollBar, "scrollPosition", this, "horizontalScrollPosition");
+				BindingUtil.bindProperty(this.horizontalScrollBar, "pageScrollSize", this, "horizontalPageScrollSize");
 				BindingUtil.bindProperty(this, "horizontalScrollPosition", this, ["horizontalScrollBar", "scrollPosition"]);
-				BindingUtil.bindProperty(this.horizontalScrollBar, "maxScrollPosition", this, "maxHorizontalScrollPosition");
+				BindingUtil.bindProperty(this.horizontalScrollBar, "scrollPosition", this, "horizontalScrollPosition");
 				BindingUtil.bindProperty(this, "maxHorizontalScrollPosition", this, ["horizontalScrollBar", "maxScrollPosition"]);
+				BindingUtil.bindProperty(this.horizontalScrollBar, "maxScrollPosition", this, "maxHorizontalScrollPosition");
+
+				this.horizontalScrollBar.addEventListener(ScrollEvent.SCROLL, this._scrollHandler);
 			}
 			
 			// If the ScrollPane has a _content clip, use it as the source.
