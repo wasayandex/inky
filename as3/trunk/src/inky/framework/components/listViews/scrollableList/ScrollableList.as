@@ -633,11 +633,10 @@ trace("_initializeForModel breaks at: " +tr, " model? " + this.model)
 		private function _redraw(e:Event):void
 		{
 			if (e)
-			{
 				e.currentTarget.removeEventListener(e.type, arguments.callee);
-			}
 
-			this.redraw()
+			if (this.model || this._initializedForModel)
+				this.redraw()
 		}
 
 
