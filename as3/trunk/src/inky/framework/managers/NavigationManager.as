@@ -7,6 +7,7 @@
 	import flash.events.IEventDispatcher;
 	import flash.utils.Dictionary;
 	import flash.utils.getDefinitionByName;
+	import flash.utils.setTimeout;
 	import inky.framework.core.inky_internal;
 	import inky.framework.core.Section;
 	import inky.framework.core.SectionOptions;
@@ -260,6 +261,16 @@
 
 
 		/**
+		 *	Add the section to its owner.	
+		 */
+		private function _addSubsection(owner:Object, subsection:Section):void
+		{
+			owner.addSubsection(subsection);
+			owner.dispatchEvent(new SectionEvent(SectionEvent.NAVIGATION_COMPLETE, true));
+		}
+
+
+		/**
 		 *
 		 *	
 		 */
@@ -358,7 +369,7 @@
 		 * @see inky.framework.utils.Route
 		 *	
 		 */
-		public function _gotoSection(sPath:SPath, options:Object):void
+		private function _gotoSection(sPath:SPath, options:Object):void
 		{
 			var i:int;
 
@@ -462,7 +473,7 @@
 			for (i = index; i < sPath.length; i++)
 			{
 				this._cmdQueue.push({type: '__updateSPath', name: sPath.getItemAt(i)});
-				this._cmdQueue.push({type: '__addSubsection'});
+				this._cmdQueue.push({type: '__createSubsection'});
 			}
 
 			// If the current nav action should be cancelled, cancel it.
@@ -600,7 +611,7 @@ public static function getSPath(section:Section):SPath
 		 *	
 		 *	
 		 */
-		private function __addSubsection(cmd:Object):void
+		private function __createSubsection(cmd:Object):void
 		{
 			// Get the section's info.
 			var info:SectionInfo = this._masterSection.inky_internal::getInfo().getSectionInfoBySPath(this._currentSPath);
@@ -642,9 +653,8 @@ public static function getSPath(section:Section):SPath
 			// Listen for the addComplete event from the subsection.
 			this._addCommandCompleteListener(cmd, subsection, 'addComplete');
 
-			// Add the section to its owner.
-			owner.addSubsection(subsection);
-			owner.dispatchEvent(new SectionEvent(SectionEvent.NAVIGATION_COMPLETE, true));
+			// Give the initialization process some time to work. Then add the section (to help reduce chugging).
+			setTimeout(this._addSubsection, 0, owner, subsection);
 		}
 
 
