@@ -10,7 +10,6 @@
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.Loader;
-	import flash.display.MovieClip;
 	import flash.display.Shape;
 	import flash.display.Sprite;
 	import flash.events.Event;
@@ -58,10 +57,10 @@
 		private var __verticalScrollBar:IScrollBar;
 		private var _verticalScrollPolicy:String;
 		private var _draggable:Boolean;
+		private var _dragPoint:Sprite;
 		private var _oldMouseXPosition:Number;
 		private var _oldMouseYPosition:Number;
-
-
+		
 		/**
 		 *
 		 * Creates a new BaseScrollPane instance. If the symbol attached to this
@@ -326,7 +325,8 @@
 		public function set draggable(draggable:Boolean):void
 		{
 			this._draggable = draggable;
-
+			this._dragPoint = new Sprite();
+			
 			if (draggable) this.source.addEventListener(MouseEvent.MOUSE_DOWN, this._draggableMouseHandler);
 			else this.source.removeEventListener(MouseEvent.MOUSE_DOWN, this._draggableMouseHandler);
 			this.update();
@@ -466,6 +466,7 @@
 			{
 				this.maxVerticalScrollPosition = (bounds.height + bounds.y) - this.__mask.height;
 				this.maxHorizontalScrollPosition = (bounds.width + bounds.x) - this.__mask.width;
+				
 				this.dragHandler();
 			}
 
@@ -569,9 +570,9 @@
 
 
 		/**
-		*	
-		*	
-		*/
+		 *	Initializes the Scrollpane's values and components
+		 * 	
+		 */
 		private function _init():void
 		{
 			// Find the mask.
@@ -598,7 +599,7 @@
 			this._verticalLineScrollSize = 4;
 			this._verticalScrollPolicy = ScrollPolicy.AUTO;
 			this._horizontalScrollPolicy = ScrollPolicy.AUTO;
-
+			
 			// Create the content container.
 			this.__contentContainer = this.getChildByName('_contentContainer') as Sprite;
 			if (this.__contentContainer == null)
@@ -613,64 +614,58 @@
 
 
 		/**
-		 *	
+		 *	This function is called when the user performs a mouse down or mouse up on the content 
+		 *	only if the BaseScrollPane's draggable is set to true.
 		 *	
 		 */
 		private function _draggableMouseHandler(e:MouseEvent):void
-		{						
+		{									
 			switch (e.type)
 			{
 				case MouseEvent.MOUSE_DOWN:
+					var dragBounds:Rectangle = new Rectangle();
+					var containerBounds:Rectangle = this.getContentContainer().getBounds(this);
+					var maskBounds:Rectangle = this.__mask.getBounds(this);
+
+					dragBounds.width = containerBounds.width - maskBounds.width;
+					dragBounds.height = containerBounds.height - maskBounds.height;
+					dragBounds.x = -dragBounds.width;
+					dragBounds.y = -dragBounds.height;
+
+					this._dragPoint.x = containerBounds.x;
+					this._dragPoint.y = containerBounds.y;
+					this._dragPoint.startDrag(false, dragBounds);
+					
+					this._oldMouseXPosition = this.stage.mouseX;
+					this._oldMouseYPosition = this.stage.mouseY;
+																				
 					this.stage.addEventListener(MouseEvent.MOUSE_MOVE, this._mouseMoveHandler);
 					this.stage.addEventListener(MouseEvent.MOUSE_UP, this._draggableMouseHandler);
 					break;
 				case MouseEvent.MOUSE_UP:
-					this._oldMouseXPosition = undefined;
-					this._oldMouseYPosition = undefined;
-
-					this.stage.removeEventListener(MouseEvent.MOUSE_MOVE, this._mouseMoveHandler);				
+					this._dragPoint.stopDrag();			
+									
+					this.stage.removeEventListener(MouseEvent.MOUSE_MOVE, this._mouseMoveHandler);
 					this.stage.removeEventListener(MouseEvent.MOUSE_UP, this._draggableMouseHandler);
 					break;
 			}
 		}
 
+		/**
+		 *	This is called when the user's mouse moves. The ScrollPane's content's position should tween 
+		 *	based on the user's mouse movement. If there are any scrollbars their scrollPosition should
+		 *	also update.
+		 *		
+		 */
 		private function _mouseMoveHandler(e:MouseEvent):void
 		{
-			// If the old X and Y position are undefined set the current mouse X and Y coordinates are their value
-			if (!this._oldMouseXPosition) this._oldMouseXPosition = e.currentTarget.mouseX;
-			if (!this._oldMouseYPosition) this._oldMouseYPosition = e.currentTarget.mouseY;
-			
-			// Find the new X and Y positions for the content container
-			var contentContainer:DisplayObject = this.getContentContainer();
-			var xPosition:Number = contentContainer.x - (this._oldMouseXPosition - e.currentTarget.mouseX);
-			var yPosition:Number = contentContainer.y - (this._oldMouseYPosition - e.currentTarget.mouseY);
-			var horizontalScrollPosition:Number;
-			var verticalScrollPosition:Number;
+			this.horizontalScrollPosition -= (this.stage.mouseX - this._oldMouseXPosition);
+			this.verticalScrollPosition -= (this.stage.mouseY - this._oldMouseYPosition);
 
-			// Check to make sure the map isn't dragged outside of the map bounds.
-			if (Math.abs(xPosition) <= this.maxHorizontalScrollPosition && xPosition <= this.__mask.x && Math.abs(yPosition) <= this.maxVerticalScrollPosition && yPosition <= this.__mask.y)
-			{				
-				horizontalScrollPosition = this.horizontalScrollPosition + (this._oldMouseXPosition - e.currentTarget.mouseX) + 2;
-				verticalScrollPosition = this.verticalScrollPosition + (this._oldMouseYPosition - e.currentTarget.mouseY) + 2;
-			}
-			else
-			{
-				horizontalScrollPosition = this.horizontalScrollPosition;
-				xPosition = contentContainer.x;
-				
-				verticalScrollPosition = this.verticalScrollPosition;
-				yPosition = contentContainer.y;
-			}
+			this._oldMouseXPosition = this.stage.mouseX;
+			this._oldMouseYPosition = this.stage.mouseY;
 
-			// Set the horizontal and vertical scroll positions if there are any scrollbars
-			this.horizontalScrollPosition = horizontalScrollPosition;
-			this.verticalScrollPosition = verticalScrollPosition;
-
-			// Check to see if there are any scrollbars. If there isn't then use moveContent()
-			if (!this.horizontalScrollBar || !this.verticalScrollBar) this.moveContent(xPosition, yPosition);
-			
-			this._oldMouseXPosition = e.currentTarget.mouseX;
-			this._oldMouseYPosition = e.currentTarget.mouseY;
+			this.moveContent(this._dragPoint.x, this._dragPoint.y);			
 		}
 
 		/**
