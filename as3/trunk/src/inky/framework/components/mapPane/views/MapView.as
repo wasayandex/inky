@@ -153,16 +153,16 @@
 				model.x += this.referencePoint.x;
 				model.y += this.referencePoint.y;
 				
-				pointView.model = model;
-				
-				if (this.__tooltip)
-				{
-					pointView.addEventListener(MouseEvent.ROLL_OVER, this._pointMouseHandler);
-					pointView.addEventListener(MouseEvent.ROLL_OUT, this._pointMouseHandler);
-				}
+				pointView.model = model;				
 				this.source.addChild(pointView);
 			}
-		}				
+			
+			if (this.__tooltip)
+			{
+				this.addEventListener(MouseEvent.MOUSE_OVER, this._pointMouseHandler);
+				this.addEventListener(MouseEvent.MOUSE_OUT, this._pointMouseHandler);
+			}
+		}
 		
 		//
 		// private functions
@@ -170,13 +170,15 @@
 		
 		private function _pointMouseHandler(event:MouseEvent):void
 		{
+			if (!(event.target is IPointView)) return;
+			
 			switch (event.type)
 			{
-				case MouseEvent.ROLL_OVER:
-					this.__tooltip.target = event.currentTarget as InteractiveObject;
+				case MouseEvent.MOUSE_OVER:
+					this.__tooltip.target = event.target as InteractiveObject;
 					this.__tooltip.show();
 					break;
-				case MouseEvent.ROLL_OUT:
+				case MouseEvent.MOUSE_OUT:
 					this.__tooltip.hide();
 					break;
 			}
