@@ -4,6 +4,7 @@ package inky.framework.components.gallery.views
 	import flash.display.BitmapData;
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
+	import flash.display.PixelSnapping;
 	import flash.display.Shape;
 	import flash.display.Sprite;
 	import flash.display.MovieClip;
@@ -413,8 +414,8 @@ package inky.framework.components.gallery.views
 			var yOffset:Number = (h - (object.height * scale)) / 2;
 			
 			var bitmapData:BitmapData = new BitmapData(Math.round(w), Math.round(h));
-			bitmapData.draw(object, new Matrix(scale, 0, 0, scale, xOffset, yOffset));
-			return new Bitmap(bitmapData);
+			bitmapData.draw(object, new Matrix(scale, 0, 0, scale, xOffset, yOffset), null, null, null, true);
+			return new Bitmap(bitmapData, PixelSnapping.AUTO, true);
 		}
 		
 		
