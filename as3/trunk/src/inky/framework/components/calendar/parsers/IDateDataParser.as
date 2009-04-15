@@ -4,6 +4,9 @@ package inky.framework.components.calendar.parsers
 
 	public interface IDateDataParser
 	{
+		function get eventDataParserClass():Class;
+		function set eventDataParserClass(value:Class):void;
+
 		function parse(data:XML):DateModel
 	}
 	

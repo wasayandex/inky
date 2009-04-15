@@ -30,7 +30,6 @@ package inky.framework.components.calendar.parsers
 				model[String(prop.localName())] = String(prop);
 			}
 			model.description = data.description;
-			model.selectDate(new Date(data.@year, data.@month, data.@date));
 			return model;
 		}
 

@@ -90,40 +90,41 @@
 			{
 				monthModel[String(prop.localName())] = String(prop);
 			}
-			
+
+			var dates:Array = [];			
 			for each (var eventXML:XML in data.event)
 			{
 				this._validateEventXML(eventXML);
 
-				var date:Date = new Date();
-				date.minutes = 0;
-				date.hours = 0;
-				date.seconds = 0;
-				date.milliseconds = 0;
-				for each (var attr:XML in eventXML.attributes())
-				{
-					date[String(attr.localName())] = String(attr);
-				}
-
-				var dateModel:DateModel = DateModel(monthModel.dateModels.getItemByKey(date.toString()));
-				if (!dateModel)
-				{
-					var dateDataParser:IDateDataParser = new this.dateDataParserClass();
-					dateModel = dateDataParser.parse(eventXML);
-					dateModel.monthModel = monthModel;
-					monthModel.addDateModel(dateModel);
-
-/*monthModel.dateModels.putItemAt(dateModel, date.toString());*/
-				} 
+				var date:Date = new Date(eventXML.@year, eventXML.@month - 1, eventXML.@date);
 				
-				var eventDataParser:IEventDataParser = new this.eventDataParserClass();
-				var eventModel:EventModel = eventDataParser.parse(eventXML);
-				eventModel.dateModel = dateModel;
-//				eventModel.selectDate(date);
-				dateModel.addEventModel(eventModel);
-//				dateModel.eventModels.putItemAt(eventModel, date.toString());
+				var dateObj:Object = null;
+				for (var i:int = 0; i < dates.length; i++)
+				{
+					if (dates[i].date.toString() == date.toString())
+					{
+						dateObj = dates[i];
+						break;
+					}
+				}
+				if (!dateObj)
+				{
+					dateObj = {date: date, data: <date />};
+					dates.push(dateObj);
+				}
+				dateObj.data.appendChild(eventXML);
 			}
-			
+
+			for (i = 0; i < dates.length; i++)
+			{
+				var dateDataParser:IDateDataParser = new this.dateDataParserClass();
+				dateDataParser.eventDataParserClass = this.eventDataParserClass;
+
+				var dateModel:DateModel = dateDataParser.parse(dates[i].data);
+				dateModel.monthModel = monthModel;
+				dateModel.selectDate(dates[i].date);
+				monthModel.addDateModel(dateModel);
+			}
 			return monthModel;
 		}
 

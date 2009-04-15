@@ -36,8 +36,11 @@ package inky.framework.components.calendar.models
 		 *	
 		 */
 		public function get selectedDate():Date
-		{ 
-			return this._selectedDate; 
+		{
+			if (this._selectedDate)
+				return new Date(this._selectedDate.fullYear, this._selectedDate.month, this._selectedDate.date); 
+			else
+				return null;
 		}
 
 

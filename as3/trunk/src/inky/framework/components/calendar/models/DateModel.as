@@ -1,7 +1,7 @@
 ﻿package inky.framework.components.calendar.models 
 {
-	import inky.framework.collections.E4XHashMap;
-	import inky.framework.collections.IMap;
+	import inky.framework.collections.ArrayList;
+	import inky.framework.collections.ICollection;
 	import inky.framework.components.calendar.models.BaseCalendarModel;
 	import inky.framework.components.calendar.models.EventModel;
 	import inky.framework.components.calendar.models.MonthModel;
@@ -22,22 +22,21 @@
 	 */
 	dynamic public class DateModel extends BaseCalendarModel
 	{
-		private var _eventModels:IMap;
+		private var _eventModels:ICollection;
 		private var _monthModel:MonthModel;
 		private var _selected:Boolean;
-		
 		
 		/**
 		 *
 		 */
-		public function get eventModels():IMap
+		public function get eventModels():ICollection
 		{
-			return this._eventModel = this._eventModel || new E4XHashMap();
+			return this._eventModel = this._eventModel || new ArrayList();
 		}
 		/**
 		 * @private
 		 */
-		public function set eventModels(value:IMap):void
+		public function set eventModels(value:ICollection):void
 		{
 			this._eventModels = value;
 		}
@@ -90,46 +89,13 @@
 		 */
 		public function addEventModel(eventModel:EventModel):EventModel
 		{
-			var date:Date = eventModel.selectedDate;
-			var key:String = new Date(date.fullYear, date.month, date.date).toString();
-			this.eventModels.putItemAt(eventModel, key);
-
-eventModel.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, this._eventModelPropertyChangeHandler);
-
+			this.eventModels.addItem(eventModel);
 			return eventModel;
 		}
 		
 
-		/**
-		 *	
-		 */	
-		public function getEventModel(date:Date):EventModel
-		{
-			var key:String = date.toString();
-			var eventModel:EventModel;
-			
-		 	eventModel = EventModel(this.eventModels.getItemByKey(key));
 
-			/*if (!eventModel)
-			{
-				eventModel = new EventModel();
-				eventModel.dateModel = this;
-				eventModel.selectDate(date);
-				this.addEventModel(eventModel);
-			}*/
 
-			return eventModel;
-		}
-
-/**
- *	
- */
-private function _eventModelPropertyChangeHandler(e:PropertyChangeEvent):void
-{
-	
-}
-		
-		
 	}
 	
 }

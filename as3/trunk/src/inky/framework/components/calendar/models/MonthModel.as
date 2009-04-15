@@ -56,23 +56,11 @@
 			var date:Date = dateModel.selectedDate;
 			var key:String = new Date(date.fullYear, date.month, date.date).toString();
 			this.dateModels.putItemAt(dateModel, key);
-
-dateModel.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, this._dateModelPropertyChangeHandler);
-			
+			dateModel.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, this._dateModelPropertyChangeHandler);
 			return dateModel;
 		}
 
 
-private function _dateModelPropertyChangeHandler(e:PropertyChangeEvent):void
-{
-	if (e.property == 'selected' && (this.selectedDate.toString() != e.target.selectedDate.toString()))
-	{
-		this.selectDate(e.target.selectedDate);
-	}
-}
-
-		
-		
 		/**
 		 *	
 		 */	
@@ -80,18 +68,34 @@ private function _dateModelPropertyChangeHandler(e:PropertyChangeEvent):void
 		{
 			var key:String = new Date(date.fullYear, date.month, date.date).toString();
 			var dateModel:DateModel;
-			
 		 	dateModel = DateModel(this.dateModels.getItemByKey(key));
-
 			if (!dateModel)
 			{
 				dateModel = new DateModel();
 				dateModel.monthModel = this;
 				dateModel.selectDate(date);
-dateModel.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, this._dateModelPropertyChangeHandler);
-//				this.addDateModel(dateModel);
+				this.addDateModel(dateModel);
 			}
 			return dateModel;
+		}
+
+
+
+
+		//
+		// private methods
+		//
+
+		
+		/**
+		 *	
+		 */
+		private function _dateModelPropertyChangeHandler(e:PropertyChangeEvent):void
+		{
+			if (e.property == 'selected' && (this.selectedDate.toString() != e.target.selectedDate.toString()))
+			{
+				this.selectDate(e.target.selectedDate);
+			}
 		}
 
 
