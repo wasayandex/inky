@@ -440,12 +440,15 @@ package inky.framework.components.gallery.views
 				scale = this._orientation == 'x' ? w / object.width : h / object.height;
 			}
 
-			var xOffset:Number = (w - (object.width * scale)) / 2;
-			var yOffset:Number = (h - (object.height * scale)) / 2;
-			
+			var xOffset:Number = (w - (object.getBounds(object).width * scale)) / 2;
+			var yOffset:Number = (h - (object.getBounds(object).height * scale)) / 2;
+
 			var bitmapData:BitmapData = new BitmapData(Math.round(w), Math.round(h));
 			bitmapData.draw(object, new Matrix(scale, 0, 0, scale, xOffset, yOffset), null, null, null, true);
-			return new Bitmap(bitmapData, PixelSnapping.AUTO, true);
+			var bmp:Bitmap = new Bitmap(bitmapData, PixelSnapping.AUTO, true);
+			bmp.x = this._containerBounds.x;
+			bmp.y = this._containerBounds.y;
+			return bmp;
 		}
 		
 		
