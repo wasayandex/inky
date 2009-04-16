@@ -48,10 +48,10 @@
 
 		private function _init():void
 		{
-			var nextItemButton:Sprite = this.getChildByName("_nextItemButton") as Sprite;
+			var nextItemButton:InteractiveObject = this.getChildByName("_nextItemButton") as InteractiveObject;
 			if (nextItemButton)
 				nextItemButton.addEventListener(MouseEvent.CLICK, this._next);
-			var previousItemButton:Sprite = this.getChildByName("_previousItemButton") as Sprite;
+			var previousItemButton:InteractiveObject = this.getChildByName("_previousItemButton") as InteractiveObject;
 			if (previousItemButton)
 				previousItemButton.addEventListener(MouseEvent.CLICK, this._previous);
 		}
