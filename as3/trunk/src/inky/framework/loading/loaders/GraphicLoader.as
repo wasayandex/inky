@@ -99,6 +99,15 @@ package inky.framework.loading.loaders
 		}
 
 
+/**
+ *	
+ */
+public function get loaded():Boolean
+{
+	return this._behavior.loaded;
+}
+
+
 		/**
 		 * @inheritDoc
 		 */

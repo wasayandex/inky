@@ -150,6 +150,12 @@
 		}
 
 
+public function get loaded():Boolean
+{ 
+	var info:Object = this.getLoaderInfoFunction();
+	return info && info.bytesTotal && (info.bytesLoaded == info.bytesTotal) && this._sourcesAreEqual(this.source, this._loadedSource);
+}
+
 		/**
 		 *
 		 * Specifies whether the Asset should be preloaded by the Application
@@ -340,13 +346,13 @@ private var _loadedSource:Object;
 			}
 			
 			var info:Object = this.getLoaderInfoFunction();
-			if (info && info.bytesTotal && (info.bytesLoaded == info.bytesTotal) && this._sourcesAreEqual(this.source, this._loadedSource))
+			if (this.loaded)
 			{
 				this._target.dispatchEvent(new ProgressEvent(ProgressEvent.PROGRESS, false, false, info.bytesLoaded, info.bytesTotal));
 				this._target.dispatchEvent(new AssetLoaderEvent(AssetLoaderEvent.READY));
 				return;
 			}
-this._loadedSource = this.source;
+
 			// If this loader belongs to a section, delegate the loading to it.
 			var section:Object = AssetLoaderBehavior._sectionClass ? AssetLoaderBehavior._sectionClass.getSection(this._target) || AssetLoaderBehavior._applicationClass.currentApplication : null;
 			if (section)
@@ -364,6 +370,8 @@ this._loadedSource = this.source;
 			{
 				this.loadAsset();
 			}
+
+this._loadedSource = this.source;
 		}
 
 		

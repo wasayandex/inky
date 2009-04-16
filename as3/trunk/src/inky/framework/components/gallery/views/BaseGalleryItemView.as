@@ -16,6 +16,7 @@ package inky.framework.components.gallery.views
 	import inky.framework.binding.events.PropertyChangeEvent;
 	import inky.framework.collections.ArrayList;
 	import inky.framework.collections.IIterator;
+	import inky.framework.collections.IListIterator;
 	import inky.framework.components.gallery.models.GalleryImageModel;
 	import inky.framework.components.gallery.models.GalleryItemModel;
 	import inky.framework.components.gallery.views.IGalleryItemView;
@@ -192,10 +193,6 @@ package inky.framework.components.gallery.views
 		 */
 		protected function addFeature(feature:DisplayObject):void
 		{
-			for (var i:IIterator = this._features.iterator(); i.hasNext();)
-			{
-				this.removeFeature(DisplayObject(i.next()));
-			}
 			this._features.addItem(feature);
 			this.container.addChild(feature);
 		}
@@ -206,10 +203,6 @@ package inky.framework.components.gallery.views
 		 */
 		protected function addPreview(preview:DisplayObject):void
 		{
-			for (var i:IIterator = this._previews.iterator(); i.hasNext();)
-			{
-				this.removePreview(DisplayObject(i.next()));
-			}
 			this._previews.addItem(preview);
 			this.container.addChild(preview);
 		}
@@ -244,7 +237,7 @@ package inky.framework.components.gallery.views
 				this.removePreview(DisplayObject(i.next()));
 			}
 		}
-		
+
 		
 		/**
 		 *	
@@ -269,9 +262,10 @@ package inky.framework.components.gallery.views
 		 */
 		protected function featureLoaded(feature:DisplayObject):void
 		{
-			this.removeProgressBar();
-			this.clearContainer();
 			this.addFeature(feature);
+			this.removePreviousFeatures();
+			this.removePreviousPreviews();
+			this.removeProgressBar();
 		}
 		
 		
@@ -301,6 +295,9 @@ package inky.framework.components.gallery.views
 		protected function previewLoaded(preview:DisplayObject):void
 		{
 			this.addPreview(preview);
+			this.removePreviousFeatures();
+			this.removePreviousPreviews();
+			this.removeProgressBar();
 		}
 		
 		
@@ -322,6 +319,40 @@ package inky.framework.components.gallery.views
 			this._removeFromContainer(preview);
 			this._previews.removeItem(preview);
 		}
+
+
+		/**
+		 *	
+		 */
+		protected function removePreviousFeatures():void
+		{
+			var i:IListIterator = this._features.listIterator(this._features.length);
+			if (i.hasPrevious())
+			{
+				i.previous();
+				while (i.hasPrevious())
+				{
+					this.removeFeature(DisplayObject(i.previous()));
+				}
+			}
+		}		
+
+
+		/**
+		 *	
+		 */
+		protected function removePreviousPreviews():void
+		{
+			var i:IListIterator = this._previews.listIterator(this._previews.length);
+			if (i.hasPrevious())
+			{
+				i.previous();
+				while (i.hasPrevious())
+				{
+					this.removePreview(DisplayObject(i.previous()));
+				}
+			}
+		}		
 
 
 		/**
@@ -351,7 +382,7 @@ package inky.framework.components.gallery.views
 		{
 			var loader:IAssetLoader = this.getLoader();
 			this._loadingSize = loadingSize;
-
+trace('going to load: ' + model.source)
 			loader.source = model.source;
 			loader.addEventListener(AssetLoaderEvent.READY, this._readyHandler);
 			loader.load();

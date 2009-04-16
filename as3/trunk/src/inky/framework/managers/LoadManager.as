@@ -451,8 +451,12 @@
 
 			// Handle the callback.
 
-			if (dispatcher.bytesTotal && (dispatcher.bytesLoaded == dispatcher.bytesTotal))
+			//if (dispatcher.bytesTotal && (dispatcher.bytesLoaded == dispatcher.bytesTotal))
+			if (dispatcher.loaded)
 			{
+// this seems to be the problem. Possible solution: expose a loaded property on IAssetLoader
+// that checks bytesLoaded/bytesTotal AND if the source has changed...
+trace('>>>>>>>>> broken right HERE')
 				callback && callback();
 			}
 			else

@@ -89,7 +89,7 @@
 
 		public function equals(obj:Object):Boolean
 		{
-			return EqualityUtil.propertiesAreEqual(this, obj);
+			return obj == this;//EqualityUtil.propertiesAreEqual(this, obj);
 		}
 
 
