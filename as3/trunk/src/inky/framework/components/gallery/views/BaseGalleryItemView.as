@@ -382,7 +382,6 @@ package inky.framework.components.gallery.views
 		{
 			var loader:IAssetLoader = this.getLoader();
 			this._loadingSize = loadingSize;
-trace('going to load: ' + model.source)
 			loader.source = model.source;
 			loader.addEventListener(AssetLoaderEvent.READY, this._readyHandler);
 			loader.load();
