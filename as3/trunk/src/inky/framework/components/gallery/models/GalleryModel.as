@@ -41,6 +41,11 @@
 		private var _name:String;
 
 
+		public function GalleryModel()
+		{
+			this._groups = new E4XHashMap();
+		}
+
 
 
 		//
@@ -73,14 +78,6 @@
 		public function get groups():IMap
 		{
 			return this._groups;
-		}
-		/**
-		 * @private
-		 */
-		public function set groups(value:IMap):void
-		{
-			this._groups = value;
-//! clear selection
 		}
 
 

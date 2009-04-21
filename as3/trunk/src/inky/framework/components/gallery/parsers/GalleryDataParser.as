@@ -22,7 +22,6 @@
 			}
 
 			// Create the groups.
-			model.groups = new E4XHashMap();
 			for each (var groupXML:XML in data.group)
 			{
 				var group:GalleryGroupModel = new GalleryGroupModel();
