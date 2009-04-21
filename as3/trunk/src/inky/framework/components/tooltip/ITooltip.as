@@ -1,4 +1,4 @@
-package inky.framework.components
+package inky.framework.components.tooltip
 
 {
 	import flash.display.InteractiveObject;
