@@ -3,6 +3,7 @@ package inky.framework.collections
 	import inky.framework.collections.ICollection;
 	import inky.framework.collections.IMap;
     import flash.utils.Dictionary;
+	import inky.framework.collections.ArrayList;
 
 
 	/**
@@ -171,7 +172,7 @@ throw new Error('Not yet implemented!');
          */
         public function getKeys():ICollection
 		{
-throw new Error('Not yet implemented!');
+			return new ArrayList(this._getKeys());
 		}
 
 
@@ -180,7 +181,7 @@ throw new Error('Not yet implemented!');
          */
         public function getValues():ICollection
 		{
-throw new Error('Not yet implemented!');
+			return new ArrayList(this._getValues());
 		}
 
 
