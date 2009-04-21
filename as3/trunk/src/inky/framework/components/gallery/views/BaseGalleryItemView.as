@@ -443,7 +443,7 @@ package inky.framework.components.gallery.views
 			var xOffset:Number = (w - (object.getBounds(object).width * scale)) / 2;
 			var yOffset:Number = (h - (object.getBounds(object).height * scale)) / 2;
 
-			var bitmapData:BitmapData = new BitmapData(Math.round(w), Math.round(h));
+			var bitmapData:BitmapData = new BitmapData(Math.round(w), Math.round(h), true, 0x00000000);
 			bitmapData.draw(object, new Matrix(scale, 0, 0, scale, xOffset, yOffset), null, null, null, true);
 			var bmp:Bitmap = new Bitmap(bitmapData, PixelSnapping.AUTO, true);
 			bmp.x = this._containerBounds.x;
