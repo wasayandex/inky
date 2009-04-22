@@ -55,7 +55,10 @@
 
 
 
-
+		public function get listView():IListView
+		{
+			return this._listView;
+		}
 
 
 		public function set galleryItemViewClass(value:Class):void
