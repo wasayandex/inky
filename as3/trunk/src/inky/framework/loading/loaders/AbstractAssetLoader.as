@@ -93,6 +93,15 @@ package inky.framework.loading.loaders
 		/**
 		 * @inheritDoc
 		 */
+		public function get loaded():Boolean
+		{
+			return this._behavior.loaded;
+		}
+		
+		
+		/**
+		 * @inheritDoc
+		 */
 		public function get preload():Boolean
 		{
 			return this._behavior.preload;
@@ -121,7 +130,7 @@ package inky.framework.loading.loaders
 			this._behavior.source = source;
 		}
 
-
+		
 
 
 		//
