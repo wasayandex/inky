@@ -12,7 +12,7 @@ package inky.framework.loading.loaders
 	import flash.system.ApplicationDomain;
 	import flash.system.LoaderContext;	
 	import flash.utils.getQualifiedClassName;
-	import inky.framework.events.AssetLoaderEvent;
+	import inky.framework.loading.events.AssetLoaderEvent;
 	import inky.framework.loading.loaders. AssetLoaderBehavior;
 	import inky.framework.loading.loaders.IAssetLoader;
 

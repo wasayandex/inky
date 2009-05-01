@@ -6,7 +6,7 @@ package inky.framework.loading.loaders
 	import flash.net.URLRequest;
 	import flash.utils.getQualifiedClassName;
 	import inky.framework.core.Section;
-	import inky.framework.events.AssetLoaderEvent;
+	import inky.framework.loading.events.AssetLoaderEvent;
 	import inky.framework.loading.loaders. AssetLoaderBehavior;
 	import inky.framework.loading.loaders.IAssetLoader;
 

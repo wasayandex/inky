@@ -9,7 +9,7 @@ package inky.framework.loading.loaders
 	import flash.net.URLLoader;
 	import flash.net.URLLoaderDataFormat;
 	import flash.utils.getDefinitionByName;
-	import inky.framework.events.AssetLoaderEvent;
+	import inky.framework.loading.events.AssetLoaderEvent;
 	import inky.framework.loading.loaders.AbstractAssetLoader;
 
 

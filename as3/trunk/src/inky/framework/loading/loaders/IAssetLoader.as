@@ -11,10 +11,10 @@ package inky.framework.loading.loaders
      * <code>load()</code> method is called, even if the item was already
      * loaded.</p>
      *
-     * @eventType inky.framework.events.AssetLoaderEvent.READY
+     * @eventType inky.framework.loading.events.AssetLoaderEvent.READY
      *
      */
-	[Event(name="ready", type="inky.framework.events.AssetLoaderEvent")]
+	[Event(name="ready", type="inky.framework.loading.events.AssetLoaderEvent")]
 
 
 
@@ -94,7 +94,7 @@ package inky.framework.loading.loaders
 		 * The content that is being loaded. Note that the content may not be
 		 * available until the AssetLoaderEvent.READY event is dispatched.
 		 * 
-		 * @see inky.framework.events.AssetLoaderEvent#READY
+		 * @see inky.framework.loading.events.AssetLoaderEvent#READY
 		 * 
 		 */
 		function get content():Object;

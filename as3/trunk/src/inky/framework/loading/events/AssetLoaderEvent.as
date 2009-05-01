@@ -1,4 +1,4 @@
-package inky.framework.events
+package inky.framework.loading.events
 {
 	import flash.events.Event;
 

@@ -22,7 +22,7 @@ package inky.framework.components.gallery.views
 	import inky.framework.components.gallery.views.IGalleryItemView;
 	import inky.framework.components.progressBar.views.IProgressBar;
 	import inky.framework.display.ITransitioningObject;
-	import inky.framework.events.AssetLoaderEvent;
+	import inky.framework.loading.events.AssetLoaderEvent;
 	import inky.framework.loading.loaders.IAssetLoader;
 	import inky.framework.loading.loaders.ImageLoader;
 	import inky.framework.utils.EqualityUtil;

@@ -7,7 +7,7 @@
 	import flash.net.URLRequest;
 	import flash.utils.getDefinitionByName;
 	import inky.framework.binding.events.PropertyChangeEvent;
-	import inky.framework.events.AssetLoaderEvent;
+	import inky.framework.loading.events.AssetLoaderEvent;
 	import inky.framework.loading.loaders.IAssetLoader;
 	import inky.framework.utils.EqualityUtil;
 
