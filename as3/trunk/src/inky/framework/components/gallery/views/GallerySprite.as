@@ -60,12 +60,12 @@
 
 		private function _next(e:MouseEvent):void
 		{
-			this.next();
+			this.model.next();
 		}
 		
 		private function _previous(e:MouseEvent):void
 		{
-			this.previous();
+			this.model.previous();
 		}
 
 
@@ -157,28 +157,17 @@ public function set loadManager(value:IGalleryLoadManager):void
 			{
 				case Keyboard.RIGHT:
 				{
-					this.next();
+					this.model.next();
 					break;
 				}
 				case Keyboard.LEFT:
 				{
-					this.previous();
+					this.model.previous();
 					break;
 				}
 			}
 		}
 
-
-		public function next():void
-		{
-			this.model.selectItemAt((this.model.selectedItemIndex + 1) % this.model.selectedGroupModel.items.length);
-		}
-
-
-		public function previous():void
-		{
-			this.model.selectItemAt((this.model.selectedItemIndex - 1 + this.model.selectedGroupModel.items.length) % this.model.selectedGroupModel.items.length);
-		}
 
 
 

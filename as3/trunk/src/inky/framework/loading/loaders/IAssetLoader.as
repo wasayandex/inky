@@ -102,6 +102,12 @@ package inky.framework.loading.loaders
 
 		/**
 		 *
+		 */
+		function get loaded():Boolean;
+
+
+		/**
+		 *
 		 * Specifies whether the Asset should be preloaded by the Application
 		 * before its containing section is created.
 		 * 

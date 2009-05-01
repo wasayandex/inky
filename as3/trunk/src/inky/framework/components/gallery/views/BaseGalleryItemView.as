@@ -267,20 +267,8 @@ package inky.framework.components.gallery.views
 			this.removePreviousPreviews();
 			this.removeProgressBar();
 		}
-		
-		
-		/**
-		 *	
-		 */
-		protected function getLoader():IAssetLoader
-		{
-			if (!this._loader)
-				this._loader = new ImageLoader();
 
-			return this._loader;
-		}
-		
-		
+	
 		/**
 		 *	
 		 */
@@ -380,7 +368,7 @@ package inky.framework.components.gallery.views
 		 */
 		protected function startLoad(model:GalleryImageModel, loadingSize:String):void
 		{
-			var loader:IAssetLoader = this.getLoader();
+			var loader:IAssetLoader = model.loader;
 			this._loadingSize = loadingSize;
 			loader.source = model.source;
 			loader.addEventListener(AssetLoaderEvent.READY, this._readyHandler);

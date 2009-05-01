@@ -129,6 +129,24 @@
 		/**
 		 * @inheritDoc
 		 */
+		public function next():void
+		{
+			this.selectItemAt((this.selectedItemIndex + 1) % this.selectedGroupModel.items.length);
+		}
+
+
+		/**
+		 * @inheritDoc
+		 */
+		public function previous():void
+		{
+			this.selectItemAt((this.selectedItemIndex - 1 + this.selectedGroupModel.items.length) % this.selectedGroupModel.items.length);
+		}
+
+
+		/**
+		 * @inheritDoc
+		 */
 		public function selectGroupByName(name:String):void
 		{
 if (name == null)
