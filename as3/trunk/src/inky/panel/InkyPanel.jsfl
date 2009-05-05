@@ -142,22 +142,26 @@ function getApplicationClass()
 	
 function cleanupFLA()
 {
-	fl.trace('cleanup: ' + publishProfileSource)
 	if(publishProfileSource) dom.importPublishProfile(publishProfileSource);
 	FLfile.remove(libPublishProfileSource);
-	FLfile.remove(publishProfileSource);
-	FLfile.remove(docPath + docName + '_lib____.swf');
-	FLfile.remove(docPath + docName + '_lib____.swc');
+//	FLfile.remove(publishProfileSource);
+	FLfile.remove(getDocumentPath() + docName + '_lib____.swf');
+	FLfile.remove(getDocumentPath() + docName + '_lib____.swc');
 
-/*	for(i=0;i<renamedClasses.length;i++) //un-rename renamed classes.
-	{				
+	for(i=0;i<renamedClasses.length;i++) //un-rename renamed classes.
+	{						
 		if(FLfile.copy(renamedClasses[i] + '.bkup', renamedClasses[i]))
 		{
-			if(!FLfile.remove(renamedClasses[i]+'.bkup')) fl.trace('Warning: unable to delete temporary file ' + renamedClasses[i] + '.bkup');
+		//	fl.trace('File re-named: ' + renamedClasses[i])
+			if(!FLfile.remove(renamedClasses[i] + '.bkup')) fl.trace('Warning: unable to delete temporary file ' + renamedClasses[i] + '.bkup');
 		}
 		else fl.trace('Warning: unable to restore file ' + renamedClasses[i]);
 	}
-*/	for(i=0;i<modifiedLibraryItems.length;i++) modifiedLibraryItems[i].linkageExportInFirstFrame=true; //un-modify modified library items.
+	renamedClasses = [];
+	
+	for(i=0;i<modifiedLibraryItems.length;i++) modifiedLibraryItems[i].linkageExportInFirstFrame=true; //un-modify modified library items.
+	
+	fl.trace('');
 }
 
 function publishWithExcludes(excludedClasses)
@@ -174,25 +178,21 @@ function publishWithExcludes(excludedClasses)
 		for (var prop in excludedClasses)
 		{
 			var section = excludedClasses[prop];
+			
 			if (section && section.length)
 			{
-			//	var sectionName = prop.slice(0, prop.indexOf('.'));
+				var sectionName = prop.slice(0, prop.indexOf('.'));
+				publishProfileSource = 'file://' + getDocumentPath() + docName + '_publishProfile.xml'; //the file name to write the current publish profile to.
 				
-				publishProfileSource = getDocumentPath() + docName + '_publishProfile.xml'; //the file name to write the current publish profile to.
-				dom.exportPublishProfile(publishProfileSource);
-				
-				var publishProfile = FLfile.read(publishProfileSource);
-				fl.trace('publish profile source: ' + publishProfileSource)
-				fl.trace('publish profile: ' + publishProfile)
-				
+				var publishProfile = FLfile.read(publishProfileSource);				
 				as3PackagePaths = (/<AS3PackagePaths>(.*?)<\/AS3PackagePaths>/.exec(publishProfile)[1] + ';' + fl.as3PackagePaths).replace(/\$\(AppConfig\)/g, fl.configURI).split(';');
 				
 				//create a new publish profile for creating the library swc.
 				var libPublishFormatProperties='<PublishFormatProperties enabled="true">\n<defaultNames>0</defaultNames>\n<flash>1</flash>\n<generator>0</generator>\n<projectorWin>0</projectorWin>\n<projectorMac>0</projectorMac>\n<html>0</html>\n<gif>0</gif>\n<jpeg>0</jpeg>\n<png>0</png>\n<qt>0</qt>\n<rnwk>0</rnwk>\n<flashDefaultName>0</flashDefaultName>\n<generatorDefaultName>0</generatorDefaultName>\n<projectorWinDefaultName>0</projectorWinDefaultName>\n<projectorMacDefaultName>0</projectorMacDefaultName>\n<htmlDefaultName>0</htmlDefaultName>\n<gifDefaultName>0</gifDefaultName>\n<jpegDefaultName>0</jpegDefaultName>\n<pngDefaultName>0</pngDefaultName>\n<qtDefaultName>0</qtDefaultName>\n<rnwkDefaultName>0</rnwkDefaultName>\n<flashFileName>%FILE_NAME%.swf</flashFileName>\n<generatorFileName>%FILE_NAME%.swt</generatorFileName>\n<projectorWinFileName>%FILE_NAME%.exe</projectorWinFileName>\n<projectorMacFileName>%FILE_NAME%.app</projectorMacFileName>\n<htmlFileName>%FILE_NAME%.html</htmlFileName>\n<gifFileName>%FILE_NAME%.gif</gifFileName>\n<jpegFileName>%FILE_NAME%.jpg</jpegFileName>\n <pngFileName>%FILE_NAME%.png</pngFileName>\n<qtFileName>%FILE_NAME%.mov</qtFileName>\n<rnwkFileName>%FILE_NAME%.smil</rnwkFileName>\n</PublishFormatProperties>';
-				libPublishFormatProperties = libPublishFormatProperties.replace(/%FILE_NAME%/g, docName);
+				libPublishFormatProperties = libPublishFormatProperties.replace(/%FILE_NAME%/g, '../deploy/flash/' + sectionName);
 				
 				var libPublishProfile = publishProfile.replace(/\n/g, '%NEWLINE%').replace(/<PublishFormatProperties.*?\/PublishFormatProperties>/, libPublishFormatProperties).replace(/%NEWLINE%/g, '\n').replace(/<ExportSwc.*?\/ExportSwc>/, '<ExportSwc>1</ExportSwc>');
-				libPublishProfileSource = getDocumentPath() + docName + '_lib____' + '_publishProfile.xml';
+				libPublishProfileSource = 'file://' + getDocumentPath() + docName + '_lib____' + '_publishProfile.xml';
 
 				if (!FLfile.write(libPublishProfileSource, libPublishProfile))
 				{
@@ -244,14 +244,15 @@ function publishWithExcludes(excludedClasses)
 						if (searchDir.lastIndexOf("/")<searchDir.length-1) searchDir += "/";
 
 						searchDir = searchDir.replace(/\/{2,}/g,"/");
-						classSource = "file:///" + searchDir + className;
+						classSource = "file://" + searchDir + className;
 
-					//	if (!publish) fl.trace("CLASS SOURCE: " + classSource);
+						if (!publish) fl.trace("FOUND FILE " + classSource);
+
 						if (FLfile.exists(classSource))
 						{
-						//	if (!publish) fl.trace("FOUND FILE " + classSource);
+							//if (!publish) fl.trace("FOUND FILE " + classSource);
 							renamedClasses.push(classSource);
-/*							if (!FLfile.copy(classSource, classSource + '.bkup') || !FLfile.remove(classSource)) //tmp rename class
+							if (!FLfile.copy(classSource, classSource + '.bkup') || !FLfile.remove(classSource)) //tmp rename class
 							{
 								cleanupFLA();
 								res = false;
@@ -259,7 +260,7 @@ function publishWithExcludes(excludedClasses)
 								failErrorMessage = "Unable to rename file " + classSource;
 								if (throwOnError) throw failErrorMessage;
 							}
-*/
+							
 							break;
 						}
 					}
