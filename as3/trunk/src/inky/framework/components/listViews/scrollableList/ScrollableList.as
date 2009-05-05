@@ -691,6 +691,8 @@ trace("_initializeForModel breaks at: " +tr, " model? " + this.model)
 
 				pos = this._getItemPosition(index);
 				listItem[this._xOrY] = pos;
+				var otherPositionProperty:String = this._xOrY == "x" ? "y" : "x";
+				listItem[otherPositionProperty] = mask[otherPositionProperty];
 
 				// The next item will need to know the new first visible item.
 				this._firstVisibleItemIndex = startIndex;
