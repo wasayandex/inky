@@ -151,9 +151,11 @@ function createSymbol(className)
 			// Create the class.
 			classFile = resolveURI(className.replace(/\./g, "/") + ".as", resolveURI(result.path, currentDir));
 			var classDir = getFileDirectory(classFile);
-			if (!FLfile.createFolder(classDir))
-				alert("Could not create class");
-			else if (!FLfile.write(classFile, ""))
+
+			// Create the directory for the class
+			FLfile.createFolder(classDir);
+
+			if (!FLfile.write(classFile, ""))
 				alert("Could not create class");
 			else
 				qualifiedClassName = className;
