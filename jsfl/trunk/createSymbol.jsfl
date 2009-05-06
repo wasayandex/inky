@@ -5,18 +5,20 @@
  */
 function resolveURI(uri, base)
 {
+	var result;
 	if (uri.indexOf("/") == 0)
 	{
-		return uri;
+		result = uri;
 	}
 	else if (uri.indexOf("file:///") == 0)
 	{
-		return uri;
+		result = uri;
 	}
 	else
 	{
-		return base.lastIndexOf("/") == base.length - 1 ? base + uri : base + "/" + uri;
+		result = (base.lastIndexOf("/") == base.length - 1 ? base + uri : base + "/" + uri).replace(/\/+$/, "/");
 	}
+	return result;
 }
 
 
@@ -120,7 +122,7 @@ function createSymbol(className)
 			{
 				// The class file was found!
 				classFile = tmp;
-				qualifiedClassName = classFile.replace(path, "").replace(/\.as$/, "").replace(/\//g, ".");
+				qualifiedClassName = classFile.replace(path, "").replace(/^\/+/, "").replace(/\.as$/, "").replace(/\//g, ".");
 				break;
 			}
 		}
