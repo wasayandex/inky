@@ -28,7 +28,7 @@ package inky.framework.actions
 		 *
 		 *
 		 */
-		public function TweenerAction(tweenParams:Object = null)
+		public function TweenerAction(tweenParams:Object = null, target:Object = null)
 		{
 			if (tweenParams)
 			{
@@ -37,6 +37,7 @@ package inky.framework.actions
 					this[prop] = tweenParams[prop];
 				}
 			}
+			this._target = target;
 		}
 
 
