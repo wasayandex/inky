@@ -45,12 +45,14 @@
 		private var _numItemsFinallyVisible:uint;  // The number of items visible at max scroll position.
 		private var _orientation:String;
 		private var _positionCache:Array;
-		private var _unusedItems:Object;		
+		private var _unusedItems:Object;
+		private var _recycleItemViews:Boolean;
 		private var _sizeCache:Array;
 		private var _spacing:Number;
 		private var _widthOrHeight:String;
 		private var _xOrY:String;
-
+// FIXME: When recycleItemViews == true, you can see model being reset on first item.  The class does this in order to calculate the total size, but it shouldn't use items that are on stage.
+// TODO: allow option that says the item views won't change size.  this way, you can calculate the container size using simple multiplication.
 
 		/**
 		 *
@@ -145,6 +147,19 @@
 			
 			if (this[this._orientation + "ScrollBar"])
 				this[this._orientation + 'LineScrollSize'] = 1;
+		}
+
+
+		/**
+		 *
+		 */
+		public function get recycleItemViews():Boolean
+		{ 
+			return this._recycleItemViews; 
+		}
+		public function set recycleItemViews(value:Boolean):void
+		{
+			this._recycleItemViews = value;
 		}
 
 
@@ -368,7 +383,7 @@ if (!this.orientation) return;
 		{
 			var listItem:Object = this._indexes2Items[index] || this._unusedItems[index];
 
-			if (!listItem)
+			if (!listItem && this.recycleItemViews)
 			{
 				// Recycle the first unused item.
 				for (var p:String in this._unusedItems)
@@ -473,6 +488,7 @@ er = 7;
 		 */
 		private function _init():void
 		{
+			this._recycleItemViews = true;
 			this._spacing = 0;
 			
 			if (this.horizontalScrollBar && this.verticalScrollBar)
