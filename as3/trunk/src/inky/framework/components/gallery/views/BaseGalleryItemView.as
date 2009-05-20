@@ -115,6 +115,7 @@ package inky.framework.components.gallery.views
 			var oldModel:GalleryItemModel = this._model;
 			if (!EqualityUtil.objectsAreEqual(oldModel, value))
 			{
+				this._model = value;
 				if (value)
 				{
 					var feature:GalleryImageModel = GalleryImageModel(value.images.findFirst({size: this.featureSize}));
@@ -126,7 +127,6 @@ package inky.framework.components.gallery.views
 						this.startLoad(feature, "feature");
 				}
 
-				this._model = value;
 				this.modelUpdated();
 				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, 'model', oldModel, value));
 			}
