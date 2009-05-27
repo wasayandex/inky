@@ -186,7 +186,8 @@ Section.setSection(this.__cumulativeLoadingProgressBar, this.sPath || '/');
 		 */
 		public function get currentSubsection():Section
 		{
-			return this.inky_internal::getNavigationManager().getCurrentSubsection(this);
+			var navManager:NavigationManager = this.inky_internal::getNavigationManager();
+			return navManager ? navManager.getCurrentSubsection(this) : null;
 		}
 
 
