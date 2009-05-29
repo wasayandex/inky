@@ -103,9 +103,6 @@ public function get minimumHeight():Number
 		// protected functions
 		//
 		
-/**
-*	@inheritDoc
-*/
 protected function getMask():DisplayObject
 {
 	return this.__mask;

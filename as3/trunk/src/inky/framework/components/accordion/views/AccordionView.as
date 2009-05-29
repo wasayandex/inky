@@ -19,7 +19,7 @@
 	public class AccordionView extends MovieClip implements IListView
 	{
 		private var _items:Array;
-		private var _gap:Number;
+		private var _spacing:Number;
 		private var _selectedIndex:int;
 		private var _direction:String;
 		private var _previousItem:IAccordionItemView;
@@ -29,12 +29,12 @@
 		/*
 		 *	@Constructor
 		 */
-		public function AccordionView(gap:Number = 0)
+		public function AccordionView(spacing:Number = 0)
 		{
 			this._selectedIndex = -1;
 			this._direction = 'down';
 			this._items = [];
-			this.gap = gap;			
+			this.spacing = spacing;			
 		}
 
 		//
@@ -73,24 +73,24 @@
 		
 		
 		/**
-		*	Set the gap between each AccordionItemView.
+		*	Set the spacing between each AccordionItemView.
 		*	
-		*	@param gap
+		*	@param spacing
 		*/
-		public function set gap(gap:Number):void
+		public function set spacing(spacing:Number):void
 		{
-			if (gap < 0) throw new Error("AccordionView only suppports a positive number for it's gap.");
-			this._gap = gap;
+			if (spacing < 0) throw new Error("AccordionView only suppports a positive number for it's spacing.");
+			this._spacing = spacing;
 			
 			this.selectedIndex = this.selectedIndex;			
 		}
 		
 		/**
-		*	Returns the gap between each AccordionItemView
+		*	Returns the spacing between each AccordionItemView
 		*/
-		public function get gap():Number
+		public function get spacing():Number
 		{
-			return this._gap;
+			return this._spacing;
 		}
 				
 		/**
@@ -155,7 +155,7 @@
 				var item:IAccordionItemView = this._items[i] as IAccordionItemView;
 				var ySpot:Number;
 				
-				ySpot = i * (item.minimumHeight + this.gap)
+				ySpot = i * (item.minimumHeight + this.spacing)
 				
 				item.close();
 				this.moveItem(item, ySpot);
@@ -198,7 +198,7 @@ public function showItemAt(index:int):void
 				var accordionItem:IAccordionItemView = new this._itemViewClass();
 				accordionItem.model = this._model.getItemAt(i);
 
-				accordionItem.y = i * (accordionItem.minimumHeight + this.gap);
+				accordionItem.y = i * (accordionItem.minimumHeight + this.spacing);
 			
 				this.addChild(accordionItem as DisplayObject);
 				this._items[this._items.length] = accordionItem;
@@ -237,31 +237,31 @@ public function showItemAt(index:int):void
 				{
 					if (i <= this.selectedIndex)
 					{
-						ySpot = i * (item.minimumHeight + this.gap);
+						ySpot = i * (item.minimumHeight + this.spacing);
 					}
 					else if (i == this.selectedIndex + 1)
 					{
-						ySpot += selectedItem.maximumHeight + this.gap; 
+						ySpot += selectedItem.maximumHeight + this.spacing; 
 					}
 					else if (i > this.selectedIndex + 1)
 					{
-						ySpot += (item.minimumHeight + this.gap);
+						ySpot += (item.minimumHeight + this.spacing);
 					}
 				}
 				else
 				{
-					var selectedItemPosition:Number = (this.selectedIndex * (item.minimumHeight + this.gap)) - (selectedItem.maximumHeight - selectedItem.minimumHeight + this.gap);
+					var selectedItemPosition:Number = (this.selectedIndex * (item.minimumHeight + this.spacing)) - (selectedItem.maximumHeight - selectedItem.minimumHeight + this.spacing);
 					if (i > this.selectedIndex)
 					{
-						ySpot = i * (item.minimumHeight + this.gap);
+						ySpot = i * (item.minimumHeight + this.spacing);
 					}
 					else if (i == this.selectedIndex)
 					{
-						ySpot = selectedItemPosition + this.gap;
+						ySpot = selectedItemPosition + this.spacing;
 					}
 					else if (i < this.selectedIndex)
 					{
-						ySpot = selectedItemPosition + this.gap - (this.selectedIndex - i) * (item.minimumHeight + this.gap);
+						ySpot = selectedItemPosition + this.spacing - (this.selectedIndex - i) * (item.minimumHeight + this.spacing);
 					}
 				}
 				
