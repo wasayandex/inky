@@ -33,9 +33,12 @@ package inky.framework.actions
 		 *
 		 *
 		 */
-		public function PlayFrameLabelAction(labelName:String = null)
+		public function PlayFrameLabelAction(labelName:String = null, target:Object = null)
 		{
-			if (labelName) this.labelName = labelName;
+			if (labelName)
+				this.labelName = labelName;
+			if (target)
+				this.target = target;
 			this._playing = false;
 		}
 
