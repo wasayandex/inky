@@ -6,10 +6,10 @@
 	import flash.display.Sprite;
 	import flash.geom.Point;
 	import flash.events.MouseEvent;
-	import inky.framework.components.ITooltip;
+	import inky.framework.collections.IList;
+	import inky.framework.components.tooltip.ITooltip;
 	import inky.framework.components.mapPane.views.IMapView;
 	import inky.framework.components.mapPane.views.IPointView;
-	import inky.framework.components.mapPane.models.MapModel;
 	import inky.framework.components.mapPane.models.PointModel;
 	
 	/**
@@ -27,16 +27,16 @@
 	 */
 	public class MapView extends Sprite implements IMapView
 	{
-		private var _source:Object;
-		private var _content:MovieClip;
 		private var __mask:DisplayObject;
-		private var _model:MapModel;
-		private var _pointViewClass:Class;
 		private var __tooltip:ITooltip;
-		private var _referencePoint:Point;
-		private var _topRightCorner:Point;
 		private var _bottomRightCorner:Point;
 		private var _bottomLeftCorner:Point;
+		private var _content:MovieClip;
+		private var _model:IList
+		private var _pointViewClass:Class;
+		private var _referencePoint:Point;
+		private var _source:Object;
+		private var _topRightCorner:Point;
 		
 		public function MapView()
 		{					
@@ -47,7 +47,50 @@
 		//
 		// accessors
 		//
-				
+		
+		/**
+		*	
+		*/
+		public function get model():IList
+		{
+			return this._model;
+		}
+		
+		/**
+		 * @private
+		 */
+		public function set model(model:IList):void
+		{
+			this._model = model;
+			this._setContent();
+		}
+						
+		/**
+		 *
+		 */
+		public function get pointViewClass():Class
+		{
+			return this._pointViewClass;
+		}
+
+		/**
+		 * @private
+		 */
+		public function set pointViewClass(pointViewClass:Class):void
+		{
+			this._pointViewClass = pointViewClass;
+		}
+
+
+		public function set referencePoint(point:Point):void
+		{
+			this._referencePoint = point;
+		}
+		public function get referencePoint():Point
+		{
+			return !this._referencePoint ? this._referencePoint = new Point() : this._referencePoint;
+		}
+		
 		/**
 		*	@inheritDoc
 		*/
@@ -72,52 +115,8 @@
 		public function get source():Object
 		{
 			return this._source;
-		}
-
+		}		
 		
-		/**
-		*	
-		*/
-		public function get model():MapModel
-		{
-			return this._model;
-		}
-		
-		/**
-		 * @private
-		 */
-		public function set model(model:MapModel):void
-		{
-			this._model = model;
-			this.setContent();
-		}
-		
-		
-		/**
-		 *
-		 */
-		public function get pointViewClass():Class
-		{
-			return this._pointViewClass;
-		}
-
-		/**
-		 * @private
-		 */
-		public function set pointViewClass(pointViewClass:Class):void
-		{
-			this._pointViewClass = pointViewClass;
-		}
-
-
-		public function set referencePoint(point:Point):void
-		{
-			this._referencePoint = point;
-		}
-		public function get referencePoint():Point
-		{
-			return this._referencePoint || new Point();
-		}
 		
 		//
 		// public functions
@@ -137,37 +136,12 @@
 		}
 		
 		//
-		// protected functions
-		//
-				
-		/**
-		*	
-		*/
-		protected function setContent():void
-		{
-			var length:int = this.model.pointModels.length;
-			for (var i:int = 0; i < length; i++)
-			{
-				var pointView:IPointView = new this._pointViewClass();
-				var model:PointModel = this.model.pointModels.getItemAt(i) as PointModel;
-				model.x += this.referencePoint.x;
-				model.y += this.referencePoint.y;
-				
-				pointView.model = model;				
-				this.source.addChild(pointView);
-			}
-			
-			if (this.__tooltip)
-			{
-				this.addEventListener(MouseEvent.MOUSE_OVER, this._pointMouseHandler);
-				this.addEventListener(MouseEvent.MOUSE_OUT, this._pointMouseHandler);
-			}
-		}
-		
-		//
 		// private functions
 		//
 		
+		/**
+		*	
+		*/
 		private function _pointMouseHandler(event:MouseEvent):void
 		{
 			if (!(event.target is IPointView)) return;
@@ -183,5 +157,32 @@
 					break;
 			}
 		}
+				
+		/**
+		*	
+		*/
+		private function _setContent():void
+		{
+			if (!this._pointViewClass) throw new Error("A PointViewClass is not set!");
+			
+			var length:int = this.model.length;
+			for (var i:int = 0; i < length; i++)
+			{
+				var pointView = new this._pointViewClass();
+				var model:Object = this.model.getItemAt(i);
+
+				if (model.x) model.x += this.referencePoint.x;
+				if (model.y) model.y += this.referencePoint.y;
+				
+				pointView.model = model;				
+				this.source.addChild(pointView);
+			}
+			
+			if (this.__tooltip)
+			{
+				this.addEventListener(MouseEvent.MOUSE_OVER, this._pointMouseHandler);
+				this.addEventListener(MouseEvent.MOUSE_OUT, this._pointMouseHandler);
+			}
+		}		
 	}
 }

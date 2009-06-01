@@ -4,8 +4,8 @@ package inky.framework.components.mapPane.views
 	import flash.display.DisplayObject;
 	import flash.display.Sprite;
 	import flash.events.MouseEvent;
+	import inky.framework.collections.IList;
 	import inky.framework.components.IButton;
-	import inky.framework.components.mapPane.models.MapModel;
 	import inky.framework.components.mapPane.views.IMapView;
 	import inky.framework.components.mapPane.views.IScrollableMapView;
 	import inky.framework.components.scrollPane.views.IScrollPane;
@@ -112,11 +112,11 @@ package inky.framework.components.mapPane.views
 			return this._baseTween;
 		}
 		
-		public function set model(model:MapModel):void
+		public function set model(value:IList):void
 		{
-			this.__mapView.model = model;
+			this.__mapView.model = value;
 		}
-		public function get model():MapModel
+		public function get model():IList
 		{
 			return this.__mapView.model;
 		}

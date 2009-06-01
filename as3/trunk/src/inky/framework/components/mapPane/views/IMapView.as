@@ -1,7 +1,7 @@
 package inky.framework.components.mapPane.views
 {
 	import flash.geom.Point;
-	import inky.framework.components.mapPane.models.MapModel;
+	import inky.framework.collections.IList;
 	import inky.framework.display.IDisplayObject;
 	
 	public interface IMapView extends IDisplayObject
@@ -12,8 +12,8 @@ package inky.framework.components.mapPane.views
 		*	
 		*	@param model
 		*/
-		function set model(model:MapModel):void;
-		function get model():MapModel;
+		function set model(value:IList):void;
+		function get model():IList;
 		
 		/**
 		*	Gets and Sets the PointViewClass for each point on the map.
