@@ -3,6 +3,7 @@
 	import caurina.transitions.Tweener;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
+	import flash.events.Event;
 	import inky.framework.collections.IList;
 	import inky.framework.components.accordion.events.AccordionEvent;
 	import inky.framework.components.accordion.views.IAccordionItemView;
@@ -130,7 +131,7 @@
 			if (this.selectedIndex == -1) this.closeAll();
 			else this._positionItems();
 			
-			this.dispatchEvent(new AccordionEvent(AccordionEvent.CHANGE, true, false));
+			this.dispatchEvent(new Event(Event.CHANGE, true, false));
 		}
 		
 		/**
@@ -159,13 +160,12 @@
 				
 				item.close();
 				this.moveItem(item, ySpot);
-			}		
+			}
 		}
 
-//!Should this be implemented? If so what would it do?		
 public function showItemAt(index:int):void
 {
-	throw new Error("ShowItemAt has not been implemented!");
+	
 }
 		
 		//
@@ -201,7 +201,7 @@ public function showItemAt(index:int):void
 				accordionItem.y = i * (accordionItem.minimumHeight + this.spacing);
 			
 				this.addChild(accordionItem as DisplayObject);
-				this._items[this._items.length] = accordionItem;
+				this._items[i] = accordionItem;
 			}			
 		}
 					
@@ -213,11 +213,11 @@ public function showItemAt(index:int):void
 		{	
 			var activecontent:IAccordionItemView = event.target as IAccordionItemView;
 			var index:Number = this._items.indexOf(activecontent);
-			
-			if (index == this.selectedIndex) this.closeAll();
+
+			if (index == this.selectedIndex) this.selectedIndex = -1;
 			else this.selectedIndex = index;
 						
-			this.dispatchEvent(new AccordionEvent(AccordionEvent.CHANGE, true, false));
+			this.dispatchEvent(new Event(Event.CHANGE, true, false));
 		}
 		
 		/**
