@@ -1,11 +1,28 @@
 package inky.framework.components.mapPane.views
 {
+	import flash.display.DisplayObject;
+	import flash.display.Sprite;
 	import flash.geom.Point;
 	import inky.framework.collections.IList;
 	import inky.framework.display.IDisplayObject;
 	
+	/**
+	 *
+	 *	
+	 * 	@langversion ActionScript 3
+	 *	@playerversion Flash 9.0.0
+	 *
+	 *	@author Eric Eldredge
+	 *	@author Rich Perez
+	 *	@author Matthew Tretter
+	 *	
+	 */
 	public interface IMapView extends IDisplayObject
 	{
+		
+		//
+		// accessors
+		//
 		
 		/**	
 		*	Gets and Sets the model for the MapView. This model must be a MapModel.
@@ -20,18 +37,8 @@ package inky.framework.components.mapPane.views
 		*	
 		*	@param pointViewClass
 		*/
-		function set pointViewClass(pointViewClass:Class):void;
+		function set pointViewClass(value:Class):void;
 		function get pointViewClass():Class;
-				
-		/**
-		*	Gets and Sets the source for the MapPane. This is the background of the map 
-		*	that is dragged and zoomed into. Currently, this only supports DisplayObjects.
-		*	
-		*	@param source
-		*		The source for the map pane. 
-		*/
-		function set source(source:Object):void;
-		function get source():Object;
 		
 		/**
 		*	Gets and sets the reference point for the map. This returns a Point object containg
@@ -39,8 +46,18 @@ package inky.framework.components.mapPane.views
 		*	
 		*	@param point
 		*/
-		function set referencePoint(point:Point):void
+		function set referencePoint(value:Point):void
 		function get referencePoint():Point;
+				
+		/**
+		*	Gets and Sets the source for the MapPane. This is the background of the map 
+		*	that is dragged and zoomed in and out. This only supports DisplayObjects.
+		*	
+		*	@param source
+		*		The source for the map pane. 
+		*/
+		function set source(value:Sprite):void;
+		function get source():Sprite;
 		
 	}
 }

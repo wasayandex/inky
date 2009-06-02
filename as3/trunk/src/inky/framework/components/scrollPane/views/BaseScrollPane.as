@@ -461,12 +461,26 @@
 		public function update():void
 		{
 			var bounds:Rectangle = this.__contentContainer.getBounds(this.__contentContainer);
-
 			if (this.draggable)
 			{
-				this.maxVerticalScrollPosition = (bounds.height + bounds.y) - this.__mask.height;
-				this.maxHorizontalScrollPosition = (bounds.width + bounds.x) - this.__mask.width;
+				var maxVerticalPosition:Number = (bounds.height + bounds.y) - this.__mask.height;
+				var maxHorizontalPosition:Number = (bounds.width + bounds.x) - this.__mask.width;
 				
+				if (!this.verticalScrollBar)
+				{
+					if (this.__contentContainer.y < 0 && (bounds.y + bounds.height) > this.__mask.height)
+						this.__contentContainer.y -= (maxVerticalPosition - this.maxVerticalScrollPosition);
+				}
+				
+				if (!this.horizontalScrollBar)
+				{
+					if (this.__contentContainer.x < 0 && (bounds.x + bounds.width) > this.__mask.width)
+						this.__contentContainer.x -= (maxHorizontalPosition - this.maxHorizontalScrollPosition);
+				}
+				
+				this.maxVerticalScrollPosition = maxVerticalPosition;
+				this.maxHorizontalScrollPosition = maxHorizontalPosition;
+								
 				this.dragHandler();
 			}
 
@@ -474,7 +488,6 @@
 			{
 				var contentHeight:Number = bounds.height + bounds.y;
 				this.verticalScrollBar.enabled = this.__contentContainer.height > this.__mask.height;
-
 				this.maxVerticalScrollPosition = Math.max(contentHeight - this.__mask.height, 0);
 
 				if (this.verticalScrollPolicy == ScrollPolicy.AUTO)
@@ -643,7 +656,7 @@
 					this.stage.addEventListener(MouseEvent.MOUSE_UP, this._draggableMouseHandler);
 					break;
 				case MouseEvent.MOUSE_UP:
-					this._dragPoint.stopDrag();			
+					this._dragPoint.stopDrag();
 									
 					this.stage.removeEventListener(MouseEvent.MOUSE_MOVE, this._mouseMoveHandler);
 					this.stage.removeEventListener(MouseEvent.MOUSE_UP, this._draggableMouseHandler);
@@ -664,8 +677,8 @@
 
 			this._oldMouseXPosition = this.stage.mouseX;
 			this._oldMouseYPosition = this.stage.mouseY;
-
-			this.moveContent(this._dragPoint.x, this._dragPoint.y);			
+			
+			this.moveContent(this._dragPoint.x, this._dragPoint.y);
 		}
 
 		/**

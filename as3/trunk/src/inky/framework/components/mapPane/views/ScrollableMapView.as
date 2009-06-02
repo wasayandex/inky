@@ -1,8 +1,8 @@
 package inky.framework.components.mapPane.views 
 {
-	import caurina.transitions.Tweener;
 	import flash.display.DisplayObject;
 	import flash.display.Sprite;
+	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import inky.framework.collections.IList;
 	import inky.framework.components.IButton;
@@ -10,16 +10,28 @@ package inky.framework.components.mapPane.views
 	import inky.framework.components.mapPane.views.IScrollableMapView;
 	import inky.framework.components.scrollPane.views.IScrollPane;
 	
+	/**
+	 *
+	 *	
+	 * 	@langversion ActionScript 3
+	 *	@playerversion Flash 9.0.0
+	 *
+	 *	@author Eric Eldredge
+	 *	@author Rich Perez
+	 *	@author Matthew Tretter
+	 *	
+	 */
 	public class ScrollableMapView extends Sprite implements IScrollableMapView
 	{
 		private var __mapView:IMapView;
 		private var __scrollPane:IScrollPane;
-		private var _zoomInButton:DisplayObject;
-		private var _zoomOutButton:DisplayObject;
 		private var _enabledButton:IButton;
 		private var _maximumZoom:Number;
 		private var _minimumZoom:Number;
-		private var _baseTween:Object;
+		private var _zoomInButton:DisplayObject;
+		private var _zoomInterval:Number;
+		private var _zoomOutButton:DisplayObject;
+		private var _zoomState:String;
 		
 		public function ScrollableMapView()
 		{
@@ -27,91 +39,55 @@ package inky.framework.components.mapPane.views
 			this.scrollPane = this.getChildByName("_scrollPane") as IScrollPane || this._checkForObject(IScrollPane) as IScrollPane;
 			this.zoomInButton = this.getChildByName('_zoomInButton') as DisplayObject || null;			
 			this.zoomOutButton = this.getChildByName('_zoomOutButton') as DisplayObject || null;
-			this.baseTween = {transition: 'easeOutSine'};
+			
 			this.maximumZoom = 3;
-			this.minimumZoom = 1;			
+			this.minimumZoom = 1;
+			this._zoomInterval = .02;			
 		}
 		
 		//
 		// accessors
 		//
 		
-		public function set scrollPane(scrollPane:IScrollPane):void
+		/**
+		 * @inheritDoc
+		 */
+		public function set mapView(value:IMapView):void
 		{
-			this.__scrollPane = scrollPane;
-			
-			this.__scrollPane.source = this.__mapView;
-			this.__scrollPane.draggable = true;
-		}
-		public function get scrollPane():IScrollPane
-		{
-			return this.__scrollPane;
-		}
-		
-		public function set mapView(mapView:IMapView):void
-		{
-			this.__mapView = mapView;
+			this.__mapView = value;
 		}
 		public function get mapView():IMapView
 		{
 			return this.__mapView;
 		}
 		
-		public function set zoomInButton(button:DisplayObject):void
+		/**
+		 * @inheritDoc
+		 */
+		public function set maximumZoom(value:Number):void
 		{
-			if (button)
-			{
-				this._zoomInButton = button;
-				this._zoomInButton.addEventListener(MouseEvent.MOUSE_DOWN, this._zoomInOutHandler);
-				this._zoomInButton.addEventListener(MouseEvent.MOUSE_UP, this._stopZoomHandler);	
-			}
-		}
-		public function get zoomInButton():DisplayObject
-		{
-			return this._zoomInButton;
-		}
-		
-		public function set zoomOutButton(button:DisplayObject):void
-		{
-			if (button)
-			{
-				this._zoomOutButton = button;
-				this._zoomOutButton.addEventListener(MouseEvent.MOUSE_DOWN, this._zoomInOutHandler);
-				this._zoomOutButton.addEventListener(MouseEvent.MOUSE_UP, this._stopZoomHandler);
-			}
-		}
-		public function get zoomOutButton():DisplayObject
-		{
-			return this._zoomOutButton;
-		}
-		
-		public function set maximumZoom(maximumZoom:Number):void
-		{
-			this._maximumZoom = maximumZoom;
+			this._maximumZoom = value;
 		}
 		public function get maximumZoom():Number
 		{
 			return this._maximumZoom;
 		}
 		
-		public function set minimumZoom(minimumZoom:Number):void
+		/**
+		 * @inheritDoc
+		 */
+		public function set minimumZoom(value:Number):void
 		{
-			this._minimumZoom = minimumZoom;
+			this._minimumZoom = value;
 		}
 		public function get minimumZoom():Number
 		{
 			return this._minimumZoom;
 		}
 		
-		public function set baseTween(baseTween:Object):void
-		{
-			this._baseTween = baseTween;
-		}
-		public function get baseTween():Object
-		{
-			return this._baseTween;
-		}
-		
+		/**
+		 * @inheritDoc
+		 */
 		public function set model(value:IList):void
 		{
 			this.__mapView.model = value;
@@ -122,74 +98,166 @@ package inky.framework.components.mapPane.views
 		}
 		
 		/**
-		 *
+		 * @inheritDoc
 		 */
 		public function get pointViewClass():Class
 		{
 			return this.__mapView.pointViewClass;
 		}
+		public function set pointViewClass(value:Class):void
+		{
+			this.__mapView.pointViewClass = value;
+		}
 
 		/**
-		 * @private
+		 * @inheritDoc
 		 */
-		public function set pointViewClass(pointViewClass:Class):void
+		public function set scrollPane(value:IScrollPane):void
 		{
-			this.__mapView.pointViewClass = pointViewClass;
+			this.__scrollPane = value;
+			this.__scrollPane.source = this.mapView;
+			this.__scrollPane.draggable = true;
+		}
+		public function get scrollPane():IScrollPane
+		{
+			return this.__scrollPane;
+		}
+		
+		/**
+		 * @inheritDoc
+		 */		
+		public function set zoomInButton(value:DisplayObject):void
+		{
+			if (value)
+			{
+				this._zoomInButton = value;
+				this._zoomInButton.addEventListener(MouseEvent.MOUSE_DOWN, this._mouseDownHandler);
+				this._zoomInButton.addEventListener(MouseEvent.MOUSE_UP, this._mouseUpHandler);	
+			}
+		}
+		public function get zoomInButton():DisplayObject
+		{
+			return this._zoomInButton;
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function set zoomOutButton(value:DisplayObject):void
+		{
+			if (value)
+			{
+				this._zoomOutButton = value;
+				this._zoomOutButton.addEventListener(MouseEvent.MOUSE_DOWN, this._mouseDownHandler);
+				this._zoomOutButton.addEventListener(MouseEvent.MOUSE_UP, this._mouseUpHandler);
+			}
+		}
+		public function get zoomOutButton():DisplayObject
+		{
+			return this._zoomOutButton;
+		}
+		
+		//
+		// public functions
+		//
+		
+/**
+*	Shows the point on the map based on the model object passed as a parameter.
+*	
+*	@param value
+*		The model object of the point to show.
+*/
+public function showPointByModel(value:Object):void
+{
+	/*var point:DisplayObject = this.mapView.getPointByModel(value);*/
+	/*if (point.x > this.stage.stageWidth)
+	{
+		this.scrollPane.;
+	}*/
+	//this.mapView.showPointByModel(value) as DisplayObject;
+}
+				
+		//
+		// protected functions
+		//
+		
+		/**
+		*	Scales the mapView based on the values of the two parameters. This is useful
+		*	to add tweening.
+		*	
+		*	@param scaleX
+		*	@param scaleY	
+		*/
+		protected function scaleContent(scaleX:Number, scaleY:Number):void
+		{
+			this.mapView.scaleX = scaleX;
+			this.mapView.scaleY = scaleY;
 		}
 				
 		//
 		// private functions
 		//
-
-//TODO: Re-Position MapView to account for new scale?		
-private function _zoomInOutHandler(event:MouseEvent):void
-{	
-	if (event.currentTarget is IButton)
-	{
-		if (this._enabledButton) this._enabledButton.enabled = false;
-		this._enabledButton = event.currentTarget as IButton;
-		this._enabledButton.enabled = true;
-	}
-	
-	var time:Number;
-	var xScale:Number;
-	var yScale:Number;
-	
-	// Check to see which button was pressed and set it's target scale for the tween
-	if (event.currentTarget == this._zoomInButton)
-	{
-		time = ((this.maximumZoom - this.mapView.scaleX) / this.maximumZoom) * 2;
-		xScale = yScale = this.maximumZoom;	
-	}
-	else if (event.currentTarget == this._zoomOutButton)
-	{
-		time = ((this.mapView.scaleX - this.minimumZoom) / this.minimumZoom) * 2;
-		xScale = yScale = this.minimumZoom;
-	}
-	
-	Tweener.addTween(this.mapView, {scaleX: xScale, scaleY: yScale, time: time, base: this._baseTween, onUpdate: this.scrollPane.update});
-}
 		
-private function _stopZoomHandler(event:MouseEvent):void
-{			
-	this.scrollPane.update();
-	Tweener.pauseTweens(this.mapView as DisplayObject, "scaleX", "scaleY");
-}
-		
-		private function _checkForObject(dataType:Class):Object
+		/**
+		*	Checks for an that is already on the stage based on it's DateType.
+		*	It returns either the object of that dataType or null.
+		*	
+		*	@param dataType	
+		*	@return
+		*/
+		private function _checkForObject(value:Class):Object
 		{
 			var object:Object;
 			for (var i:int = 0; i < this.numChildren; i++)
 			{
-				var child:Object = this.getChildAt(i) as dataType;
+				var child:Object = this.getChildAt(i) as value;
 				if (child)
 				{
 					object = child;
 					break;
 				}
 			}
-			
 			return object;
 		}
+		
+		/**
+		*	@private	
+		*/
+		private function _mouseDownHandler(event:MouseEvent):void
+		{
+			if (event.currentTarget is IButton)
+			{
+				if (this._enabledButton) this._enabledButton.enabled = false;
+				this._enabledButton = event.currentTarget as IButton;
+				this._enabledButton.enabled = true;
+			}
+
+			event.currentTarget == this._zoomInButton ? this._zoomState = "zoomIn" : this._zoomState = "zoomOut";
+			this.addEventListener(Event.ENTER_FRAME, this._zoomHandler);			
+		}
+		
+		private function _mouseUpHandler(event:MouseEvent):void
+		{
+			this.removeEventListener(Event.ENTER_FRAME, this._zoomHandler);
+		}
+
+		private function _zoomHandler(event:Event):void
+		{	
+			var scaleX:Number = this.mapView.scaleX;
+			var scaleY:Number = this.mapView.scaleY;
+			if (this._zoomState == "zoomIn")
+			{
+				scaleX += this._zoomInterval;
+				scaleY += this._zoomInterval;
+				this.scaleContent(scaleX >= this.maximumZoom ? this.mapView.scaleX : scaleX, scaleY >= this.maximumZoom ? this.mapView.scaleY : scaleY);
+			}
+			else
+			{
+				scaleX -= this._zoomInterval;
+				scaleY -= this._zoomInterval;
+				this.scaleContent(scaleX <= this.minimumZoom ? this.mapView.scaleX : scaleX, scaleY <= this.minimumZoom ? this.mapView.scaleY : scaleY);
+			}			
+			this.scrollPane.update();
+		}				
 	}
 }

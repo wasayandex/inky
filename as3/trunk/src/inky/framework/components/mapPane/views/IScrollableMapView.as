@@ -6,46 +6,28 @@ package inky.framework.components.mapPane.views
 	import inky.framework.components.scrollPane.views.IScrollPane;
 	import inky.framework.display.IDisplayObject;
 
+	/**
+	 *
+	 *	
+	 * 	@langversion ActionScript 3
+	 *	@playerversion Flash 9.0.0
+	 *
+	 *	@author Eric Eldredge
+	 *	@author Rich Perez
+	 *	@author Matthew Tretter
+	 *	
+	 */
 	public interface IScrollableMapView extends IDisplayObject
 	{
-		/**
-		*	Gets and Sets the scrollpane.
-		*	
-		*	@param scrolPane
-		*/
-		function set scrollPane(scrollPane:IScrollPane):void;
-		function get scrollPane():IScrollPane;
 
 		/**
 		*	Gets and Sets the mapview for the ScrollMapView.
 		*	
 		*	@param mapview
 		*/
-		function set mapView(mapView:IMapView):void;
+		function set mapView(value:IMapView):void;
 		function get mapView():IMapView;
-		
-		/**
-		*	Gets and Sets the zoomInButton that can be any type of DisplayObject. 
-		*	This can also be an IButton. If it is then it's enabled property is automatically
-		*	set once clicked. Once pressed the MapView will scale up to the maximumZoom set. 
-		*	
-		*	@param button
-		*		A DisplayObject to be used as the ZoomInButton.
-		*/
-		function set zoomInButton(button:DisplayObject):void;
-		function get zoomInButton():DisplayObject;
-		
-		/**
-		*	Gets and Sets the zoomOutButton that can be any type of DisplayObject.
-		*	This can also be an IButton. If it is then it's enabled property is automatically
-		*	set once clicked. Once pressed the MapView will scale down to the minimumZoom set.
-		*	
-		*	@param button
-		*		A DisplayObject to be used as the ZoomOutButton.
-		*/
-		function set zoomOutButton(button:DisplayObject):void;
-		function get zoomOutButton():DisplayObject;
-		
+				
 		/**
 		*	Gets and Sets the maximum amount the MapView will be zoomed into. This correlates
 		*	with the scale of the MapView. By default this is set to 3.
@@ -53,7 +35,7 @@ package inky.framework.components.mapPane.views
 		*	@param maximumZoom
 		*		The maximum amount that the MapView can be zoomed into.
 		*/
-		function set maximumZoom(maximumZoom:Number):void;
+		function set maximumZoom(value:Number):void;
 		function get maximumZoom():Number;
 		
 		/**
@@ -63,18 +45,9 @@ package inky.framework.components.mapPane.views
 		*	@param minimumZoom
 		*		The minimum amount that the MapView can be zoomed out.
 		*/
-		function set minimumZoom(minimumZoom:Number):void;
+		function set minimumZoom(value:Number):void;
 		function get minimumZoom():Number;
-		
-		/**
-		*	Gets and Sets the base tween to be used by the Tweener library. This allows a user to 
-		*	customize the type of easing and other properties related to the animation.
-		*	
-		*	@param baseTween
-		*/
-		function set baseTween(baseTween:Object):void;
-		function get baseTween():Object;
-		
+				
 		/**	
 		*	Gets and Sets the model for the MapView. This model must be a MapModel.
 		*	
@@ -89,7 +62,36 @@ package inky.framework.components.mapPane.views
 		*	@param pointViewClass
 		*/
 		function get pointViewClass():Class;
-		function set pointViewClass(pointViewClass:Class):void;
+		function set pointViewClass(value:Class):void;
+		
+		/**
+		*	Gets and Sets the scrollpane.
+		*	
+		*	@param scrolPane
+		*/
+		function set scrollPane(value:IScrollPane):void;
+		function get scrollPane():IScrollPane;
+		
+		/**
+		*	Gets and Sets the zoomInButton that can be any type of DisplayObject. 
+		*	This can also be an IButton. If it is then it's enabled property is automatically
+		*	set once clicked. Once pressed the MapView will scale up to the maximumZoom set. 
+		*	
+		*	@param button
+		*		A DisplayObject to be used as the ZoomInButton.
+		*/
+		function set zoomInButton(value:DisplayObject):void;
+		function get zoomInButton():DisplayObject;
+		
+		/**
+		*	Gets and Sets the zoomOutButton that can be any type of DisplayObject.
+		*	This can also be an IButton. If it is then it's enabled property is automatically
+		*	set once clicked. Once pressed the MapView will scale down to the minimumZoom set.
+		*	
+		*	@param button
+		*		A DisplayObject to be used as the ZoomOutButton.
+		*/
+		function set zoomOutButton(value:DisplayObject):void;
+		function get zoomOutButton():DisplayObject;		
 	}
 }
-
