@@ -23,13 +23,11 @@
 	 */
 	public class MapView extends Sprite implements IMapView
 	{
-		private var __mask:DisplayObject;
 		private var __tooltip:ITooltip;
 		private var _model:IList
 		private var _pointViewClass:Class;
 		private var _referencePoint:Point;
 		private var _source:Sprite;
-		private var _topRightCorner:Point;
 		
 		public function MapView()
 		{					
@@ -78,19 +76,48 @@
 			return !this._referencePoint ? this.referencePoint = new Point() : this._referencePoint;
 		}
 		
+override public function set scaleX(value:Number):void
+{
+	var scaleDifference:Number = (this.scaleX - value);
+	var length:Number = this.source.numChildren;
+	for (var i:Number = 0; i < length; i++)
+	{
+		var child:DisplayObject = this.source.getChildAt(i);
+		if (child && child is this._pointViewClass)
+		{
+			child.scaleX += scaleDifference;
+		}
+	}
+	if (this.__tooltip) this.__tooltip.scaleX += scaleDifference;
+	super.scaleX = value;
+}
+override public function set scaleY(value:Number):void
+{
+	var scaleDifference:Number = (this.scaleY - value);
+	var length:Number = this.source.numChildren;
+	for (var i:Number = 0; i < length; i++)
+	{
+		var child:DisplayObject = this.source.getChildAt(i);
+		if (child && child is this._pointViewClass)
+		{
+			child.scaleY += scaleDifference;
+		}
+	}
+	if (this.__tooltip) this.__tooltip.scaleY += scaleDifference;
+	super.scaleY = value;
+}
+		
 		/**
 		*	@inheritDoc
 		*/
 		public function set source(value:Sprite):void
 		{
 			this._source = value;
-			this._source.mask = this.__mask;
 		}
 		public function get source():Sprite
 		{
 			return this._source;
 		}		
-		
 		
 		//
 		// public functions

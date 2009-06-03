@@ -2,7 +2,7 @@ package inky.framework.components.tooltip
 
 {
 	import flash.display.InteractiveObject;
-
+	import inky.framework.display.IDisplayObject;
 
 	/**
 	 *
@@ -18,7 +18,7 @@ package inky.framework.components.tooltip
 	 *	@since  2008.01.14
 	 *
 	 */
-	public interface ITooltip
+	public interface ITooltip extends IDisplayObject
 	{
 		function set target(target:InteractiveObject):void;
 		function hide():void;
