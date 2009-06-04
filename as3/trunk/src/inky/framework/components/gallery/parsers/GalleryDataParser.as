@@ -47,6 +47,7 @@
 					}
 
 					this.setItemProperties(item, itemProperties);
+// FIXME: the next line should not be necessary. It should be done automatically by the group when an item is added.
 					item.gallery_model::setGroup(group);
 					group.items.addItem(item);
 					
@@ -63,6 +64,7 @@
 						}
 						
 						this.setImageProperties(image, imageProperties);
+// FIXME: the next line should not be necessary. It should be done automatically by the item when an image is added.
 						image.gallery_model::setItem(item);
 						item.images.addItem(image);
 					}
