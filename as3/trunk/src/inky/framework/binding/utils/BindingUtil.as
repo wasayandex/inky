@@ -21,6 +21,7 @@ package inky.framework.binding.utils
 		private static var _propertyBindingEvents:Object = {};
 
 		// Set the default binding events for flash classes.
+		BindingUtil.setPropertyBindingEvents("fl.controls.CheckBox", "selected", [Event.CHANGE]);
 		BindingUtil.setPropertyBindingEvents("fl.controls.ComboBox", "text", [Event.CHANGE]);
 		BindingUtil.setPropertyBindingEvents("fl.controls.ComboBox", "value", [Event.CHANGE]);
 		BindingUtil.setPropertyBindingEvents(TextField, "text", [Event.CHANGE]);
