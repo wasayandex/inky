@@ -157,7 +157,7 @@ if (name == null)
 			{
 				throw new ArgumentError("There is no gallery group named " + name);
 			}
-			else if (this.selectedGroupName != name)
+			else
 			{
 				var newData:GalleryGroupModel = this._groups.getItemByKey(name) as GalleryGroupModel;
 				if (!newData.equals(this.selectedGroupModel))

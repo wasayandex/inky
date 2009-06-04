@@ -93,7 +93,7 @@ package inky.framework.events
 		 */
 		public override function toString():String
 		{
-			return this.formatToString('NavigationEvent', 'type', 'bubbles', 'cancelable');
+			return this.formatToString('NavigationEvent', 'type', 'bubbles', 'cancelable', 'sPath', 'options', 'relatedSPath', 'relatedOptions');
 		}
 
 
