@@ -403,7 +403,12 @@
 				itemLoadingProgressBar.setProgress(value, maximum);
 			}
 
-			if (e.type == Event.COMPLETE && value == maximum)
+			// We need to make sure that xmlLoader.data is not null because IE
+			// will dispatch a complete event for the section before the
+			// complete event for the XMLLoader BUT AFTER the
+			// xmlLoader.bytesLoaded is updated.  However, we can't rely on
+			// that alone because the section may not yet be loaded.
+			if ((e.type == Event.COMPLETE) && xmlLoader.data && (value == maximum))
 			{
 				section.loaderInfo.removeEventListener(ProgressEvent.PROGRESS, this._dataProgressHandler);
 				section.loaderInfo.removeEventListener(Event.COMPLETE, this._dataProgressHandler);
