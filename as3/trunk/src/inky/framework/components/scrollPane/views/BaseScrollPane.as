@@ -57,9 +57,9 @@
 		private var __verticalScrollBar:IScrollBar;
 		private var _verticalScrollPolicy:String;
 		private var _draggable:Boolean;
-		private var _dragPoint:Sprite;
-		private var _oldMouseXPosition:Number;
-		private var _oldMouseYPosition:Number;
+private var _dragPoint:Sprite;
+private var _oldMouseXPosition:Number;
+private var _oldMouseYPosition:Number;
 		
 		/**
 		 *
@@ -461,32 +461,24 @@
 		public function update():void
 		{
 			var bounds:Rectangle = this.__contentContainer.getBounds(this.__contentContainer);
+			var contentHeight:Number = bounds.height + bounds.y;
+			var contentWidth:Number = bounds.width + bounds.x;
+			
 			if (this.draggable)
-			{
-				var maxVerticalPosition:Number = (bounds.height + bounds.y) - this.__mask.height;
-				var maxHorizontalPosition:Number = (bounds.width + bounds.x) - this.__mask.width;
-				
-				if (!this.verticalScrollBar)
+			{							
+				if (this.verticalScrollBar)
 				{
-					if (this.__contentContainer.y < 0 && (bounds.y + bounds.height) > this.__mask.height)
-						this.__contentContainer.y -= (maxVerticalPosition - this.maxVerticalScrollPosition);
+					this.maxVerticalScrollPosition = contentHeight - this.__mask.height;
 				}
 				
-				if (!this.horizontalScrollBar)
+				if (this.horizontalScrollBar)
 				{
-					if (this.__contentContainer.x < 0 && (bounds.x + bounds.width) > this.__mask.width)
-						this.__contentContainer.x -= (maxHorizontalPosition - this.maxHorizontalScrollPosition);
+					this.maxHorizontalScrollPosition = contentWidth - this.__mask.width;
 				}
-				
-				this.maxVerticalScrollPosition = maxVerticalPosition;
-				this.maxHorizontalScrollPosition = maxHorizontalPosition;
-								
-				this.dragHandler();
 			}
 
 			if (this.verticalScrollBar)
 			{
-				var contentHeight:Number = bounds.height + bounds.y;
 				this.verticalScrollBar.enabled = this.__contentContainer.height > this.__mask.height;
 				this.maxVerticalScrollPosition = Math.max(contentHeight - this.__mask.height, 0);
 
@@ -501,7 +493,6 @@
 			}
 			if (this.horizontalScrollBar)
 			{
-				var contentWidth:Number = bounds.width + bounds.x;
 				this.horizontalScrollBar.enabled = this.__contentContainer.width > this.__mask.width;
 				this.maxHorizontalScrollPosition = Math.max(contentWidth - this.__mask.width, 0);
 
@@ -635,10 +626,10 @@
 		{									
 			switch (e.type)
 			{
-				case MouseEvent.MOUSE_DOWN:
+				case MouseEvent.MOUSE_DOWN:																							
 					var dragBounds:Rectangle = new Rectangle();
 					var containerBounds:Rectangle = this.getContentContainer().getBounds(this);
-					var maskBounds:Rectangle = this.__mask.getBounds(this);
+					var maskBounds:Rectangle = this.getScrollMask().getBounds(this);
 
 					dragBounds.width = containerBounds.width - maskBounds.width;
 					dragBounds.height = containerBounds.height - maskBounds.height;
@@ -648,10 +639,10 @@
 					this._dragPoint.x = containerBounds.x;
 					this._dragPoint.y = containerBounds.y;
 					this._dragPoint.startDrag(false, dragBounds);
-					
+			
 					this._oldMouseXPosition = this.stage.mouseX;
 					this._oldMouseYPosition = this.stage.mouseY;
-																				
+			
 					this.stage.addEventListener(MouseEvent.MOUSE_MOVE, this._mouseMoveHandler);
 					this.stage.addEventListener(MouseEvent.MOUSE_UP, this._draggableMouseHandler);
 					break;
@@ -665,20 +656,11 @@
 		}
 
 		/**
-		 *	This is called when the user's mouse moves. The ScrollPane's content's position should tween 
-		 *	based on the user's mouse movement. If there are any scrollbars their scrollPosition should
-		 *	also update.
 		 *		
 		 */
 		private function _mouseMoveHandler(e:MouseEvent):void
 		{
-			this.horizontalScrollPosition -= (this.stage.mouseX - this._oldMouseXPosition);
-			this.verticalScrollPosition -= (this.stage.mouseY - this._oldMouseYPosition);
-
-			this._oldMouseXPosition = this.stage.mouseX;
-			this._oldMouseYPosition = this.stage.mouseY;
-			
-			this.moveContent(this._dragPoint.x, this._dragPoint.y);
+			this.dragHandler();
 		}
 
 		/**
@@ -791,8 +773,17 @@
 
 
 		protected function dragHandler():void
-		{
-			this._scrollAndDragHandler();
+		{									
+			this.horizontalScrollPosition -= (this.stage.mouseX - this._oldMouseXPosition);			
+			this.verticalScrollPosition -= (this.stage.mouseY - this._oldMouseYPosition);
+			
+			this._oldMouseXPosition = this.stage.mouseX;
+			this._oldMouseYPosition = this.stage.mouseY;
+			
+			if (this.horizontalScrollBar || this.horizontalScrollBar)
+				this._scrollAndDragHandler();
+			else
+				this.moveContent(this._dragPoint.x, this._dragPoint.y);
 		}
 		
 		private function _scrollAndDragHandler():void
