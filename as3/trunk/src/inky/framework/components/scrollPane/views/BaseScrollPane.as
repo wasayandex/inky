@@ -771,20 +771,20 @@ private var _oldMouseYPosition:Number;
 		}
 
 
-
-		protected function dragHandler():void
-		{									
-			this.horizontalScrollPosition -= (this.stage.mouseX - this._oldMouseXPosition);			
-			this.verticalScrollPosition -= (this.stage.mouseY - this._oldMouseYPosition);
-			
-			this._oldMouseXPosition = this.stage.mouseX;
-			this._oldMouseYPosition = this.stage.mouseY;
-			
-			if (this.horizontalScrollBar || this.horizontalScrollBar)
-				this._scrollAndDragHandler();
-			else
-				this.moveContent(this._dragPoint.x, this._dragPoint.y);
-		}
+//!TODO: Need to add support for when there are no scrollbars
+protected function dragHandler():void
+{									
+	this.horizontalScrollPosition -= (this.stage.mouseX - this._oldMouseXPosition);			
+	this.verticalScrollPosition -= (this.stage.mouseY - this._oldMouseYPosition);
+	
+	this._oldMouseXPosition = this.stage.mouseX;
+	this._oldMouseYPosition = this.stage.mouseY;
+	
+	if (this.horizontalScrollBar || this.horizontalScrollBar)
+		this._scrollAndDragHandler();
+	else
+		this.moveContent(this._dragPoint.x, this._dragPoint.y);
+}
 		
 		private function _scrollAndDragHandler():void
 		{
