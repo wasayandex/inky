@@ -115,11 +115,25 @@ package inky.framework.components.gallery.views
 			var oldModel:GalleryItemModel = this._model;
 			if (!EqualityUtil.objectsAreEqual(oldModel, value))
 			{
+				var feature:GalleryImageModel;
+				var preview:GalleryImageModel;
+				if (oldModel)
+				{
+					feature = GalleryImageModel(oldModel.images.findFirst({size: this.featureSize}));
+					preview = GalleryImageModel(oldModel.images.findFirst({size: this.previewSize}));
+					
+					if (feature)
+						this.cancelLoad(feature);
+					
+					if (preview)
+						this.cancelLoad(preview);
+				}
+				
 				this._model = value;
 				if (value)
 				{
-					var feature:GalleryImageModel = GalleryImageModel(value.images.findFirst({size: this.featureSize}));
-					var preview:GalleryImageModel = GalleryImageModel(value.images.findFirst({size: this.previewSize}));
+					feature = GalleryImageModel(value.images.findFirst({size: this.featureSize}));
+					preview = GalleryImageModel(value.images.findFirst({size: this.previewSize}));
 
 					if (preview)
 						this.startLoad(preview, "preview");
@@ -218,7 +232,15 @@ package inky.framework.components.gallery.views
 				this.addChild(DisplayObject(this.progressBar));
 			}
 		}
-
+		
+		
+		/**
+		 *	
+		 */
+		protected function cancelLoad(model:GalleryImageModel):void
+		{
+			this._cancelLoad(model);
+		}
 		
 		/**
 		 *	
@@ -403,6 +425,22 @@ package inky.framework.components.gallery.views
 					return;
 				else
 					this.addProgressBar();
+			}
+		}
+		
+		
+		/**
+		 *	
+		 */
+		private function _cancelLoad(model:GalleryImageModel):void
+		{
+			var loader:IAssetLoader = model.loader;
+			if (loader)
+			{
+				loader.removeEventListener(AssetLoaderEvent.READY, this._readyHandler);
+// TODO: how to cancel the load?? This may be LoadQueue/AssetLoaderBehavior issue...
+/*if (loader.bytesLoaded && !loader.loaded)
+	loader.close();*/
 			}
 		}
 
