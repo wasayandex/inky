@@ -4,6 +4,8 @@ package inky.framework.components.mapPane.views
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	import flash.geom.Point;
+	import flash.geom.Rectangle;
 	import inky.framework.collections.IList;
 	import inky.framework.components.IButton;
 	import inky.framework.components.mapPane.views.IMapView;
@@ -40,7 +42,7 @@ package inky.framework.components.mapPane.views
 			this.zoomInButton = this.getChildByName('_zoomInButton') as DisplayObject || null;			
 			this.zoomOutButton = this.getChildByName('_zoomOutButton') as DisplayObject || null;
 			
-			this.maximumZoom = 3;
+			this.maximumZoom = 2;
 			this.minimumZoom = 1;
 			this._zoomInterval = .02;			
 		}
@@ -162,21 +164,23 @@ package inky.framework.components.mapPane.views
 		//
 		
 /**
-*	Shows the point on the map based on the model object passed as a parameter.
+*	Shows the point on the map based on the model object passed as the parameter.
 *	
 *	@param value
 *		The model object of the point to show.
 */
 public function showPointByModel(value:Object):void
 {
-	/*var point:DisplayObject = this.mapView.getPointByModel(value);*/
-	/*if (point.x > this.stage.stageWidth)
-	{
-		this.scrollPane.;
-	}*/
-	//this.mapView.showPointByModel(value) as DisplayObject;
+	var point:DisplayObject = this.mapView.getPointByModel(value);
+	var contentContainer:DisplayObject = DisplayObject(this.scrollPane.source.parent);
+	
+	var p:Point = this.globalToLocal(new Point(point.x, point.y));
+	this.scrollPane.horizontalScrollPosition = p.x - 20;
+	this.scrollPane.verticalScrollPosition = p.y - 20;
+
+	this.mapView.showPointByModel(value);
 }
-				
+		
 		//
 		// protected functions
 		//

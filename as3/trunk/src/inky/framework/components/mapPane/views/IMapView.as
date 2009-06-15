@@ -59,5 +59,22 @@ package inky.framework.components.mapPane.views
 		function set source(value:Sprite):void;
 		function get source():Sprite;
 		
+		/**
+		*	Searches for a point on the map based on the model. Once found it will return the Point object.
+		*	If no object is found then null is returned.
+		*	
+		*	@param value	
+		*/
+		function getPointByModel(value:Object):DisplayObject;
+		
+		/**
+		*	Shows the point on the map based on the model object passed as a parameter.
+		*	
+		*	@param value
+		*		The model object of the point to show.
+		*/
+		function showPointByModel(value:Object):void;
+		
+		
 	}
 }

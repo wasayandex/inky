@@ -24,13 +24,15 @@
 	public class MapView extends Sprite implements IMapView
 	{
 		private var __tooltip:ITooltip;
+		private var _autoAdjustChildren:Boolean;
 		private var _model:IList
 		private var _pointViewClass:Class;
 		private var _referencePoint:Point;
 		private var _source:Sprite;
 		
 		public function MapView()
-		{					
+		{
+			this._autoAdjustChildren = true;					
 			this.source = this.getChildByName('_mapContainer') as Sprite || null;
 			this.__tooltip = this.getChildByName('_tooltip') as ITooltip || null;
 		}
@@ -38,6 +40,11 @@
 		//
 		// accessors
 		//
+		
+		public function set autoAdjustChildren(value:Boolean):void
+		{
+			this._autoAdjustChildren = value;
+		}
 		
 		/**
 		*	@inhertDoc
@@ -75,35 +82,23 @@
 		{
 			return !this._referencePoint ? this.referencePoint = new Point() : this._referencePoint;
 		}
-		
+	
 override public function set scaleX(value:Number):void
 {
-	var scaleDifference:Number = (this.scaleX - value);
-	var length:Number = this.source.numChildren;
-	for (var i:Number = 0; i < length; i++)
+	if (this._autoAdjustChildren)
 	{
-		var child:DisplayObject = this.source.getChildAt(i);
-		if (child && child is this._pointViewClass)
-		{
-			child.scaleX += scaleDifference;
-		}
+		var scaleDifference:Number = (this.scaleX - value);
+		this._adjustScale("scaleX", scaleDifference);
 	}
-	if (this.__tooltip) this.__tooltip.scaleX += scaleDifference;
 	super.scaleX = value;
 }
 override public function set scaleY(value:Number):void
 {
-	var scaleDifference:Number = (this.scaleY - value);
-	var length:Number = this.source.numChildren;
-	for (var i:Number = 0; i < length; i++)
+	if (this._autoAdjustChildren)
 	{
-		var child:DisplayObject = this.source.getChildAt(i);
-		if (child && child is this._pointViewClass)
-		{
-			child.scaleY += scaleDifference;
-		}
+		var scaleDifference:Number = (this.scaleY - value);
+		this._adjustScale("scaleY", scaleDifference);
 	}
-	if (this.__tooltip) this.__tooltip.scaleY += scaleDifference;
 	super.scaleY = value;
 }
 		
@@ -124,37 +119,72 @@ override public function set scaleY(value:Number):void
 		//
 			
 		/**
-		*	Searches for a point on the map based on the model. Once found it will return the Point object.
-		*	If no object is found then null is returned.
-		*	
-		*	@param value	
+		*	@inheritDoc
 		*/
-		public function getPointByModel(value:Object):Object
+		public function getPointByModel(value:Object):DisplayObject
 		{
 			var point:Object;
 			var length:int = this.source.numChildren;
 			for (var i:int = 0; i < length; i++)
 			{
 				var child:Object = this.source.getChildAt(i) as Object;
-				if (child && child.model == value) point = child;
+				if (child && child.hasOwnProperty("model") && child.model == value) point = child;
 			}
 			
-			return point;
+			return point as DisplayObject;
 		}
 		
 		/**
-		*	Shows the point on the map based on the model object passed as a parameter.
-		*	
-		*	@param value
-		*		The model object of the point to show.
+		*	@inheritDoc
 		*/
 		public function showPointByModel(value:Object):void
 		{
 		}
 		
 		//
+		// protected functions
+		//
+		
+		protected function getTooltip():ITooltip
+		{
+			return this.__tooltip;
+		}
+		
+		//
 		// private functions
 		//
+		
+		/**
+		*	Adjusts the scale of map points and tooltip
+		*	
+		* 	@param value
+		*		The value of the property, scaleX or scaleY, to adjust.	
+		*/
+		private function _adjustScale(property:String, scaleDifference:Number):void
+		{
+			var length:Number = this.source.numChildren;
+			var scale:Number;
+			for (var i:Number = 0; i < length; i++)
+			{
+				var child:Object = this.source.getChildAt(i) as Object;
+				if (child && child is this._pointViewClass)
+				{
+					scale = child[property] + scaleDifference;
+					if (scale < .5) scale = .5;
+					else if (scale > 1) scale = 1;
+					
+					child[property] = scale;
+				}
+			}
+			if (this.__tooltip)
+			{
+				scale = this.__tooltip[property] + scaleDifference;
+				if (scale < .5) scale = .5;
+				else if (scale > 1) scale = 1;
+				
+				this.__tooltip[property] = scale;
+			}
+		}
 		
 		/**
 		*	@private
@@ -190,7 +220,7 @@ override public function set scaleY(value:Number):void
 
 				if (model.x) model.x = Number(model.x) + this.referencePoint.x;
 				if (model.y) model.y = Number(model.y) + this.referencePoint.y;
-							
+						
 				pointView.model = model;				
 				this.source.addChild(pointView);
 			}
