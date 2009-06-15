@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>name</key>
+	<string>Actionscript 3 Inky</string>
+	<key>ordering</key>
+	<array>
+		<string>56B97249-CD16-48D0-AA57-7B432AAE14B6</string>
+		<string>7A92965A-BF02-4D3E-8234-F7D308DAD6A3</string>
+		<string>C6DCD438-8DDB-4CE8-9653-DC09815D79C2</string>
+		<string>D821D96A-F032-4460-933F-F584DECD8D36</string>
+		<string>8FC96FDC-A3F2-49DA-8621-2DB97B8BFABD</string>
+		<string>95812CC9-0CD4-4D46-914B-E4982B1514BE</string>
+		<string>B293310D-F5AD-4800-94BB-39D112A699A1</string>
+	</array>
+	<key>uuid</key>
+	<string>8F191F08-062B-4828-B1DC-95694C14BF5C</string>
+</dict>
+</plist>

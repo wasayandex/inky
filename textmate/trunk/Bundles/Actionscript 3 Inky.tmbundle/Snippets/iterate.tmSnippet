@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<string>for (var ${1:i}:IIterator = ${2:this}.iterator(); $1.hasNext(); )
+{
+	var ${3:o}:${4:Object} = $1.next() as $4;
+	$5
+}</string>
+	<key>name</key>
+	<string>iterate</string>
+	<key>scope</key>
+	<string>source.actionscript.3</string>
+	<key>tabTrigger</key>
+	<string>iterate</string>
+	<key>uuid</key>
+	<string>7A92965A-BF02-4D3E-8234-F7D308DAD6A3</string>
+</dict>
+</plist>

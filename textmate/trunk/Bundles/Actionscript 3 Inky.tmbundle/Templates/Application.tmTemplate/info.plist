@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>command</key>
+	<string>if test \! -e "$TM_NEW_FILE"; then
+	TM_DATE=`date +%Y.%m.%d` \
+	a=`echo ${TM_NEW_FILE%/*}` \
+	b=`echo ${a#${TM_PROJECT_DIRECTORY%/*}/} | tr '/' '.'` \
+	c=`echo ${b//[\.a-zA-Z]*main\./}` \
+	d=`echo ${c//[\.a-zA-Z]*main/}` \
+	e=`echo ${d//[\.a-zA-Z]*lib\./}` \
+	f=`echo ${e//[\.a-zA-Z]*lib/}` \
+	TM_CLASS_PATH=`echo "$f"` \
+	perl -pe 's/\$\{([^}]*)\}/$ENV{$1}/g' \
+      &lt; class.as &gt; "$TM_NEW_FILE";
+fi</string>
+	<key>extension</key>
+	<string>as</string>
+	<key>name</key>
+	<string>Application</string>
+	<key>uuid</key>
+	<string>D821D96A-F032-4460-933F-F584DECD8D36</string>
+</dict>
+</plist>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<string>&lt;inky:Section name="${1:main}" inky:class="com.hzdg.${2:project}.${3:sections}.${4:Main}"&gt;
+	&lt;inky:Route path="${5:#}" /&gt;
+	$0
+&lt;/inky:Section&gt;
+</string>
+	<key>name</key>
+	<string>Section</string>
+	<key>scope</key>
+	<string>text.xml</string>
+	<key>tabTrigger</key>
+	<string>section</string>
+	<key>uuid</key>
+	<string>292758C1-3D86-4585-86D9-3E051D5AD46A</string>
+</dict>
+</plist>
