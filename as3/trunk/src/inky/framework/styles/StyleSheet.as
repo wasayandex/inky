@@ -1,9 +1,11 @@
-package inky.framework.styles 
+﻿package inky.framework.styles 
 {
 	import inky.framework.collections.IIterator;
 	import inky.framework.collections.IList;
 	import inky.framework.collections.ArrayList;
 	import inky.framework.styles.StyleSheetRule;
+	import inky.framework.styles.selectors.SelectorParser;
+	import inky.framework.styles.selectors.ISelector;
 
 
 	/**
@@ -21,6 +23,7 @@ package inky.framework.styles
 	public class StyleSheet
 	{
 		private var _rules:IList;
+		private static var _selectorParser:SelectorParser = new SelectorParser();
 		private static var rulePattern:RegExp = /([^{]+){([^}]+)}/g;
 		private static var declarationPattern:RegExp = /\s*([^\:]+)\s*:\s*([^;]+);/g;
 
@@ -46,8 +49,12 @@ package inky.framework.styles
 				var declarationsText:String = ruleMatches[2];
 				
 				// Create the rule and add it to the list.
-				var rule:StyleSheetRule = new StyleSheetRule(selectorText);
+				var rule:StyleSheetRule = new StyleSheetRule();
 				this.rules.addItem(rule);
+				
+				// Create the selector and add it to the rule.
+				var selector:ISelector = StyleSheet._selectorParser.parse(selectorText, this);
+				rule.selector = selector;
 				
 				// Add the declarations to the rule.
 				while (declarationMatches = declarationPattern.exec(declarationsText))
@@ -89,7 +96,7 @@ package inky.framework.styles
 					declarationStrings.push("\t" + declaration.property + ": " + declaration.value + ";");
 				}
 				
-				ruleStrings.push("###### {\n" + declarationStrings.join("\n") + "\n}");
+				ruleStrings.push(rule.selector.toCSSString() + " {\n" + declarationStrings.join("\n") + "\n}");
 			}
 			return ruleStrings.join("\n\n");
 		}

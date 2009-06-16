@@ -102,14 +102,14 @@
 			var i:IIterator;
 			var rule:StyleSheetRule;
 			var rulesToApply:Array = [];
-			
+
 			// Determine which rules apply to the object in question.
 			for each (var styleSheet:StyleSheet in styleSheets)
 			{
 				for (i = styleSheet.rules.iterator(); i.hasNext(); )
 				{
 					rule = i.next() as StyleSheetRule;
-					if (rule.matches(object))
+					if (rule.selector.matches(object))
 						rulesToApply.push(rule);
 				}
 			}

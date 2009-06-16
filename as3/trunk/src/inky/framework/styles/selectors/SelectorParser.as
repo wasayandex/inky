@@ -1,0 +1,107 @@
+﻿package inky.framework.styles.selectors 
+{
+	import inky.framework.styles.selectors.ISelector;
+	import inky.framework.styles.StyleSheet;
+	import inky.framework.styles.selectors.SelectorSet;
+	import inky.framework.styles.selectors.ISelector;
+	import inky.framework.styles.selectors.IdSelector;
+	import inky.framework.styles.selectors.ClassSelector;
+	import inky.framework.styles.selectors.ChildCombinator;
+
+
+	/**
+	 *
+	 *  ..
+	 *	
+	 * 	@langversion ActionScript 3
+	 *	@playerversion Flash 9.0.0
+	 *
+	 *	@author Matthew Tretter
+	 *	@since  2009.06.15
+	 *
+	 */
+	public class SelectorParser
+	{
+		
+		/**
+		 *
+		 */
+		public function SelectorParser()
+		{
+		}
+
+
+		public function parse(text:String, styleSheet:StyleSheet):ISelector
+		{
+			var match:Object;
+			var selector:ISelector;
+			var i:int;
+			var index:int;
+			var selectorSet:SelectorSet;
+
+			// Take out the extra whitespace.
+			text = text.replace(/^\s+/, "").replace(/\s+$/, "");
+
+			if (text.indexOf(",") != -1)
+			{
+				throw new Error("Can't handle multiple selectors (with commas) yet.");
+			}
+			// Child Combinator
+			else if ((match = text.match(/(.*)>\s*([^<]+)$/)))
+			{
+				selectorSet = new SelectorSet();
+
+				// Add the last part, recursively parsing for other rules.
+				selectorSet.addItem(this.parse(match[2], styleSheet));
+				
+				// Add the first part.
+				var childCombinator:ChildCombinator = new ChildCombinator();
+				childCombinator.relatedSelector = this.parse(match[1], styleSheet);
+				selectorSet.addItem(childCombinator);
+
+				selector = selectorSet;
+			}
+			else if ((match = text.match(/^#([\w\\\.\-]+)(.*)/)))
+			{
+				var id:String = match[1];
+				if (match[2])
+				{
+					selectorSet = new SelectorSet();
+					selectorSet.addItem(new IdSelector(id));
+					selectorSet.addItem(this.parse(match[2], styleSheet));
+					selector = selectorSet;
+				}
+				else
+				{
+					selector = new IdSelector(id);
+				}
+			}
+			else if ((match = text.match(/^\.([\w\\\.\-]+)(.*)/)))
+			{
+				var className:String = match[1].replace(/\\\./g, ".");
+
+				if (match[2])
+				{
+					selectorSet = new SelectorSet();
+					selectorSet.addItem(new ClassSelector(className));
+					selectorSet.addItem(this.parse(match[2], styleSheet));
+					selector = selectorSet;
+				}
+				else
+				{
+					selector = new ClassSelector(className);
+				}
+			}
+			else
+			{
+				throw new Error("Couldn't parse \"" + text + "\"");
+			}
+
+			return selector;
+		}
+
+
+		
+	}
+	
+}

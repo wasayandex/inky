@@ -2,6 +2,7 @@ package inky.framework.styles
 {
 	import inky.framework.styles.IStyleable;
 	import flash.text.TextField;
+	import flash.display.DisplayObjectContainer;
 
 
 	/**
@@ -29,6 +30,11 @@ package inky.framework.styles
 			this._textField = textField;
 		}
 
+
+		public function get parent():DisplayObjectContainer
+		{
+			return this._textField.parent;
+		}
 
 
 		/**
