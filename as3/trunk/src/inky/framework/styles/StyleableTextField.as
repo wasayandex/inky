@@ -22,7 +22,7 @@ package inky.framework.styles
 	public class StyleableTextField implements IStyleable
 	{
 		private var _textField:TextField;
-		private var _style:StyleObject;
+		private var _style:Object;
 
 
 		/**
@@ -41,7 +41,7 @@ package inky.framework.styles
 		/**
 		 * @inheritDoc
 		 */
-		public function get style():StyleObject
+		public function get style():Object
 		{
 			return this._style;
 		}

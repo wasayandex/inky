@@ -20,7 +20,7 @@ package inky.framework.styles
 		 *
 		 *	
 		 */
-		function get style():StyleObject;
+		function get style():Object;
 
 
 		
