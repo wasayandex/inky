@@ -196,6 +196,7 @@ public function showPointByModel(value:Object):void
 		{
 			this.mapView.scaleX = scaleX;
 			this.mapView.scaleY = scaleY;
+			this.scrollPane.update();
 		}
 				
 		//
@@ -249,6 +250,7 @@ public function showPointByModel(value:Object):void
 		{	
 			var scaleX:Number = this.mapView.scaleX;
 			var scaleY:Number = this.mapView.scaleY;
+			
 			if (this._zoomState == "zoomIn")
 			{
 				scaleX += this._zoomInterval;
@@ -261,7 +263,6 @@ public function showPointByModel(value:Object):void
 				scaleY -= this._zoomInterval;
 				this.scaleContent(scaleX <= this.minimumZoom ? this.mapView.scaleX : scaleX, scaleY <= this.minimumZoom ? this.mapView.scaleY : scaleY);
 			}			
-			this.scrollPane.update();
 		}				
 	}
 }
