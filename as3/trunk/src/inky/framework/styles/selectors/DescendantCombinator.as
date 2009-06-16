@@ -14,7 +14,7 @@ package inky.framework.styles.selectors
 	 *	@since  2009.06.15
 	 *
 	 */
-	public class ChildCombinator implements ISelector
+	public class DescendantCombinator implements ISelector
 	{
 		private var _relatedSelector:ISelector;
 
@@ -41,7 +41,20 @@ package inky.framework.styles.selectors
 		 */
 		public function matches(object:Object):Boolean
 		{
-			return object.hasOwnProperty("parent") && object.parent && (!this.relatedSelector || this.relatedSelector.matches(object.parent));
+			var matches:Boolean = object.hasOwnProperty("parent") && object.parent;
+			
+			if (matches && this.relatedSelector)
+			{
+				// Need to find at least one descendant that matches the related selector.
+				matches = false;
+				var descendant:Object = object.parent;
+				while (descendant && !matches)
+				{
+					matches = this.relatedSelector.matches(descendant);
+					descendant = descendant.parent;
+				}
+			}
+			return  matches;
 		}
 
 
@@ -50,7 +63,7 @@ package inky.framework.styles.selectors
 		 */
 		public function toCSSString():String
 		{
-			return this.relatedSelector ? this.relatedSelector.toCSSString() + " > " : " > ";
+			return this.relatedSelector ? this.relatedSelector.toCSSString() + " " : " ";
 		}
 
 	}

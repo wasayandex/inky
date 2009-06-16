@@ -53,7 +53,7 @@
 				this.rules.addItem(rule);
 				
 				// Create the selector and add it to the rule.
-				var selector:ISelector = StyleSheet._selectorParser.parse(selectorText, this);
+				var selector:ISelector = StyleSheet._selectorParser.parse(selectorText);
 				rule.selector = selector;
 				
 				// Add the declarations to the rule.
