@@ -1,8 +1,9 @@
-package
+﻿package
 {
 	import flash.display.Sprite;
 	import inky.framework.styles.StyleSheet;
 	import inky.framework.styles.StyleManager;
+	import inky.framework.styles.IStyleable;
 	import inky.framework.styles.StyleableTextField;
 
 
@@ -17,7 +18,7 @@ package
 	 *	@since  2009.06.11
 	 *
 	 */
-	public class StylesTest extends Sprite
+	public class StylesTest extends Sprite implements IStyleable
 	{
 		
 		/**
@@ -27,7 +28,7 @@ package
 		{
 			// Create a new stylesheet.
 			var myStyleSheet:StyleSheet = new StyleSheet();
-			myStyleSheet.parseCSS(".com\.blah\.Hey { layout: grid; color: 0xff0000; } crap{hey:    5;}");
+			myStyleSheet.parseCSS(".flash\\.display\\.Stage > .flash\\.display\\.DisplayObjectContainer > .inky\\.framework\\.styles\\.StyleableTextField { color: 0x00ff00; }");
 
 			// Display the parsed style sheet.
 			trace(myStyleSheet.toCSSString());
@@ -43,6 +44,11 @@ package
 
 
 
+		public function setStyle(property:String, value:Object):void
+		{
+			if (property == "color")
+				this.textField.textColor = parseInt(String(value));
+		}
 		
 	}
 	
