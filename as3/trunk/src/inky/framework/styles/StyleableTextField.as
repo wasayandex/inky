@@ -1,8 +1,10 @@
 package inky.framework.styles 
 {
 	import inky.framework.styles.IStyleable;
+	import inky.framework.styles.StyleObject;
 	import flash.text.TextField;
 	import flash.display.DisplayObjectContainer;
+	import inky.framework.binding.events.PropertyChangeEvent;
 
 
 	/**
@@ -20,6 +22,7 @@ package inky.framework.styles
 	public class StyleableTextField implements IStyleable
 	{
 		private var _textField:TextField;
+		private var _style:StyleObject;
 
 
 		/**
@@ -28,6 +31,19 @@ package inky.framework.styles
 		public function StyleableTextField(textField:TextField)
 		{
 			this._textField = textField;
+
+			this._style = new StyleObject();
+			this._style.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, this._styleChangeHandler);
+			
+		}
+
+
+		/**
+		 * @inheritDoc
+		 */
+		public function get style():StyleObject
+		{
+			return this._style;
 		}
 
 
@@ -37,13 +53,10 @@ package inky.framework.styles
 		}
 
 
-		/**
-		 *	@inheritDoc
-		 */
-		public function setStyle(property:String, value:Object):void
+		private function _styleChangeHandler(event:PropertyChangeEvent):void
 		{
-			if (property == "color")
-				this._textField.textColor = parseInt(String(value));
+			if (event.property == "color")
+				this._textField.textColor = parseInt(String(event.newValue || 0));
 		}
 
 

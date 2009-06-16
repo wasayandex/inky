@@ -20,7 +20,7 @@ package inky.framework.styles
 		 *
 		 *	
 		 */
-		function setStyle(property:String, value:Object):void;
+		function get style():StyleObject;
 
 
 		

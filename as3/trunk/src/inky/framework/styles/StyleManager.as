@@ -121,7 +121,7 @@
 				for (i = rule.declarations.iterator(); i.hasNext(); )
 				{
 					var declaration:StyleSheetDeclaration = i.next() as StyleSheetDeclaration;
-					object.setStyle(declaration.property, declaration.value);
+					object.style[declaration.property] = declaration.value;
 				}
 			}
 		}
