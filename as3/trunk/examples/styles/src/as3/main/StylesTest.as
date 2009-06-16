@@ -18,7 +18,7 @@
 	 *	@since  2009.06.11
 	 *
 	 */
-	public class StylesTest extends Sprite implements IStyleable
+	public class StylesTest extends Sprite
 	{
 		
 		/**
