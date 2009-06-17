@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<string>&lt;?xml version="1.0" encoding="utf-8" ?&gt;
+&lt;inky:Application
+	xmlns:inky="http://inkyframework.com/2008/inky"
+	inky:base="./"&gt;
+&lt;/inky:Application&gt;</string>
+	<key>name</key>
+	<string>Application</string>
+	<key>scope</key>
+	<string>text.xml</string>
+	<key>tabTrigger</key>
+	<string>application</string>
+	<key>uuid</key>
+	<string>A6BA936A-C55C-4C8C-95A4-6561C761AB16</string>
+</dict>
+</plist>
