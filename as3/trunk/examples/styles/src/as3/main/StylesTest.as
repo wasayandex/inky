@@ -28,7 +28,7 @@
 		{
 			// Create a new stylesheet.
 			var myStyleSheet:StyleSheet = new StyleSheet();
-			myStyleSheet.parseCSS(".flash\\.display\\.Stage > .flash\\.display\\.DisplayObjectContainer > .inky\\.framework\\.styles\\.StyleableTextField { color: 0x00ff00; color:\n0x0000ff;}");
+			myStyleSheet.parseCSS(".flash\\.display\\.Stage > .flash\\.display\\.DisplayObjectContainer > .inky\\.framework\\.styles\\.StyleableTextField { color: 0x00ff00; }");
 
 			// Display the parsed style sheet.
 			trace(myStyleSheet.toCSSString());
