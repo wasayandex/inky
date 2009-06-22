@@ -38,7 +38,7 @@
 
 			// Create a StyleManager, and register the style sheet and object (order shouldn't matter)
 			var myStyleManager:StyleManager = new StyleManager();
-			myStyleManager.addStyleSheet(myStyleSheet);
+			myStyleManager.styleSheets.addItem(myStyleSheet);
 			myStyleManager.registerObject(myTextField);
 		}
 
