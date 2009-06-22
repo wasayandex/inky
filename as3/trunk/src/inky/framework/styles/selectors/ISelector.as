@@ -25,6 +25,12 @@ package inky.framework.styles.selectors
 		 *
 		 */
 		function toCSSString():String;
+		
+		
+		/**
+		 *
+		 */
+		function get specificity():uint;
 
 	}
 }

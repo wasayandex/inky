@@ -35,7 +35,16 @@ package inky.framework.styles.selectors
 			this._relatedSelector = value;
 		}
 
-		
+
+		/**
+		 *	@inheritDoc
+		 */
+		public function get specificity():uint
+		{
+			return this.relatedSelector ? this.relatedSelector.specificity : 0;
+		}
+
+
 		/**
 		 * @inheritDoc
 		 */

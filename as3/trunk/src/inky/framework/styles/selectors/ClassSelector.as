@@ -31,6 +31,16 @@ package inky.framework.styles.selectors
 
 
 		/**
+		 *	@inheritDoc
+		 */
+		public function get specificity():uint
+		{
+			return 10;
+		}
+
+
+
+		/**
 		 * @inheritDoc
 		 */
 		public function matches(object:Object):Boolean

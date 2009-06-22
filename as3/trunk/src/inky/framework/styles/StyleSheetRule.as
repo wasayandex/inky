@@ -2,7 +2,6 @@ package inky.framework.styles
 {
 	import inky.framework.collections.IList;
 	import inky.framework.collections.ArrayList;
-	import inky.framework.styles.selectors.ISelector;
 
 
 	/**
@@ -20,7 +19,7 @@ package inky.framework.styles
 	public class StyleSheetRule
 	{
 		private var _declarations:IList;
-		private var _selector:ISelector;
+		private var _selectors:IList;
 
 
 		public function StyleSheetRule()
@@ -42,16 +41,11 @@ package inky.framework.styles
 		/**
 		 *
 		 */
-		public function get selector():ISelector
+		public function get selectors():IList
 		{
-			return this._selector;
-		}
-		/**
-		 * @private
-		 */
-		public function set selector(value:ISelector):void
-		{
-			this._selector = value;
+			if (!this._selectors)
+				this._selectors = new ArrayList();
+			return this._selectors;
 		}
 
 

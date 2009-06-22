@@ -45,13 +45,8 @@
 			// Take out the extra whitespace.
 			text = text.replace(/^\s+/, "").replace(/\s+$/, "");
 
-			if (text.indexOf(",") != -1)
-			{
-				throw new Error("Can't handle multiple selectors (with commas) yet.");
-			}
-
 			// Child Combinator
-			else if ((match = text.match(/(.+)>\s*([^>\s+]+)$/)))
+			if ((match = text.match(/(.+)>\s*([^>\s+]+)$/)))
 			{
 				selectorSet = new SelectorSet();
 

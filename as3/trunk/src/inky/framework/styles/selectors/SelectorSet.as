@@ -20,6 +20,23 @@
 	{
 
 		/**
+		 *	@inheritDoc
+		 */
+		public function get specificity():uint
+		{
+// TODO: This should be updated as you manipulate the list, not calculated each time it's requested.
+			var specificity:uint = 0;
+			for (var i:IIterator = this.iterator(); i.hasNext(); )
+			{
+				var selector:ISelector = i.next() as ISelector;
+				specificity += selector.specificity;
+			}
+			return specificity;
+		}
+
+
+
+		/**
 		 * @inheritDoc
 		 */
 		public function matches(object:Object):Boolean

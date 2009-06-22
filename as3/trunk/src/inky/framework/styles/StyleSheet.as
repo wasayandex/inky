@@ -26,6 +26,7 @@
 		private static var _selectorParser:SelectorParser = new SelectorParser();
 		private static var rulePattern:RegExp = /([^{]+){([^}]+)}/g;
 		private static var declarationPattern:RegExp = /\s*([^\:]+)\s*:\s*([^;]+);/g;
+		private static var selectorSeparator:RegExp = /\s*,\s*/;
 
 
 		/**
@@ -45,16 +46,20 @@
 			var declarationMatches:Array;
 			while (ruleMatches = rulePattern.exec(cssText))
 			{
-				var selectorText:String = ruleMatches[1];
+				var selectorListText:String = ruleMatches[1];
 				var declarationsText:String = ruleMatches[2];
 				
 				// Create the rule and add it to the list.
 				var rule:StyleSheetRule = new StyleSheetRule();
 				this.rules.addItem(rule);
-				
-				// Create the selector and add it to the rule.
-				var selector:ISelector = StyleSheet._selectorParser.parse(selectorText);
-				rule.selector = selector;
+
+				// Parse out the comma-delimited list of selectors.
+				for each (var selectorText:String in selectorListText.split(selectorSeparator))
+				{
+					// Create the selector and add it to the rule.
+					var selector:ISelector = StyleSheet._selectorParser.parse(selectorText);
+					rule.selectors.addItem(selector);
+				}
 				
 				// Add the declarations to the rule.
 				while (declarationMatches = declarationPattern.exec(declarationsText))
@@ -84,19 +89,27 @@
 		public function toCSSString():String
 		{
 			var ruleStrings:Array = [];
+			var j:IIterator;
 			for (var i:IIterator = this.rules.iterator(); i.hasNext(); )
 			{
+				var selectorStrings:Array = [];
 				var rule:StyleSheetRule = i.next() as StyleSheetRule;
+				
+				for (j = rule.selectors.iterator(); j.hasNext(); )
+				{
+					var selector:ISelector = j.next() as ISelector;
+					selectorStrings.push(selector.toCSSString());
+				}
 				
 				var declarations:IList = rule.declarations
 				var declarationStrings:Array = [];
-				for (var j:IIterator = declarations.iterator(); j.hasNext(); )
+				for (j = declarations.iterator(); j.hasNext(); )
 				{
 					var declaration:StyleSheetDeclaration = j.next() as StyleSheetDeclaration;
 					declarationStrings.push("\t" + declaration.property + ": " + declaration.value + ";");
 				}
 				
-				ruleStrings.push(rule.selector.toCSSString() + " {\n" + declarationStrings.join("\n") + "\n}");
+				ruleStrings.push(selectorStrings.join(",\n") + " {\n" + declarationStrings.join("\n") + "\n}");
 			}
 			return ruleStrings.join("\n\n");
 		}

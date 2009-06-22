@@ -10,6 +10,7 @@
 	import inky.framework.collections.events.CollectionEventKind;
 	import inky.framework.collections.ISet;
 	import inky.framework.collections.Set;
+	import inky.framework.styles.selectors.ISelector;
 
 
 	/**
@@ -130,6 +131,7 @@
 				return;
 			
 			var i:IIterator;
+			var j:IIterator;
 			var rule:StyleSheetRule;
 			var rulesToApply:Array = [];
 
@@ -139,12 +141,19 @@
 				for (i = styleSheet.rules.iterator(); i.hasNext(); )
 				{
 					rule = i.next() as StyleSheetRule;
-					if (rule.selector.matches(object))
-						rulesToApply.push(rule);
+					for (j = rule.selectors.iterator(); j.hasNext(); )
+					{
+						var selector:ISelector = j.next() as ISelector;
+						if (selector.matches(object))
+						{
+							rulesToApply.push(rule);
+							break;
+						}
+					}
 				}
 			}
 // TODO: "cascade" styles. (figure out how the declarations impact eachother.) Does this require us to keep track of which rules are applied to each object (so that we have the selectors)?
-
+// TODO: Obey specificity
 			// Apply the styles.
 			for each (rule in rulesToApply)
 			{
