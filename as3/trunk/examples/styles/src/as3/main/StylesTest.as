@@ -42,13 +42,6 @@
 			myStyleManager.registerObject(myTextField);
 		}
 
-
-
-		public function setStyle(property:String, value:Object):void
-		{
-			if (property == "color")
-				this.textField.textColor = parseInt(String(value));
-		}
 		
 	}
 	
