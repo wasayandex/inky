@@ -35,6 +35,7 @@
 		public function parse(text:String):ISelector
 		{
 // TODO: Make regexps more accurate.
+// TODO: Add parsing errors
 			var match:Object;
 			var selector:ISelector;
 			var i:int;
@@ -65,7 +66,7 @@
 				selector = selectorSet;
 			}
 			
-			// Descendant Cominator
+			// Descendant Combinator
 			else if ((match = text.match(/(.+)\s+([\S]+)$/)))
 			{
 				selectorSet = new SelectorSet();

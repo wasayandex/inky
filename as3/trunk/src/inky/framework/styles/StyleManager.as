@@ -3,8 +3,13 @@
 	import flash.utils.Dictionary;
 	import inky.framework.styles.StyleSheet;
 	import inky.framework.collections.IIterator;
+	import inky.framework.collections.ISet;
 	import inky.framework.styles.StyleSheetRule;
 	import inky.framework.styles.StyleSheetDeclaration;
+	import inky.framework.collections.events.CollectionEvent;
+	import inky.framework.collections.events.CollectionEventKind;
+	import inky.framework.collections.ISet;
+	import inky.framework.collections.Set;
 
 
 	/**
@@ -22,7 +27,7 @@
 	public class StyleManager
 	{
 		private var _objects:Dictionary;
-		private var _styleSheets:Array;
+		private var _styleSheets:ISet;
 
 
 		/**
@@ -31,24 +36,36 @@
 		public function StyleManager()
 		{
 			this._objects = new Dictionary(true);
-			this._styleSheets = [];
+
+			this._styleSheets = new Set();
+			this._styleSheets.addEventListener(CollectionEvent.COLLECTION_CHANGE, this._styleSheetsListChangeHandler);
 		}
+
+
+
+
+		//
+		// accessors
+		//
 
 
 		/**
-		 *	
+		 *
+		 * Gets a list of style sheets for which this manager is responsible.
+		 * 
 		 */
-		public function addStyleSheet(styleSheet:StyleSheet):void
-		{
-// TODO: Should we just expose a styleSheets list and listen for ADD/REMOVE events instead?
-// TODO: Listen for changes on style sheet?
-			if (this._styleSheets.indexOf(styleSheet) == -1)
-			{
-				this._styleSheets.push(styleSheet);
-				this._updateAllObjects([styleSheet]);
-			}
+		public function get styleSheets():ISet
+		{ 
+			return this._styleSheets; 
 		}
 
+
+
+
+		//
+		// public methods
+		//
+		
 
 		/**
 		 *	Registers an instance with this manager.
@@ -58,7 +75,7 @@
 			if (object && (this._objects[object] === undefined))
 			{
 				this._objects[object] = null;
-				this._updateObjectStyles(object, this._styleSheets);
+				this._updateObjectStyles(object, this._styleSheets.toArray());
 			}
 		}
 
@@ -77,6 +94,19 @@
 		//
 		// private methods
 		//
+
+
+		/**
+		 *	
+		 */
+		private function _styleSheetsListChangeHandler(event:CollectionEvent):void
+		{
+// TODO: Add support for other manipulations (i.e. REMOVE)
+			if (event.kind == CollectionEventKind.ADD)
+			{
+				this._updateAllObjects(event.items);
+			}
+		}
 
 
 		/**
