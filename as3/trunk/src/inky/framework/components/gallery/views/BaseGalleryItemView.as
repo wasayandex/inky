@@ -130,6 +130,8 @@ package inky.framework.components.gallery.views
 				}
 				
 				this._model = value;
+				this.modelUpdated();
+
 				if (value)
 				{
 					feature = GalleryImageModel(value.images.findFirst({size: this.featureSize}));
@@ -141,7 +143,6 @@ package inky.framework.components.gallery.views
 						this.startLoad(feature, "feature");
 				}
 
-				this.modelUpdated();
 				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, 'model', oldModel, value));
 			}
 		}
