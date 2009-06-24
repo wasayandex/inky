@@ -11,6 +11,7 @@
 	import inky.framework.collections.ISet;
 	import inky.framework.collections.Set;
 	import inky.framework.styles.selectors.ISelector;
+	import inky.framework.styles.StyleableTextField;
 
 
 	/**
@@ -76,6 +77,14 @@
 			if (object && (this._objects[object] === undefined))
 			{
 				this._objects[object] = null;
+
+if (object is StyleableTextField)
+{
+	for (var i:IIterator = StyleableTextField(object).elements.iterator(); i.hasNext(); )
+	{
+		this.registerObject(i.next() as IStyleable);
+	}
+}
 				this._updateObjectStyles(object, this._styleSheets.toArray());
 			}
 		}
@@ -87,6 +96,15 @@
 		public function unregisterObject(object:IStyleable):void
 		{
 			delete this._objects[object];
+
+if (object is StyleableTextField)
+{
+	for (var i:IIterator = StyleableTextField(object).elements.iterator(); i.hasNext(); )
+	{
+		this.unregisterObject(i.next() as IStyleable);
+	}
+}
+
 		}
 
 
@@ -152,6 +170,10 @@
 					}
 				}
 			}
+
+if (rulesToApply.length)
+	trace("applying style to\t" + object);
+
 // TODO: "cascade" styles. (figure out how the declarations impact eachother.) Does this require us to keep track of which rules are applied to each object (so that we have the selectors)?
 // TODO: Obey specificity
 			// Apply the styles.
@@ -161,6 +183,7 @@
 				{
 					var declaration:StyleSheetDeclaration = i.next() as StyleSheetDeclaration;
 					object.style[declaration.property] = declaration.value;
+trace("\t" + declaration.property + ": " + declaration.value);
 				}
 			}
 		}

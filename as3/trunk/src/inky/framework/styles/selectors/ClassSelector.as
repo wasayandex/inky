@@ -3,6 +3,7 @@ package inky.framework.styles.selectors
 	import inky.framework.styles.selectors.ISelector;
 	import flash.utils.getQualifiedClassName;
 	import flash.utils.getDefinitionByName;
+	import inky.framework.styles.HTMLElement;
 
 
 	/**
@@ -45,8 +46,25 @@ package inky.framework.styles.selectors
 		 */
 		public function matches(object:Object):Boolean
 		{
-			var cls:Class = getDefinitionByName(this._className) as Class;
-			return cls && (object is cls);
+			var matches:Boolean;
+			
+			if (object is HTMLElement)
+			{
+				matches = this._className == HTMLElement(object).className;
+			}
+			else
+			{
+				var cls:Class;
+				try
+				{
+					cls = getDefinitionByName(this._className) as Class;
+				}
+				catch (error:Error)
+				{
+				}
+				matches = cls && (object is cls);
+			}
+			return matches;
 		}
 
 

@@ -5,6 +5,8 @@ package inky.framework.styles
 	import flash.text.TextField;
 	import flash.display.DisplayObjectContainer;
 	import inky.framework.binding.events.PropertyChangeEvent;
+	import inky.framework.collections.IList;
+	import inky.framework.collections.ArrayList;
 
 
 	/**
@@ -21,6 +23,9 @@ package inky.framework.styles
 	 */
 	public class StyleableTextField implements IStyleable
 	{
+		private var _elements:Array;
+		private var _htmlText:String;
+		private var _html:XML;
 		private var _textField:TextField;
 		private var _style:Object;
 
@@ -36,6 +41,54 @@ package inky.framework.styles
 			this._style.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, this._styleChangeHandler);
 			
 		}
+
+
+		/**
+		 *
+		 */
+		public function get elements():IList
+		{ 
+// TODO: Don't recreate this list every time!
+			return new ArrayList(this._elements);
+		}
+
+
+		/**
+		 *
+		 */
+		public function get htmlText():String
+		{ 
+			return this._htmlText; 
+		}
+		/**
+		 * @private
+		 */
+		public function set htmlText(value:String):void
+		{
+			this._htmlText = value;
+			this._html = new XML("<root>" + value + "</root>");
+			
+			// Get a list of elements.
+			this._elements = this._getElements(this._html, this, []);
+
+			this._textField.htmlText = value;
+		}
+
+
+		private function _getElements(xmlParent:XML, realParent:Object, list:Array):Array
+		{
+			for each (var el:XML in xmlParent.elements())
+			{
+				var htmlElement:HTMLElement = new HTMLElement(el, realParent);
+				list.push(htmlElement);
+				this._getElements(el, htmlElement, list);
+			}
+			return list;
+		}
+
+
+
+
 
 
 		/**
