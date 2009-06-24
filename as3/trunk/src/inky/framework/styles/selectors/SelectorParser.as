@@ -8,6 +8,7 @@
 	import inky.framework.styles.selectors.ClassSelector;
 	import inky.framework.styles.selectors.ChildCombinator;
 	import inky.framework.styles.selectors.DescendantCombinator;
+	import inky.framework.styles.selectors.UniversalSelector;
 
 
 	/**
@@ -36,6 +37,7 @@
 		{
 // TODO: Make regexps more accurate.
 // TODO: Add parsing errors
+// FIXME: *.someclass doesn't work
 			var match:Object;
 			var selector:ISelector;
 			var i:int;
@@ -75,6 +77,12 @@
 				selectorSet.addItem(descendantCombinator);
 				
 				selector = selectorSet;
+			}
+			
+			// universal selector
+			else if (text == "*")
+			{
+				selector = new UniversalSelector();
 			}
 			
 			// id selector
