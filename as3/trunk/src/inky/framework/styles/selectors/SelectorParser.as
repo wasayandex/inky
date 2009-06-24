@@ -9,6 +9,7 @@
 	import inky.framework.styles.selectors.ChildCombinator;
 	import inky.framework.styles.selectors.DescendantCombinator;
 	import inky.framework.styles.selectors.UniversalSelector;
+	import inky.framework.styles.selectors.TypeSelector;
 
 
 	/**
@@ -119,6 +120,13 @@
 					selector = new ClassSelector(className);
 				}
 			}
+			
+			// type selector
+			else if ((match = text.match(/(\w+)/)))
+			{
+				selector = new TypeSelector(match[1]);
+			}
+			
 			else
 			{
 				throw new Error("Couldn't parse \"" + text + "\"");

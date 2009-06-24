@@ -11,7 +11,7 @@ package inky.framework.styles.selectors
 	 *	@playerversion Flash 9.0.0
 	 *
 	 *	@author Matthew Tretter
-	 *	@since  2009.06.15
+	 *	@since  2009.06.24
 	 *
 	 */
 	public class UniversalSelector implements ISelector

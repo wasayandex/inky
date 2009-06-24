@@ -37,6 +37,11 @@ package inky.framework.styles
 			var attr:XMLList = this._xml.attribute("class");
 			return attr.length() ? attr[0] : null;
 		}
+		
+		public function get type():QName
+		{
+			return this._xml.name();
+		}
 
 		public function get parent():Object
 		{
