@@ -1,1 +1,0 @@
-﻿package inky.framework.components.calendar.parsers {	import inky.framework.components.calendar.models.EventModel;		/**	 *	 */	public interface IEventDataParser 	{		function parse(data:XML):EventModel;			}	}
