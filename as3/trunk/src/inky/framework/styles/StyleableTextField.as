@@ -29,7 +29,7 @@ package inky.framework.styles
 		private var _textField:TextField;
 		private var _style:Object;
 
-
+// TODO: Should be IStyleableProxy. Rules should never reference IStyleableProxies. Instead rules that target the proxied object should be applied to this object.
 		/**
 		 *
 		 */
@@ -49,6 +49,7 @@ package inky.framework.styles
 		public function get elements():IList
 		{ 
 // TODO: Don't recreate this list every time!
+// FIXME: Should this include all descendant elements? Or should it be a tree structure.
 			return new ArrayList(this._elements);
 		}
 
