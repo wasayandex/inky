@@ -1,4 +1,4 @@
-﻿package inky.components.transitioningObject
+﻿package inky.utils
 {
 	import flash.display.DisplayObject;
 	import flash.events.Event;
