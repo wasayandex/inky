@@ -8,6 +8,10 @@ package inky.framework.styles
 	import inky.framework.collections.IList;
 	import inky.framework.collections.ArrayList;
 	import inky.framework.collections.IIterator;
+	import inky.framework.styles.HTMLElement;
+	import flash.utils.getQualifiedClassName;
+	import flash.events.Event;
+	import inky.framework.styles.IStyleableProxy;
 
 
 	/**
@@ -22,36 +26,32 @@ package inky.framework.styles
 	 *	@since  2009.06.11
 	 *
 	 */
-	public class StyleableTextField implements IStyleable
+	public class StyleableTextField extends HTMLElement implements IStyleableProxy
 	{
 		private var _children:IList;
 		private var _htmlText:String;
 		private var _html:XML;
+		private var _invalid:Boolean;
 		private var _textField:TextField;
 		private var _style:Object;
 
-// TODO: Should be IStyleableProxy. Rules should never reference IStyleableProxies. Instead rules that target the proxied object should be applied to this object.
+
 		/**
 		 *
 		 */
 		public function StyleableTextField(textField:TextField)
 		{
 			this._textField = textField;
-
-			this._style = new StyleObject();
-			this._style.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, this._styleChangeHandler);
-			
+			this.style.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, this._invalidateContents, false, 0, true);
 		}
 
 
 		/**
-		 *
+		 *	@inheritDoc
 		 */
-		public function get children():IList
-		{ 
-			if (!this._children)
-				this._children = new ArrayList();
-			return this._children;
+		override public function get className():String
+		{
+			return getQualifiedClassName(this).replace(/:+/g, ".");
 		}
 
 
@@ -69,14 +69,43 @@ package inky.framework.styles
 		{
 			this._htmlText = value;
 			this._html = new XML("<root>" + value + "</root>");
-			
+// TODO: Should probably UNREGISTER all current descendants here, before creating the new ones.
 			// Get a list of children.
 			this._createHTMLTree(this._html, this);
 			
-			this._updateTextField(null);
+			this._invalidateContents(null);
 		}
 
 
+		/**
+		 *	@inheritDoc
+		 */
+		override public function get parent():Object
+		{
+			return this._textField.parent;
+		}
+
+
+		/**
+		 *	@inheritDoc
+		 */
+		override public function get type():QName
+		{
+// FIXME: What to return here?
+			return null;
+		}
+
+
+
+
+		//
+		// private methods
+		//
+
+
+		/**
+		 *	
+		 */
 		private function _createHTMLTree(xmlParent:XML, realParent:Object):void
 		{
 			for each (var el:XML in xmlParent.children())
@@ -86,49 +115,49 @@ package inky.framework.styles
 				this._createHTMLTree(el, htmlElement);
 				
 				// When the element's style changes, update the text field.
-				htmlElement.style.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, this._updateTextField, false, 0, true);
+				htmlElement.style.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, this._invalidateContents, false, 0, true);
 			}
 		}
 
 
-
-		private function _updateTextField(event:PropertyChangeEvent):void
+		/**
+		 *	
+		 */
+		private function _invalidateContents(event:Event):void
 		{
-// TODO: Wait for render event.
-			this._textField.htmlText = this.toHTMLString();
+			if (event)
+				event.currentTarget.removeEventListener(event.type, arguments.callee);
+			
+			if (!this._invalid)
+			{
+				this._invalid = true;
+				
+				if (this._textField.stage)
+				{
+					this._textField.stage.addEventListener(Event.RENDER, this._renderHandler, false, 0, true);
+					this._textField.stage.invalidate();
+				}
+				else
+				{
+					this._textField.addEventListener(Event.ADDED_TO_STAGE, this._invalidateContents);
+				}
+			}
 		}
-
-
-public function toHTMLString():String
-{
-	var str:String = "";
-	for (var i:IIterator = this.children.iterator(); i.hasNext(); )
-	{
-		str += i.next().toHTMLString();
-	}
-	return str;
-}
 
 
 		/**
-		 * @inheritDoc
+		 *	
 		 */
-		public function get style():Object
+		private function _renderHandler(event:Event):void
 		{
-			return this._style;
-		}
-
-
-		public function get parent():DisplayObjectContainer
-		{
-			return this._textField.parent;
-		}
-
-
-		private function _styleChangeHandler(event:PropertyChangeEvent):void
-		{
-			if (event.property == "color")
-				this._textField.textColor = parseInt(String(event.newValue || 0));
+			event.currentTarget.removeEventListener(event.type, arguments.callee);
+			
+			// Update the text field.
+			if (this._invalid)
+			{
+				this._textField.htmlText = this.toHTMLString();
+				this._invalid = false;
+			}
 		}
 
 

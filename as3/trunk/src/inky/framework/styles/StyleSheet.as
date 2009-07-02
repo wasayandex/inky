@@ -64,9 +64,9 @@
 				// Add the declarations to the rule.
 				while (declarationMatches = declarationPattern.exec(declarationsText))
 				{
-					var property:String = declarationMatches[1];
+					var cssProperty:String = declarationMatches[1];
 					var value:String = declarationMatches[2];
-					var declaration:StyleSheetDeclaration = new StyleSheetDeclaration(property, value);
+					var declaration:StyleSheetDeclaration = new StyleSheetDeclaration(cssProperty, value);
 					rule.declarations.addItem(declaration);
 				}
 			}
@@ -84,8 +84,9 @@
 		}
 
 		
-		
-		
+		/**
+		 *	
+		 */
 		public function toCSSString():String
 		{
 			var ruleStrings:Array = [];
@@ -106,15 +107,16 @@
 				for (j = declarations.iterator(); j.hasNext(); )
 				{
 					var declaration:StyleSheetDeclaration = j.next() as StyleSheetDeclaration;
-					declarationStrings.push("\t" + declaration.property + ": " + declaration.value + ";");
+					declarationStrings.push("\t" + declaration.cssProperty + ": " + declaration.value + ";");
 				}
 				
 				ruleStrings.push(selectorStrings.join(",\n") + " {\n" + declarationStrings.join("\n") + "\n}");
 			}
 			return ruleStrings.join("\n\n");
 		}
-		
-		
+
+
+
+
 	}
-	
 }

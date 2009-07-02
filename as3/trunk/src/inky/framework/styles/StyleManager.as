@@ -187,8 +187,8 @@ if (object is StyleableTextField)
 				}
 			}
 
-if (rulesToApply.length)
-	trace("applying style to\t" + object);
+/*if (rulesToApply.length)
+	trace("applying style to\t" + object);*/
 
 // TODO: "cascade" styles. (figure out how the declarations impact eachother.) Does this require us to keep track of which rules are applied to each object (so that we have the selectors)?
 // TODO: Obey specificity
@@ -198,8 +198,8 @@ if (rulesToApply.length)
 				for (i = rule.declarations.iterator(); i.hasNext(); )
 				{
 					var declaration:StyleSheetDeclaration = i.next() as StyleSheetDeclaration;
-					object.style[declaration.actionScriptProperty] = declaration.value;
-trace("\t" + declaration.property + ": " + declaration.value);
+					object.style[declaration.property] = declaration.value;
+//trace("\t" + declaration.property + ": " + declaration.value);
 				}
 			}
 		}
