@@ -18,17 +18,17 @@
 	 *	@since  2009.06.11
 	 *
 	 */
-	public class StylesTest extends Sprite
+	public class StylesExample extends Sprite
 	{
 		
 		/**
 		 *
 		 */
-		public function StylesTest()
+		public function StylesExample()
 		{
 			// Create a new stylesheet.
 			var myStyleSheet:StyleSheet = new StyleSheet();
-			myStyleSheet.parseCSS(".flash\\.display\\.Stage > .flash\\.display\\.DisplayObjectContainer > .inky\\.framework\\.styles\\.StyleableTextField { color: 0x00ff00; } .special > b { color: 0xff0000; }");
+			myStyleSheet.parseCSS(".inky\\.framework\\.styles\\.StyleableTextField b { color: 0xff0000; }");
 
 			// Display the parsed style sheet.
 			trace(myStyleSheet.toCSSString());
