@@ -7,6 +7,7 @@ package inky.framework.styles
 	import inky.framework.binding.events.PropertyChangeEvent;
 	import inky.framework.collections.IList;
 	import inky.framework.collections.ArrayList;
+	import inky.framework.collections.IIterator;
 
 
 	/**
@@ -23,7 +24,7 @@ package inky.framework.styles
 	 */
 	public class StyleableTextField implements IStyleable
 	{
-		private var _elements:Array;
+		private var _children:IList;
 		private var _htmlText:String;
 		private var _html:XML;
 		private var _textField:TextField;
@@ -46,11 +47,11 @@ package inky.framework.styles
 		/**
 		 *
 		 */
-		public function get elements():IList
+		public function get children():IList
 		{ 
-// TODO: Don't recreate this list every time!
-// FIXME: Should this include all descendant elements? Or should it be a tree structure.
-			return new ArrayList(this._elements);
+			if (!this._children)
+				this._children = new ArrayList();
+			return this._children;
 		}
 
 
@@ -69,27 +70,44 @@ package inky.framework.styles
 			this._htmlText = value;
 			this._html = new XML("<root>" + value + "</root>");
 			
-			// Get a list of elements.
-			this._elements = this._getElements(this._html, this, []);
-
-			this._textField.htmlText = value;
+			// Get a list of children.
+			this._createHTMLTree(this._html, this);
+			
+			this._updateTextField(null);
 		}
 
 
-		private function _getElements(xmlParent:XML, realParent:Object, list:Array):Array
+		private function _createHTMLTree(xmlParent:XML, realParent:Object):void
 		{
-			for each (var el:XML in xmlParent.elements())
+			for each (var el:XML in xmlParent.children())
 			{
 				var htmlElement:HTMLElement = new HTMLElement(el, realParent);
-				list.push(htmlElement);
-				this._getElements(el, htmlElement, list);
+				realParent.children.addItem(htmlElement);
+				this._createHTMLTree(el, htmlElement);
+				
+				// When the element's style changes, update the text field.
+				htmlElement.style.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, this._updateTextField, false, 0, true);
 			}
-			return list;
 		}
 
 
 
+		private function _updateTextField(event:PropertyChangeEvent):void
+		{
+// TODO: Wait for render event.
+			this._textField.htmlText = this.toHTMLString();
+		}
 
+
+public function toHTMLString():String
+{
+	var str:String = "";
+	for (var i:IIterator = this.children.iterator(); i.hasNext(); )
+	{
+		str += i.next().toHTMLString();
+	}
+	return str;
+}
 
 
 		/**

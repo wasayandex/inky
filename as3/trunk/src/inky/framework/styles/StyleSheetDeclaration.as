@@ -18,8 +18,15 @@ package inky.framework.styles
 	 */
 	public class StyleSheetDeclaration
 	{
+		private var _actionScriptProperty:String;
 		public var property:String;
 		public var value:Object;
+		private static var _propertyNameRegExp:RegExp = /-(\w)/g;
+
+		private static function _replaceFn(match:String, ...rest:Array):String
+		{
+			return rest[0].toUpperCase();
+		}
 		
 		
 		/**
@@ -29,7 +36,20 @@ package inky.framework.styles
 		{
 			this.property = property;
 			this.value = value;
+			this._actionScriptProperty = property.replace(StyleSheetDeclaration._propertyNameRegExp, StyleSheetDeclaration._replaceFn);
 		}
+		
+
+		/**
+		 *	Gets the property in its ActionScipt form (camelCaps instead of hyphenated)
+		 */
+// TODO: Rename this to not be AS-specific?
+		public function get actionScriptProperty():String
+		{
+			return this._actionScriptProperty;
+		}
+
+
 
 
 	}

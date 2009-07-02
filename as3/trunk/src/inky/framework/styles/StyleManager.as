@@ -69,6 +69,28 @@
 		//
 		
 
+
+private function _registerChildren(object:Object):void
+{
+	for (var i:IIterator = object.children.iterator(); i.hasNext(); )
+	{
+		var child:IStyleable = i.next() as IStyleable;
+		this.registerObject(child);
+		this._registerChildren(child);
+	}
+}
+
+
+private function _unregisterChildren(object:Object):void
+{
+	for (var i:IIterator = object.children.iterator(); i.hasNext(); )
+	{
+		var child:IStyleable = i.next() as IStyleable;
+		this.unregisterObject(child);
+		this._unregisterChildren(child);
+	}
+}
+
 		/**
 		 *	Registers an instance with this manager.
 		 */
@@ -80,10 +102,7 @@
 
 if (object is StyleableTextField)
 {
-	for (var i:IIterator = StyleableTextField(object).elements.iterator(); i.hasNext(); )
-	{
-		this.registerObject(i.next() as IStyleable);
-	}
+	this._registerChildren(object);
 }
 				this._updateObjectStyles(object, this._styleSheets.toArray());
 			}
@@ -99,10 +118,7 @@ if (object is StyleableTextField)
 
 if (object is StyleableTextField)
 {
-	for (var i:IIterator = StyleableTextField(object).elements.iterator(); i.hasNext(); )
-	{
-		this.unregisterObject(i.next() as IStyleable);
-	}
+	this._unregisterChildren(object);
 }
 
 		}
@@ -182,7 +198,7 @@ if (rulesToApply.length)
 				for (i = rule.declarations.iterator(); i.hasNext(); )
 				{
 					var declaration:StyleSheetDeclaration = i.next() as StyleSheetDeclaration;
-					object.style[declaration.property] = declaration.value;
+					object.style[declaration.actionScriptProperty] = declaration.value;
 trace("\t" + declaration.property + ": " + declaration.value);
 				}
 			}

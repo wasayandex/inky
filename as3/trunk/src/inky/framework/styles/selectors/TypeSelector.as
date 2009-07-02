@@ -49,21 +49,24 @@ package inky.framework.styles.selectors
 		 */
 		public function matches(object:Object):Boolean
 		{
-			var matches:Boolean;
+			var matches:Boolean = false;
 			
 			if (object is HTMLElement)
 			{
 // FIXME: How are you actually supposed to compare QNames? The docs say a QName with a null uri should match any, but that doesn't seem to be the case.
 				var elementType:QName = HTMLElement(object).type;
-				if ((this._type.uri == null) || (elementType.uri == null))
-					matches = this._type.localName == elementType.localName;
-				else
-					matches = (this._type.uri == elementType.uri) && (this._type.localName == elementType.localName);
+
+				if (elementType)
+				{
+					if ((this._type.uri == null) || (elementType.uri == null))
+						matches = this._type.localName == elementType.localName;
+					else
+						matches = (this._type.uri == elementType.uri) && (this._type.localName == elementType.localName);
+				}
 			}
 			else
 			{
-// FIXME: What do type selectors mean for non-HTMLElements?
-				matches = false;
+// TODO: What do type selectors mean for non-HTMLElements?
 			}
 			return matches;
 		}
