@@ -3,8 +3,10 @@
 	import flash.display.Sprite;
 	import inky.framework.styles.StyleSheet;
 	import inky.framework.styles.StyleManager;
-	import inky.framework.styles.IStyleable;
 	import inky.framework.styles.StyleableTextField;
+	import flash.net.URLLoader;
+	import flash.events.Event;
+	import flash.net.URLRequest;
 
 
 	/**
@@ -20,15 +22,28 @@
 	 */
 	public class StylesExample extends Sprite
 	{
+		private var _loader:URLLoader
 		
 		/**
 		 *
 		 */
 		public function StylesExample()
 		{
+			// Load the stylesheet.
+			this._loader = new URLLoader();
+			this._loader.addEventListener(Event.COMPLETE, this._cssLoadCompleteHandler);
+			this._loader.load(new URLRequest("example.css"));
+		}
+
+
+		/**
+		 *	Applies the styles once the style sheet is loaded.
+		 */
+		private function _cssLoadCompleteHandler(event:Event):void
+		{
 			// Create a new stylesheet.
 			var myStyleSheet:StyleSheet = new StyleSheet();
-			myStyleSheet.parseCSS(".inky\\.framework\\.styles\\.StyleableTextField b { color: 0xff0000; }");
+			myStyleSheet.parseCSS(event.currentTarget.data);
 
 			// Display the parsed style sheet.
 			trace(myStyleSheet.toCSSString());
@@ -43,7 +58,8 @@
 			myStyleManager.registerObject(myTextField);
 		}
 
-		
-	}
+
+
 	
+	}
 }
