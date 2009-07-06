@@ -47,9 +47,10 @@ package inky.styles.selectors
 		public function matches(object:Object):Boolean
 		{
 			var matches:Boolean;
-			
+
 			if (object is HTMLElement)
 			{
+// TODO: Make this work when multiple class names are specified. i.e. class="a b c"
 				matches = this._className == HTMLElement(object).className;
 			}
 			else
