@@ -7,6 +7,11 @@ package inky.styles
 	import inky.binding.events.PropertyChangeEvent;
 	import inky.collections.IList;
 	import inky.collections.ArrayList;
+	import inky.collections.IIterator;
+	import inky.styles.HTMLElement;
+	import flash.utils.getQualifiedClassName;
+	import flash.events.Event;
+	import inky.styles.IStyleableProxy;
 
 
 	/**
@@ -21,36 +26,32 @@ package inky.styles
 	 *	@since  2009.06.11
 	 *
 	 */
-	public class StyleableTextField implements IStyleable
+	public class StyleableTextField extends HTMLElement implements IStyleableProxy
 	{
-		private var _elements:Array;
+		private var _children:IList;
 		private var _htmlText:String;
 		private var _html:XML;
+		private var _invalid:Boolean;
 		private var _textField:TextField;
 		private var _style:Object;
 
-// TODO: Should be IStyleableProxy. Rules should never reference IStyleableProxies. Instead rules that target the proxied object should be applied to this object.
+
 		/**
 		 *
 		 */
 		public function StyleableTextField(textField:TextField)
 		{
 			this._textField = textField;
-
-			this._style = new StyleObject();
-			this._style.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, this._styleChangeHandler);
-			
+			this.style.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, this._invalidateContents, false, 0, true);
 		}
 
 
 		/**
-		 *
+		 *	@inheritDoc
 		 */
-		public function get elements():IList
-		{ 
-// TODO: Don't recreate this list every time!
-// FIXME: Should this include all descendant elements? Or should it be a tree structure.
-			return new ArrayList(this._elements);
+		override public function get className():String
+		{
+			return getQualifiedClassName(this).replace(/:+/g, ".");
 		}
 
 
@@ -68,49 +69,95 @@ package inky.styles
 		{
 			this._htmlText = value;
 			this._html = new XML("<root>" + value + "</root>");
+// TODO: Should probably UNREGISTER all current descendants here, before creating the new ones.
+			// Get a list of children.
+			this._createHTMLTree(this._html, this);
 			
-			// Get a list of elements.
-			this._elements = this._getElements(this._html, this, []);
-
-			this._textField.htmlText = value;
+			this._invalidateContents(null);
 		}
-
-
-		private function _getElements(xmlParent:XML, realParent:Object, list:Array):Array
-		{
-			for each (var el:XML in xmlParent.elements())
-			{
-				var htmlElement:HTMLElement = new HTMLElement(el, realParent);
-				list.push(htmlElement);
-				this._getElements(el, htmlElement, list);
-			}
-			return list;
-		}
-
-
-
-
 
 
 		/**
-		 * @inheritDoc
+		 *	@inheritDoc
 		 */
-		public function get style():Object
-		{
-			return this._style;
-		}
-
-
-		public function get parent():DisplayObjectContainer
+		override public function get parent():Object
 		{
 			return this._textField.parent;
 		}
 
 
-		private function _styleChangeHandler(event:PropertyChangeEvent):void
+		/**
+		 *	@inheritDoc
+		 */
+		override public function get type():QName
 		{
-			if (event.property == "color")
-				this._textField.textColor = parseInt(String(event.newValue || 0));
+// FIXME: What to return here?
+			return null;
+		}
+
+
+
+
+		//
+		// private methods
+		//
+
+
+		/**
+		 *	
+		 */
+		private function _createHTMLTree(xmlParent:XML, realParent:Object):void
+		{
+			for each (var el:XML in xmlParent.children())
+			{
+				var htmlElement:HTMLElement = new HTMLElement(el, realParent);
+				realParent.children.addItem(htmlElement);
+				this._createHTMLTree(el, htmlElement);
+				
+				// When the element's style changes, update the text field.
+				htmlElement.style.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, this._invalidateContents, false, 0, true);
+			}
+		}
+
+
+		/**
+		 *	
+		 */
+		private function _invalidateContents(event:Event):void
+		{
+			if (event)
+				event.currentTarget.removeEventListener(event.type, arguments.callee);
+			
+			if (!this._invalid)
+			{
+				this._invalid = true;
+				
+				if (this._textField.stage)
+				{
+					this._textField.stage.addEventListener(Event.RENDER, this._renderHandler, false, 0, true);
+					this._textField.stage.invalidate();
+				}
+				else
+				{
+					this._textField.addEventListener(Event.ADDED_TO_STAGE, this._invalidateContents);
+				}
+			}
+		}
+
+
+		/**
+		 *	
+		 */
+		private function _renderHandler(event:Event):void
+		{
+			event.currentTarget.removeEventListener(event.type, arguments.callee);
+			
+			// Update the text field.
+			if (this._invalid)
+			{
+				this._textField.htmlText = this.toHTMLString();
+				this._invalid = false;
+			}
 		}
 
 

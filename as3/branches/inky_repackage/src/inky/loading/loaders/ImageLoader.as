@@ -29,13 +29,9 @@ package inky.loading.loaders
 		override protected function setContent(content:Object):void
 		{
 			var loader:Loader = this.getLoader() as Loader;
-			var bmpData:BitmapData = new BitmapData(loader.width, loader.height, true, 0x00000000);
-			bmpData.draw(loader);
-			super.setContent(new Bitmap(bmpData, PixelSnapping.AUTO, true));
+			var bmp:Bitmap = loader.content as Bitmap;
+			bmp.smoothing = true;
+			super.setContent(bmp);
 		}
-
-
-
-
 	}
 }

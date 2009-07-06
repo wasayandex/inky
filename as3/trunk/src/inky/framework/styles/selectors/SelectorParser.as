@@ -1,15 +1,15 @@
-﻿package inky.framework.styles.selectors 
+﻿package inky.styles.selectors 
 {
-	import inky.framework.styles.selectors.ISelector;
-	import inky.framework.styles.StyleSheet;
-	import inky.framework.styles.selectors.SelectorSet;
-	import inky.framework.styles.selectors.ISelector;
-	import inky.framework.styles.selectors.IdSelector;
-	import inky.framework.styles.selectors.ClassSelector;
-	import inky.framework.styles.selectors.ChildCombinator;
-	import inky.framework.styles.selectors.DescendantCombinator;
-	import inky.framework.styles.selectors.UniversalSelector;
-	import inky.framework.styles.selectors.TypeSelector;
+	import inky.styles.selectors.ISelector;
+	import inky.styles.StyleSheet;
+	import inky.styles.selectors.SelectorSet;
+	import inky.styles.selectors.ISelector;
+	import inky.styles.selectors.IdSelector;
+	import inky.styles.selectors.ClassSelector;
+	import inky.styles.selectors.ChildCombinator;
+	import inky.styles.selectors.DescendantCombinator;
+	import inky.styles.selectors.UniversalSelector;
+	import inky.styles.selectors.TypeSelector;
 
 
 	/**

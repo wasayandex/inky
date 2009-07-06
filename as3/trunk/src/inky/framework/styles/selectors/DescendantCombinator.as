@@ -1,6 +1,6 @@
-package inky.framework.styles.selectors 
+package inky.styles.selectors 
 {
-	import inky.framework.styles.selectors.ISelector;
+	import inky.styles.selectors.ISelector;
 
 
 	/**

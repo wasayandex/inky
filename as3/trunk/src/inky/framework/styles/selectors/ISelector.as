@@ -1,4 +1,4 @@
-package inky.framework.styles.selectors 
+package inky.styles.selectors 
 {
 	
 	/**

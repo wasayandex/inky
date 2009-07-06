@@ -1,8 +1,8 @@
-﻿package inky.framework.styles.selectors 
+﻿package inky.styles.selectors 
 {
-	import inky.framework.collections.ArrayList;
-	import inky.framework.styles.selectors.ISelector;
-	import inky.framework.collections.IIterator;
+	import inky.collections.ArrayList;
+	import inky.styles.selectors.ISelector;
+	import inky.collections.IIterator;
 
 	
 	/**
