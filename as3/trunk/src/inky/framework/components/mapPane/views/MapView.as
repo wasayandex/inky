@@ -254,8 +254,8 @@ override public function set scaleY(value:Number):void
 			if (!this._pointViewClass) throw new Error("A PointViewClass is not set!");
 			if (!this._source) throw new Error("A source for MapView is not set!");
 			
-			var longitudeDifference:Number = this.topLeftPoint.x - this.topRightPoint.x;
-			var lattitudeDifference:Number = this.topLeftPoint.y - this.bottomLeftPoint.y;
+			var longitudeDifference:Number = Math.abs(this.topLeftPoint.x - this.topRightPoint.x);
+			var lattitudeDifference:Number = Math.abs(this.bottomLeftPoint.y - this.topLeftPoint.y);
 			
 			var length:int = this.model.length;
 			for (var i:int = 0; i < length; i++)
@@ -271,7 +271,7 @@ override public function set scaleY(value:Number):void
 					}
 					else
 					{
-						pointView.x = Number(model.x) * (longitudeDifference / this._source.width);
+						pointView.x = Math.abs((Number(model.x) - this.topLeftPoint.x) / longitudeDifference) * this._source.width;
 					}
 				}
 				
@@ -283,12 +283,13 @@ override public function set scaleY(value:Number):void
 					}
 					else
 					{
-						pointView.y = Number(model.y) * (lattitudeDifference / this._source.height);
+						pointView.y = Math.abs((Number(model.y) - this.topLeftPoint.y) / lattitudeDifference) * this._source.height;
 					}
 				}
-					
+
+trace(pointView.x, pointView.y);
 				if (pointView.hasOwnProperty("model"))
-					pointView.model = model;				
+					pointView.model = model;
 				
 				this.source.addChild(pointView);
 			}
