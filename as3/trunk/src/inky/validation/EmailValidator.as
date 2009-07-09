@@ -3,6 +3,7 @@
 	import flash.events.EventDispatcher;
 	import inky.binding.utils.BindingUtil;
 	import inky.validation.IValidator;
+	import inky.validation.events.ValidationResultEvent;
 
 
 	/**

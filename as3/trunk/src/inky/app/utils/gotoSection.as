@@ -1,4 +1,4 @@
-package inky.utils
+package inky.app.utils
 {
 	import inky.app.Application;
 	import inky.app.SPath;

@@ -25,9 +25,9 @@
 	import inky.binding.utils.BindingUtil;
 	import inky.binding.utils.ChangeWatcher;
 	import inky.binding.utils.IChangeWatcher;
-	import inky.core.inky;
-	import inky.core.Application;
-	import inky.core.managers.MarkupObjectManager;
+	import inky.app.inky;
+	import inky.app.Application;
+	import inky.app.managers.MarkupObjectManager;
 	import inky.data.Model;
 	import inky.forms.events.FormEvent;
 	import inky.validation.*;
