@@ -24,6 +24,8 @@ package inky.binding.utils
 		BindingUtil.setPropertyBindingEvents("fl.controls.CheckBox", "selected", [Event.CHANGE]);
 		BindingUtil.setPropertyBindingEvents("fl.controls.ComboBox", "text", [Event.CHANGE]);
 		BindingUtil.setPropertyBindingEvents("fl.controls.ComboBox", "value", [Event.CHANGE]);
+		BindingUtil.setPropertyBindingEvents("fl.controls.ComboBox", "selectedItem", [Event.CHANGE]);
+		BindingUtil.setPropertyBindingEvents("fl.controls.ComboBox", "selectedIndex", [Event.CHANGE]);
 		BindingUtil.setPropertyBindingEvents(TextField, "text", [Event.CHANGE]);
 		BindingUtil.setPropertyBindingEvents(DisplayObject, "stage", [Event.ADDED_TO_STAGE]); // Since removedFromStage is fired before the property changes, there's no way to tell when the stage property is null.
 

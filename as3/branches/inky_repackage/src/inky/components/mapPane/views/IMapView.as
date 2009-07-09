@@ -39,16 +39,7 @@ package inky.components.mapPane.views
 		*/
 		function set pointViewClass(value:Class):void;
 		function get pointViewClass():Class;
-		
-		/**
-		*	Gets and sets the reference point for the map. This returns a Point object containg
-		*	the x and y values. By default it returns a Point with (0, 0) values. 
-		*	
-		*	@param point
-		*/
-		function set referencePoint(value:Point):void
-		function get referencePoint():Point;
-				
+						
 		/**
 		*	Gets and Sets the source for the MapPane. This is the background of the map 
 		*	that is dragged and zoomed in and out. This only supports DisplayObjects.

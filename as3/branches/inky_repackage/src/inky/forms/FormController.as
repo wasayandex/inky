@@ -18,17 +18,18 @@
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
 	import flash.text.TextField;
+	import flash.utils.getDefinitionByName;
 	import flash.utils.getQualifiedClassName;
 	import flash.utils.Dictionary;
 	import flash.utils.setTimeout;
 	import inky.binding.utils.BindingUtil;
 	import inky.binding.utils.ChangeWatcher;
 	import inky.binding.utils.IChangeWatcher;
-	import inky.app.inky;
-	import inky.app.Application;
+	import inky.core.inky;
+	import inky.core.Application;
+	import inky.core.managers.MarkupObjectManager;
 	import inky.data.Model;
 	import inky.forms.events.FormEvent;
-	import inky.app.managers.MarkupObjectManager;
 	import inky.validation.*;
 
 
@@ -54,6 +55,7 @@
 		private var _method:String;
 		private var _response:Object;
 		private var _submitButton:InteractiveObject;
+		private static var _uiComponentClass:Class; // Flash won't include UIComponent unless you have one in your library. Which means referencing the class would throw an error. So we have to get the class from a string.
 		private var _urlLoader:URLLoader;
 		private var _validators:Array;
 
@@ -496,7 +498,19 @@
 			{
 				for (var prop:String in this._formControlsMap[control])
 				{
-					var delay:Boolean = getQualifiedClassName(control) == "fl.core::UIComponent";
+					// Determine whether the control is a Flash UIComponent (and therefore the assignment needs to be delayed)
+					if (!FormController._uiComponentClass)
+					{
+						try
+						{
+							FormController._uiComponentClass = getDefinitionByName("fl.core.UIComponent") as Class;
+						}
+						catch (error:Error)
+						{
+						}
+					}
+					
+					var delay:Boolean = FormController._uiComponentClass && (control is FormController._uiComponentClass);
 					this.restoreControl(control, prop, delay);
 				}
 			}

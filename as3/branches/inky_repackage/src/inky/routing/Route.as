@@ -56,38 +56,40 @@ package inky.routing
 			this._defaultOptions = defaultOptions || {};
 			this._requirements = requirements || {};
 
-			this.path = path;
-			this.sPath = sPath;
+			this._path = path;
 			
-			if (defaultOptions)
+			// If the SPath isn't absolute, throw an error.
+			if (!sPath.absolute)
 			{
-				for (var optionName:String in defaultOptions)
-				{
-					this.setDefaultOption(optionName, defaultOptions[optionName]);
-				}
+				throw new ArgumentError('A Route\'s SPath must be absolute.');
 			}
-			
-			if (requirements)
+			this._sPath = sPath.normalize();
+
+			for (var optionName:String in defaultOptions)
 			{
-				for (var requirementName:String in requirements)
-				{
-					var r:Object = requirements[requirementName];
-					var requirement:RegExp;
-					if (r is String)
-					{
-						requirement = new RegExp(r as String);
-					}
-					else if (r is RegExp)
-					{
-						requirement = r as RegExp;
-					}
-					else
-					{
-						throw new ArgumentError();
-					}
-					this.setRequirement(requirementName, requirement);
-				}
+				this.setDefaultOption(optionName, defaultOptions[optionName]);
 			}
+
+			for (var requirementName:String in requirements)
+			{
+				var r:Object = requirements[requirementName];
+				var requirement:RegExp;
+				if (r is String)
+				{
+					requirement = new RegExp(r as String);
+				}
+				else if (r is RegExp)
+				{
+					requirement = r as RegExp;
+				}
+				else
+				{
+					throw new ArgumentError();
+				}
+				this.setRequirement(requirementName, requirement);
+			}
+
+			this._createPattern();
 		}
 
 
@@ -107,12 +109,6 @@ package inky.routing
 		{
 			return this._path;
 		}
-		public function set path(path:String):void
-		{
-			this._path = path;
-			this._tokenize(path);
-			this._pattern = new RegExp('\\A' + this._getPatternSource(this._tokenizedPath) + '\\Z');
-		}
 
 
 		/**
@@ -123,16 +119,6 @@ package inky.routing
 		public function get sPath():SPath
 		{
 			return this._sPath;
-		}
-		public function set sPath(sPath:SPath):void
-		{
-			// If the SPath isn't absolute, throw an error.
-			if (!sPath.absolute)
-			{
-				throw new ArgumentError('A Route\'s SPath must be absolute.');
-			}
-
-			this._sPath = sPath.normalize();
 		}
 
 
@@ -408,6 +394,16 @@ The path contains neither dynamic part but specifies their values.
 		//
 		// private methods
 		//
+
+
+		/**
+		 *	
+		 */
+		private function _createPattern():void
+		{
+			this._tokenize(this.path);
+			this._pattern = new RegExp('\\A' + this._getPatternSource(this._tokenizedPath) + '\\Z');
+		}
 
 
 		/**

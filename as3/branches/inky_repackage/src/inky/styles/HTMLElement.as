@@ -63,6 +63,19 @@ package inky.styles
 			var attr:XMLList = this._xml.attribute("class");
 			return attr.length() ? attr[0] : null;
 		}
+		
+		
+		/**
+		 *	
+		 */
+		public function get id():String
+		{
+// FIXME: why is this necessary? Is this the right
+// implementation of an HTMLElement's id?
+if (!this._xml)	return null;
+			var attr:XMLList = this._xml.attribute("id");
+			return attr.length() ? attr[0] : null;
+		}
 
 
 		/**
@@ -122,6 +135,10 @@ package inky.styles
 				}
 				str = this._formatHTMLString(contents);
 			}
+			else if (this._xml && (this._xml.name() == 'br'))
+			{
+				str = this._formatHTMLString('\n');
+			}
 			else
 			{
 				// If there's no content, there's no reason to include the element in the formatted string at all.
@@ -152,7 +169,7 @@ package inky.styles
 
 			// Font tag.
 			var fontAttrs:Array = [];
-			for each (var info:Array in [["color", "color"], ["fontSize", "size"], ["fontFamily", "face"]])
+			for each (var info:Array in [["color", "color"], ["fontSize", "size"], ["fontFamily", "face"], ["letterSpacing", "letterSpacing"]])
 			{
 				var property:String = info[0];
 				var attr:String = info[1];
@@ -170,6 +187,43 @@ package inky.styles
 				closingTags.push("</font>");
 			}
 
+			// TextFormat tag
+			var formatAttrs:Array = [];
+			for each (info in [["lineHeight", "leading"], ["marginLeft", "leftmargin"], ["marginRight", "rightmargin"]])
+			{
+				property = info[0];
+				attr = info[1];
+				value = this.style[property];
+				
+				if (value != null)
+				{
+					formatAttrs.push(attr + '="' + value + '"');
+				}
+			}
+			
+			if (formatAttrs.length)
+			{
+				openingTags.unshift("<textformat " + formatAttrs.join(" ") + ">");
+				closingTags.push("</textformat>");
+			}
+			
+			// add line break if this is a block element
+			if ((this.style.display && this.style.display == "block") || (this.type && this.type.toString().match(/p|h\d/)))
+			{
+				closingTags.unshift('\n');
+			}
+
+			// margins
+			if (this.style.marginTop)
+			{
+				openingTags.unshift("<textformat leading=\"" + this.style.marginTop + "\"><font size=\"0\">\n</font></textformat>");
+			}
+			
+			if (this.style.marginBottom)
+			{
+				openingTags.unshift("<textformat leading=\"" + this.style.marginBottom + "\"><font size=\"0\">\n</font></textformat>");
+			}
+			
 			return openingTags.join("") + contents + closingTags.join("");
 		}
 

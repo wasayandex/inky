@@ -130,10 +130,9 @@ package inky.styles
 			
 			if (!this._invalid)
 			{
-				this._invalid = true;
-				
 				if (this._textField.stage)
 				{
+					this._invalid = true;
 					this._textField.stage.addEventListener(Event.RENDER, this._renderHandler, false, 0, true);
 					this._textField.stage.invalidate();
 				}

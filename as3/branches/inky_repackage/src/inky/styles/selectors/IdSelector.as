@@ -1,6 +1,7 @@
 package inky.styles.selectors 
 {
 	import inky.styles.selectors.ISelector;
+	import inky.styles.HTMLElement;
 
 
 	/**
@@ -42,7 +43,14 @@ package inky.styles.selectors
 		 */
 		public function matches(object:Object):Boolean
 		{
-			return false;
+			var matches:Boolean = false;
+
+			if (object is HTMLElement)
+			{
+				matches = this._id == HTMLElement(object).id;
+			}
+
+			return matches;
 		}
 
 
