@@ -1,6 +1,6 @@
 package ${TM_CLASS_PATH} 
 {
-	import inky.framework.controls.TransitioningProgressBar;
+	import inky.controls.TransitioningProgressBar;
 
 	/**
 	 *

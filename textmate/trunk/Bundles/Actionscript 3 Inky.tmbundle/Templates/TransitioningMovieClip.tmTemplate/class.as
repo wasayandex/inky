@@ -1,6 +1,6 @@
 package ${TM_CLASS_PATH} 
 {
-	import inky.framework.display.TransitioningMovieClip;
+	import inky.components.transitioningObject.TransitioningMovieClip;
 
 	/**
 	 *

@@ -1,6 +1,6 @@
 package ${TM_CLASS_PATH} 
 {
-	import inky.framework.components.progressBar.views.BaseProgressBar;
+	import inky.components.progressBar.views.BaseProgressBar;
 
 	/**
 	 *
