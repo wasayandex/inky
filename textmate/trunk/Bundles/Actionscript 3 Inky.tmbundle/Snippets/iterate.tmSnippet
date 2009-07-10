@@ -3,10 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>content</key>
-	<string>for (var ${1:i}:IIterator = ${2:this}.iterator(); $1.hasNext(); )
+	<string>for (var ${1:i}:${2:IIterator} = ${3:this}.${4:iterator}(); $1.${5:hasNext}(); )
 {
-	var ${3:o}:${4:Object} = $1.next() as $4;
-	$5
+	var ${6:o}:${7:Object} = $1.${8:next}() as $7;$9
 }</string>
 	<key>name</key>
 	<string>iterate</string>

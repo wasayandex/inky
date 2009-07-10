@@ -1,6 +1,6 @@
 package ${TM_CLASS_PATH} 
 {
-	import inky.core.Section;
+	import inky.app.Section;
 	
 	/**
 	 *
