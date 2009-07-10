@@ -126,6 +126,11 @@ if (!this._xml)	return null;
 				// text node
 				str = this._xml.toString();
 			}
+// TODO: for things like br tags, something should be rendered here--what other tags?
+			else if (this._xml && (this._xml.name() == 'br'))
+			{
+				str = this._formatHTMLString('');
+			}
 			else if (this.children.length > 0)
 			{
 				var contents:String = ""
@@ -135,14 +140,9 @@ if (!this._xml)	return null;
 				}
 				str = this._formatHTMLString(contents);
 			}
-			else if (this._xml && (this._xml.name() == 'br'))
-			{
-				str = this._formatHTMLString('\n');
-			}
 			else
 			{
 				// If there's no content, there's no reason to include the element in the formatted string at all.
-// TODO: actually, for things like br tags, something should be rendered here
 				str = "";
 			}
 
@@ -206,11 +206,20 @@ if (!this._xml)	return null;
 				openingTags.unshift("<textformat " + formatAttrs.join(" ") + ">");
 				closingTags.push("</textformat>");
 			}
-			
+
+			// add tags to elements that require them
+			// TODO: should this be all tags except ones that are replaced by textformat or font?
+			if (this.type && this.type.toString().match(/b|a/))
+			{
+				openingTags.push(this._xml.toXMLString().replace(/>.*/, '>'));
+				closingTags.unshift("</" + this.type.toString() + ">");
+			}
+
 			// add line break if this is a block element
+			// TODO: what other tags should break by default?
 			if ((this.style.display && this.style.display == "block") || (this.type && this.type.toString().match(/p|h\d/)))
 			{
-				closingTags.unshift('\n');
+				contents += '\n';
 			}
 
 			// margins
@@ -224,6 +233,7 @@ if (!this._xml)	return null;
 				openingTags.unshift("<textformat leading=\"" + this.style.marginBottom + "\"><font size=\"0\">\n</font></textformat>");
 			}
 			
+//trace(openingTags.join("") + contents + closingTags.join(""));
 			return openingTags.join("") + contents + closingTags.join("");
 		}
 
