@@ -136,13 +136,14 @@ protected function getButton():InteractiveObject
 			}
 			
 			if (!this.__mask) throw new Error("AccordionItemView is missing it's mask!");
-			this.__mask.height = this.__button.height;
-			this.mask = this.__mask;
-		
+
 			this.maximumHeight = this.height;
 			this.minimumHeight = this.__button.height;
 			this.mouseEventType = MouseEvent.CLICK;
 			this._open = false;
+
+			this.__mask.height = this.__button.height;
+			this.mask = this.__mask;		
 		}
 		
 		private function _openCloseHandler(event:MouseEvent):void

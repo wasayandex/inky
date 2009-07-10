@@ -287,7 +287,6 @@ override public function set scaleY(value:Number):void
 					}
 				}
 
-trace(pointView.x, pointView.y);
 				if (pointView.hasOwnProperty("model"))
 					pointView.model = model;
 				
