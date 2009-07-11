@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<inky:Application xmlns:inky="http://exanimo.com/2008/inky" xmlns:t="flash.text.*">
+
+	<inky:Model inky:id="myModel">
+		<data>
+			<name>
+				<first>John</first>
+				<last>Doe</last>
+			</name>
+		</data>
+	</inky:Model>
+
+	<inky:Section inky:class="Section1" name="section1">
+		<t:TextField inky:id="firstNameField1" type="input" x="10" y="75" height="15" border="true" borderColor="0x0000ff"/>
+		<inky:Binding source="myModel.data.name.first" destination="firstNameField1.text" />
+		<inky:Binding source="firstNameField1.text" destination="myModel.data.name.first" />
+	</inky:Section>
+	<inky:Section inky:class="Section2" name="section2">
+		<t:TextField inky:id="firstNameField2" type="input" x="10" y="75" height="15" border="true" borderColor="0xff0000"/>
+		<inky:Binding source="myModel.data.name.first" destination="firstNameField2.text" />
+		<inky:Binding source="firstNameField2.text" destination="myModel.data.name.first" />
+	</inky:Section>
+
+</inky:Application>
