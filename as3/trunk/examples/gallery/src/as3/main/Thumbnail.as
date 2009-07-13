@@ -1,9 +1,9 @@
-﻿package
+package
 {
-	import inky.framework.binding.utils.BindingUtil;
-	import inky.framework.binding.utils.IChangeWatcher;
-	import inky.framework.components.gallery.models.GalleryItemModel;
-	import inky.framework.components.gallery.views.GalleryItemView;
+	import inky.binding.utils.BindingUtil;
+	import inky.binding.utils.IChangeWatcher;
+	import inky.components.gallery.models.GalleryItemModel;
+	import inky.components.gallery.views.GalleryItemView;
 	import flash.events.MouseEvent;
 
 
