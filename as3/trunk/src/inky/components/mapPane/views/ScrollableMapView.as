@@ -171,13 +171,14 @@ package inky.components.mapPane.views
 */
 public function showPointByModel(value:Object):void
 {
-	var point:DisplayObject = this.mapView.getPointByModel(value);
-	var contentContainer:DisplayObject = DisplayObject(this.scrollPane.source.parent);
+	var point:DisplayObject = this.mapView.getPointByModel(value);	
+	if (point)
+	{
+		var p:Point = this.globalToLocal(new Point(point.x, point.y));
+		this.scrollPane.horizontalScrollPosition = p.x - 20;
+		this.scrollPane.verticalScrollPosition = p.y - 20;
+	}
 	
-	var p:Point = this.globalToLocal(new Point(point.x, point.y));
-	this.scrollPane.horizontalScrollPosition = p.x - 20;
-	this.scrollPane.verticalScrollPosition = p.y - 20;
-
 	this.mapView.showPointByModel(value);
 }
 		
