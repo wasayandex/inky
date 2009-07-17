@@ -1,7 +1,6 @@
-package inky.components.mapPane.views
+package inky.components.mapView.views
 {
 	import flash.display.DisplayObject;
-	import flash.display.Sprite;
 	import flash.geom.Point;
 	import inky.collections.IList;
 	import inky.utils.IDisplayObject;
@@ -47,8 +46,8 @@ package inky.components.mapPane.views
 		*	@param source
 		*		The source for the map pane. 
 		*/
-		function set source(value:Sprite):void;
-		function get source():Sprite;
+		function set source(value:DisplayObject):void;
+		function get source():DisplayObject;
 		
 		/**
 		*	Searches for a point on the map based on the model. Once found it will return the Point object.

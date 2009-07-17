@@ -1,4 +1,4 @@
-package inky.components.mapPane.views 
+package inky.components.mapView.views 
 {
 	import flash.display.DisplayObject;
 	import flash.display.Sprite;
@@ -8,8 +8,8 @@ package inky.components.mapPane.views
 	import flash.geom.Rectangle;
 	import inky.collections.IList;
 	import inky.components.IButton;
-	import inky.components.mapPane.views.IMapView;
-	import inky.components.mapPane.views.IScrollableMapView;
+	import inky.components.mapView.views.IMapView;
+	import inky.components.mapView.views.IScrollableMapView;
 	import inky.components.scrollPane.views.IScrollPane;
 	
 	/**

@@ -1,4 +1,4 @@
-﻿package inky.components.mapPane.views
+﻿package inky.components.mapView.views
 {
 	import flash.display.DisplayObject;
 	import flash.display.InteractiveObject;
@@ -7,7 +7,7 @@
 	import flash.events.MouseEvent;
 	import inky.collections.IList;
 	import inky.components.tooltip.ITooltip;
-	import inky.components.mapPane.views.IMapView;
+	import inky.components.mapView.views.IMapView;
 	
 	/**
 	 *
@@ -26,15 +26,19 @@
 		private var _autoAdjustChildren:Boolean;
 		private var _bottomLeftPoint:Point;
 		private var _bottomRightPoint:Point;
+		private var _container:Sprite;
 		private var _model:IList
 		private var _pointViewClass:Class;
 		private var _topLeftPoint:Point;
 		private var _topRightPoint:Point;
-		private var _source:Sprite;
+		private var _source:DisplayObject;
 		
 		public function MapView()
 		{
 			this._autoAdjustChildren = true;					
+			this._container = new Sprite();
+			this.addChild(this._container);
+			
 			this.source = this.getChildByName('_mapContainer') as Sprite || null;
 			this.__tooltip = this.getChildByName('_tooltip') as ITooltip || null;			
 		}
@@ -122,11 +126,15 @@ override public function set scaleY(value:Number):void
 		/**
 		*	@inheritDoc
 		*/
-		public function set source(value:Sprite):void
+		public function set source(value:DisplayObject):void
 		{
-			this._source = value;
+			if (value)
+			{
+				this._source = value;
+				this._container.addChild(this._source);
+			}
 		}
-		public function get source():Sprite
+		public function get source():DisplayObject
 		{
 			return this._source;
 		}		
@@ -165,10 +173,10 @@ override public function set scaleY(value:Number):void
 		public function getPointByModel(value:Object):DisplayObject
 		{
 			var point:Object;
-			var length:int = this.source.numChildren;
+			var length:int = this._container.numChildren;
 			for (var i:int = 0; i < length; i++)
 			{
-				var child:Object = this.source.getChildAt(i) as Object;
+				var child:Object = this._container.getChildAt(i) as Object;
 				if (child && child.hasOwnProperty("model") && child.model == value) point = child;
 			}
 			
@@ -203,11 +211,11 @@ override public function set scaleY(value:Number):void
 		*/
 		private function _adjustScale(property:String, scaleDifference:Number):void
 		{
-			var length:Number = this.source.numChildren;
+			var length:Number = this._container.numChildren;
 			var scale:Number;
 			for (var i:Number = 0; i < length; i++)
 			{
-				var child:Object = this.source.getChildAt(i) as Object;
+				var child:Object = this._container.getChildAt(i) as Object;
 				if (child && child is this._pointViewClass)
 				{
 					scale = child[property] + scaleDifference;
@@ -290,7 +298,7 @@ override public function set scaleY(value:Number):void
 				if (pointView.hasOwnProperty("model"))
 					pointView.model = model;
 				
-				this.source.addChild(pointView);
+				this._container.addChild(pointView);
 			}
 			
 			if (this.__tooltip)

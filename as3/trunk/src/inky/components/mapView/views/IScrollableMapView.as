@@ -1,8 +1,8 @@
-package inky.components.mapPane.views 
+package inky.components.mapView.views 
 {
 	import flash.display.DisplayObject;
 	import inky.collections.IList;
-	import inky.components.mapPane.views.IMapView;
+	import inky.components.mapView.views.IMapView;
 	import inky.components.scrollPane.views.IScrollPane;
 	import inky.utils.IDisplayObject;
 
