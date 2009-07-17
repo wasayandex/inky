@@ -232,7 +232,19 @@ if (!this._xml)	return null;
 			{
 				openingTags.unshift("<textformat leading=\"" + this.style.marginBottom + "\"><font size=\"0\">\n</font></textformat>");
 			}
-			
+
+			// add bold and italics, if needed
+			if (this.style.fontWeight == "bold")
+			{
+				openingTags.push('<b>');
+				closingTags.unshift('</b>');
+			}
+			if (this.style.fontStyle == "italic")
+			{
+				openingTags.push('<i>');
+				closingTags.unshift('</i>');
+			}
+
 //trace(openingTags.join("") + contents + closingTags.join(""));
 			return openingTags.join("") + contents + closingTags.join("");
 		}
