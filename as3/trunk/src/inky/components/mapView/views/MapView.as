@@ -35,12 +35,12 @@
 		
 		public function MapView()
 		{
-			this._autoAdjustChildren = true;					
+			this._autoAdjustChildren = true;
 			this._container = new Sprite();
 			this.addChild(this._container);
-			
+						
 			this.source = this.getChildByName('_mapContainer') as Sprite || null;
-			this.__tooltip = this.getChildByName('_tooltip') as ITooltip || null;			
+			this.__tooltip = this.getChildByName('_tooltip') as ITooltip || null;
 		}
 		
 		//
@@ -131,7 +131,7 @@ override public function set scaleY(value:Number):void
 			if (value)
 			{
 				this._source = value;
-				this._container.addChild(this._source);
+				this._container.addChildAt(this._source, 0);
 			}
 		}
 		public function get source():DisplayObject
@@ -303,6 +303,7 @@ override public function set scaleY(value:Number):void
 			
 			if (this.__tooltip)
 			{
+				this._container.addChild(this.__tooltip as Sprite);		
 				this.addEventListener(MouseEvent.MOUSE_OVER, this._pointMouseHandler);
 				this.addEventListener(MouseEvent.MOUSE_OUT, this._pointMouseHandler);
 			}

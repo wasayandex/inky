@@ -19,19 +19,21 @@
 	 */
 	public class AccordionView extends MovieClip implements IListView
 	{
-		private var _items:Array;
-		private var _spacing:Number;
-		private var _selectedIndex:int;
+		private var __contentContainer:MovieClip;
 		private var _direction:String;
-		private var _previousItem:IAccordionItemView;
+		private var _items:Array;
 		private var _itemViewClass:Class;
 		private var _model:IList;
+		private var _previousItem:IAccordionItemView;
+		private var _selectedIndex:int;
+		private var _spacing:Number;
 		
 		/*
 		 *	@Constructor
 		 */
 		public function AccordionView(spacing:Number = 0)
 		{
+			this.__contentContainer = this.getChildByName("_contentContainer") as MovieClip || this;
 			this._selectedIndex = -1;
 			this._direction = 'down';
 			this._items = [];
@@ -200,7 +202,7 @@ public function showItemAt(index:int):void
 
 				accordionItem.y = i * (accordionItem.minimumHeight + this.spacing);
 			
-				this.addChild(accordionItem as DisplayObject);
+				this.__contentContainer.addChild(accordionItem as DisplayObject);
 				this._items[i] = accordionItem;
 			}			
 		}
