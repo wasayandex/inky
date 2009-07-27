@@ -22,6 +22,7 @@ package inky.layout
 		public var right:Number;
 		public var bottom:Number;
 
+// TODO: Add float, margin, padding, and any other css-p properties.
 
 		/**
 		 *
