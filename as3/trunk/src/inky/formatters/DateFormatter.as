@@ -14,11 +14,11 @@ package inky.formatters
 	 */
 	public class DateFormatter
 	{
-		private static var _dayNamesLong:Array = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-		private static var _dayNamesShort:Array = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-		private static var _keywords:Array = ['YYYYY', 'YYYY', 'YY', 'MMMM', 'MMM', 'MM', 'M', 'DD', 'D', 'EEEE', 'EEE', 'EE', 'E', 'A', 'JJ', 'J', 'HH', 'H', 'KK', 'K', 'LL', 'L', 'NN', 'N', 'SS', 'S'];
-		private static var _monthNamesLong:Array = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-		private static var _monthNamesShort:Array = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct','Nov', 'Dec'];
+		private static var _dayNamesLong:Array = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+		private static var _dayNamesShort:Array = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+		private static var _keywords:Array = ["YYYYY", "YYYY", "YY", "MMMM", "MMM", "MM", "M", "DD", "D", "EEEE", "EEE", "EE", "E", "A", "JJ", "J", "HH", "H", "KK", "K", "LL", "L", "NN", "N", "SS", "S"];
+		private static var _monthNamesLong:Array = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+		private static var _monthNamesShort:Array = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct","Nov", "Dec"];
 		
 		private var _formatString:String;
 		private var _tokenizedFormatString:Array;
@@ -94,10 +94,10 @@ package inky.formatters
 			var date:Date = value as Date;
 			if (!date)
 			{
-				throw new Error('DateFormatter.format currently only accepts Date objects');
+				throw new Error("DateFormatter.format currently only accepts Date objects");
 			}
 			
-			var result:String = '';
+			var result:String = "";
 			for each (var token:Object in this._tokenizedFormatString)
 			{
 				if (token is String)
@@ -154,7 +154,7 @@ package inky.formatters
 			var result:String = number.toString();
 			for (var i:uint = result.length; i < numDigits; i++)
 			{
-				result = '0' + result;
+				result = "0" + result;
 			}
 			return result;
 		}
@@ -223,7 +223,7 @@ package inky.formatters
 				case 12:
 					return date.day.toString();
 				case 13:
-					return date.hours < 12 ? 'AM' : 'PM';
+					return date.hours < 12 ? "AM" : "PM";
 				case 14:
 					return this._formatNumber(date.hours, 2);
 				case 15:
