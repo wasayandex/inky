@@ -1,4 +1,4 @@
-package inky.formatters
+﻿package inky.formatters
 {
 
 	/**
@@ -194,6 +194,8 @@ package inky.formatters
 		 */
 		private function _translateKeyword(keyword:String, date:Date):String
 		{
+			var hours:int;
+			
 			switch (DateFormatter._keywords.indexOf(keyword))
 			{
 				case 0:
@@ -229,17 +231,19 @@ package inky.formatters
 				case 15:
 					return date.hours.toString();
 				case 16:
-					return this._formatNumber(date.hours + 1, 2);
+					return this._formatNumber(date.hours == 0 ? 24 : date.hours, 2);
 				case 17:
-					return (date.hours + 1).toString();
+					return (date.hours == 0 ? 24 : date.hours).toString();
 				case 18:
 					return this._formatNumber(date.hours % 12, 2);
 				case 19:
 					return (date.hours % 12).toString();
 				case 20:
-					return this._formatNumber(date.hours % 12 + 1, 2);
+					hours = date.hours % 12;
+					return this._formatNumber(hours == 0 ? 12 : hours, 2);
 				case 21:
-					return (date.hours % 12 + 1).toString();
+					hours = date.hours % 12;
+					return (hours == 0 ? 12 : hours).toString();
 				case 22:
 					return this._formatNumber(date.minutes, 2);
 				case 23:
