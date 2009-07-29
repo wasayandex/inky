@@ -8,7 +8,6 @@ package inky.components.gallery.views
 	import flash.display.Shape;
 	import flash.display.Sprite;
 	import flash.display.MovieClip;
-	import flash.events.Event;
 	import flash.events.TimerEvent;
 	import flash.geom.Matrix;
 	import flash.geom.Rectangle;
@@ -24,7 +23,6 @@ package inky.components.gallery.views
 	import inky.components.transitioningObject.ITransitioningObject;
 	import inky.loading.events.AssetLoaderEvent;
 	import inky.loading.loaders.IAssetLoader;
-	import inky.loading.loaders.ImageLoader;
 	import inky.utils.EqualityUtil;
 
 	
@@ -44,7 +42,6 @@ package inky.components.gallery.views
 	public class BaseGalleryItemView extends MovieClip implements IGalleryItemView
 	{
 		private var __container:DisplayObjectContainer;
-		private var _containerBounds:Rectangle;
 		private var _features:ArrayList;
 		private var _featureSize:String;
 		private var _model:GalleryItemModel;
@@ -79,8 +76,8 @@ package inky.components.gallery.views
 		{ 
 			this.__container = value; 
 		}
-
-
+		
+		
 		/**
 		 *
 		 */
@@ -451,8 +448,9 @@ package inky.components.gallery.views
 		 */
 		private function _drawBitmap(object:DisplayObject):Bitmap
 		{
-			var w:Number = this._containerBounds.width;
-			var h:Number = this._containerBounds.height;
+			var bounds:Rectangle = this.container.getChildAt(0).getBounds(this.container);
+			var w:Number = bounds.width;
+			var h:Number = bounds.height;
 			var scale:Number;
 
 			if (!this._orientation)
@@ -473,8 +471,8 @@ package inky.components.gallery.views
 			var bitmapData:BitmapData = new BitmapData(Math.round(w), Math.round(h), true, 0x00000000);
 			bitmapData.draw(object, new Matrix(scale, 0, 0, scale, xOffset, yOffset), null, null, null, true);
 			var bmp:Bitmap = new Bitmap(bitmapData, PixelSnapping.AUTO, true);
-			bmp.x = this._containerBounds.x;
-			bmp.y = this._containerBounds.y;
+			bmp.x = bounds.x;
+			bmp.y = bounds.y;
 			return bmp;
 		}
 		
@@ -531,8 +529,8 @@ package inky.components.gallery.views
 				}
 			}
 			
-			this._containerBounds = this.container.getBounds(this.container);
-			if (!this._containerBounds.width || !this._containerBounds.height)
+			var bounds:Rectangle = this.container.getBounds(this.container);
+			if (!bounds.width || !bounds.height)
 				throw new Error('GalleryItemView must have a shape to define the dimensions of the item container.')
 		}
 		
