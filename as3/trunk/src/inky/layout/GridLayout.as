@@ -256,7 +256,7 @@ package inky.layout
 			for (i = 0; i < layoutItems.length; i++)
 			{
 				child = layoutItems.getItemAt(i) as DisplayObject;
-				constraints = this.getConstraints(child);
+				constraints = this.getConstraints(child) as GridLayoutConstraints;
 
 				if (constraints)
 				{
@@ -343,7 +343,7 @@ package inky.layout
 
 						// Adjust the positioning based on alignment.
 
-						constraints = this.getConstraints(child);
+						constraints = this.getConstraints(child) as GridLayoutConstraints;
 						var xOffset:Number = 0;
 						var yOffset:Number = 0;
 

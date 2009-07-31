@@ -104,10 +104,10 @@ package inky.layout
 		{
 			var layout:Layout = layoutManager.calculateLayout(container);
 			layoutManager.renderer.drawLayout(layout, container);
-// TODO: Event shouldn't be dispatched until renderer completes.
+// TODO: Event shouldn't be dispatched until renderer completes?
 			layoutManager.dispatchEvent(new LayoutManagerEvent(LayoutManagerEvent.RENDER, false, false, container));
 
-			// If any of the childrens' bounds have changed, invalidate them.
+			// If any of the childrens' sizes have changed, invalidate them.
 			var child:DisplayObjectContainer;
 			for (var i:uint = 0; i < layout.length; i++)
 			{

@@ -54,13 +54,12 @@ package inky.layout
 			//
 			// Prevent BaseLayoutManager from being instantialized.
 			//
-			if(getDefinitionByName(getQualifiedClassName(this)) == BaseLayoutManager)
+			if (getDefinitionByName(getQualifiedClassName(this)) == BaseLayoutManager)
 			{
 				throw new ArgumentError('Error #2012: BaseLayoutManager$ class cannot be instantiated.');
 			}
 
 			this._constraints = new Dictionary(true);
-			this.renderer = new BasicLayoutRenderer();
 			this._layoutItems = new Dictionary(true);
 		}
 
@@ -79,6 +78,8 @@ package inky.layout
 		 */
 		public function get renderer():ILayoutRenderer
 		{
+			if (!this._renderer)
+				this._renderer = new BasicLayoutRenderer();
 			return this._renderer;
 		}
 		public function set renderer(renderer:ILayoutRenderer):void
@@ -109,7 +110,7 @@ package inky.layout
 		 */
 		public function addLayoutItem(item:DisplayObject):void
 		{
-			if (!LayoutUtil.getLayoutManager(item.parent) == this)
+			if (LayoutUtil.getLayoutManager(item.parent) != this)
 			{
 				throw new ArgumentError('You can not add an item to a LayoutManager unless its parent is registered with the LayoutManager');
 			}
@@ -303,6 +304,7 @@ package inky.layout
 		 */
 		public function getLayoutItems(container:DisplayObjectContainer):IList
 		{
+// FIXME: I don't like that this list is different if you add an item.
 			var layoutItems:IList = this._layoutItems[container];
 			if (!layoutItems)
 			{
