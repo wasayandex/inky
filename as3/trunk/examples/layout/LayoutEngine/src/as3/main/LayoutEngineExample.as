@@ -2,7 +2,7 @@ package
 {
 	import flash.display.Sprite;
 	import inky.layout.LayoutEngine;
-	import inky.layout.LayoutComponent;
+	import Box;
 
 
 	/**
@@ -27,19 +27,19 @@ package
 			var layoutEngine:LayoutEngine = LayoutEngine.getInstance(this.stage);
 			
 			
-			var a:LayoutComponent = new LayoutComponent();
+			var a:Box = new Box(300, 300);
 			a.name = "a";
-			var b:LayoutComponent = new LayoutComponent();
+			var b:Box = new Box(200, 200);
 			b.name = "b";
-			var c:LayoutComponent = new LayoutComponent();
+			var c:Box = new Box(50, 50);
 			c.name = "c";
 			
 			this.addChild(a);
 			a.addChild(b);
 			b.addChild(c);
 			
-			b.width = 500;
-			b.height = 500;
+			b.width =
+			b.height = 250;
 		}
 
 
