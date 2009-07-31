@@ -20,7 +20,7 @@ package inky.layout
 		private var _width:Number;
 		private var _height:Number;
 
-		
+
 		/**
 		 *
 		 */
@@ -41,8 +41,11 @@ package inky.layout
 		 */
 		override public function set height(value:Number):void
 		{
-			LayoutEngine.getInstance().invalidateSize(this);
-			this._height = value;
+			if (value != this._height)
+			{
+				this._height = value;
+				LayoutEngine.getInstance().invalidateSize(this);
+			}
 		}
 
 		
@@ -60,45 +63,37 @@ package inky.layout
 		 */
 		override public function set width(value:Number):void
 		{
-			LayoutEngine.getInstance().invalidateSize(this);
-			this._width = value;
+			if (value != this._width)
+			{
+				this._width = value;
+				LayoutEngine.getInstance().invalidateSize(this);
+			}
 		}
 
 
 
-		public function get nestLevel():int
-		{
-			var nestLevel:int;
-			if (!this.stage)
-			{
-				nestLevel = -1;
-			}
-			else
-			{
-				nestLevel = 0;
-				var tmp:DisplayObjectContainer = this;
-				while ((tmp = tmp.parent))
-					nestLevel++;
-			}
-			return nestLevel;
-		}
 
 
 
 		public function validateSize():void
 		{
-trace(this.name + "\tvalidateSize()");
+trace("validateSize()\t\t" + this.name);
+			if (this.width != super.width)
+				super.width = this.width;
+
+			if (this.height != super.height)
+				super.height = this.height;
 		}
 		
 		
 		public function validateDisplayList():void
 		{
-trace(this.name + "\validateDisplayList()");
+trace("validateDisplayList()\t\t" + this.name);
 		}
 		
 		public function validateProperties():void
 		{
-trace(this.name + "\validateProperties()");
+trace("validateProperties()\t\t" + this.name);
 		}
 
 
