@@ -68,12 +68,12 @@ LayoutEngine._instance._stage = stage;
 		 */
 		public function invalidateDisplayList(component:LayoutComponent):void
 		{
-			this._addToInvalidList(this._invalidDisplayListComponents, component);
+			this._addToInvalidQueue(this._invalidDisplayListComponents, component);
 		}
 
 
 
-		private function _addToInvalidList(queue:PriorityQueue, component:LayoutComponent):void
+		private function _addToInvalidQueue(queue:PriorityQueue, component:LayoutComponent):void
 		{
 			if (!queue.contains(component))
 			{
@@ -91,7 +91,7 @@ LayoutEngine._instance._stage = stage;
 		 */
 		public function invalidateProperties(component:LayoutComponent):void
 		{
-			this._addToInvalidList(this._invalidPropertiesComponents, component);
+			this._addToInvalidQueue(this._invalidPropertiesComponents, component);
 		}
 
 
@@ -102,7 +102,7 @@ LayoutEngine._instance._stage = stage;
 		 */
 		public function invalidateSize(component:LayoutComponent):void
 		{
-			this._addToInvalidList(this._invalidSizeComponents, component);
+			this._addToInvalidQueue(this._invalidSizeComponents, component);
 		}
 
 
@@ -126,7 +126,7 @@ LayoutEngine._instance._stage = stage;
 		{
 			if (!this.isInvalid)
 			{
-				this._stage.addEventListener(Event.RENDER, this._validate);
+				this._stage.addEventListener(Event.RENDER, this._validate, false, 0, true);
 				this._stage.invalidate();
 				this._isInvalid = true;
 			}
@@ -146,7 +146,9 @@ LayoutEngine._instance._stage = stage;
 			{
 				var component:LayoutComponent = this._invalidSizeComponents.removeLargest() as LayoutComponent;
 				component.validateSize();
-				
+
+// TODO: This should still "bubble" through non-LayoutComponents somehow 
+// TODO: Is there any way to stop the "bubbling" if the component doesn't actually change size?
 				if (component.parent is LayoutComponent)
 				{
 					this.invalidateSize(component.parent as LayoutComponent);
@@ -160,6 +162,7 @@ LayoutEngine._instance._stage = stage;
 
 			// If any of our above validation caused further invalidation, validate again.
 // TODO: Be vigilant about infinite recursion here.
+// TODO: Maybe we shouldn't do this? According to the Flex layout manager docs: "During the processing of UIComponents in a phase, requests for UIComponents to get re-processed by some phase may occur. These requests are queued and are only processed during the next run of the phase."
 			if (!this._invalidPropertiesComponents.isEmpty() || !this._invalidSizeComponents.isEmpty() || !this._invalidDisplayListComponents.isEmpty())
 				this._validate(null);
 
