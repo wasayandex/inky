@@ -63,38 +63,79 @@ LayoutEngine._instance._stage = stage;
 		}
 
 
-		/**
-		 *	
-		 */
-		public function invalidateDisplayList(component:LayoutComponent):void
-		{
-			this._addToInvalidQueue(this._invalidDisplayListComponents, component);
-		}
 
 
-
-		private function _addToInvalidQueue(queue:PriorityQueue, component:LayoutComponent):void
+		private function _addToInvalidQueue(queue:PriorityQueue, component:LayoutComponent, addedToStageHandler:Function):void
 		{
 			if (!queue.contains(component))
 			{
 // FIXME: If you invalidate a component and move it to a different nest level before it is validated, this may not behave as you expect.
 				var nestLevel:int = this._getNestLevel(component);
-				queue.addObject(component, nestLevel);
-				this._invalidate();
+
+				// If the component is on stage, add it to the list of components that should be validated.
+				if (nestLevel != -1)
+				{
+					queue.addObject(component, nestLevel);
+					this._invalidate();
+				}
+				else if (addedToStageHandler)
+				{
+					component.addEventListener(Event.ADDED_TO_STAGE, addedToStageHandler, false, 0, true);
+				}
 			}
 		}
 
 
-		
+		/**
+		 *	Called when an object that was invalidated off-stage is added to the stage.
+		 */
+		private function _invalidPropertiesComponentAddedToStageHandler(event:Event):void
+		{
+			event.currentTarget.removeEventListener(event.type, arguments.callee);
+			this._addToInvalidQueue(this._invalidPropertiesComponents, event.currentTarget as LayoutComponent, null);
+		}
+
+
+		/**
+		 *	Called when an object that was invalidated off-stage is added to the stage.
+		 */
+		private function _invalidSizeComponentAddedToStageHandler(event:Event):void
+		{
+			event.currentTarget.removeEventListener(event.type, arguments.callee);
+			this._addToInvalidQueue(this._invalidSizeComponents, event.currentTarget as LayoutComponent, null);
+		}
+
+
+		/**
+		 *	Called when an object that was invalidated off-stage is added to the stage.
+		 */
+		private function _invalidDisplayListComponentAddedToStageHandler(event:Event):void
+		{
+			event.currentTarget.removeEventListener(event.type, arguments.callee);
+			this._addToInvalidQueue(this._invalidDisplayListComponents, event.currentTarget as LayoutComponent, null);
+		}
+
+
+
+
+
+
+		/**
+		 *	
+		 */
+		public function invalidateDisplayList(component:LayoutComponent):void
+		{
+			this._addToInvalidQueue(this._invalidDisplayListComponents, component, this._invalidDisplayListComponentAddedToStageHandler);
+		}
+
+
 		/**
 		 *	
 		 */
 		public function invalidateProperties(component:LayoutComponent):void
 		{
-			this._addToInvalidQueue(this._invalidPropertiesComponents, component);
+			this._addToInvalidQueue(this._invalidPropertiesComponents, component, this._invalidPropertiesComponentAddedToStageHandler);
 		}
-
-
 
 
 		/**
@@ -102,7 +143,7 @@ LayoutEngine._instance._stage = stage;
 		 */
 		public function invalidateSize(component:LayoutComponent):void
 		{
-			this._addToInvalidQueue(this._invalidSizeComponents, component);
+			this._addToInvalidQueue(this._invalidSizeComponents, component, this._invalidSizeComponentAddedToStageHandler);
 		}
 
 
@@ -146,9 +187,9 @@ LayoutEngine._instance._stage = stage;
 			{
 				var component:LayoutComponent = this._invalidSizeComponents.removeLargest() as LayoutComponent;
 				component.validateSize();
-
 // TODO: This should still "bubble" through non-LayoutComponents somehow 
 // TODO: Is there any way to stop the "bubbling" if the component doesn't actually change size?
+
 				if (component.parent is LayoutComponent)
 				{
 					this.invalidateSize(component.parent as LayoutComponent);

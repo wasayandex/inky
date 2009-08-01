@@ -1,34 +1,31 @@
-package inky.layout
+package inky.layout 
 {
 	import inky.collections.IList;
 	import inky.layout.Alignment;
-	import inky.layout.BaseLayoutManager;
 	import inky.layout.GridLayoutConstraints;
 	import inky.layout.Layout;
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
 	import flash.geom.Rectangle;
+	import inky.layout.ILayoutConstraints;
 	import flash.utils.Dictionary;
-
-
+	
 	/**
 	 *
-	 * GridLayout.as
+	 *  ..
+	 *	
+	 * 	@langversion ActionScript 3
+	 *	@playerversion Flash 9.0.0
 	 *
-	 *     Arranges DisplayObjects into a grid formation.
-	 *
-	 *     @langversion ActionScript 3
-	 *     @playerversion Flash 9.0.0
-	 *
-	 *     @author     Eric Eldredge
-	 *     @author     Matthew Tretter (matthew@exanimo.com)
-	 *     @version    2007.10.01
+	 *	@author matthew
+	 *	@since  2009.07.31
 	 *
 	 */
-	public class GridLayout extends BaseLayoutManager
+	public class GridLayout implements ILayoutManager
 	{
+		
 		private var _columnWidths:Array;
-		private var _containers:Dictionary;
+		private var _constraints:Dictionary;
 		private var _horizontalSpacing:Number;
 		private var _numColumns:uint;
 		private var _numRows:uint;
@@ -54,11 +51,11 @@ package inky.layout
 		 */
 		public function GridLayout(numColumns:uint = uint.MAX_VALUE, numRows:uint = uint.MAX_VALUE, horizontalSpacing:Number = 0, verticalSpacing:Number = 0)
 		{
+			this._constraints = new Dictionary(true);
 			this.numColumns = numColumns;
 			this.numRows = numRows;
 			this.horizontalSpacing = horizontalSpacing;
 			this.verticalSpacing = verticalSpacing;
-			this._containers = new Dictionary(true);
 		}
 
 
@@ -78,17 +75,13 @@ package inky.layout
 		{
 			return this._columnWidths;
 		}
-
-
 		/**
-		 *
-		 *
-		 *
+		 * @private
 		 */
 		public function set columnWidths(columnWidths:Array):void
 		{
 			this._columnWidths = columnWidths;
-			this._invalidateAll();
+//!//!			this._invalidateAll();
 		}
 
 
@@ -101,17 +94,13 @@ package inky.layout
 		{
 			return this._horizontalSpacing;
 		}
-
-
 		/**
-		 *
-		 *
-		 *
+		 * @private
 		 */
 		public function set horizontalSpacing(horizontalSpacing:Number):void
 		{
 			this._horizontalSpacing = horizontalSpacing;
-			this._invalidateAll();
+//!			this._invalidateAll();
 		}
 
 
@@ -124,17 +113,13 @@ package inky.layout
 		{
 			return this._numColumns;
 		}
-
-
 		/**
-		 *
-		 *
-		 *
+		 * @private
 		 */
 		public function set numColumns(numColumns:uint):void
 		{
 			this._numColumns = numColumns;
-			this._invalidateAll();
+//!			this._invalidateAll();
 		}
 
 
@@ -147,17 +132,13 @@ package inky.layout
 		{
 			return this._numRows;
 		}
-
-
 		/**
-		 *
-		 *
-		 *
+		 * @private
 		 */
 		public function set numRows(numRows:uint):void
 		{
 			this._numRows = numRows;
-			this._invalidateAll();
+//!			this._invalidateAll();
 		}
 
 
@@ -170,17 +151,13 @@ package inky.layout
 		{
 			return this._rowHeights;
 		}
-
-
 		/**
-		 *
-		 *
-		 *
+		 * @private
 		 */
 		public function set rowHeights(rowHeights:Array):void
 		{
 			this._rowHeights = rowHeights;
-			this._invalidateAll();
+//!			this._invalidateAll();
 		}
 
 
@@ -193,44 +170,22 @@ package inky.layout
 		{
 			return this._verticalSpacing;
 		}
-
-
 		/**
-		 *
-		 *
-		 *
+		 * @private
 		 */
 		public function set verticalSpacing(verticalSpacing:Number):void
 		{
 			this._verticalSpacing = verticalSpacing;
-			this._invalidateAll();
+//!			this._invalidateAll();
 		}
 
 
 
 
-		//
-		// public methods
-		//
 
 
-		/**
-		 *
-		 * Calculates the desired size and position of the supplied container's
-		 * children.
-		 *
-		 * @param container
-		 *     the container whose children you need layed out
-		 *
-		 * @return
-		 *     a Layout object representing the desired size and position of
-		 *     the specified container
-		 *
-		 * @throws RangeError
-		 *     thrown if a child's constraints place it outside of the grid
-		 *
-		 */
-		override public function calculateLayout(container:DisplayObjectContainer):Layout
+
+		public function layoutContainer(container:DisplayObjectContainer):void
 		{
 			var bounds:Rectangle;
 			var child:DisplayObject;
@@ -244,7 +199,7 @@ package inky.layout
 			var k:uint;
 			var p:uint;
 			var layout:Layout = new Layout();
-			var layoutItems:IList = this.getLayoutItems(container);
+			var layoutItems:Array = this.getLayoutItems(container);
 			var numRows:uint = this.numColumns == uint.MAX_VALUE ? 1 : this.numRows == uint.MAX_VALUE ? Math.ceil(layoutItems.length / this.numColumns) : this.numRows;
 			var numColumns: uint = this.numColumns == uint.MAX_VALUE ? layoutItems.length : this.numColumns;
 			var rowHeights:Array = [];
@@ -255,7 +210,7 @@ package inky.layout
 
 			for (i = 0; i < layoutItems.length; i++)
 			{
-				child = layoutItems.getItemAt(i) as DisplayObject;
+				child = layoutItems[i] as DisplayObject;
 				constraints = this.getConstraints(child) as GridLayoutConstraints;
 
 				if (constraints)
@@ -384,61 +339,79 @@ package inky.layout
 						bounds.y = y - bounds.y + yOffset;
 						bounds.width =
 						bounds.height = NaN;
-						layout.addItem(child.name, bounds);
+child.x = x;
+child.y = y;
+//!						layout.addItem(child.name, bounds);
 					}
 				}
 			}
 
-			return layout;
-		}
-
-
-		/**
-		 *
-		 * 
-		 *
-		 */
-		override public function register(container:DisplayObjectContainer):void
-		{
-			this._containers[container] = true;
-			super.register(container);
-		}
-
-
-		/**
-		 *
-		 * 
-		 *
-		 */
-		override public function unregister(container:DisplayObjectContainer):void
-		{
-			delete this._containers[container];
-			super.unregister(container);
+//!			return layout;
 		}
 
 
 
 
-		//
-		// private methods
-		//
+
+
+
+
+
+		public function getLayoutItems(container:DisplayObjectContainer):Array
+		{
+			var items:Array = [];
+			for (var i:int = 0; i < container.numChildren; i++)
+				items.push(container.getChildAt(i));
+			return items;
+		}
+
+
+
+
 
 
 		/**
 		 *
-		 *	
-		 *	
+		 * Gets the constraints associated with a DisplayObject.
+		 *
 		 */
-		private function _invalidateAll():void
+		public function getConstraints(obj:DisplayObject):ILayoutConstraints
 		{
-			for (var container:Object in this._containers)
+			return this._constraints[obj];
+		}
+
+
+
+
+		/**
+		 *
+		 * Set constraints for a DisplayObject whose parent is registered with
+		 * this layout.
+		 *
+		 * @param obj
+		 *     the DisplayObject whose constraints to set
+		 * @param constraints
+		 *     the constraints to apply to the given DisplayObject
+		 *
+		 * @throws ArgumentError
+		 *     thrown if the supplied DisplayObject is not a child of a
+		 *     registered container
+		 *
+		 */
+		public function setConstraints(obj:DisplayObject, constraints:ILayoutConstraints):void
+		{
+			// Clone constraints so the same object can be changed and set as
+			// constraints on another element.
+			constraints = constraints.clone() as ILayoutConstraints;
+//!
+			/*if (!obj.parent || (LayoutUtil.getLayoutManager(obj.parent) != this))
 			{
-				this.invalidate(container as DisplayObjectContainer);
-			}
+				throw new ArgumentError('The supplied DisplayObject is not a child of a container registered with this LayoutManager');
+			}*/
+			this._constraints[obj] = constraints;
 		}
 
-
-
-
+		
 	}
+	
 }

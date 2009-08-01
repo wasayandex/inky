@@ -3,6 +3,9 @@ package inky.layout
 	import flash.display.Sprite;
 	import inky.layout.LayoutEngine;
 	import flash.display.DisplayObjectContainer;
+	import inky.layout.ILayoutManager;
+	import flash.events.Event;
+	import inky.layout.GridLayout;
 
 	/**
 	 *
@@ -19,6 +22,11 @@ package inky.layout
 	{
 		private var _width:Number;
 		private var _height:Number;
+		private var _oldWidth:Number;
+		private var _oldHeight:Number;
+
+
+public var layoutManager:ILayoutManager;
 
 
 		/**
@@ -26,8 +34,16 @@ package inky.layout
 		 */
 		public function LayoutComponent()
 		{
+			this._width = super.width;
+			this._height = super.height;
+			this.addEventListener(Event.ADDED, this._addedHandler);
 		}
-		
+
+		private function _addedHandler(event:Event):void
+		{
+			LayoutEngine.getInstance().invalidateDisplayList(this);
+		}
+
 
 		/**
 		 *
@@ -78,17 +94,23 @@ package inky.layout
 		public function validateSize():void
 		{
 trace("validateSize()\t\t" + this.name);
-			if (this.width != super.width)
-				super.width = this.width;
-
-			if (this.height != super.height)
-				super.height = this.height;
+throw new Error();
 		}
 		
 		
 		public function validateDisplayList():void
 		{
 trace("validateDisplayList()\t\t" + this.name);
+// TODO: Obviously, this shouldn't be here:
+			if (this.layoutManager)
+			{
+				var grid:GridLayout = this.layoutManager as GridLayout;
+				if (grid)
+				{
+					grid.numColumns = Math.floor(this.width / 100);
+					grid.layoutContainer(this);
+				}
+			}
 		}
 		
 		public function validateProperties():void

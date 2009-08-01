@@ -2,6 +2,7 @@ package
 {
 	import flash.display.Sprite;
 	import inky.layout.LayoutComponent;
+	import inky.layout.LayoutEngine;
 
 	/**
 	 *
@@ -18,6 +19,7 @@ package
 	{
 		private var _instanceIndex:int;
 		private static var _count:int = 0;
+		private var _color:uint;
 
 
 		/**
@@ -25,13 +27,39 @@ package
 		 */
 		public function Box(width:Number = 100, height:Number = 100)
 		{
-			// Draw something so we can see this.
-			var color:uint = [0xff0000, 0x00ff00, 0x0000ff][_count++ % 3];
-			this.graphics.beginFill(color, 0.5);
+			this._color = [0xff0000, 0x00ff00, 0x0000ff][_count++ % 3];
+			this.width = width;
+			this.height = height;
+		}
+
+
+		private function _redraw(width:Number, height:Number):void
+		{
+			this.graphics.clear();
+			this.graphics.beginFill(this._color, 0.5);
 			this.graphics.drawRect(0, 0, width, height);
 			this.graphics.endFill();
 		}
 
+
+
+		/**
+		 * @private
+		 */
+		override public function set width(value:Number):void
+		{
+			super.width = value;
+			LayoutEngine.getInstance().invalidateDisplayList(this);			
+		}
+
+
+
+
+		override public function validateSize():void
+		{
+trace("validateSize()\t\t" + this.name + "\t\t" + this.width + ", " + this.height);
+			this._redraw(this.width, this.height);
+		}
 
 
 		

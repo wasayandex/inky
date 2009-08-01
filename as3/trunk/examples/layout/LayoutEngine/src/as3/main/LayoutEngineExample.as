@@ -3,6 +3,8 @@ package
 	import flash.display.Sprite;
 	import inky.layout.LayoutEngine;
 	import Box;
+	import inky.layout.GridLayout;
+	import flash.events.Event;
 
 
 	/**
@@ -29,20 +31,23 @@ package
 			
 			var a:Box = new Box(300, 300);
 			a.name = "a";
-			var b:Box = new Box(200, 200);
-			b.name = "b";
-			var c:Box = new Box(50, 50);
-			c.name = "c";
+			a.layoutManager = new GridLayout(4);
+			
+			for (var i:int = 0; i < 5; i++)
+			{
+				var b:Box = new Box(100, 100);
+				a.addChild(b);
+			}
 			
 			this.addChild(a);
-			a.addChild(b);
-			b.addChild(c);
 			
-			b.width =
-			b.height = 250;
+this.addEventListener(Event.ENTER_FRAME, this._enterFrameHandler);
 		}
 
-
+private function _enterFrameHandler(event:Event):void
+{
+	this.getChildByName("a").width = this.mouseX;
+}
 
 		
 	}

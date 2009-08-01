@@ -1,37 +1,34 @@
-package inky.layout
+package inky.layout 
 {
-	import inky.layout.Layout;
-	import inky.layout.ILayoutRenderer;
-	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
-	import flash.events.IEventDispatcher;
-
-
+	
 	/**
 	 *
-	 * LayoutManager.as
-	 *
-	 *     ..
+	 *  ..
 	 *	
-	 *     @langversion ActionScript 3
-	 *     @playerversion Flash 9.0.0
+	 * 	@langversion ActionScript 3
+	 *	@playerversion Flash 9.0.0
 	 *
-	 *     @author     Matthew Tretter (matthew@exanimo.com)
-	 *     @version    2008.03.18
+	 *	@author matthew
+	 *	@since  2009.07.31
 	 *
 	 */
-	public interface ILayoutManager extends IEventDispatcher
+	public interface ILayoutManager
 	{
-		function get renderer():ILayoutRenderer;
+		
+		/*function get renderer():ILayoutRenderer;
 		function set renderer(renderer:ILayoutRenderer):void;
 		
 		function addLayoutItem(item:DisplayObject):void;
 		function calculateLayout(container:DisplayObjectContainer):Layout;
-		function invalidate(container:DisplayObjectContainer):void;
+		function invalidate(container:DisplayObjectContainer):void;*/
 		function layoutContainer(container:DisplayObjectContainer):void;
-		function register(container:DisplayObjectContainer):void;
+		/*function register(container:DisplayObjectContainer):void;
 		function removeLayoutItem(item:DisplayObject):DisplayObject;
 		function unregister(container:DisplayObjectContainer):void;
-		function validateNow(container:DisplayObjectContainer):void;
+		function validateNow(container:DisplayObjectContainer):void;*/
+
+		
 	}
+	
 }
