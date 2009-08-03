@@ -28,6 +28,7 @@
 		private var _bottomRightPoint:Point;
 		private var _container:Sprite;
 		private var _model:IList
+		private var _mouseEventType:String;
 		private var _pointViewClass:Class;
 		private var _topLeftPoint:Point;
 		private var _topRightPoint:Point;
@@ -38,7 +39,8 @@
 			this._autoAdjustChildren = true;
 			this._container = new Sprite();
 			this.addChild(this._container);
-						
+			
+			this._mouseEventType = MouseEvent.MOUSE_OVER;
 			this.source = this.getChildByName('_mapContainer') as Sprite || null;
 			this.__tooltip = this.getChildByName('_tooltip') as ITooltip || null;
 		}
@@ -63,6 +65,15 @@
 		{
 			this._model = value;
 			this._setContent();
+		}
+		
+		/**
+		*	Determines what type of MouseEvent should the tooltip appear. By Default this 
+		*	is set to MouseEvent.MOUSE_OVER.
+		*/
+		public function set mouseEventType(value:String):void
+		{
+			this._mouseEventType = value;
 		}
 						
 		/**
@@ -245,6 +256,7 @@ override public function set scaleY(value:Number):void
 			switch (event.type)
 			{
 				case MouseEvent.MOUSE_OVER:
+				case MouseEvent.CLICK:
 					this.__tooltip.target = event.target as InteractiveObject;
 					this.__tooltip.show();
 					break;
@@ -303,9 +315,11 @@ override public function set scaleY(value:Number):void
 			
 			if (this.__tooltip)
 			{
-				this._container.addChild(this.__tooltip as Sprite);		
-				this.addEventListener(MouseEvent.MOUSE_OVER, this._pointMouseHandler);
-				this.addEventListener(MouseEvent.MOUSE_OUT, this._pointMouseHandler);
+				this._container.addChild(this.__tooltip as Sprite);	
+				this.addEventListener(this._mouseEventType, this._pointMouseHandler);
+				
+				if (this._mouseEventType == MouseEvent.MOUSE_OVER)
+					this.addEventListener(MouseEvent.MOUSE_OUT, this._pointMouseHandler);
 			}
 		}		
 	}
