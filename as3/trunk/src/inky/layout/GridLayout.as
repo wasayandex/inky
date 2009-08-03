@@ -79,7 +79,6 @@ package inky.layout
 		public function set columnWidths(columnWidths:Array):void
 		{
 			this._columnWidths = columnWidths;
-//!//!			this._invalidateAll();
 		}
 
 
@@ -98,7 +97,6 @@ package inky.layout
 		public function set horizontalSpacing(horizontalSpacing:Number):void
 		{
 			this._horizontalSpacing = horizontalSpacing;
-//!			this._invalidateAll();
 		}
 
 
@@ -117,7 +115,6 @@ package inky.layout
 		public function set numColumns(numColumns:uint):void
 		{
 			this._numColumns = numColumns;
-//!			this._invalidateAll();
 		}
 
 
@@ -136,7 +133,6 @@ package inky.layout
 		public function set numRows(numRows:uint):void
 		{
 			this._numRows = numRows;
-//!			this._invalidateAll();
 		}
 
 
@@ -155,7 +151,6 @@ package inky.layout
 		public function set rowHeights(rowHeights:Array):void
 		{
 			this._rowHeights = rowHeights;
-//!			this._invalidateAll();
 		}
 
 
@@ -174,15 +169,30 @@ package inky.layout
 		public function set verticalSpacing(verticalSpacing:Number):void
 		{
 			this._verticalSpacing = verticalSpacing;
-//!			this._invalidateAll();
 		}
 
 
 
 
+		//
+		// public methods
+		//
 
 
+		/**
+		 *
+		 * Gets the constraints associated with a DisplayObject.
+		 *
+		 */
+		public function getConstraints(obj:DisplayObject):ILayoutConstraints
+		{
+			return this._constraints[obj];
+		}
 
+
+		/**
+		 *	@inheritDoc
+		 */
 		public function layoutContainer(container:DisplayObjectContainer, layoutItems:Array = null):void
 		{
 			var bounds:Rectangle;
@@ -197,6 +207,7 @@ package inky.layout
 			var k:uint;
 			var p:uint;
 
+			// If no layout items are provided, lay out all the container's children.
 			if (!layoutItems)
 			{
 				layoutItems = [];
@@ -205,7 +216,7 @@ package inky.layout
 					layoutItems.push(container.getChildAt(i));
 				}
 			}
-			
+
 			var numRows:uint = this.numColumns == uint.MAX_VALUE ? 1 : this.numRows == uint.MAX_VALUE ? Math.ceil(layoutItems.length / this.numColumns) : this.numRows;
 			var numColumns: uint = this.numColumns == uint.MAX_VALUE ? layoutItems.length : this.numColumns;
 			var rowHeights:Array = [];
@@ -225,8 +236,8 @@ package inky.layout
 					{
 						throw new RangeError('The supplied constraints place the DisplayObject outside of the GridLayout.');
 					}
-//TODO: Throw errors if: only one of gridX or gridY is -1.
-//TODO: Throw errors if: gridX or gridY is < -1.
+// TODO: Throw errors if: only one of gridX or gridY is -1.
+// TODO: Throw errors if: gridX or gridY is < -1.
 					else if (constraints.gridX == -1 || constraints.gridY == -1)
 					{
 						childrenToPlaceRelatively.push(child);
@@ -275,7 +286,7 @@ package inky.layout
 						{
 							columnWidths[j] = child ? Math.max(columnWidths[j], child.width) : columnWidths[j];
 						}
-	
+
 						if (!this.rowHeights)
 						{
 							rowHeights[k] = child ? Math.max(rowHeights[k], child.height) : rowHeights[k];
@@ -297,7 +308,7 @@ package inky.layout
 				for (p = 0; elements[i] && (p < elements[i].length); p++)
 				{
 					child = elements[i][p];
-	
+
 					if (child)
 					{
 						bounds = child.getBounds(child);
@@ -337,44 +348,21 @@ package inky.layout
 							}
 						}
 
-						// Get the object's bounds so that our positioning isn't
+/*						// Get the object's bounds so that our positioning isn't
 						// affected by the registration point. Set the width
 						// and height to NaN, because they should remain
 						// unchanged.
 						bounds.x = x - bounds.x + xOffset;
 						bounds.y = y - bounds.y + yOffset;
 						bounds.width =
-						bounds.height = NaN;
-child.x = x;
-child.y = y;
+						bounds.height = NaN;*/
+
+						child.x = x;
+						child.y = y;
 					}
 				}
 			}
 		}
-
-
-
-
-
-
-
-
-
-
-
-
-
-		/**
-		 *
-		 * Gets the constraints associated with a DisplayObject.
-		 *
-		 */
-		public function getConstraints(obj:DisplayObject):ILayoutConstraints
-		{
-			return this._constraints[obj];
-		}
-
-
 
 
 		/**
@@ -397,15 +385,12 @@ child.y = y;
 			// Clone constraints so the same object can be changed and set as
 			// constraints on another element.
 			constraints = constraints.clone() as ILayoutConstraints;
-//!
-			/*if (!obj.parent || (LayoutUtil.getLayoutManager(obj.parent) != this))
-			{
-				throw new ArgumentError('The supplied DisplayObject is not a child of a container registered with this LayoutManager');
-			}*/
+
 			this._constraints[obj] = constraints;
 		}
 
-		
+
+
+
 	}
-	
 }
