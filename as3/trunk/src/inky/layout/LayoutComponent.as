@@ -18,7 +18,7 @@ package inky.layout
 	 *	@since  2009.07.30
 	 *
 	 */
-	public class LayoutComponent extends Sprite
+	public class LayoutComponent extends Sprite implements ILayoutClient
 	{
 		private var _width:Number;
 		private var _height:Number;

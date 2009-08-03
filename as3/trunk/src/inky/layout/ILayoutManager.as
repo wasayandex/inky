@@ -16,9 +16,7 @@ package inky.layout
 	public interface ILayoutManager
 	{
 		
-		/*function get renderer():ILayoutRenderer;
-		function set renderer(renderer:ILayoutRenderer):void;
-		
+		/*
 		function addLayoutItem(item:DisplayObject):void;
 		function calculateLayout(container:DisplayObjectContainer):Layout;
 		function invalidate(container:DisplayObjectContainer):void;*/

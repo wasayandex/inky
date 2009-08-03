@@ -3,7 +3,6 @@ package inky.layout
 	import inky.collections.IList;
 	import inky.layout.Alignment;
 	import inky.layout.GridLayoutConstraints;
-	import inky.layout.Layout;
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
 	import flash.geom.Rectangle;
@@ -198,7 +197,6 @@ package inky.layout
 			var j:uint;
 			var k:uint;
 			var p:uint;
-			var layout:Layout = new Layout();
 			var layoutItems:Array = this.getLayoutItems(container);
 			var numRows:uint = this.numColumns == uint.MAX_VALUE ? 1 : this.numRows == uint.MAX_VALUE ? Math.ceil(layoutItems.length / this.numColumns) : this.numRows;
 			var numColumns: uint = this.numColumns == uint.MAX_VALUE ? layoutItems.length : this.numColumns;
@@ -341,12 +339,9 @@ package inky.layout
 						bounds.height = NaN;
 child.x = x;
 child.y = y;
-//!						layout.addItem(child.name, bounds);
 					}
 				}
 			}
-
-//!			return layout;
 		}
 
 
