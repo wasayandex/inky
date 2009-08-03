@@ -82,6 +82,7 @@ package
 			{
 				this._height = value;
 				this._layoutEngine.invalidateSize(this);
+				this._layoutEngine.invalidateDisplayList(this);
 			}
 		}
 
@@ -102,6 +103,7 @@ package
 			{
 				this._width = value;
 				this._layoutEngine.invalidateSize(this);
+				this._layoutEngine.invalidateDisplayList(this);
 			}
 		}
 
@@ -144,7 +146,6 @@ package
 		{
 			this.background.width = this.width;
 			this.background.height = this.height;
-			this._layoutEngine.invalidateDisplayList(this);
 		}
 
 
