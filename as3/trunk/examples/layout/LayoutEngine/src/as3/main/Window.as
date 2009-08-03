@@ -25,7 +25,6 @@ package
 		private var _width:Number;
 		private var _nestedWindows:Array;
 		
-		private static const TOP_BAR_HEIGHT:Number = 20;
 		private static const BORDER_SIZE:Number = 2;
 
 
