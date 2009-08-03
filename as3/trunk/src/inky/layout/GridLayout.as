@@ -1,6 +1,5 @@
 package inky.layout 
 {
-	import inky.collections.IList;
 	import inky.layout.Alignment;
 	import inky.layout.GridLayoutConstraints;
 	import flash.display.DisplayObject;
@@ -20,7 +19,7 @@ package inky.layout
 	 *	@since  2009.07.31
 	 *
 	 */
-	public class GridLayout implements ILayoutManager
+	public class GridLayout implements ILayout
 	{
 		
 		private var _columnWidths:Array;

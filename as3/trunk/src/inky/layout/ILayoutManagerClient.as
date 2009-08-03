@@ -14,7 +14,7 @@ package inky.layout
 	 *	@since  2009.08.02
 	 *
 	 */
-	public interface ILayoutClient extends IDisplayObject
+	public interface ILayoutManagerClient extends IDisplayObject
 	{
 		
 		/**

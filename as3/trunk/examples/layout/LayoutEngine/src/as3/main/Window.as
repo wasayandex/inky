@@ -1,10 +1,9 @@
 package  
 {
 	import flash.display.Sprite;
-	import inky.layout.ILayoutClient;
-	import inky.layout.LayoutEngine;
+	import inky.layout.ILayoutManagerClient;
+	import inky.layout.LayoutManager;
 	import inky.layout.GridLayout;
-	import inky.utils.UIDUtil;
 
 	/**
 	 *
@@ -17,11 +16,11 @@ package
 	 *	@since  2009.08.03
 	 *
 	 */
-	public class Window extends Sprite implements ILayoutClient
+	public class Window extends Sprite implements ILayoutManagerClient
 	{
 		private var _grid:GridLayout;
 		private var _height:Number;
-		private var _layoutEngine:LayoutEngine;
+		private var _LayoutManager:LayoutManager;
 		private var _width:Number;
 		private var _nestedWindows:Array;
 		
@@ -35,7 +34,7 @@ package
 		{
 			this._grid = new GridLayout();
 			this._nestedWindows = [];
-			this._layoutEngine = LayoutEngine.getInstance();
+			this._LayoutManager = LayoutManager.getInstance();
 			
 			// Set default values.
 			this._width = super.width;
@@ -54,7 +53,7 @@ package
 				this._nestedWindows.push(window);
 				
 			// Invalidate the display list.
-			this._layoutEngine.invalidateDisplayList(this);
+			this._LayoutManager.invalidateDisplayList(this);
 			return window;
 		}
 
@@ -81,8 +80,8 @@ package
 			if (value != this._height)
 			{
 				this._height = value;
-				this._layoutEngine.invalidateSize(this);
-				this._layoutEngine.invalidateDisplayList(this);
+				this._LayoutManager.invalidateSize(this);
+				this._LayoutManager.invalidateDisplayList(this);
 			}
 		}
 
@@ -102,8 +101,8 @@ package
 			if (value != this._width)
 			{
 				this._width = value;
-				this._layoutEngine.invalidateSize(this);
-				this._layoutEngine.invalidateDisplayList(this);
+				this._LayoutManager.invalidateSize(this);
+				this._LayoutManager.invalidateDisplayList(this);
 			}
 		}
 

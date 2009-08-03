@@ -1,9 +1,6 @@
 ﻿package  
 {
 	import flash.display.Sprite;
-	import inky.layout.LayoutEngine;
-	import inky.layout.GridLayout;
-	import flash.events.Event;
 	import Window;
 	import flash.events.MouseEvent;
 
@@ -19,7 +16,7 @@
 	 *	@since  2009.07.30
 	 *
 	 */
-	public class LayoutEngineExample extends Sprite
+	public class LayoutManagerExample extends Sprite
 	{
 		private var _parentWindow:Window;
 
@@ -27,7 +24,7 @@
 		/**
 		 *
 		 */
-		public function LayoutEngineExample()
+		public function LayoutManagerExample()
 		{
 			this._parentWindow = new Window();
 			this.addChild(this._parentWindow);
