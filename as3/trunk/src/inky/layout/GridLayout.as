@@ -184,7 +184,7 @@ package inky.layout
 
 
 
-		public function layoutContainer(container:DisplayObjectContainer):void
+		public function layoutContainer(container:DisplayObjectContainer, layoutItems:Array = null):void
 		{
 			var bounds:Rectangle;
 			var child:DisplayObject;
@@ -197,7 +197,16 @@ package inky.layout
 			var j:uint;
 			var k:uint;
 			var p:uint;
-			var layoutItems:Array = this.getLayoutItems(container);
+
+			if (!layoutItems)
+			{
+				layoutItems = [];
+				for (i = 0; i < container.numChildren; i++)
+				{
+					layoutItems.push(container.getChildAt(i));
+				}
+			}
+			
 			var numRows:uint = this.numColumns == uint.MAX_VALUE ? 1 : this.numRows == uint.MAX_VALUE ? Math.ceil(layoutItems.length / this.numColumns) : this.numRows;
 			var numColumns: uint = this.numColumns == uint.MAX_VALUE ? layoutItems.length : this.numColumns;
 			var rowHeights:Array = [];
@@ -350,15 +359,6 @@ child.y = y;
 
 
 
-
-
-		public function getLayoutItems(container:DisplayObjectContainer):Array
-		{
-			var items:Array = [];
-			for (var i:int = 0; i < container.numChildren; i++)
-				items.push(container.getChildAt(i));
-			return items;
-		}
 
 
 
