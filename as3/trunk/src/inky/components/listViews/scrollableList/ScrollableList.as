@@ -769,19 +769,19 @@ trace("_initializeForModel breaks at: " +tr, " model? " + this.model)
 					this[this._orientation + "ScrollBar"].maxScrollPosition = this.model.length - this._numItemsFinallyVisible + 1;
 					this[this._orientation + "ScrollBar"].pageSize = this._numItemsFinallyVisible;
 				}
-			}
-		/*
-			var contentSize:Number = listItem[this._xOrY] + listItem[this._widthOrHeight];
-			this[this._orientation + "ScrollBar"].enabled = this.__contentContainer[this._widthOrHeight] > mask[this._widthOrHeight];
 
-			if (this[this._orientation + "ScrollPolicy"] == ScrollPolicy.AUTO)
-			{
-				this[this._orientation + "ScrollBar"].visible = this[this._orientation + "ScrollBar"].enabled;
+				var contentSize:Number = this._getItemSize(this._model.length - 1) + this._getItemPosition(this._model.length - 1);
+				this[this._orientation + "ScrollBar"].enabled = contentSize > mask[this._widthOrHeight];
+
+				if (this[this._orientation + "ScrollPolicy"] == ScrollPolicy.AUTO)
+				{
+					this[this._orientation + "ScrollBar"].visible = this[this._orientation + "ScrollBar"].enabled;
+				}
+				else
+				{
+					this[this._orientation + "ScrollBar"].visible = this[this._orientation + "ScrollPolicy"] == ScrollPolicy.ON;
+				}	
 			}
-			else
-			{
-				this[this._orientation + "ScrollBar"].visible = this[this._orientation + "ScrollPolicy"] == ScrollPolicy.ON;
-			}*/
 		}
 
 
