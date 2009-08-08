@@ -284,6 +284,9 @@
 		 */
 		public function showItemAt(index:int):void
 		{
+// TODO: is this the right way to handle this situation?
+if (!this.model) return;
+
 			if (!this.orientation)
 			{
 				throw new Error("You must set the orientation on your ScrollableList");
@@ -763,13 +766,13 @@ trace("_initializeForModel breaks at: " +tr, " model? " + this.model)
 		{
 			if (model)
 			{
+				var mask:DisplayObject = this.getScrollMask();
 // TODO: Instead use this.maxHorizontalScrollPosition and horizontalPageSize
 				if (this[this._orientation + "ScrollBar"])
 				{
 					this[this._orientation + "ScrollBar"].maxScrollPosition = this.model.length - this._numItemsFinallyVisible + 1;
 					this[this._orientation + "ScrollBar"].pageSize = this._numItemsFinallyVisible;
 				}
-
 				var contentSize:Number = this._getItemSize(this._model.length - 1) + this._getItemPosition(this._model.length - 1);
 				this[this._orientation + "ScrollBar"].enabled = contentSize > mask[this._widthOrHeight];
 
