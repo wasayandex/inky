@@ -5,17 +5,12 @@
 	import inky.components.scrollBar.ScrollPolicy;
 	import inky.components.listViews.IListView;
 	import inky.components.scrollBar.events.ScrollEvent;
-	import inky.components.scrollPane.views.IScrollPane;
 	import inky.controls.*;
-	import inky.utils.IDisplayObject;
 	import inky.layout.events.LayoutEvent;
 	import inky.utils.EqualityUtil;
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
-	import flash.display.Sprite;
 	import flash.events.Event;
-	import flash.geom.Point;
-	import flash.geom.Rectangle;
 	import flash.utils.Dictionary;
 
 
@@ -274,7 +269,8 @@
 					}
 				}
 			}
-
+			
+			this._updateLayout();
 			this._redrawFrom(firstVisibleItemIndex);
 		}
 
@@ -516,41 +512,12 @@ er = 7;
 
 		private function _initializeForModel():void
 		{
-			// Determine the number of items that are visible at max scroll position.
-// TODO: Move this to its own function, because it needs to be called when one of the finallyVisibleItem's size changes
 			if (!this.model) 
 				return;
-var tr:uint = 0;
-try {
-			var mask:DisplayObject = this.getScrollMask();
-tr = 1;
-			var maskSize:Number = mask[this._widthOrHeight];
-tr = 2;
-			var numItems:int = 0;
-tr = 3;
-			var combinedSize:Number = 0;
-tr = 4;
-			var j:int = this.model.length - 1;
-tr = 5;
-			while ((j >= 0) && (combinedSize < maskSize))
-			{
-				numItems++;
-				combinedSize += this._getItemSize(j);
-				j--;
-			}
-tr = 6;
-			this._numItemsFinallyVisible = numItems;
-tr = 7;
-			this._updateScrollBar();
-tr = 8;
+			
+			this._updateLayout();
 			this._clearContent();
-tr = 9;
 			this._initializedForModel = true;
-}
-catch(e:Error)
-{
-trace("_initializeForModel breaks at: " +tr, " model? " + this.model)
-}
 		}
 
 
@@ -753,6 +720,33 @@ trace("_initializeForModel breaks at: " +tr, " model? " + this.model)
 		{
 			var capProp:String = this._orientation == "horizontal" ? "Horizontal" : "Vertical";
 			this[this._orientation + "ScrollPosition"] = Math.min(index, this["max" + capProp + "ScrollPosition"]);
+		}
+
+
+		/**
+		 *	Updates the ScrollPane layout.
+		 */
+		private function _updateLayout():void
+		{
+			// Determine the number of items that are visible at max scroll position.
+			var mask:DisplayObject = this.getScrollMask();
+			var maskSize:Number = mask[this._widthOrHeight];
+			var numItems:int = 0;
+			var combinedSize:Number = 0;
+			var j:int = this.model.length - 1;
+
+			while ((j >= 0) && (combinedSize < maskSize))
+			{
+				numItems++;
+				combinedSize += this._getItemSize(j);
+				j--;
+			}
+
+			if (numItems != this._numItemsFinallyVisible)
+			{
+				this._numItemsFinallyVisible = numItems;
+				this._updateScrollBar();
+			}
 		}
 
 
