@@ -90,7 +90,7 @@
 				intro.addEventListener(ActionEvent.ACTION_START, this._action2TransitionEvents, false, 0, true);
 				intro.addEventListener(ActionEvent.ACTION_FINISH, this._action2TransitionEvents, false, 0, true);
 				intro.addEventListener(ActionEvent.ACTION_FINISH, this._actionFinishHandler, false, 0, true);
-				intro.target = this._obj;
+				intro.target = intro.target || this._obj;
 			}
 
 
@@ -126,7 +126,7 @@
 				outro.addEventListener(ActionEvent.ACTION_START, this._action2TransitionEvents, false, 0, true);
 				outro.addEventListener(ActionEvent.ACTION_FINISH, this._action2TransitionEvents, false, 0, true);
 				outro.addEventListener(ActionEvent.ACTION_FINISH, this._actionFinishHandler, false, 0, true);
-				outro.target = this._obj;
+				outro.target = outro.target || this._obj;
 			}
 			
 			if (playTransition) this._playTransition(outro);
