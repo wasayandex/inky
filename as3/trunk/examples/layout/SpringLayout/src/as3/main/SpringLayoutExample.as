@@ -54,7 +54,7 @@ package
 
 			layout.putConstraint(SpringLayout.WEST, textField,
 			                     5,
-			                     SpringLayout.EAST, window);
+			                     SpringLayout.WEST, window);
 
 /*
 			// Adjust constraints for the label so it's at (5,5).
