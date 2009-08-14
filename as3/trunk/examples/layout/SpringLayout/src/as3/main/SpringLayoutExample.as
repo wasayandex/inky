@@ -31,6 +31,7 @@ package
 		public function SpringLayoutExample()
 		{
 			var window:Window = new Window();
+			window.name = "window";
 			this.addChild(window);
 			this._window = window;
 
@@ -38,23 +39,22 @@ package
 			window.layout = layout;
 
 			// Create and add the components.
-			var label:TextField = new TextField();
+			/*var label:TextField = new TextField();
 			label.name = "label";
 			label.text = "Label: ";
+			window.addChild(label);*/
 
 			var textField:TextField = new TextField();
 			textField.name = "textField";
 			textField.type = TextFieldType.INPUT;
 			textField.border = true;
 			textField.text = "Text field";
-
-			window.addChild(label);
 			window.addChild(textField);
 
 
 			layout.putConstraint(SpringLayout.WEST, textField,
-			                     5,
-			                     SpringLayout.WEST, window);
+								SpringLayout.WEST, window,
+								0);
 
 /*
 			// Adjust constraints for the label so it's at (5,5).
@@ -90,7 +90,7 @@ package
 // Display the window.
 LayoutManager.getInstance().invalidateDisplayList(window);
 
-this.addEventListener("enterFrame", enterFrameHandler);
+//this.addEventListener("enterFrame", enterFrameHandler);
 		}
 		
 		private function enterFrameHandler(event:Event):void
