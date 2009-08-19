@@ -122,7 +122,7 @@
 		 */
 		public function children():IXMLListProxy
 		{
-			return _proxyManager.getListProxy(this._source.*, true, this._source);
+			return _proxyManager.getListProxy(this._source.*);
 		}
 
 
@@ -244,7 +244,7 @@
 				if (value is XML)
 					value = _proxyManager.getProxy(value);
 				else if (value is XMLList)
-					value = _proxyManager.getListProxy(value, true);
+					value = _proxyManager.getListProxy(value);
 			}
 
 			return value;

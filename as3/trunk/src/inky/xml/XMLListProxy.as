@@ -30,9 +30,9 @@
 		 * 
 		 *
 		 */	
-	    public function XMLListProxy(source:XMLList, parent:XML = null)
+	    public function XMLListProxy(source:XMLList)
 	    {
-			this._directProxy = _proxyManager.getListProxy(source, true, parent);
+			this._directProxy = _proxyManager.getListProxy(source);
 	    }
 
 

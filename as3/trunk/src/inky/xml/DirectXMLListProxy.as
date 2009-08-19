@@ -31,7 +31,6 @@
 	internal class DirectXMLListProxy extends EventDispatcher implements IXMLListProxy
 	{
 		private static var _constructorProperty:QName = new QName("constructor");
-		private var _parent:XML;
 	    private var _source:XMLList;
 		private static var _proxyManager:XMLProxyManager = XMLProxyManager.getInstance();
 
@@ -49,10 +48,9 @@
 		 * 
 		 *
 		 */	
-	    public function DirectXMLListProxy(source:XMLList, parent:XML = null)
+	    public function DirectXMLListProxy(source:XMLList)
 	    {
 			this._source = source;
-			this._parent = parent;
 	    }
 
 
@@ -100,19 +98,12 @@
 		
 		private function _addItemAt(item:Object, index:uint, dispatchEvent:Boolean = true):Boolean
 		{
-throw new Error("You can't add items to IXMLListProxies");
 			if (!(item is IXMLProxy))
 				throw new ArgumentError("Argument must be of type IXMLProxy");
 
 			if (index < 0 || index > this.length)
 				throw new RangeError("The supplied index (" + index + ") is out of bounds.");
 				
-			var parent:XML = this._parent;
-			if (parent == null)
-			{
-				throw new Error("You can only add items to children lists (lists created by calling IXMLProxy.children()) and their subLists.");
-			}
-
 			var collectionChanged:Boolean = false;			
 			var oldLocation:int = this.getItemIndex(item);
 			if (oldLocation != index)
@@ -122,31 +113,24 @@ throw new Error("You can't add items to IXMLListProxies");
 				// If the object is already in the list, remove it.
 				if (oldLocation != -1)
 					this.removeItemAt(oldLocation);
-				
-// FIXME: This isn't going to work. Consider the following:
-// var children:IXMLListProxy = xml.children();
-// trace(children.length);
-// children.addItem(new XMLProxy(<firstttttttttttttttttttttttttttttttt/>));
-// trace(children.length);
-// The underlying list won't be updated.
 
-				if (parent.children().length() == 0)
-					parent.appendChild(item.source);
-				else if ((index - 1 > 0) && (index - 1 < parent.children().length()))
+				// Update the list.
+				var newSource:XMLList = new XMLList();
+				for (var i:int = 0; i < this._source.length() + 1; i++)
 				{
-					var previousChild:XML = parent.children()[index - 1];
-					parent.insertChildAfter(previousChild, item.source);
+					if (i < index)
+						newSource = newSource + this._source[i];
+					else if (index == i)
+						newSource = newSource + item.source;
+					else
+						newSource = newSource + this._source[i - 1];
 				}
-				else
-				{
-					var nextChild:XML = parent.children()[index];
-					parent.insertChildBefore(nextChild, item.source);
-				}
-			
+				this._source = newSource;
+
 				if (dispatchEvent)
 				{
 					var event:CollectionEvent = new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.ADD, index, oldLocation, [item]);
-					this._dispatchEvent(event);
+					this.dispatchEvent(event);
 				}
 			}
 			return collectionChanged;
@@ -176,7 +160,7 @@ throw new Error("You can't add items to IXMLListProxies");
 			if (collectionChanged)
 			{
 				var event:CollectionEvent = new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.ADD, index, -1, collection.toArray());
-				this._dispatchEvent(event);
+				this.dispatchEvent(event);
 			}
 		}
 
@@ -241,7 +225,7 @@ throw new Error("not yet implemented");
 				throw new RangeError();
 
 			var xml:XMLList = this._source.(childIndex() >= fromIndex && childIndex() < toIndex);
-			return _proxyManager.getListProxy(xml, true, this._parent);
+			return _proxyManager.getListProxy(xml, true);
 		}
 
 
@@ -290,15 +274,10 @@ throw new Error("not yet implemented");
 			{
 				var removedItems:Array = this.toArray();
 				
-				var len:int = this._source.length();
-				while (len)
-				{
-					delete this._source[0];
-					len--;
-				}
-					
+				this._source = new XMLList();
+
 				var event:CollectionEvent = new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.REMOVE, -1, 0, removedItems);
-				this._dispatchEvent(event);
+				this.dispatchEvent(event);
 			}
 		}
 		
@@ -313,11 +292,33 @@ throw new Error("not yet implemented");
 
 			var index:int = this.getItemIndex(item);
 			if (index != -1)
+				this._removeItemAt(index, item);
+
+			return item;
+		}
+		
+		
+		/**
+		 *	
+		 */
+		private function _removeItemAt(index:int, item:Object = null):Object
+		{
+			item = item || this.getItemAt(index);
+
+			if (index < 0 || index > this.length)
+				throw new RangeError("The supplied index (" + index + ") is out of bounds.");
+			
+			// Update the list.
+			var newSource:XMLList = new XMLList();
+			for (var i:int = 0; i < this._source.length() + 1; i++)
 			{
-				delete this._source[index];
-				var event:CollectionEvent = new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.REMOVE, -1, index, [item]);
-				this._dispatchEvent(event);
+				if (i != index)
+					newSource = newSource + this._source[i];
 			}
+			this._source = newSource;
+			
+			var event:CollectionEvent = new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.REMOVE, -1, index, [item]);
+			this.dispatchEvent(event);
 			
 			return item;
 		}
@@ -328,15 +329,7 @@ throw new Error("not yet implemented");
 		 */
 		public function removeItemAt(index:uint):Object
 		{
-			if (!(item is IXMLProxy))
-				throw new ArgumentError("Argument must be of type IXMLProxy");
-			if (index < 0 || index > this.length)
-				throw new RangeError("The supplied index (" + index + ") is out of bounds.");
-
-			var item:IXMLProxy = _proxyManager.getProxy(this._source[index]) as IXMLProxy;
-			var event:CollectionEvent = new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.REMOVE, -1, index, [item]);
-			this._dispatchEvent(event);
-			return item;
+			return this._removeItemAt(index);
 		}
 
 
@@ -428,30 +421,6 @@ throw new Error("not yet implemented");
 
 
 
-
-		private function _dispatchEvent(changeEvent:Event):void
-		{
-			// Dispatch this event.
-			this.dispatchEvent(changeEvent);
-
-			// Pseudo-bubbling.
-			if (this._parent)
-			{
-				var xml:Object = this._source;
-				var proxy:Object = this;
-				var event:XMLChangeEvent = new XMLChangeEvent(XMLChangeEvent.CHANGE, this, changeEvent);
-				while (xml)
-				{
-					if (proxy)
-					{
-						proxy.dispatchEvent(event);
-					}
-					xml = xml.parent();
-					if (xml)
-						proxy = _proxyManager.getProxy(xml as XML, false);
-				}
-			}
-		}
 
 
 
