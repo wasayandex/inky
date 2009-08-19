@@ -1,21 +1,13 @@
 ﻿package inky.data 
 {
-	import flash.events.EventDispatcher;
-	import inky.utils.IEquatable;
-	import inky.binding.events.PropertyChangeEvent;
 	import inky.data.XMLProxy;
-	import inky.collections.E4XHashMap;
-	import inky.data.events.XMLChangeEvent;
-	import flash.utils.Dictionary;
 	import flash.utils.flash_proxy;
-	import inky.utils.EventDispatcherProxy;
-	import inky.utils.EqualityUtil;
-	import inky.binding.events.PropertyChangeEventKind;
-	import inky.utils.UIDUtil;
-	import inky.collections.IMap;
-	import flash.events.IEventDispatcher;
+	import inky.data.XMLProxyManager;
+	import inky.data.IXMLProxy;
+	import flash.utils.Proxy;
+	import flash.events.Event;
 
-	use namespace flash_proxy;
+//	use namespace flash_proxy;
 	
 
 	/**
@@ -29,15 +21,10 @@
 	 *	@since  2009.08.17
 	 *
 	 */
-	dynamic public class XMLProxy extends EventDispatcherProxy implements IEquatable
+	dynamic public class XMLProxy extends Proxy implements IXMLProxy
 	{
-		private static var _pool:E4XHashMap = new E4XHashMap(true); // A pool used for non-parented lists.
-		private static var _pool2:E4XHashMap = new E4XHashMap(true); // A pool used for "parented" lists (lists created with the children() function)
-		private static var _constructorProperty:QName = new QName("constructor");
-	    private var _source:XML;
-		private var _propertyTypes:Dictionary;
-
-
+		private var _directProxy:DirectXMLProxy;
+		private static var _proxyManager:XMLProxyManager = XMLProxyManager.getInstance();
 
 
 		/**
@@ -47,9 +34,7 @@
 		 */	
 	    public function XMLProxy(source:XML = null)
 	    {
-			this._propertyTypes = new Dictionary(true);
-			this._source = source || <document />;
-			_pool.putItemAt(this, source);
+			this._directProxy = _proxyManager.getProxy(source);
 	    }
 
 
@@ -65,7 +50,7 @@
 		 */
 		public function get source():XML
 		{ 
-			return this._source; 
+			return this._directProxy.source; 
 		}
 
 
@@ -81,7 +66,7 @@
 		 */
 		public function equals(obj:Object):Boolean
 		{
-			return this == obj;
+			return this._directProxy.equals(obj);
 		}
 
 
@@ -90,7 +75,7 @@
 		 */
 		public function toString():String 
 		{
-			return this._source.toString();
+			return this._directProxy.toString();
 		}
 
 
@@ -100,42 +85,22 @@
 		// xml methods
 		//
 
-// TODO: Add other XML methods
 
-
-		/**
-		 *	
-		 **/
-		/*public function appendChild(child:Object):Object
-		{
-			var proxy:Object = XMLProxy.getProxy(child);
-			
-			if (proxy is XMLProxy)
-				this.children().addItem(proxy);
-			else if (proxy is XMLListProxy)
-				this.children().addItems(proxy);
-			else
-				throw new ArgumentError("not yet implemented");
-
-			return proxy;
-		}
-
-*/
 		/**
 		 *	
 		 */
-		public function child(propertyName:Object):XMLListProxy
+		public function child(propertyName:Object):IXMLListProxy
 		{
-			return XMLProxy.getListProxy(this._source.child(propertyName));
+			return this._directProxy.child(propertyName);
 		}
 
 
 		/**
 		 *	
 		 */
-		public function children():XMLListProxy
+		public function children():IXMLListProxy
 		{
-			return XMLProxy.getListProxy(this._source.*, true, this._source);
+			return this._directProxy.children();
 		}
 
 
@@ -144,7 +109,7 @@
 		 */
 		public function parent():*
 		{
-			return this._source.parent() ? XMLProxy.getProxy(this._source.parent()) : null;
+			return this._directProxy.parent();
 		}
 
 
@@ -153,97 +118,7 @@
 		 */
 		public function toXMLString():String 
 		{
-			return this._source.toXMLString();
-		}
-
-
-
-
-		//
-		// private methods
-		//
-
-
-		/**
-		 *	
-		 */
-		private function _dispatchPropertyChangeEvent(name:String, oldValue:Object, newValue:Object, kind:String = "update"):void
-		{
-			// Dispatch PROPERTY_CHANGE.
-			var changeEvent:PropertyChangeEvent = new PropertyChangeEvent(PropertyChangeEvent.PROPERTY_CHANGE, false, false, kind, name, oldValue, newValue, this);
-			this.dispatchEvent(changeEvent);
-			
-			// Dispatch CHANGE events. (Use this method instead of going up the proxy parent tree so that we don't create new proxies.)
-			var xml:XML = this._source;
-			var proxy:XMLProxy = this;
-			var event:XMLChangeEvent;
-			while (xml)
-			{
-				if (proxy)
-				{
-					event = new XMLChangeEvent(XMLChangeEvent.CHANGE, this, changeEvent);
-					proxy.dispatchEvent(event);
-				}
-				xml = xml.parent();
-				proxy = XMLProxy.getProxy(xml, false) as XMLProxy;
-			}
-		}
-
-
-
-
-		//
-		// internal methods
-		//
-
-
-		/**
-		 *	
-		 * 
-		 *  @param create    Specifies whether to create a new proxy if one doesn't already exist.
-		 */
-		internal static function getProxy(source:XML, create:Boolean = true, parent:XML = null):XMLProxy
-		{
-			return XMLProxy._getProxy(source, create, parent) as XMLProxy;
-		}	
-
-
-		/**
-		 *
-		 * Note: If you try to get a proxy for a list using a parent other than one you used to get the proxy the first time, weird stuff will probably happen.
-		 * 
-		 * @param parent    The parent xml. This should only be passed for children lists, as it will enable the add* methods for the resultant list.	
-		 * 
-		 */
-		private static function _getProxy(source:Object, create:Boolean = true, parent:XML = null):Object
-		{
-			var proxy:Object;
-
-			// Select the pool to use based on whether this is a parented list.
-			var pool:IMap = parent ? _pool2 : _pool;
-
-			proxy = pool.getItemByKey(source);
-			if (!proxy && create)
-			{
-				if (source is XML)
-					proxy = new XMLProxy(source as XML);
-				else if (source is XMLList)
-					proxy = new XMLListProxy(source as XMLList, parent);
-				else
-					throw new Error();
-				pool.putItemAt(proxy, source);
-			}
-
-			return proxy;
-		}
-
-
-		/**
-		 *	
-		 */
-		internal static function getListProxy(source:XMLList, create:Boolean = true, parent:XML = null):XMLListProxy
-		{
-			return XMLProxy._getProxy(source, create, parent) as XMLListProxy;
+			return this._directProxy.toXMLString();
 		}
 
 
@@ -259,11 +134,9 @@
 		 */
 	    override flash_proxy function callProperty(methodName:*, ...args):*
 	    {
-			var fn:Function = this[methodName] as Function;
-			if (fn != null)
-				return fn.apply(this, args);
-			else
-				throw new ArgumentError();
+			// For some weird reason, I can't access the arguments object.
+			args.unshift(methodName);
+			return this._directProxy.flash_proxy::callProperty.apply(null, args);
 	    }
 
 
@@ -272,14 +145,7 @@
 		 */
 	    override flash_proxy function deleteProperty(name:*):Boolean
 		{
-			var oldValue:* = this.flash_proxy::getProperty(name);
-			delete this._propertyTypes[name];
-			var result:Boolean = delete this._source[name];
-			if (result)
-			{
-				this._dispatchPropertyChangeEvent(name, oldValue, undefined, PropertyChangeEventKind.DELETE);
-			}
-			return result;
+			return this._directProxy.flash_proxy::deleteProperty(name);
 		} 
 
 
@@ -288,7 +154,7 @@
 		 */
 	    override flash_proxy function getDescendants(name:*):*
 	    {
-			throw new Error("XMLProxy does not support the descendants operator. Please use the descendants() method instead.");
+			return this._directProxy.flash_proxy::getDescendants(name);
 	    }
 
 
@@ -297,36 +163,7 @@
 		 */
 	    override flash_proxy function getProperty(name:*):*
 	    {
-// FIXME: Values aren't returned in correct type (they're always returned as XML). Need some kind of ISerializable, and to store the types?
-			var value:*;
-
-			if (Object.prototype.hasOwnProperty(name))
-			{
-				value = Object.prototype[name];
-			}
-			else if (EqualityUtil.objectsAreEqual(name, XMLProxy._constructorProperty))
-			{
-				value = XMLProxy;
-			}
-			else
-			{
-				value = this._source[name];
-
-				// Convert the value to the correct type.
-/*				if (this._propertyTypes[name])
-				{
-					var type:Class = this._propertyTypes[name] as Class;
-					value = type(value);
-				}
-				else*/
-
-				if (value is XML)
-					value = XMLProxy.getProxy(value);
-				else if (value is XMLList)
-					value = XMLProxy.getListProxy(value, true);
-			}
-
-			return value;
+			return this._directProxy.flash_proxy::getProperty(name);
 	    }
 
 
@@ -335,7 +172,7 @@
 		 */
 	    override flash_proxy function hasProperty(name:*):Boolean
 	    {
-	        return name in this._source;
+			return this._directProxy.flash_proxy::hasProperty(name);
 	    }
 
 
@@ -344,7 +181,8 @@
 		 */
 		override flash_proxy function nextName(index:int):String
 		{
-throw new Error("not yet implemented");
+// FIXME: Does this have to be unique to this instance (i.e. not delegated to _directProxy)?
+			return this._directProxy.flash_proxy::nextName(index);
 		}
 
 
@@ -353,7 +191,8 @@ throw new Error("not yet implemented");
 		 */
 	    override flash_proxy function nextNameIndex(index:int):int
 		{
-throw new Error("not yet implemented");
+// FIXME: Does this have to be unique to this instance (i.e. not delegated to _directProxy)?
+			return this._directProxy.flash_proxy::nextNameIndex(index);
 		}
 
 
@@ -362,7 +201,8 @@ throw new Error("not yet implemented");
 		 */
 	    override flash_proxy function nextValue(index:int):*
 	    {
-throw new Error("not yet implemented");
+// FIXME: Does this have to be unique to this instance (i.e. not delegated to _directProxy)?
+			return this._directProxy.flash_proxy::nextValue(index);
 	    }
 
 
@@ -371,37 +211,90 @@ throw new Error("not yet implemented");
 		 */
 	    override flash_proxy function setProperty(name:*, value:*):void
 	    {
-// FIXME: setting a property with an XML value is a little weird. i.e. proxy.a = <b />
-			var oldValue:Object = this.flash_proxy::getProperty(name);
-
-			if (value != oldValue)
-			{
-				this._source[name] = value;
-
-				// Store the type for retrieval.
-// TODO: Also allow for serializable non-primitive types.
-// FIXME: Should type actually be stored in the XML so that the object could be deserialized? For example <prop blah:type="Number">5</prop>
-				var type:Class;
-				if (value is String)
-					type = String;
-				else if (value is Number)
-					type = Number;
-				else
-					throw new ArgumentError();
-//!				this._propertyTypes[name] = type;
-				this._dispatchPropertyChangeEvent(name, oldValue, value);
-			}
+			this._directProxy.flash_proxy::setProperty(name, value);
 	    }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		//
+		// event dispatcher methods
+		//
+
+
+		/**
+		 * @inheritDoc
+		 */
+		public function addEventListener(type:String, listener:Function, useCapture:Boolean = false, priority:int = 0, useWeakReference:Boolean = false):void
+		{
+			this._directProxy.addEventListener(type, listener, useCapture, priority, useWeakReference);
+		}
+
+
+		/**
+		 * @inheritDoc
+		 */
+		public function dispatchEvent(event:Event):Boolean
+		{
+			return this._directProxy.dispatchEvent(event);
+		}
+
+
+		/**
+		 * @inheritDoc
+		 */
+		public function hasEventListener(type:String):Boolean 
+		{
+			return this._directProxy.hasEventListener(type);
+		}
+
+
+		/**
+		 * @inheritDoc
+		 */
+		public function removeEventListener(type:String, listener:Function, useCapture:Boolean = false):void 
+		{
+			return this._directProxy.removeEventListener(type, listener, useCapture);
+		}
+
+
+		/**
+		 * @inheritDoc
+		 */
+		public function willTrigger(type:String):Boolean 
+		{
+			return this._directProxy.willTrigger(type);
+		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	}
-	
-
-	
-	
-	
-
-	
-	
 }
-
