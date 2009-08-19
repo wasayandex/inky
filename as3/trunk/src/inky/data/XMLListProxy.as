@@ -29,7 +29,6 @@
 	public class XMLListProxy extends EventDispatcher implements IList
 	{
 		private static var _constructorProperty:QName = new QName("constructor");
-		private var _document:XMLProxy;
 		private var _parent:XML;
 	    private var _source:XMLList;
 
@@ -42,9 +41,8 @@
 		 * 
 		 *
 		 */	
-	    public function XMLListProxy(source:XMLList, document:XMLProxy = null, parent:XML = null)
+	    public function XMLListProxy(source:XMLList, parent:XML = null)
 	    {
-			this._document = document || new XMLProxy(<root />);
 			this._source = source;
 			this._parent = parent;
 	    }
@@ -216,7 +214,7 @@ throw new Error("not yet implemented");
 		 */
 		public function getItemAt(index:uint):Object
 		{
-			return this._document.getProxy(this._source[index]);
+			return XMLProxy.getProxy(this._source[index]);
 		}
 
 
@@ -238,7 +236,7 @@ throw new Error("not yet implemented");
 				throw new RangeError();
 
 			var xml:XMLList = this._source.(childIndex() >= fromIndex && childIndex() < toIndex);
-			return this._document.getListProxy(xml, true, this._parent);
+			return XMLProxy.getListProxy(xml, true, this._parent);
 		}
 
 
@@ -330,7 +328,7 @@ throw new Error("not yet implemented");
 			if (index < 0 || index > this.length)
 				throw new RangeError("The supplied index (" + index + ") is out of bounds.");
 
-			var item:XMLProxy = this._document.getProxy(this._source[index]) as XMLProxy;
+			var item:XMLProxy = XMLProxy.getProxy(this._source[index]) as XMLProxy;
 			var event:CollectionEvent = new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.REMOVE, -1, index, [item]);
 			this._dispatchEvent(event);
 			return item;
@@ -445,7 +443,7 @@ throw new Error("not yet implemented");
 					}
 					xml = xml.parent();
 					if (xml)
-						proxy = this._document.getProxy(xml as XML, false);
+						proxy = XMLProxy.getProxy(xml as XML, false);
 				}
 			}
 		}

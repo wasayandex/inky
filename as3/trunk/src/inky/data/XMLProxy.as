@@ -31,10 +31,9 @@
 	 */
 	dynamic public class XMLProxy extends EventDispatcherProxy implements IEquatable
 	{
-		private var _pool:E4XHashMap; // A pool used for non-parented lists.
-		private var _pool2:E4XHashMap; // A pool used for "parented" lists (lists created with the children() function)
+		private static var _pool:E4XHashMap = new E4XHashMap(true); // A pool used for non-parented lists.
+		private static var _pool2:E4XHashMap = new E4XHashMap(true); // A pool used for "parented" lists (lists created with the children() function)
 		private static var _constructorProperty:QName = new QName("constructor");
-		private var _document:XMLProxy;
 	    private var _source:XML;
 		private var _propertyTypes:Dictionary;
 
@@ -46,14 +45,11 @@
 		 * 
 		 *
 		 */	
-	    public function XMLProxy(source:XML = null, document:XMLProxy = null)
+	    public function XMLProxy(source:XML = null)
 	    {
-			this._pool = new E4XHashMap(true);
-			this._pool2 = new E4XHashMap(true);
 			this._propertyTypes = new Dictionary(true);
 			this._source = source || <document />;
-			this._document = document || this;
-			this._pool.putItemAt(this, source);
+			_pool.putItemAt(this, source);
 	    }
 
 
@@ -112,7 +108,7 @@
 		 **/
 		/*public function appendChild(child:Object):Object
 		{
-			var proxy:Object = this.getProxy(child);
+			var proxy:Object = XMLProxy.getProxy(child);
 			
 			if (proxy is XMLProxy)
 				this.children().addItem(proxy);
@@ -130,7 +126,7 @@
 		 */
 		public function child(propertyName:Object):XMLListProxy
 		{
-			return this.getListProxy(this._source.child(propertyName));
+			return XMLProxy.getListProxy(this._source.child(propertyName));
 		}
 
 
@@ -139,7 +135,7 @@
 		 */
 		public function children():XMLListProxy
 		{
-			return this.getListProxy(this._source.*, true, this._source);
+			return XMLProxy.getListProxy(this._source.*, true, this._source);
 		}
 
 
@@ -148,7 +144,7 @@
 		 */
 		public function parent():*
 		{
-			return this._source.parent() ? this.getProxy(this._source.parent()) : null;
+			return this._source.parent() ? XMLProxy.getProxy(this._source.parent()) : null;
 		}
 
 
@@ -189,7 +185,7 @@
 					proxy.dispatchEvent(event);
 				}
 				xml = xml.parent();
-				proxy = this.getProxy(xml, false) as XMLProxy;
+				proxy = XMLProxy.getProxy(xml, false) as XMLProxy;
 			}
 		}
 
@@ -206,9 +202,9 @@
 		 * 
 		 *  @param create    Specifies whether to create a new proxy if one doesn't already exist.
 		 */
-		internal function getProxy(source:XML, create:Boolean = true, parent:XML = null):XMLProxy
+		internal static function getProxy(source:XML, create:Boolean = true, parent:XML = null):XMLProxy
 		{
-			return this._getProxy(source, create, parent) as XMLProxy;
+			return XMLProxy._getProxy(source, create, parent) as XMLProxy;
 		}	
 
 
@@ -219,30 +215,23 @@
 		 * @param parent    The parent xml. This should only be passed for children lists, as it will enable the add* methods for the resultant list.	
 		 * 
 		 */
-		private function _getProxy(source:Object, create:Boolean = true, parent:XML = null):Object
+		private static function _getProxy(source:Object, create:Boolean = true, parent:XML = null):Object
 		{
 			var proxy:Object;
 
-			if (this._document != this)
-			{
-				proxy = this._document._getProxy(source, create, parent);
-			}
-			else
-			{
-				// Select the pool to use based on whether this is a parented list.
-				var pool:IMap = parent ? this._pool2 : this._pool;
+			// Select the pool to use based on whether this is a parented list.
+			var pool:IMap = parent ? _pool2 : _pool;
 
-				proxy = pool.getItemByKey(source);
-				if (!proxy && create)
-				{
-					if (source is XML)
-						proxy = new XMLProxy(source as XML, this._document);
-					else if (source is XMLList)
-						proxy = new XMLListProxy(source as XMLList, this._document, parent);
-					else
-						throw new Error();
-					pool.putItemAt(proxy, source);
-				}
+			proxy = pool.getItemByKey(source);
+			if (!proxy && create)
+			{
+				if (source is XML)
+					proxy = new XMLProxy(source as XML);
+				else if (source is XMLList)
+					proxy = new XMLListProxy(source as XMLList, parent);
+				else
+					throw new Error();
+				pool.putItemAt(proxy, source);
 			}
 
 			return proxy;
@@ -252,9 +241,9 @@
 		/**
 		 *	
 		 */
-		internal function getListProxy(source:XMLList, create:Boolean = true, parent:XML = null):XMLListProxy
+		internal static function getListProxy(source:XMLList, create:Boolean = true, parent:XML = null):XMLListProxy
 		{
-			return this._getProxy(source, create, parent) as XMLListProxy;
+			return XMLProxy._getProxy(source, create, parent) as XMLListProxy;
 		}
 
 
@@ -332,9 +321,9 @@
 				else*/
 
 				if (value is XML)
-					value = this.getProxy(value);
+					value = XMLProxy.getProxy(value);
 				else if (value is XMLList)
-					value = this.getListProxy(value, true);
+					value = XMLProxy.getListProxy(value, true);
 			}
 
 			return value;
@@ -405,7 +394,14 @@ throw new Error("not yet implemented");
 	    }
 
 
-
-
 	}
+	
+
+	
+	
+	
+
+	
+	
 }
+
