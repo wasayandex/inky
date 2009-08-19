@@ -367,6 +367,7 @@ throw new Error("not yet implemented");
 						proxy = new XMLProxy(source as XML, this._document);
 					else if (source is XMLList)
 						proxy = new XMLListProxy(source as XMLList, this._document, parent);
+// FIXME: Do the list proxies have to use the parent in the key?
 					this._pool.putItemAt(proxy, source);
 				}
 			}
