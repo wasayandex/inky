@@ -42,7 +42,13 @@ package inky.xml
 		/**
 		 *	
 		 */
-		function appendChild(child:Object):IXMLProxy;
+		function appendChild(child:Object):void;
+
+		
+		/**
+		 *	
+		 */
+		function removeChild(child:Object):void;
 
 
 		/**

@@ -89,9 +89,9 @@
 		/**
 		 *	
 		 */
-		public function appendChild(child:Object):IXMLProxy
+		public function appendChild(child:Object):void
 		{
-			return this._directProxy.appendChild(child);
+			this._directProxy.appendChild(child);
 		}
 
 
@@ -119,6 +119,15 @@
 		public function parent():*
 		{
 			return this._directProxy.parent();
+		}
+
+
+		/**
+		 *	
+		 */
+		public function removeChild(child:Object):void
+		{
+			this._directProxy.removeChild(child);
 		}
 
 

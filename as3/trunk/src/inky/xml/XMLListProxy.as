@@ -8,8 +8,6 @@
 	import inky.collections.events.CollectionEventKind;
 	import inky.collections.ListIterator;
 	import flash.events.EventDispatcher;
-	import inky.xml.events.XMLChangeEvent;
-	import flash.events.Event;
 	import inky.xml.XMLProxyManager;
 	import inky.xml.IXMLProxy;
 	import inky.xml.IXMLListProxy;
