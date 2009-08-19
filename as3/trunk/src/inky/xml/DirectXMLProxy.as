@@ -97,6 +97,20 @@
 		/**
 		 *	
 		 */
+		public function appendChild(child:Object):IXMLProxy
+		{
+			if (!(child is IXMLProxy) && !(child is IXMLListProxy))
+				throw new ArgumentError();
+
+// TODO: Dispatch an event here.
+			this._source.appendChild(child.source);
+			return this;
+		}
+
+
+		/**
+		 *	
+		 */
 		public function child(propertyName:Object):IXMLListProxy
 		{
 			return _proxyManager.getListProxy(this._source.child(propertyName));

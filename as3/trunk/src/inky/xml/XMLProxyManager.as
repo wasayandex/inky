@@ -72,6 +72,11 @@ package inky.xml
 		 */
 		private function _getProxy(source:Object, create:Boolean = true, parent:XML = null):Object
 		{
+			if (!source)
+			{
+				throw new ArgumentError("You can't get the proxy for a null object");
+			}
+
 			var proxy:Object;
 
 			// Select the pool to use based on whether this is a parented list.

@@ -35,8 +35,13 @@
 	    private var _source:XMLList;
 		private static var _proxyManager:XMLProxyManager = XMLProxyManager.getInstance();
 
-// FIXME:  xml.children().getSubList(0,1).addItem(new XMLProxy(<SHIT />)); // adds to wrong spot
-// FIXME: only add children to children lists
+//!
+// FIXME: This should not affect underlying xml tree. Instead it should form a new list. Also means that these should not be pooled.
+
+
+
+
+
 
 
 		/**
@@ -95,8 +100,12 @@
 		
 		private function _addItemAt(item:Object, index:uint, dispatchEvent:Boolean = true):Boolean
 		{
+throw new Error("You can't add items to IXMLListProxies");
 			if (!(item is IXMLProxy))
 				throw new ArgumentError("Argument must be of type IXMLProxy");
+
+			if (index < 0 || index > this.length)
+				throw new RangeError("The supplied index (" + index + ") is out of bounds.");
 				
 			var parent:XML = this._parent;
 			if (parent == null)
@@ -114,22 +123,24 @@
 				if (oldLocation != -1)
 					this.removeItemAt(oldLocation);
 				
-				// Add the item. Note: it seems like this could be simpler [i.e.
-				// if (index == this.length) parent.appendChild(item.source)],
-				// but this could be a subList, so we can't just add to the
-				// parent at the index.
-				var previousChild:IXMLProxy = this.getItemAt(index - 1) as IXMLProxy;
-				if (previousChild)
+// FIXME: This isn't going to work. Consider the following:
+// var children:IXMLListProxy = xml.children();
+// trace(children.length);
+// children.addItem(new XMLProxy(<firstttttttttttttttttttttttttttttttt/>));
+// trace(children.length);
+// The underlying list won't be updated.
+
+				if (parent.children().length() == 0)
+					parent.appendChild(item.source);
+				else if ((index - 1 > 0) && (index - 1 < parent.children().length()))
 				{
-					parent.insertChildAfter(previousChild.source, item.source);
+					var previousChild:XML = parent.children()[index - 1];
+					parent.insertChildAfter(previousChild, item.source);
 				}
 				else
 				{
-					var nextChild:IXMLProxy = this.getItemAt(index) as IXMLProxy;
-					if (nextChild)
-						parent.insertChildBefore(nextChild.source, item.source);
-					else
-						throw new RangeError("The supplied index (" + index + ") is out of bounds.");
+					var nextChild:XML = parent.children()[index];
+					parent.insertChildBefore(nextChild, item.source);
 				}
 			
 				if (dispatchEvent)
@@ -206,6 +217,8 @@ throw new Error("not yet implemented");
 		 */
 		public function getItemAt(index:uint):Object
 		{
+			if (index < 0 || index >= this.length)
+				throw new RangeError("The supplied index (" + index + ") is out of bounds.");
 			return _proxyManager.getProxy(this._source[index]);
 		}
 

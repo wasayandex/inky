@@ -34,7 +34,7 @@
 		 */	
 	    public function XMLProxy(source:XML = null)
 	    {
-			this._directProxy = _proxyManager.getProxy(source);
+			this._directProxy = _proxyManager.getProxy(source || new XML());
 	    }
 
 
@@ -84,6 +84,15 @@
 		//
 		// xml methods
 		//
+
+
+		/**
+		 *	
+		 */
+		public function appendChild(child:Object):IXMLProxy
+		{
+			return this._directProxy.appendChild(child);
+		}
 
 
 		/**

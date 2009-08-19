@@ -5,6 +5,7 @@
 	import inky.collections.ICollection;
 	import inky.collections.IIterator;
 	import flash.events.Event;
+	import inky.xml.IXMLListProxy;
 
 
 	/**
@@ -18,9 +19,9 @@
 	 *	@since  2009.08.17
 	 *
 	 */
-	public class XMLListProxy implements IList
+	public class XMLListProxy implements IXMLListProxy
 	{
-		private var _directProxy:DirectXMLProxy;
+		private var _directProxy:DirectXMLListProxy;
 		private static var _proxyManager:XMLProxyManager = XMLProxyManager.getInstance();
 
 
@@ -31,7 +32,7 @@
 		 */	
 	    public function XMLListProxy(source:XMLList, parent:XML = null)
 	    {
-			this._directProxy = _proxyManager.getListProxy(source, parent);
+			this._directProxy = _proxyManager.getListProxy(source, true, parent);
 	    }
 
 
@@ -279,7 +280,7 @@
 		 */
 		public function toXMLString():String 
 		{
-			return this._dispatchEvent.toXMLString();
+			return this._directProxy.toXMLString();
 		}
 
 

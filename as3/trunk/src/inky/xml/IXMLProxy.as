@@ -3,6 +3,7 @@ package inky.xml
 	import flash.events.IEventDispatcher;
 	import inky.utils.IEquatable;
 	import inky.xml.IXMLListProxy;
+	import inky.xml.IXMLProxy;
 
 	/**
 	 *
@@ -36,6 +37,12 @@ package inky.xml
 		//
 		// xml methods
 		//
+
+
+		/**
+		 *	
+		 */
+		function appendChild(child:Object):IXMLProxy;
 
 
 		/**
