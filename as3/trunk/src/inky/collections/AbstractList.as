@@ -256,7 +256,7 @@
 		{
 			var removedItems:Array = this.toArray();
 			this._list = [];
-			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.REMOVE, -1, -1, removedItems));
+			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.REMOVE, -1, 0, removedItems));
 		}
 
 
@@ -266,7 +266,7 @@
 		public function removeItem(item:Object):Object
 		{
 			var index:int = this.getItemIndex(item);
-			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.REMOVE, -1, -1, [item]));
+			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.REMOVE, -1, index, [item]));
 			return item;
 		}
 
@@ -278,7 +278,7 @@
 		{
 			var item:Object = this._list[index];
 			this._list.splice(index, 1);
-			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.REMOVE, -1, -1, [item]));
+			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.REMOVE, -1, index, [item]));
 			return item;
 		}
 

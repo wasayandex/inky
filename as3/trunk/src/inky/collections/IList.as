@@ -138,7 +138,7 @@ package inky.collections
 		 * range of elements from a list:</p>
 		 * 
 		 * <listing>
-		 * list.getSubList(from, to).clear();
+		 * list.getSubList(from, to).removeAll();
 		 * </listing>
 		 * 
 		 * <p>Similar idioms may be constructed for indexOf and lastIndexOf, and

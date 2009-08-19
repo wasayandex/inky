@@ -46,11 +46,11 @@
 		 * 
 		 *
 		 */	
-	    public function XMLProxy(source:XML, document:XMLProxy = null)
+	    public function XMLProxy(source:XML = null, document:XMLProxy = null)
 	    {
 			this._pool = new E4XHashMap(true);
 			this._propertyTypes = new Dictionary(true);
-			this._source = source;
+			this._source = source || <document />;
 			this._document = document || this;
 			this._pool.putItemAt(this, source);
 	    }
@@ -95,6 +95,35 @@
 		//
 
 // TODO: Add other XML methods
+
+
+		/**
+		 *	
+		 **/
+		/*public function appendChild(child:Object):Object
+		{
+			var proxy:Object = this.getProxy(child);
+			
+			if (proxy is XMLProxy)
+				this.children().addItem(proxy);
+			else if (proxy is XMLListProxy)
+				this.children().addItems(proxy);
+			else
+				throw new ArgumentError("not yet implemented");
+
+			return proxy;
+		}
+
+*/
+		/**
+		 *	
+		 */
+		public function children():XMLListProxy
+		{
+			return this.getListProxy(this._source.*, this._source);
+		}
+
+
 		/**
 		 *	
 		 */
@@ -116,7 +145,11 @@
 		 */
 	    override flash_proxy function callProperty(methodName:*, ...args):*
 	    {
-			return this[methodName].apply(this, args);
+			var fn:Function = this[methodName] as Function;
+			if (fn != null)
+				return fn.apply(this, args);
+			else
+				throw new ArgumentError();
 	    }
 
 
@@ -152,7 +185,7 @@
 	    {
 // FIXME: Values aren't returned in correct type (they're always returned as XML). Need some kind of ISerializable, and to store the types?
 			var value:*;
-			
+
 			if (Object.prototype.hasOwnProperty(name))
 			{
 				value = Object.prototype[name];
@@ -166,15 +199,17 @@
 				value = this._source[name];
 				
 				// Convert the value to the correct type.
-				if (this._propertyTypes[name])
+/*				if (this._propertyTypes[name])
 				{
 					var type:Class = this._propertyTypes[name] as Class;
 					value = type(value);
 				}
-				else if (value is XML || value is XMLList)
-				{
+				else*/
+				
+				if (value is XML)
 					value = this.getProxy(value);
-				}
+				else if (value is XMLList)
+					value = this.getListProxy(value, this._source);
 			}
 
 			return value;
@@ -309,13 +344,19 @@ throw new Error("not yet implemented");
 		 * 
 		 *  @param create    Specifies whether to create a new proxy if one doesn't already exist.
 		 */
-		internal function getProxy(source:Object, create:Boolean = true):Object
+		internal function getProxy(source:XML, create:Boolean = true, parent:XML = null):XMLProxy
+		{
+			return this._getProxy(source, create, parent) as XMLProxy;
+		}	
+
+
+		private function _getProxy(source:Object, create:Boolean = true, parent:XML = null):Object
 		{
 			var proxy:Object;
 
 			if (this._document != this)
 			{
-				proxy = this._document.getProxy(source, create);
+				proxy = this._document._getProxy(source, create, parent);
 			}
 			else
 			{
@@ -325,7 +366,7 @@ throw new Error("not yet implemented");
 					if (source is XML)
 						proxy = new XMLProxy(source as XML, this._document);
 					else if (source is XMLList)
-						proxy = new XMLListProxy(source as XMLList, this._document);
+						proxy = new XMLListProxy(source as XMLList, this._document, parent);
 					this._pool.putItemAt(proxy, source);
 				}
 			}
@@ -334,6 +375,12 @@ throw new Error("not yet implemented");
 		}
 
 
+
+
+		internal function getListProxy(source:XMLList, parent:XML, create:Boolean = true):XMLListProxy
+		{
+			return this._getProxy(source, create, parent) as XMLListProxy;
+		}
 
 
 	}
