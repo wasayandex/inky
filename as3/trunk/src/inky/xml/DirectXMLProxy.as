@@ -1,15 +1,14 @@
-﻿package inky.data 
+﻿package inky.xml 
 {
-	import inky.utils.IEquatable;
 	import inky.binding.events.PropertyChangeEvent;
-	import inky.data.XMLProxy;
-	import inky.data.events.XMLChangeEvent;
+	import inky.xml.XMLProxy;
+	import inky.xml.events.XMLChangeEvent;
 	import flash.utils.flash_proxy;
 	import inky.utils.EventDispatcherProxy;
 	import inky.utils.EqualityUtil;
 	import inky.binding.events.PropertyChangeEventKind;
-	import inky.data.XMLProxyManager;
-	import inky.data.IXMLProxy;
+	import inky.xml.XMLProxyManager;
+	import inky.xml.IXMLProxy;
 
 	use namespace flash_proxy;
 	

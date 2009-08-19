@@ -1,4 +1,4 @@
-﻿package inky.data 
+﻿package inky.xml 
 {
 	import inky.collections.IList;
 	import inky.collections.IListIterator;
@@ -8,11 +8,11 @@
 	import inky.collections.events.CollectionEventKind;
 	import inky.collections.ListIterator;
 	import flash.events.EventDispatcher;
-	import inky.data.events.XMLChangeEvent;
+	import inky.xml.events.XMLChangeEvent;
 	import flash.events.Event;
-	import inky.data.XMLProxyManager;
-	import inky.data.IXMLProxy;
-	import inky.data.IXMLListProxy;
+	import inky.xml.XMLProxyManager;
+	import inky.xml.IXMLProxy;
+	import inky.xml.IXMLListProxy;
 
 
 

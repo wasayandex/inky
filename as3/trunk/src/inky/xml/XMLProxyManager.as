@@ -1,12 +1,9 @@
-package inky.data 
+package inky.xml 
 {
-	import inky.data.XMLProxy;
-	import inky.data.IXMLProxy;
 	import inky.collections.E4XHashMap;
-	import inky.data.IXMLListProxy;
 	import inky.collections.IMap;
-	import inky.data.DirectXMLProxy;
-	import inky.data.DirectXMLListProxy;
+	import inky.xml.DirectXMLProxy;
+	import inky.xml.DirectXMLListProxy;
 
 
 	/**

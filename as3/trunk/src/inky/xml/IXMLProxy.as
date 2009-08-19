@@ -1,6 +1,8 @@
-package inky.data 
+package inky.xml 
 {
-	import inky.collections.IList;
+	import flash.events.IEventDispatcher;
+	import inky.utils.IEquatable;
+	import inky.xml.IXMLListProxy;
 
 	/**
 	 *
@@ -13,7 +15,7 @@ package inky.data
 	 *	@since  2009.08.17
 	 *
 	 */
-	public interface IXMLListProxy extends IList
+	public interface IXMLProxy extends IEquatable, IEventDispatcher
 	{
 // TODO: Does this need to have a source setter? Because we can't include the constructor signature.
 
@@ -21,7 +23,7 @@ package inky.data
 		/**
 		 *	
 		 */
-		function get source():XMLList;
+		function get source():XML;
 
 
 		/**
@@ -30,9 +32,28 @@ package inky.data
 		function toString():String;
 
 
+
 		//
 		// xml methods
 		//
+
+
+		/**
+		 *	
+		 */
+		function child(propertyName:Object):IXMLListProxy;
+
+
+		/**
+		 *	
+		 */
+		function children():IXMLListProxy;
+
+
+		/**
+		 *	
+		 */
+		function parent():*;
 
 
 		/**

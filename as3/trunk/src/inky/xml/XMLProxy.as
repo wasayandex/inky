@@ -1,9 +1,9 @@
-﻿package inky.data 
+﻿package inky.xml 
 {
-	import inky.data.XMLProxy;
+	import inky.xml.XMLProxy;
 	import flash.utils.flash_proxy;
-	import inky.data.XMLProxyManager;
-	import inky.data.IXMLProxy;
+	import inky.xml.XMLProxyManager;
+	import inky.xml.IXMLProxy;
 	import flash.utils.Proxy;
 	import flash.events.Event;
 

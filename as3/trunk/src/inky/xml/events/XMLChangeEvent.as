@@ -1,4 +1,4 @@
-﻿package inky.data.events
+﻿package inky.xml.events
 {
 	import flash.events.Event;
 
