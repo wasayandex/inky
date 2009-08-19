@@ -24,7 +24,7 @@ package inky.collections
 		private var _xmlDict:Dictionary;
 		private var _xmlListDict:Dictionary;
 
-
+// FIXME: This isn't using strict equality for XML! if map[myXML.a] = 5; then map[myXML.a] == 5, even though myXML.a !== myXML.a  The constructor should take another arg, useStrictXMLEquality:Boolean = false
 		/**
 		 *
 		 *	

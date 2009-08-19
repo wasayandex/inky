@@ -1,20 +1,18 @@
 ﻿package inky.data 
 {
-	import flash.events.Event;
 	import flash.events.EventDispatcher;
-	import flash.events.IEventDispatcher;
-	import flash.utils.Proxy;
 	import inky.utils.IEquatable;
 	import inky.binding.events.PropertyChangeEvent;
 	import inky.data.XMLProxy;
-	import inky.utils.EqualityUtil;
-	import inky.binding.events.PropertyChangeEventKind;
-	import inky.utils.EventDispatcherProxy;
-	import flash.utils.flash_proxy;
 	import inky.collections.E4XHashMap;
 	import inky.data.events.XMLPropertyChangeEvent;
 	import flash.utils.Dictionary;
-
+	import flash.utils.flash_proxy;
+	import inky.utils.EventDispatcherProxy;
+	import inky.utils.EqualityUtil;
+	import inky.binding.events.PropertyChangeEventKind;
+	import inky.utils.UIDUtil;
+	import inky.collections.IMap;
 
 	use namespace flash_proxy;
 	
@@ -32,7 +30,8 @@
 	 */
 	dynamic public class XMLProxy extends EventDispatcherProxy implements IEquatable
 	{
-		private var _pool:E4XHashMap;
+		private var _pool:E4XHashMap; // A pool used for non-parented lists.
+		private var _pool2:E4XHashMap; // A pool used for "parented" lists (lists created with the children() function)
 		private static var _constructorProperty:QName = new QName("constructor");
 		private var _document:XMLProxy;
 	    private var _source:XML;
@@ -49,6 +48,7 @@
 	    public function XMLProxy(source:XML = null, document:XMLProxy = null)
 	    {
 			this._pool = new E4XHashMap(true);
+			this._pool2 = new E4XHashMap(true);
 			this._propertyTypes = new Dictionary(true);
 			this._source = source || <document />;
 			this._document = document || this;
@@ -88,6 +88,15 @@
 		}
 
 
+		/**
+		 * @copy Object#toString()
+		 */
+		public function toString():String 
+		{
+			return this._source.toString();
+		}
+
+
 
 
 		//
@@ -118,9 +127,18 @@
 		/**
 		 *	
 		 */
+		public function child(propertyName:Object):XMLListProxy
+		{
+			return this.getListProxy(this._source.child(propertyName));
+		}
+
+
+		/**
+		 *	
+		 */
 		public function children():XMLListProxy
 		{
-			return this.getListProxy(this._source.*, this._source);
+			return this.getListProxy(this._source.*, true, this._source);
 		}
 
 
@@ -130,162 +148,6 @@
 		public function parent():*
 		{
 			return this._source.parent() ? this.getProxy(this._source.parent()) : null;
-		}
-
-
-
-
-		//
-		// flash_proxy methods
-		//
-
-
-		/**
-		 * @private
-		 */
-	    override flash_proxy function callProperty(methodName:*, ...args):*
-	    {
-			var fn:Function = this[methodName] as Function;
-			if (fn != null)
-				return fn.apply(this, args);
-			else
-				throw new ArgumentError();
-	    }
-
-
-		/**
-		 * @private
-		 */
-	    override flash_proxy function deleteProperty(name:*):Boolean
-		{
-			var oldValue:* = this.flash_proxy::getProperty(name);
-			delete this._propertyTypes[name];
-			var result:Boolean = delete this._source[name];
-			if (result)
-			{
-				this._dispatchPropertyChangeEvent(name, oldValue, undefined, PropertyChangeEventKind.DELETE);
-			}
-			return result;
-		} 
-
-
-		/**
-		 * @private
-		 */
-	    override flash_proxy function getDescendants(name:*):*
-	    {
-			return this.getProxy(this._source.descendants(name));
-	    }
-
-
-		/**
-		 * @private
-		 */
-	    override flash_proxy function getProperty(name:*):*
-	    {
-// FIXME: Values aren't returned in correct type (they're always returned as XML). Need some kind of ISerializable, and to store the types?
-			var value:*;
-
-			if (Object.prototype.hasOwnProperty(name))
-			{
-				value = Object.prototype[name];
-			}
-			else if (EqualityUtil.objectsAreEqual(name, XMLProxy._constructorProperty))
-			{
-				value = XMLProxy;
-			}
-			else
-			{
-				value = this._source[name];
-				
-				// Convert the value to the correct type.
-/*				if (this._propertyTypes[name])
-				{
-					var type:Class = this._propertyTypes[name] as Class;
-					value = type(value);
-				}
-				else*/
-				
-				if (value is XML)
-					value = this.getProxy(value);
-				else if (value is XMLList)
-					value = this.getListProxy(value, this._source);
-			}
-
-			return value;
-	    }
-
-
-		/**
-		 * @private
-		 */
-	    override flash_proxy function hasProperty(name:*):Boolean
-	    {
-	        return name in this._source;
-	    }
-
-
-		/**
-		 * @private
-		 */
-		override flash_proxy function nextName(index:int):String
-		{
-throw new Error("not yet implemented");
-		}
-
-
-		/**
-		 * @private
-		 */
-	    override flash_proxy function nextNameIndex(index:int):int
-		{
-throw new Error("not yet implemented");
-		}
-
-
-		/**
-		 * @private
-		 */
-	    override flash_proxy function nextValue(index:int):*
-	    {
-throw new Error("not yet implemented");
-	    }
-
-
-		/**
-		 * @private
-		 */
-	    override flash_proxy function setProperty(name:*, value:*):void
-	    {
-// FIXME: setting a property with an XML value is a little weird. i.e. proxy.a = <b />
-			var oldValue:Object = this.flash_proxy::getProperty(name);
-
-			if (value != oldValue)
-			{
-				this._source[name] = value;
-				
-				// Store the type for retrieval.
-// TODO: Also allow for serializable non-primitive types.
-// FIXME: Should type actually be stored in the XML so that the object could be deserialized? For example <prop blah:type="Number">5</prop>
-				var type:Class;
-				if (value is String)
-					type = String;
-				else if (value is Number)
-					type = Number;
-				else
-					throw new ArgumentError();
-//!				this._propertyTypes[name] = type;
-				this._dispatchPropertyChangeEvent(name, oldValue, value);
-			}
-	    }
-
-
-		/**
-		 * @copy Object#toString()
-		 */
-		public function toString():String 
-		{
-			return this._source.toString();
 		}
 
 
@@ -350,6 +212,13 @@ throw new Error("not yet implemented");
 		}	
 
 
+		/**
+		 *
+		 * Note: If you try to get a proxy for a list using a parent other than one you used to get the proxy the first time, weird stuff will probably happen.
+		 * 
+		 * @param parent    The parent xml. This should only be passed for children lists, as it will enable the add* methods for the resultant list.	
+		 * 
+		 */
 		private function _getProxy(source:Object, create:Boolean = true, parent:XML = null):Object
 		{
 			var proxy:Object;
@@ -360,15 +229,19 @@ throw new Error("not yet implemented");
 			}
 			else
 			{
-				proxy = this._pool.getItemByKey(source);
+				// Select the pool to use based on whether this is a parented list.
+				var pool:IMap = parent ? this._pool2 : this._pool;
+
+				proxy = pool.getItemByKey(source);
 				if (!proxy && create)
 				{
 					if (source is XML)
 						proxy = new XMLProxy(source as XML, this._document);
 					else if (source is XMLList)
 						proxy = new XMLListProxy(source as XMLList, this._document, parent);
-// FIXME: Do the list proxies have to use the parent in the key?
-					this._pool.putItemAt(proxy, source);
+					else
+						throw new Error();
+					pool.putItemAt(proxy, source);
 				}
 			}
 
@@ -376,12 +249,162 @@ throw new Error("not yet implemented");
 		}
 
 
-
-
-		internal function getListProxy(source:XMLList, parent:XML, create:Boolean = true):XMLListProxy
+		/**
+		 *	
+		 */
+		internal function getListProxy(source:XMLList, create:Boolean = true, parent:XML = null):XMLListProxy
 		{
 			return this._getProxy(source, create, parent) as XMLListProxy;
 		}
+
+
+
+
+		//
+		// flash_proxy methods
+		//
+
+
+		/**
+		 * @private
+		 */
+	    override flash_proxy function callProperty(methodName:*, ...args):*
+	    {
+			var fn:Function = this[methodName] as Function;
+			if (fn != null)
+				return fn.apply(this, args);
+			else
+				throw new ArgumentError();
+	    }
+
+
+		/**
+		 * @private
+		 */
+	    override flash_proxy function deleteProperty(name:*):Boolean
+		{
+			var oldValue:* = this.flash_proxy::getProperty(name);
+			delete this._propertyTypes[name];
+			var result:Boolean = delete this._source[name];
+			if (result)
+			{
+				this._dispatchPropertyChangeEvent(name, oldValue, undefined, PropertyChangeEventKind.DELETE);
+			}
+			return result;
+		} 
+
+
+		/**
+		 * @private
+		 */
+	    override flash_proxy function getDescendants(name:*):*
+	    {
+			throw new Error("XMLProxy does not support the descendants operator. Please use the descendants() method instead.");
+	    }
+
+
+		/**
+		 * @private
+		 */
+	    override flash_proxy function getProperty(name:*):*
+	    {
+// FIXME: Values aren't returned in correct type (they're always returned as XML). Need some kind of ISerializable, and to store the types?
+			var value:*;
+
+			if (Object.prototype.hasOwnProperty(name))
+			{
+				value = Object.prototype[name];
+			}
+			else if (EqualityUtil.objectsAreEqual(name, XMLProxy._constructorProperty))
+			{
+				value = XMLProxy;
+			}
+			else
+			{
+				value = this._source[name];
+
+				// Convert the value to the correct type.
+/*				if (this._propertyTypes[name])
+				{
+					var type:Class = this._propertyTypes[name] as Class;
+					value = type(value);
+				}
+				else*/
+
+				if (value is XML)
+					value = this.getProxy(value);
+				else if (value is XMLList)
+					value = this.getListProxy(value, true);
+			}
+
+			return value;
+	    }
+
+
+		/**
+		 * @private
+		 */
+	    override flash_proxy function hasProperty(name:*):Boolean
+	    {
+	        return name in this._source;
+	    }
+
+
+		/**
+		 * @private
+		 */
+		override flash_proxy function nextName(index:int):String
+		{
+throw new Error("not yet implemented");
+		}
+
+
+		/**
+		 * @private
+		 */
+	    override flash_proxy function nextNameIndex(index:int):int
+		{
+throw new Error("not yet implemented");
+		}
+
+
+		/**
+		 * @private
+		 */
+	    override flash_proxy function nextValue(index:int):*
+	    {
+throw new Error("not yet implemented");
+	    }
+
+
+		/**
+		 * @private
+		 */
+	    override flash_proxy function setProperty(name:*, value:*):void
+	    {
+// FIXME: setting a property with an XML value is a little weird. i.e. proxy.a = <b />
+			var oldValue:Object = this.flash_proxy::getProperty(name);
+
+			if (value != oldValue)
+			{
+				this._source[name] = value;
+
+				// Store the type for retrieval.
+// TODO: Also allow for serializable non-primitive types.
+// FIXME: Should type actually be stored in the XML so that the object could be deserialized? For example <prop blah:type="Number">5</prop>
+				var type:Class;
+				if (value is String)
+					type = String;
+				else if (value is Number)
+					type = Number;
+				else
+					throw new ArgumentError();
+//!				this._propertyTypes[name] = type;
+				this._dispatchPropertyChangeEvent(name, oldValue, value);
+			}
+	    }
+
+
 
 
 	}

@@ -21,7 +21,7 @@ package inky.utils
 		private static var _itemCount:uint = 0;
 		private static var _uidDictionary = new Dictionary(true);
 
-
+// FIXME: This will not work with XML (but we can't use E4XHashMap as a quick fix because it currently handles strict equality incorrectly.
 		/**
 		 *
 		 *	
