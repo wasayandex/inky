@@ -9,6 +9,7 @@
 	import inky.binding.events.PropertyChangeEventKind;
 	import inky.xml.XMLProxyManager;
 	import inky.xml.IXMLProxy;
+	import inky.xml.XMLListProxy;
 
 	use namespace flash_proxy;
 	
@@ -113,7 +114,7 @@
 		 */
 		public function child(propertyName:Object):IXMLListProxy
 		{
-			return _proxyManager.getListProxy(this._source.child(propertyName));
+			return new XMLListProxy(this._source.child(propertyName));
 		}
 
 
@@ -122,7 +123,7 @@
 		 */
 		public function children():IXMLListProxy
 		{
-			return _proxyManager.getListProxy(this._source.*);
+			return new XMLListProxy(this._source.*);
 		}
 
 
@@ -244,7 +245,7 @@
 				if (value is XML)
 					value = _proxyManager.getProxy(value);
 				else if (value is XMLList)
-					value = _proxyManager.getListProxy(value);
+					value = new XMLListProxy(value);
 			}
 
 			return value;

@@ -4,8 +4,18 @@
 	import inky.collections.IListIterator;
 	import inky.collections.ICollection;
 	import inky.collections.IIterator;
+	import inky.collections.events.CollectionEvent;
+	import inky.collections.events.CollectionEventKind;
+	import inky.collections.ListIterator;
+	import flash.events.EventDispatcher;
+	import inky.xml.events.XMLChangeEvent;
 	import flash.events.Event;
+	import inky.xml.XMLProxyManager;
+	import inky.xml.IXMLProxy;
 	import inky.xml.IXMLListProxy;
+	import inky.xml.XMLListProxy;
+
+
 
 
 	/**
@@ -19,10 +29,19 @@
 	 *	@since  2009.08.17
 	 *
 	 */
-	public class XMLListProxy implements IXMLListProxy
+	public class XMLListProxy extends EventDispatcher implements IXMLListProxy
 	{
-		private var _directProxy:DirectXMLListProxy;
+		private static var _constructorProperty:QName = new QName("constructor");
+	    private var _source:XMLList;
 		private static var _proxyManager:XMLProxyManager = XMLProxyManager.getInstance();
+
+//!
+// FIXME: This should not affect underlying xml tree. Instead it should form a new list. Also means that these should not be pooled.
+
+
+
+
+
 
 
 		/**
@@ -32,7 +51,7 @@
 		 */	
 	    public function XMLListProxy(source:XMLList)
 	    {
-			this._directProxy = _proxyManager.getListProxy(source);
+			this._source = source;
 	    }
 
 
@@ -48,7 +67,7 @@
 		 */
 		public function get source():XMLList
 		{ 
-			return this._directProxy.source; 
+			return this._source; 
 		}
 
 
@@ -64,7 +83,7 @@
 		 */
 		public function addItem(item:Object):void
 		{
-			this._directProxy.addItem(item);
+			this._addItemAt(item, this.length);
 		}
 		
 
@@ -74,7 +93,48 @@
 		 */
 		public function addItemAt(item:Object, index:uint):void
 		{
-			this._directProxy.addItemAt(item, index);
+			this._addItemAt(item, index);
+		}
+		
+		
+		private function _addItemAt(item:Object, index:uint, dispatchEvent:Boolean = true):Boolean
+		{
+			if (!(item is IXMLProxy))
+				throw new ArgumentError("Argument must be of type IXMLProxy");
+
+			if (index < 0 || index > this.length)
+				throw new RangeError("The supplied index (" + index + ") is out of bounds.");
+				
+			var collectionChanged:Boolean = false;			
+			var oldLocation:int = this.getItemIndex(item);
+			if (oldLocation != index)
+			{
+				collectionChanged = true;
+				
+				// If the object is already in the list, remove it.
+				if (oldLocation != -1)
+					this.removeItemAt(oldLocation);
+
+				// Update the list.
+				var newSource:XMLList = new XMLList();
+				for (var i:int = 0; i < this._source.length() + 1; i++)
+				{
+					if (i < index)
+						newSource = newSource + this._source[i];
+					else if (index == i)
+						newSource = newSource + item.source;
+					else
+						newSource = newSource + this._source[i - 1];
+				}
+				this._source = newSource;
+
+				if (dispatchEvent)
+				{
+					var event:CollectionEvent = new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.ADD, index, oldLocation, [item]);
+					this.dispatchEvent(event);
+				}
+			}
+			return collectionChanged;
 		}
 
 
@@ -83,7 +143,26 @@
 		 */
 		public function addItems(collection:ICollection):void
 		{
-			this._directProxy.addItems(collection);
+			this._addItemsAt(collection, 0);
+		}
+
+
+		/**
+		 *	
+		 */
+		private function _addItemsAt(collection:ICollection, index:uint):void
+		{
+			var collectionChanged:Boolean = false;
+			for (var i:IIterator = collection.iterator(); i.hasNext(); )
+			{
+				var item:Object = i.next();
+				collectionChanged = collectionChanged || this._addItemAt(item, index + i, false);
+			}
+			if (collectionChanged)
+			{
+				var event:CollectionEvent = new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.ADD, index, -1, collection.toArray());
+				this.dispatchEvent(event);
+			}
 		}
 
 
@@ -92,7 +171,7 @@
 		 */
 		public function addItemsAt(collection:ICollection, index:uint):void
 		{
-			this._directProxy.addItemsAt(collection, index);
+			this._addItemsAt(collection, index);
 		}
 
 
@@ -101,7 +180,10 @@
 		 */		
 		public function containsItem(item:Object):Boolean
 		{
-			return this._directProxy.containsItem(item);
+			if (!(item is IXMLProxy))
+				throw new ArgumentError("Argument must be of type IXMLProxy");
+
+			return this._source.contains(item.source);
 		}
 
 
@@ -110,7 +192,7 @@
 		 */
 		public function containsItems(collection:ICollection):Boolean
 		{
-			return this._directProxy.containsItems(collection);
+throw new Error("not yet implemented");
 		}
 
 
@@ -120,7 +202,9 @@
 		 */
 		public function getItemAt(index:uint):Object
 		{
-			return this._directProxy.getItemAt(index);
+			if (index < 0 || index >= this.length)
+				throw new RangeError("The supplied index (" + index + ") is out of bounds.");
+			return _proxyManager.getProxy(this._source[index]);
 		}
 
 
@@ -129,7 +213,7 @@
 		 */
 		public function getItemIndex(item:Object):int
 		{
-			return this._directProxy.getItemIndex(item);
+			return this._source.contains(item) ? item.childIndex() : -1;
 		}
 
 
@@ -138,7 +222,11 @@
 		 */
 		public function getSubList(fromIndex:uint, toIndex:uint):IList
 		{
-			return this._directProxy.getSubList(fromIndex, toIndex);
+			if (toIndex > this.length || fromIndex > toIndex || fromIndex < 0)
+				throw new RangeError();
+
+			var xml:XMLList = this._source.(childIndex() >= fromIndex && childIndex() < toIndex);
+			return new XMLListProxy(xml);
 		}
 
 
@@ -147,7 +235,7 @@
 		 */
 		public function isEmpty():Boolean
 		{
-			return this._directProxy.isEmpty();
+			return this._source.length() == 0;
 		}
 
 
@@ -156,8 +244,7 @@
 		 */
 		public function iterator():IIterator
 		{
-// FIXME: Does this need to be specific to this instance? (In case you iterator over different proxies of the same direct proxy)
-			return this._directProxy.iterator();
+			return new ListIterator(this);
 		}
 
 
@@ -166,7 +253,7 @@
 		 */
 		public function get length():uint
 		{
-			return this._directProxy.length;
+			return this._source.length();
 		}
 
 
@@ -175,7 +262,7 @@
 		 */
 		public function listIterator(index:uint = 0):IListIterator
 		{
-			return this._directProxy.listIterator(index);
+			return new ListIterator(this, index);
 		}
 
 
@@ -184,7 +271,15 @@
 		 */		
 		public function removeAll():void
 		{
-			this._directProxy.removeAll();
+			if (this.length > 0)
+			{
+				var removedItems:Array = this.toArray();
+				
+				this._source = new XMLList();
+
+				var event:CollectionEvent = new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.REMOVE, -1, 0, removedItems);
+				this.dispatchEvent(event);
+			}
 		}
 		
 
@@ -193,7 +288,40 @@
 		 */		
 		public function removeItem(item:Object):Object
 		{
-			return this._directProxy.removeItem(item);
+			if (!(item is IXMLProxy))
+				throw new ArgumentError("Argument must be of type IXMLProxy");
+
+			var index:int = this.getItemIndex(item);
+			if (index != -1)
+				this._removeItemAt(index, item);
+
+			return item;
+		}
+		
+		
+		/**
+		 *	
+		 */
+		private function _removeItemAt(index:int, item:Object = null):Object
+		{
+			item = item || this.getItemAt(index);
+
+			if (index < 0 || index > this.length)
+				throw new RangeError("The supplied index (" + index + ") is out of bounds.");
+			
+			// Update the list.
+			var newSource:XMLList = new XMLList();
+			for (var i:int = 0; i < this._source.length() + 1; i++)
+			{
+				if (i != index)
+					newSource = newSource + this._source[i];
+			}
+			this._source = newSource;
+			
+			var event:CollectionEvent = new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.REMOVE, -1, index, [item]);
+			this.dispatchEvent(event);
+			
+			return item;
 		}
 		
 
@@ -202,7 +330,7 @@
 		 */
 		public function removeItemAt(index:uint):Object
 		{
-			return this._directProxy.removeItemAt(index);
+			return this._removeItemAt(index);
 		}
 
 
@@ -211,7 +339,7 @@
 		 */
 		public function removeItems(collection:ICollection):void
 		{
-			this._directProxy.removeItems(collection);
+throw new Error("not yet implemented");
 		}
 
 
@@ -220,7 +348,7 @@
 		 */
 		public function replaceItemAt(newItem:Object, index:uint):Object
 		{
-			return this.replaceItemAt(newItem, index);
+throw new Error("not yet implemented");
 		}
 
 
@@ -229,7 +357,7 @@
 		 */		
 		public function retainItems(collection:ICollection):void
 		{
-			return this._directProxy.retainItems(collection);
+throw new Error("not yet implemented");
 		}
 		
 
@@ -238,8 +366,14 @@
 		 */		
 		public function toArray():Array
 		{
-			return this._directProxy.toArray();
-
+// TODO: Don't create a new array every time, if possible.
+			var result:Array = [];
+			var len:int = this.length;
+			for (var i:int = 0; i < len; i++)
+			{
+				result[i] = this.getItemAt(i);
+			}
+			return result;
 		}
 
 
@@ -255,16 +389,16 @@
 		 */
 		public function equals(obj:Object):Boolean
 		{
-			return this._directProxy.equals(obj);
+			return this == obj;
 		}
 
 
 		/**
 		 * @copy Object#toString()
 		 */
-		public function toString():String 
+		override public function toString():String 
 		{
-			return this._directProxy.toString();
+			return this._source.toString();
 		}
 
 
@@ -280,77 +414,8 @@
 		 */
 		public function toXMLString():String 
 		{
-			return this._directProxy.toXMLString();
+			return this._source.toXMLString();
 		}
-
-
-
-
-
-
-
-
-
-
-
-		//
-		// event dispatcher methods
-		//
-
-
-		/**
-		 * @inheritDoc
-		 */
-		public function addEventListener(type:String, listener:Function, useCapture:Boolean = false, priority:int = 0, useWeakReference:Boolean = false):void
-		{
-			this._directProxy.addEventListener(type, listener, useCapture, priority, useWeakReference);
-		}
-
-
-		/**
-		 * @inheritDoc
-		 */
-		public function dispatchEvent(event:Event):Boolean
-		{
-			return this._directProxy.dispatchEvent(event);
-		}
-
-
-		/**
-		 * @inheritDoc
-		 */
-		public function hasEventListener(type:String):Boolean 
-		{
-			return this._directProxy.hasEventListener(type);
-		}
-
-
-		/**
-		 * @inheritDoc
-		 */
-		public function removeEventListener(type:String, listener:Function, useCapture:Boolean = false):void 
-		{
-			return this._directProxy.removeEventListener(type, listener, useCapture);
-		}
-
-
-		/**
-		 * @inheritDoc
-		 */
-		public function willTrigger(type:String):Boolean 
-		{
-			return this._directProxy.willTrigger(type);
-		}
-
-
-
-
-
-
-
-
-
-
 
 
 
