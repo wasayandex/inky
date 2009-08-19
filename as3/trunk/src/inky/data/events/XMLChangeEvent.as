@@ -1,7 +1,6 @@
-package inky.data.events
+﻿package inky.data.events
 {
 	import flash.events.Event;
-	import inky.binding.events.PropertyChangeEvent;
 
 	/**
 	 *
@@ -14,8 +13,10 @@ package inky.data.events
 	 *	@since  2009.08.18
 	 *
 	 */
-	public class XMLPropertyChangeEvent extends PropertyChangeEvent
+	public class XMLChangeEvent extends Event
 	{
+		public var changeEvent:Event;
+		public var source:Object;
 		public static const CHANGE:String = "change";
 
 
@@ -30,9 +31,11 @@ package inky.data.events
 		 *      Specifies whether the behavior associated with the event can be prevented.
 		 *
 		 */
-	    public function XMLPropertyChangeEvent(type:String, bubbles:Boolean = false, cancelable:Boolean = false, kind:String = null, property:Object = null, oldValue:Object = null, newValue:Object = null, source:Object = null)
+	    public function XMLChangeEvent(type:String, source:Object, changeEvent:Event)
 	    {
-	        super(type, bubbles, cancelable, kind, property, oldValue, newValue, source);
+	        super(type, false, false);
+			this.changeEvent = changeEvent;
+			this.source = source;
 	    }
 
 
@@ -49,7 +52,7 @@ package inky.data.events
 		 */
 		override public function clone():Event
 		{
-			return new XMLPropertyChangeEvent(this.type, this.bubbles, this.cancelable, this.kind, this.property, this.oldValue, this.newValue, this.source);
+			return new XMLChangeEvent(this.type, this.source, this.changeEvent);
 		}
 
 
@@ -58,7 +61,7 @@ package inky.data.events
 		 */
 		public override function toString():String
 		{
-			return this.formatToString("XMLPropertyChangeEvent", "type", "kind", "property", "oldValue", "newValue");
+			return this.formatToString("XMLChangeEvent", "changeEvent");
 		}
 
 

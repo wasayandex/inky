@@ -5,7 +5,7 @@
 	import inky.binding.events.PropertyChangeEvent;
 	import inky.data.XMLProxy;
 	import inky.collections.E4XHashMap;
-	import inky.data.events.XMLPropertyChangeEvent;
+	import inky.data.events.XMLChangeEvent;
 	import flash.utils.Dictionary;
 	import flash.utils.flash_proxy;
 	import inky.utils.EventDispatcherProxy;
@@ -13,6 +13,7 @@
 	import inky.binding.events.PropertyChangeEventKind;
 	import inky.utils.UIDUtil;
 	import inky.collections.IMap;
+	import flash.events.IEventDispatcher;
 
 	use namespace flash_proxy;
 	
@@ -172,20 +173,19 @@
 		 */
 		private function _dispatchPropertyChangeEvent(name:String, oldValue:Object, newValue:Object, kind:String = "update"):void
 		{
-			var event:XMLPropertyChangeEvent;
-			
 			// Dispatch PROPERTY_CHANGE.
-			event = new XMLPropertyChangeEvent(PropertyChangeEvent.PROPERTY_CHANGE, false, false, kind, name, oldValue, newValue, this);
-			this.dispatchEvent(event);
+			var changeEvent:PropertyChangeEvent = new PropertyChangeEvent(PropertyChangeEvent.PROPERTY_CHANGE, false, false, kind, name, oldValue, newValue, this);
+			this.dispatchEvent(changeEvent);
 			
 			// Dispatch CHANGE events. (Use this method instead of going up the proxy parent tree so that we don't create new proxies.)
 			var xml:XML = this._source;
 			var proxy:XMLProxy = this;
+			var event:XMLChangeEvent;
 			while (xml)
 			{
 				if (proxy)
 				{
-					event = new XMLPropertyChangeEvent(XMLPropertyChangeEvent.CHANGE, false, false, kind, name, oldValue, newValue, this);
+					event = new XMLChangeEvent(XMLChangeEvent.CHANGE, this, changeEvent);
 					proxy.dispatchEvent(event);
 				}
 				xml = xml.parent();

@@ -9,6 +9,8 @@
 	import inky.collections.events.CollectionEventKind;
 	import inky.collections.ListIterator;
 	import flash.events.EventDispatcher;
+	import inky.data.events.XMLChangeEvent;
+	import flash.events.Event;
 
 
 
@@ -28,7 +30,7 @@
 	{
 		private static var _constructorProperty:QName = new QName("constructor");
 		private var _document:XMLProxy;
-		public var _parent:XML;
+		private var _parent:XML;
 	    private var _source:XMLList;
 
 // FIXME:  xml.children().getSubList(0,1).addItem(new XMLProxy(<SHIT />)); // adds to wrong spot
@@ -143,7 +145,7 @@
 				if (dispatchEvent)
 				{
 					var event:CollectionEvent = new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.ADD, index, oldLocation, [item]);
-					this.dispatchEvent(event);
+					this._dispatchEvent(event);
 				}
 			}
 			return collectionChanged;
@@ -173,7 +175,7 @@
 			if (collectionChanged)
 			{
 				var event:CollectionEvent = new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.ADD, index, -1, collection.toArray());
-				this.dispatchEvent(event);
+				this._dispatchEvent(event);
 			}
 		}
 
@@ -293,7 +295,7 @@ throw new Error("not yet implemented");
 				}
 					
 				var event:CollectionEvent = new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.REMOVE, -1, 0, removedItems);
-				this.dispatchEvent(event);
+				this._dispatchEvent(event);
 			}
 		}
 		
@@ -311,7 +313,7 @@ throw new Error("not yet implemented");
 			{
 				delete this._source[index];
 				var event:CollectionEvent = new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.REMOVE, -1, index, [item]);
-				this.dispatchEvent(event);
+				this._dispatchEvent(event);
 			}
 			
 			return item;
@@ -330,7 +332,7 @@ throw new Error("not yet implemented");
 
 			var item:XMLProxy = this._document.getProxy(this._source[index]) as XMLProxy;
 			var event:CollectionEvent = new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.REMOVE, -1, index, [item]);
-			this.dispatchEvent(event);
+			this._dispatchEvent(event);
 			return item;
 		}
 
@@ -424,7 +426,29 @@ throw new Error("not yet implemented");
 
 
 
+		private function _dispatchEvent(changeEvent:Event):void
+		{
+			// Dispatch this event.
+			this.dispatchEvent(changeEvent);
 
+			// Pseudo-bubbling.
+			if (this._parent)
+			{
+				var xml:Object = this._source;
+				var proxy:Object = this;
+				var event:XMLChangeEvent = new XMLChangeEvent(XMLChangeEvent.CHANGE, this, changeEvent);
+				while (xml)
+				{
+					if (proxy)
+					{
+						proxy.dispatchEvent(event);
+					}
+					xml = xml.parent();
+					if (xml)
+						proxy = this._document.getProxy(xml as XML, false);
+				}
+			}
+		}
 
 
 
