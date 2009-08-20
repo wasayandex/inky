@@ -49,7 +49,7 @@
 		 */	
 	    public function XMLListProxy(source:XMLList)
 	    {
-			this._source = source;
+			this.setSource(source);
 	    }
 
 
@@ -418,9 +418,18 @@ throw new Error("not yet implemented");
 
 
 
+		//
+		// protected methods
+		//
 
 
-
+		/**
+		 *	
+		 */
+		protected function setSource(source:XMLList):void
+		{
+			this._source = source;
+		}
 
 
 

@@ -152,7 +152,7 @@
 			var parent:XML = child.source.parent();
 			if (parent != this.source)
 				throw new ArgumentError("The supplied element is not a child of this parent.");
-
+// TODO: Should this event be dispatched before the removal (like display list) or after?
 			var event:XMLEvent = new XMLEvent(XMLEvent.REMOVED);
 			this._dispatchEvent(event);
 
@@ -348,7 +348,6 @@ throw new Error("not yet implemented");
 		 */
 	    override flash_proxy function setProperty(name:*, value:*):void
 	    {
-// FIXME: setting a property with an XML value is a little weird. i.e. proxy.a = <b />
 			var oldValue:Object = this.flash_proxy::getProperty(name);
 
 			if (value != oldValue)

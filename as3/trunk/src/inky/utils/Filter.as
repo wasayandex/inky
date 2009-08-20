@@ -16,7 +16,7 @@
 	 */
 	dynamic public class Filter extends ObjectProxy
 	{
-
+// TODO: Rename this?
 
 		/**
 		 *
