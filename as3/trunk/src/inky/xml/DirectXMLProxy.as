@@ -127,23 +127,29 @@
 
 
 		/**
-		 *	
+		 *	@inheritDoc
 		 */
 		public function appendChild(child:Object):void
 		{
-			if (!(child is IXMLProxy) && !(child is IXMLListProxy))
+			var childProxy:IXMLProxy;
+			
+			if (child is XML)
+				childProxy = new XMLProxy(child as XML);
+			else if (child is IXMLProxy)
+				childProxy = child as IXMLProxy;
+			else
 				throw new ArgumentError();
 
+			// Add the child to the dom.
 			this._source.appendChild(child.source);
 			
-			var event:XMLEvent = new XMLEvent(XMLEvent.ADDED, child as IXMLProxy);
-			child._dispatchEvent(event);
-// TODO: What should this return? Model it after E4X or DOM (https://developer.mozilla.org/En/DOM/Node.removeChild)
+			// Dispatch an ADDED event.
+			this._dispatchEvent(new XMLEvent(XMLEvent.ADDED, childProxy), childProxy);
 		}
 
 
 		/**
-		 *	
+		 *	@inheritDoc
 		 */
 		public function child(propertyName:Object):IXMLListProxy
 		{
@@ -152,7 +158,7 @@
 
 
 		/**
-		 *	
+		 *	@inheritDoc
 		 */
 		public function children():IXMLListProxy
 		{
@@ -161,7 +167,7 @@
 
 
 		/**
-		 *	
+		 *	@inheritDoc
 		 */
 		public function parent():*
 		{
@@ -170,23 +176,28 @@
 
 
 		/**
-		 *	
+		 *	@inheritDoc
 		 */
 		public function removeChild(child:Object):void
 		{
-			if (!(child is IXMLProxy) && !(child is IXMLListProxy))
+			var childProxy:IXMLProxy;
+			
+			if (child is XML)
+				childProxy = new XMLProxy(child as XML);
+			else if (child is IXMLProxy)
+				childProxy = child as IXMLProxy;
+			else
 				throw new ArgumentError();
 			
-			var parent:XML = child.source.parent();
+			var parent:XML = childProxy.source.parent();
 			if (parent != this.source)
 				throw new ArgumentError("The supplied element is not a child of this parent.");
 
-			child._dispatchEvent(new XMLEvent(XMLEvent.REMOVED, child as IXMLProxy));
+			this._dispatchEvent(new XMLEvent(XMLEvent.REMOVED, childProxy), childProxy);
 
-			delete parent.children()[child.source.childIndex()];
+			delete parent.children()[childProxy.source.childIndex()];
 			
-			this._dispatchEvent(new XMLEvent(XMLEvent.CHILD_REMOVED, child as IXMLProxy));
-// TODO: What should this return? Model it after E4X or DOM (https://developer.mozilla.org/En/DOM/Node.removeChild)
+			this._dispatchEvent(new XMLEvent(XMLEvent.CHILD_REMOVED, childProxy), this);
 		}
 
 
@@ -209,25 +220,25 @@
 		/**
 		 *	
 		 */
-		private function _dispatchEvent(event:Object):void
+		private function _dispatchEvent(event:Object, target:IXMLProxy):void
 		{
 // TODO: Add support for stopPropagation, etc. Probably a good idea to separate this functionality (the ability to bubble non-display object events) into an inky.events package.
-			event.xml_internal::setCurrentTarget(this);
-			event.xml_internal::setTarget(this);
-			this.dispatchEvent(event as Event);
+			event.xml_internal::setCurrentTarget(target);
+			event.xml_internal::setTarget(target);
+			target.dispatchEvent(event as Event);
 
 			if (event.bubbles)
 			{
-				var target:IXMLProxy;
-				var node:XML = this._source.parent();
+				var currentTarget:IXMLProxy;
+				var node:XML = target.source.parent();
 				while (node)
 				{
-					target = _proxyManager.getProxy(node, false);
-					if (target)
+					currentTarget = _proxyManager.getProxy(node, false);
+					if (currentTarget)
 					{
 						event = event.clone();
-						event.xml_internal::setCurrentTarget(target);
-						event.xml_internal::setTarget(this);
+						event.xml_internal::setCurrentTarget(currentTarget);
+						event.xml_internal::setTarget(target);
 						target.dispatchEvent(event as Event);
 					}
 					node = node.parent();
@@ -243,7 +254,7 @@
 		{
 			// Dispatch PROPERTY_CHANGE.
 			var event:XMLPropertyChangeEvent = new XMLPropertyChangeEvent(PropertyChangeEvent.PROPERTY_CHANGE, true, false, kind, name, oldValue, newValue, this);
-			this._dispatchEvent(event);
+			this._dispatchEvent(event, this);
 			
 /*			// Dispatch CHANGE events. (Use this method instead of going up the proxy parent tree so that we don't create new proxies.)
 			var xml:XML = this._source;

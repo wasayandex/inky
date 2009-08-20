@@ -43,12 +43,14 @@ package inky.xml
 		 *	
 		 */
 		function appendChild(child:Object):void;
+// TODO: What should this return? Model it after E4X or DOM (https://developer.mozilla.org/En/DOM/Node.removeChild)
 
 		
 		/**
 		 *	
 		 */
 		function removeChild(child:Object):void;
+// TODO: What should this return? Model it after E4X or DOM (https://developer.mozilla.org/En/DOM/Node.removeChild)
 
 
 		/**
