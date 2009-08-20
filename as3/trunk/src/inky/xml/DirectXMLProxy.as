@@ -113,7 +113,7 @@
 		 */
 		public function toString():String 
 		{
-			return this._source.toString();
+			return Object.prototype.toString.call(this);
 		}
 
 
@@ -141,8 +141,8 @@
 				throw new ArgumentError();
 
 			// Add the child to the dom.
-			this._source.appendChild(child.source);
-			
+			this._source.appendChild(childProxy.source);
+
 			// Dispatch an ADDED event.
 			this._dispatchEvent(new XMLEvent(XMLEvent.ADDED, childProxy), childProxy);
 		}
@@ -154,6 +154,15 @@
 		public function child(propertyName:Object):IXMLListProxy
 		{
 			return new XMLListProxy(this._source.child(propertyName));
+		}
+
+
+		/**
+		 *	@inheritDoc
+		 */
+		public function childIndex():int
+		{
+			return this._source.childIndex();
 		}
 
 
@@ -225,6 +234,7 @@
 // TODO: Add support for stopPropagation, etc. Probably a good idea to separate this functionality (the ability to bubble non-display object events) into an inky.events package.
 			event.xml_internal::setCurrentTarget(target);
 			event.xml_internal::setTarget(target);
+
 			target.dispatchEvent(event as Event);
 
 			if (event.bubbles)
@@ -239,7 +249,7 @@
 						event = event.clone();
 						event.xml_internal::setCurrentTarget(currentTarget);
 						event.xml_internal::setTarget(target);
-						target.dispatchEvent(event as Event);
+						currentTarget.dispatchEvent(event as Event);
 					}
 					node = node.parent();
 				}
