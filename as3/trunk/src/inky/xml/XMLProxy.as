@@ -34,7 +34,7 @@
 		 */	
 	    public function XMLProxy(source:XML = null)
 	    {
-			this._directProxy = _proxyManager.getProxy(source || new XML());
+			this._directProxy = _proxyManager.getProxy(source || <root />);
 	    }
 
 

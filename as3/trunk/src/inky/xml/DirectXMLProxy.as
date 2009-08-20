@@ -299,7 +299,7 @@
 			if (fn != null)
 				return fn.apply(this, args);
 			else
-				throw new ArgumentError();
+				throw new ArgumentError(methodName + " is not a method.");
 	    }
 
 
