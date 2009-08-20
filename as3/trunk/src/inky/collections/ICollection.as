@@ -142,7 +142,7 @@ package inky.collections
 		 *		 
 		 */
 		function isEmpty():Boolean;
-		
+// FIXME: Shoudl probably be an as-style getter (i.e. get isEmpty)
 		
 		/**
 		 *

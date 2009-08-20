@@ -24,10 +24,6 @@ package inky.xml
 		function get source():XMLList;
 
 
-		/**
-		 *	@copy Object#toString()
-		 */
-		function toString():String;
 
 
 		//

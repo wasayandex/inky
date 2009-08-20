@@ -27,11 +27,6 @@ package inky.xml
 		function get source():XML;
 
 
-		/**
-		 *	@copy Object#toString()
-		 */
-		function toString():String;
-
 
 
 		//
@@ -57,6 +52,12 @@ package inky.xml
 		 *	
 		 */
 		function child(propertyName:Object):IXMLListProxy;
+
+
+		/**
+		 *	
+		 */
+		function childIndex():int;
 
 
 		/**
