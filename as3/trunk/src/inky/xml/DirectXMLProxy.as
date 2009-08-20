@@ -15,6 +15,34 @@
 	import inky.xml.events.XMLPropertyChangeEvent;
 
 	use namespace flash_proxy;
+
+
+	/**
+	 *  Dispatched after a node has been added.
+	 *
+	 *  @eventType inky.xml.events.XMLEvent.ADDED
+	 */
+	[Event(name="added", type="inky.xml.events.XMLEvent")]
+	
+	
+	/**
+	 *  Dispatched after a child node has been removed.
+	 *
+	 *  @eventType inky.xml.events.XMLEvent.CHILD_REMOVED
+	 */
+	[Event(name="childRemoved", type="inky.xml.events.XMLEvent")]
+	
+	
+	/**
+	 *  Dispatched immediately before an element is removed. Dispatching the
+	 *  element before the removal allows it to bubble up the tree, and
+	 *  allows the user to access the parent node in the event handler. If you
+	 *  need to perform an action after the removal has taken place, use
+	 *  CHILD_REMOVED.
+	 *
+	 *  @eventType inky.xml.events.XMLEvent.REMOVED
+	 */
+	[Event(name="removed", type="inky.xml.events.XMLEvent")]
 	
 
 	/**
@@ -108,8 +136,8 @@
 
 			this._source.appendChild(child.source);
 			
-			var event:XMLEvent = new XMLEvent(XMLEvent.ADDED);
-			this._dispatchEvent(event);
+			var event:XMLEvent = new XMLEvent(XMLEvent.ADDED, child as IXMLProxy);
+			child._dispatchEvent(event);
 // TODO: What should this return? Model it after E4X or DOM (https://developer.mozilla.org/En/DOM/Node.removeChild)
 		}
 
@@ -152,11 +180,12 @@
 			var parent:XML = child.source.parent();
 			if (parent != this.source)
 				throw new ArgumentError("The supplied element is not a child of this parent.");
-// TODO: Should this event be dispatched before the removal (like display list) or after?
-			var event:XMLEvent = new XMLEvent(XMLEvent.REMOVED);
-			this._dispatchEvent(event);
+
+			child._dispatchEvent(new XMLEvent(XMLEvent.REMOVED, child as IXMLProxy));
 
 			delete parent.children()[child.source.childIndex()];
+			
+			this._dispatchEvent(new XMLEvent(XMLEvent.CHILD_REMOVED, child as IXMLProxy));
 // TODO: What should this return? Model it after E4X or DOM (https://developer.mozilla.org/En/DOM/Node.removeChild)
 		}
 
