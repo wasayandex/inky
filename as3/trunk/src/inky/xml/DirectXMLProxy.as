@@ -104,7 +104,7 @@
 		 */
 		public function equals(obj:Object):Boolean
 		{
-			return this == obj;
+			return (obj is IXMLProxy) && (this.source === obj.source);
 		}
 
 
