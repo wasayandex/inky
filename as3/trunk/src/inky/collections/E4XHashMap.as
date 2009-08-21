@@ -24,7 +24,7 @@ package inky.collections
 		private var _xmlDict:Dictionary;
 		private var _xmlListDict:Dictionary;
 
-// FIXME: This isn't using strict equality for XML! if map[myXML.a] = 5; then map[myXML.a] == 5, even though myXML.a !== myXML.a  The constructor should take another arg, useStrictXMLEquality:Boolean = false
+
 		/**
 		 *
 		 *	
@@ -80,25 +80,29 @@ package inky.collections
 			
 			if (key is XML)
 			{
-				for (k in this._xmlDict)
+				if (this._xmlDict)
 				{
-					if (k == key)
+					result = this._xmlDict[key] !== undefined;
+				
+					if (!result)
 					{
-						result = true;
-						break;
+						// If we didn't find the key, we have to loop through and
+						// look, because Flash lies in some situations. See
+						// http://exanimo.com/actionscript/xml-makes-a-bad-dictionary-key/
+						for (k in this._xmlDict)
+						{
+							if (k === key)
+							{
+								result = true;
+								break;
+							}
+						}
 					}
 				}
 			}
 			else if (key is XMLList)
 			{
-				for (k in this._xmlListDict)
-				{
-					if (k.value == key)
-					{
-						result = true;
-						break;
-					}
-				}
+				result = this._xmlListDict && (this._xmlListDict[key] !== undefined);
 			}
 			else
 			{
@@ -123,7 +127,7 @@ package inky.collections
 				dict = dictionaries.pop();
 				for each (var v:* in dict)
             	{
-                	if (v == value)
+                	if (v === value)
                 	{
 						found = true;
                     	break;
@@ -149,18 +153,33 @@ throw new Error('Not yet implemented!');
          */
         public function getItemByKey(key:Object):Object
         {
-			var result:*;
+			var result:* = undefined;
+			var k:*;
 			if (key is XML)
 			{
-				result = this._xmlDict ? this._xmlDict[key] || this._xmlDict[this._getXMLKey(key)] : null;
+				if (this._xmlDict)
+				{
+					result = this._xmlDict[key];
+					if (result === undefined)
+					{
+						for (k in this._xmlDict)
+						{
+							if (k === key)
+							{
+								result = this._xmlDict[k];
+								break;
+							}
+						}
+					}
+				}
 			}
 			else if (key is XMLList)
 			{
-				result = this._xmlListDict ? this._xmlListDict[this._getXMLKey(key)] : null;
+				result = this._xmlListDict ? this._xmlListDict[key] : undefined;
 			}
 			else
 			{
-				result = this._dict ? this._dict[key] : null;
+				result = this._dict ? this._dict[key] : undefined;
 			}
 				
             return result;
@@ -199,8 +218,11 @@ throw new Error('Not yet implemented!');
 				dict = dictionaries.pop();
             	for (var key:* in dict)
             	{
-                	isEmpty = false;
-					break;
+					if (dict[key] !== undefined)
+					{
+                		isEmpty = false;
+						break;
+					}
             	}
 			}
 
@@ -218,30 +240,47 @@ throw new Error('Not yet implemented!');
 				if (!this._xmlDict)
 				{
 					this._xmlDict = new Dictionary(this._useWeakReferences);
+					this._xmlDict[key] = value;
 				}
 				else
 				{
-					key = this._getXMLKey(key);
-				}
+					// If there is a value under this key, we can safely replace it.
+					if (this._xmlDict[key] !== undefined)
+					{
+						this._xmlDict[key] = value;
+					}
+					else
+					{
+						// ...but even if there isn't, we still need to make sure we're not being tricked by Flash's false XML comparison.
+						var k:*;
+						var found:Boolean = false;
+						for (k in this._xmlDict)
+						{
+							if (k === key)
+							{
+								this._xmlDict[k] = value;
+								found = true;
+								break;
+							}
+						}
 
-				this._xmlDict[key] = value;
+						// Once we're positive the key isn't already in the map, add it.
+						if (!found)
+							this._xmlDict[key] = value;
+					}
+				}
 			}
 			else if (key is XMLList)
 			{
 				if (!this._xmlListDict)
-				{
 					this._xmlListDict = new Dictionary(this._useWeakReferences);
-				}
 				
-				key = this._getXMLKey(key);
 				this._xmlListDict[key] = value;
 			}
 			else
 			{
 				if (!this._dict)
-				{
 					this._dict = new Dictionary(this._useWeakReferences);
-				}
 
 				this._dict[key] = value;
 			}
@@ -264,11 +303,10 @@ throw new Error('Not yet implemented');
          */
         public function removeAll():void
         {
-            for each (var key:* in this._getKeys())
-            {
-				this.removeItemByKey(key);
-            }
-        }
+			this._xmlListDict = new Dictionary(this._useWeakReferences);
+			this._xmlDict = new Dictionary(this._useWeakReferences);
+			this._dict = new Dictionary(this._useWeakReferences);
+		}
 
 
         /**
@@ -280,22 +318,33 @@ throw new Error('Not yet implemented');
 			{
 				if (this._xmlDict)
 				{
-					delete this._xmlDict[this._getXMLKey(key)];
+					if (this._xmlDict[key] !== undefined)
+					{
+						delete this._xmlDict[key];
+					}
+					else
+					{
+						for (var k:* in this._xmlDict)
+						{
+							if (k === key)
+							{
+								delete this._xmlDict[k];
+								break;
+							}
+						}
+					}
 				}
 			}
 			else if (key is XMLList)
 			{
+				// Can't use delete operator. (It gives "TypeError: Error #1119: Delete operator is not supported with operand of type XMLList.")
 				if (this._xmlListDict)
-				{
-					delete this._xmlListDict[this._getXMLKey(key)];
-				}
+					this._xmlListDict[key] = undefined;
 			}
 			else
 			{
 				if (this._dict)
-				{
 					delete this._dict[key];
-				}
 			}
 // TODO: Return removed item
 			return null;
@@ -317,16 +366,13 @@ throw new Error('Not yet implemented');
 			var key:*;
             var keys:Array = [];
 			var dict:Dictionary;
-			for each (dict in [this._dict, this._xmlDict])
+			for each (dict in [this._dict, this._xmlDict, this._xmlListDict])
 			{
             	for (key in dict)
             	{
-                	keys.push(key);
+					if (dict[key] !== undefined)
+                		keys.push(key);
             	}
-			}
-			for (key in this._xmlListDict)
-			{
-				keys.push(key.value);
 			}
             return keys;
         }
@@ -338,56 +384,17 @@ throw new Error('Not yet implemented');
         private function _getValues():Array
         {
             var values:Array = [];
-
 			var dictionaries:Array = [this._dict, this._xmlDict, this._xmlListDict];
 			for each (var dict:Dictionary in dictionaries)
 			{
             	for (var key:* in dict)
             	{
-                	values.push(dict[key]);
+					if (dict[key] !== undefined)
+                		values.push(dict[key]);
             	}
 			}
-
             return values;
         }
-
-
-		/**
-		 *
-		 *	XMLLists must be handled specially (wrapped in an object) because trying to delete something with an XMLList key from a dictionary causes an error.
-		 *	
-		 */
-		private function _getXMLKey(obj:Object):Object
-		{
-			var key:Object;
-			var k:Object;
-
-			if ((obj is XML) && this._xmlDict)
-			{
-				for (k in this._xmlDict)
-				{
-					if (obj == k)
-					{
-						key = k;
-						break;
-					}
-				}
-			}
-			else if ((obj is XMLList) && this._xmlListDict)
-			{
-				for (k in this._xmlListDict)
-				{
-					if (obj == k.value)
-					{
-						key = k;
-						break;
-					}
-				}
-				key = key || {value: obj};
-			}
-
-			return key || obj;
-		}
 
 
 
