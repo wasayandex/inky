@@ -43,18 +43,19 @@ package inky.collections
 
 
         /**
-         * 
+         * @inheritDoc
          */
         public function get length():uint
         {
             var length:uint = 0;
-
+// TODO: This can be a lot more efficient.
 			var dictionaries:Array = [this._dict, this._xmlDict, this._xmlListDict];
 			for each (var dict:Dictionary in dictionaries)
 			{
             	for (var key:* in dict)
-            	{
-                	length++;
+				{
+					if (dict[key] !== undefined)
+                		length++;
             	}
 			}
 
