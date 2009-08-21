@@ -5,6 +5,8 @@
 	import inky.layout.ILayoutManagerClient;
 	import flash.events.Event;
 	import inky.layout.PriorityQueue;
+	import flash.geom.Rectangle;
+	import flash.utils.Dictionary;
 
 
 	/**
@@ -27,6 +29,7 @@
 		private var _isInvalid:Boolean;
 		private static var _singletonEnforcer:Object = {};
 		private var _stage:Stage;
+		private var _sizeCache:Dictionary;
 		
 		
 		/**
@@ -36,7 +39,8 @@
 		{
 			if (enforcer != LayoutManager._singletonEnforcer)
 				throw new ArgumentError("Get an instance of the LayoutManager by using LayoutManager.getInstance()");
-				
+			
+			this._sizeCache = new Dictionary(true);
 			this._isInvalid = false;
 			this._invalidDisplayListComponents = new PriorityQueue();
 			this._invalidPropertiesComponents = new PriorityQueue();
@@ -215,16 +219,6 @@
 			{
 				client = this._invalidSizeComponents.removeLargest() as DisplayObject;
 				this._validateSize(client);
-
-// TODO: Is there any way to stop the "bubbling" if the client doesn't actually change size?
-				// "Bubble" invalidation up the display list.
-				var tmp:DisplayObject = client.parent;
-				while (tmp)
-				{
-					this.invalidateSize(tmp);
-					this.invalidateDisplayList(tmp);
-					tmp = tmp.parent;
-				}
 			}
 
 			// Layout phase: call validateDisplayList on each client in top-down order.
@@ -269,8 +263,28 @@
 		 */
 		private function _validateSize(client:DisplayObject):void
 		{
-			if (client is ILayoutManagerClient)
-				ILayoutManagerClient(client).validateSize();
+			// Only validate if the size has changed since the last validation.
+			// (This means that if you invalidate multiple times, but the last
+			// time the bounds are the same as before the first invalidation,
+			// the object will not be validated.)
+			var oldBounds:Rectangle = this._sizeCache[client];
+			if (!oldBounds || client.width != oldBounds.width || client.height != oldBounds.height)
+			{
+				// Remember the new bounds.
+				this._sizeCache[client] = new Rectangle(0, 0, client.width, client.height);
+				
+				if (client is ILayoutManagerClient)
+					ILayoutManagerClient(client).validateSize();
+
+				// "Bubble" invalidation up the display list.
+				var tmp:DisplayObject = client.parent;
+				while (tmp)
+				{
+					this.invalidateSize(tmp);
+					this.invalidateDisplayList(tmp);
+					tmp = tmp.parent;
+				}
+			}
 		}
 
 

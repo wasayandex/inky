@@ -396,7 +396,7 @@ throw new Error("not yet implemented");
 		 */
 		override public function toString():String 
 		{
-			return Object.prototype.toString.call(this);
+			return this._source.toString();
 		}
 
 
