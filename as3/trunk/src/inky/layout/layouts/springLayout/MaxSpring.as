@@ -7,13 +7,13 @@
             super(s1, s2);
         }
 
-        override protected function op(x:int, y:int):int {
+        override protected function op(x:Number, y:Number):Number {
             return Math.max(x, y);
         }
 
         override public function setValue(size:Number):void {
             super.setValue(size);
-            if (size == UNSET) {
+            if (size == Spring.UNSET) {
                 return;
             }
             // Pending should also check max bounds here.

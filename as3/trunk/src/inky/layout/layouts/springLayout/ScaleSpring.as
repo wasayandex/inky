@@ -29,8 +29,8 @@
         }
 
         override public function setValue(value:Number):void {
-            if (value == UNSET) {
-                s.setValue(UNSET);
+            if (value == Spring.UNSET) {
+                s.setValue(Spring.UNSET);
             } else {
                 s.setValue(Math.round(value / factor));
             }

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2001-2006 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
@@ -24,7 +24,6 @@
  */
 package inky.layout.layouts.springLayout
 {
-	import inky.collections.ArrayList;
 	import inky.collections.ISet;
 	import inky.layout.layouts.springLayout.SpringLayoutConstraints;
 	import inky.layout.layouts.springLayout.Spring;
@@ -35,7 +34,7 @@ package inky.layout.layouts.springLayout
 	import flash.geom.Rectangle;
 	import flash.utils.Dictionary;
 	import inky.collections.Set;
-	import inky.utils.UIDUtil;
+	import flash.display.Stage;
 
 
 	/**
@@ -201,12 +200,12 @@ package inky.layout.layouts.springLayout
 	    /**
 	     * Specifies the top edge of a component's bounding rectangle.
 	     */
-	    public static const NORTH:String = "North";
+	    public static const NORTH:String = "north";
 
 	    /**
 	     * Specifies the bottom edge of a component's bounding rectangle.
 	     */
-	    public static const SOUTH:String = "South";
+	    public static const SOUTH:String = "south";
 
 	    /**
 	     * Specifies the right edge of a component's bounding rectangle.
@@ -299,6 +298,8 @@ package inky.layout.layouts.springLayout
 
 	    internal function isCyclic(s:Spring):Boolean
 		{
+// FIXME: This is not giving the corrent result. Always says spring is cyclic!
+return false;
 	        if (s == null) {
 	            return false;
 	        }
@@ -700,7 +701,6 @@ history.addItemAt(obj, 0);
 	    public function getConstraint(edgeName:String, c:DisplayObject):Spring
 		{
 	        // The interning here is unnecessary; it was added for efficiency.
-//!	        edgeName = edgeName.intern();
 	        return new SpringProxy(edgeName, c, this);
 	    }
 
@@ -708,14 +708,13 @@ history.addItemAt(obj, 0);
 	    public function layoutContainer(parent:DisplayObjectContainer):void {
 			var i:int;
 	        setParent(parent);
-trace("LAYING OUT\t" + parent);
-//!	        int n = parent.getComponentCount();
+
 	        var n:int = parent.numChildren;
 	        getConstraints(parent).reset();
 	        for (i = 0 ; i < n ; i++) {
 	            getConstraints(parent.getChildAt(i)).reset();
 	        }
-
+// TODO: Actually use insets (or content area) rectangle.
 //!	        var insets:Rectangle = parent.getInsets();
 	        var insets:Rectangle = new Rectangle();
 	        var pc:SpringLayoutConstraints = getConstraints(parent);
@@ -727,7 +726,6 @@ trace("LAYING OUT\t" + parent);
 	                                               insets.top - insets.bottom);
 
 	        for (i = 0 ; i < n ; i++) {
-//!	            var c:Component = parent.getComponent(i);
 	            var c:DisplayObject = parent.getChildAt(i);
 	            var cc:SpringLayoutConstraints = getConstraints(c);
 	            var x:Number = abandonCycles(cc.getX()).getValue();
@@ -739,7 +737,6 @@ c.x = insets.left + x;
 c.y = insets.top + y;
 c.width = width;
 c.height = height;
-trace("\t" + c + "\t" + c.x + ", " + c.y);
 	        }
 	    }
 	}

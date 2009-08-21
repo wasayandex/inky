@@ -30,7 +30,7 @@
         }
 
         override public function setValue(size:Number):void {
-            // No need to check for UNSET as
+            // No need to check for Spring.UNSET as
             // Integer.MIN_VALUE == -Integer.MIN_VALUE.
             s.setValue(-size);
         }

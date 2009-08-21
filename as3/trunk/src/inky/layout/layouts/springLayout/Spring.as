@@ -109,7 +109,7 @@
 	    /**
 	     * An integer value signifying that a property value has not yet been calculated.
 	     */
-	    public static const UNSET:int = int.MIN_VALUE;
+	    public static const UNSET:Number = Number.MIN_VALUE;
 
 	    /**
 	     * Used by factory methods to create a <code>Spring</code>.
@@ -221,7 +221,7 @@ throw new Error();
 	     * @see Spring
 	     */
 //!
-	     /*public static function constant(pref:int):Spring {
+	     /*public static function constant(pref:Number):Spring {
 	         return constant(pref, pref, pref);
 	     }*/
 
@@ -239,7 +239,7 @@ throw new Error();
 	     *
 	     * @see Spring
 	     */
-	     public static function constant(minOrPref:int, pref:int = 0, max:int = 0):Spring {
+	     public static function constant(minOrPref:Number, pref:Number = 0, max:Number = 0):Spring {
 			if (arguments.length == 1)
 				return constant(minOrPref, minOrPref, minOrPref);
 			else if (arguments.length == 3)

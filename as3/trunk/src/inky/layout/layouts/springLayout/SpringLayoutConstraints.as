@@ -4,7 +4,9 @@
 		import inky.collections.ArrayList;
 		import flash.display.DisplayObject;
 		import flash.geom.Rectangle;
-// TODO: Update SpringLayoutConstraints (and other SpringLayout classes) API to be more in line with ActionScript standards (i.e. getters and setters instead of getProp() and setProp())
+		import inky.layout.utils.LayoutUtil;
+		import inky.layout.utils.LayoutUtil;
+
 	    /**
 	     * A <code>Constraints</code> object holds the
 	     * constraints that govern the way a component's size and position
@@ -164,6 +166,7 @@ private static const CONSTANT_ASCENT:String = "constantAscent";
 	            }
 	            if (!valid) {
 	                var all:Array = horizontal ? ALL_HORIZONTAL : ALL_VERTICAL;
+//!	                for (String s : all) {
 	                for each (var s:String in all) {
 	                    if (!history.containsItem(s)) {
 	                        setConstraint(s, null);
@@ -184,17 +187,17 @@ private static const CONSTANT_ASCENT:String = "constantAscent";
 	            return (s == null) ? null : Spring.scale(s, factor);
 	        }
 
-	        private function getBaselineFromHeight(height:int):int {
+	        private function getBaselineFromHeight(height:Number):Number {
 	            if (height < 0) {
 	                // Bad Scott, Bad Scott!
-	                return -this.getComponentBaseline(c, this.getComponentPreferredSize(c).width,
+	                return -this.getComponentBaseline(c, LayoutUtil.getPreferredSize(c).width,
 	                                      -height);
 	            }
-	            return this.getComponentBaseline(c, this.getComponentPreferredSize(c).width, height);
+	            return this.getComponentBaseline(c, LayoutUtil.getPreferredSize(c).width, height);
 	        }
 
-	        private function getHeightFromBaseLine(baseline:int):int {
-	            var prefSize:Rectangle = this.getComponentPreferredSize(c);
+	        private function getHeightFromBaseLine(baseline:Number):Number {
+	            var prefSize:Rectangle = LayoutUtil.getPreferredSize(c);
 	            var prefHeight:Number = prefSize.height;
 	            var prefBaseline:Number = this.getComponentBaseline(c, prefSize.width, prefHeight);
 	            if (prefBaseline == baseline) {
@@ -594,12 +597,7 @@ return null;
 			return c.height;
 		}
 
-
-		private function getComponentPreferredSize(c:DisplayObject):Rectangle
-		{
-			return new Rectangle(0, 0, c.width, c.height);
-		}
-		
+	
 		private function getComponentBaselineResizeBehavior(c:DisplayObject):String
 		{
 			return null;

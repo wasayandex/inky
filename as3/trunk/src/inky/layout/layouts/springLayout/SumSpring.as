@@ -8,13 +8,13 @@
             super(s1, s2);
         }
 
-        override protected function op(x:int, y:int):int {
+        override protected function op(x:Number, y:Number):Number {
             return x + y;
         }
 
         override public function setValue(size:Number):void {
             super.setValue(size);
-            if (size == UNSET) {
+            if (size == Spring.UNSET) {
                 return;
             }
             s1.setStrain(this.getStrain());

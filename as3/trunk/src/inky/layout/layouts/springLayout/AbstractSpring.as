@@ -3,14 +3,14 @@
 	
     /*pp*/ 
 	public class AbstractSpring extends Spring {
-        protected var size:int = UNSET;
+        protected var size:Number = Spring.UNSET;
 
         override public function getValue():Number {
-            return size != UNSET ? size : getPreferredValue();
+            return size != Spring.UNSET ? size : getPreferredValue();
         }
 
         override public function setValue(size:Number):void {
-            if (size == UNSET) {
+            if (size == Spring.UNSET) {
                 clear();
                 return;
             }
@@ -18,7 +18,7 @@
         }
 
         protected function clear():void {
-            size = UNSET;
+            size = Spring.UNSET;
         }
     }
 	

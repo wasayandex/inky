@@ -20,49 +20,49 @@
 	        }
 
 	        override protected function clear():void {
-	            min = pref = max = size = UNSET;
+	            min = pref = max = size = Spring.UNSET;
 	        }
 
 	        override public function setValue(size:Number):void {
-	            if (size == UNSET) {
-	                if (this.size != UNSET) {
+	            if (size == Spring.UNSET) {
+	                if (this.size != Spring.UNSET) {
 	                    super.setValue(size);
-	                    s1.setValue(UNSET);
-	                    s2.setValue(UNSET);
+	                    s1.setValue(Spring.UNSET);
+	                    s2.setValue(Spring.UNSET);
 	                    return;
 	                }
 	            }
 	            super.setValue(size);
 	        }
 
-	        protected function op(x:int, y:int):int
+	        protected function op(x:Number, y:Number):Number
 			{
 throw new Error();
 			}
 
 	        override public function getMinimumValue():Number {
-	            if (min == UNSET) {
+	            if (min == Spring.UNSET) {
 	                min = op(s1.getMinimumValue(), s2.getMinimumValue());
 	            }
 	            return min;
 	        }
 
 	       override public function getPreferredValue():Number {
-	            if (pref == UNSET) {
+	            if (pref == Spring.UNSET) {
 	                pref = op(s1.getPreferredValue(), s2.getPreferredValue());
 	            }
 	            return pref;
 	        }
 
 	        override public function getMaximumValue():Number {
-	            if (max == UNSET) {
+	            if (max == Spring.UNSET) {
 	                max = op(s1.getMaximumValue(), s2.getMaximumValue());
 	            }
 	            return max;
 	        }
 
 	        override public function getValue():Number {
-	            if (size == UNSET) {
+	            if (size == Spring.UNSET) {
 	                size = op(s1.getValue(), s2.getValue());
 	            }
 	            return size;
