@@ -22,13 +22,13 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
-package inky.layout
+package inky.layout.layouts.springLayout
 {
 	import inky.collections.ArrayList;
 	import inky.collections.ISet;
-	import inky.layout.SpringLayoutConstraints;
-	import inky.layout.Spring;
-	import inky.layout.WidthSpring;
+	import inky.layout.layouts.springLayout.SpringLayoutConstraints;
+	import inky.layout.layouts.springLayout.Spring;
+	import inky.layout.layouts.springLayout.WidthSpring;
 	import inky.collections.IList;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.DisplayObject;
@@ -211,47 +211,47 @@ package inky.layout
 	    /**
 	     * Specifies the right edge of a component's bounding rectangle.
 	     */
-	    public static const EAST:String = "East";
+	    public static const EAST:String = "east";
 
 	    /**
 	     * Specifies the left edge of a component's bounding rectangle.
 	     */
-	    public static const WEST:String = "West";
+	    public static const WEST:String = "west";
 
 	    /**
 	     * Specifies the horizontal center of a component's bounding rectangle.
 	     *
 	     * @since 1.6
 	     */
-	    public static const HORIZONTAL_CENTER:String = "HorizontalCenter";
+	    public static const HORIZONTAL_CENTER:String = "horizontalCenter";
 
 	    /**
 	     * Specifies the vertical center of a component's bounding rectangle.
 	     *
 	     * @since 1.6
 	     */
-	    public static const VERTICAL_CENTER:String = "VerticalCenter";
+	    public static const VERTICAL_CENTER:String = "verticalCenter";
 
 	    /**
 	     * Specifies the baseline of a component.
 	     *
 	     * @since 1.6
 	     */
-	    public static const BASELINE:String = "Baseline";
+	    public static const BASELINE:String = "baseline";
 
 	    /**
 	     * Specifies the width of a component's bounding rectangle.
 	     *
 	     * @since 1.6
 	     */
-	    public static const WIDTH:String = "Width";
+	    public static const WIDTH:String = "width";
 
 	    /**
 	     * Specifies the height of a component's bounding rectangle.
 	     *
 	     * @since 1.6
 	     */
-	    public static const HEIGHT:String = "Height";
+	    public static const HEIGHT:String = "height";
 
 
 
@@ -299,8 +299,6 @@ package inky.layout
 
 	    internal function isCyclic(s:Spring):Boolean
 		{
-// FIXME: This is not giving the corrent result. Always says spring is cyclic!
-return false;
 	        if (s == null) {
 	            return false;
 	        }
@@ -474,9 +472,9 @@ return new Rectangle(0, 0, width, height);
 			}
 			else if (args.length == 5)
 			{
-				if (args[2] is Spring)
+				if (args[4] is Spring)
 					this.putConstraint5b.apply(null, args);
-				else if (args[2] is Number)
+				else if (args[4] is Number)
 					this.putConstraint5a.apply(null, args);
 				else
 					throw new ArgumentError();
@@ -507,9 +505,9 @@ return new Rectangle(0, 0, width, height);
 	     *
 	     * @see #putConstraint(String, Component, Spring, String, Component)
 	     */
-	    private function putConstraint5a(e1:String, c1:DisplayObject, pad:Number, e2:String, c2:DisplayObject):void
+	    private function putConstraint5a(e1:String, c1:DisplayObject, e2:String, c2:DisplayObject, pad:Number):void
 		{
-	        putConstraint(e1, c1, Spring.constant(pad), e2, c2);
+	        putConstraint(e1, c1, e2, c2, Spring.constant(pad));
 	    }
 
 
@@ -545,7 +543,7 @@ return new Rectangle(0, 0, width, height);
 	     * @see #HORIZONTAL_CENTER
 	     * @see #BASELINE
 	     */
-	    private function putConstraint5b(e1:String, c1:DisplayObject, s:Spring, e2:String, c2:DisplayObject):void
+	    private function putConstraint5b(e1:String, c1:DisplayObject, e2:String, c2:DisplayObject, s:Spring):void
 		{
 	        putConstraint(e1, c1, Spring.sum(s, getConstraint(e2, c2)));
 	    }
@@ -710,7 +708,7 @@ history.addItemAt(obj, 0);
 	    public function layoutContainer(parent:DisplayObjectContainer):void {
 			var i:int;
 	        setParent(parent);
-
+trace("LAYING OUT\t" + parent);
 //!	        int n = parent.getComponentCount();
 	        var n:int = parent.numChildren;
 	        getConstraints(parent).reset();
@@ -741,6 +739,7 @@ c.x = insets.left + x;
 c.y = insets.top + y;
 c.width = width;
 c.height = height;
+trace("\t" + c + "\t" + c.x + ", " + c.y);
 	        }
 	    }
 	}

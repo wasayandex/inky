@@ -1,4 +1,4 @@
-﻿package inky.layout
+﻿package inky.layout.layouts.springLayout
 {
 		import inky.collections.IList;
 		import inky.collections.ArrayList;
@@ -164,8 +164,7 @@ private static const CONSTANT_ASCENT:String = "constantAscent";
 	            }
 	            if (!valid) {
 	                var all:Array = horizontal ? ALL_HORIZONTAL : ALL_VERTICAL;
-//!	                for (String s : all) {
-	                for (var s:String in all) {
+	                for each (var s:String in all) {
 	                    if (!history.containsItem(s)) {
 	                        setConstraint(s, null);
 	                    }

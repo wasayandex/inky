@@ -16,21 +16,10 @@ package inky.layout
 	 */
 	public interface ILayoutManagerClient extends IDisplayObject
 	{
-		
 		/**
 		 *	
 		 */
-		function validateSize():void;
-		
-		/**
-		 *	
-		 */
-		function validateDisplayList():void;
-		
-		/**
-		 *	
-		 */
-		function validateProperties():void;
+		function validateLayout():void;
 
 	}
 }
