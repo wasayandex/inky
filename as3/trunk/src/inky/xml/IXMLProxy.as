@@ -78,7 +78,16 @@ package inky.xml
 		function toXMLString():String;
 
 
+		/**
+		 *	
+		 */
+		function insertChildAfter(child1:Object, child2:Object):void;
 
+
+		/**
+		 *	
+		 */
+		function insertChildBefore(child1:Object, child2:Object):void;
 
 
 

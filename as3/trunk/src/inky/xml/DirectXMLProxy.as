@@ -175,6 +175,66 @@
 		}
 
 
+/**
+ *	
+ */
+public function insertChildAfter(child1:Object, child2:Object):void
+{
+	var child1Proxy:IXMLProxy;
+	var child2Proxy:IXMLProxy;
+	
+	if (child1 is XML)
+		child1Proxy = new XMLProxy(child1 as XML);
+	else if (child1 is IXMLProxy)
+		child1Proxy = child1 as IXMLProxy;
+	else
+		throw new ArgumentError();
+
+	if (child2 is XML)
+		child2Proxy = new XMLProxy(child2 as XML);
+	else if (child2 is IXMLProxy)
+		child2Proxy = child2 as IXMLProxy;
+	else
+		throw new ArgumentError();
+
+	// Add the child to the dom.
+	this._source.insertChildAfter(child1Proxy.source, child2Proxy.source);
+
+	// Dispatch an ADDED event.
+	this._dispatchEvent(new XMLEvent(XMLEvent.ADDED, child2Proxy), child2Proxy);
+}		
+
+
+/**
+ *	
+ */
+public function insertChildBefore(child1:Object, child2:Object):void
+{
+	var child1Proxy:IXMLProxy;
+	var child2Proxy:IXMLProxy;
+	
+	if (child1 is XML)
+		child1Proxy = new XMLProxy(child1 as XML);
+	else if (child1 is IXMLProxy)
+		child1Proxy = child1 as IXMLProxy;
+	else
+		throw new ArgumentError();
+
+	if (child2 is XML)
+		child2Proxy = new XMLProxy(child2 as XML);
+	else if (child2 is IXMLProxy)
+		child2Proxy = child2 as IXMLProxy;
+	else
+		throw new ArgumentError();
+
+	// Add the child to the dom.
+	this._source.insertChildBefore(child1Proxy.source, child2Proxy.source);
+
+	// Dispatch an ADDED event.
+	this._dispatchEvent(new XMLEvent(XMLEvent.ADDED, child2Proxy), child2Proxy);
+}		
+
+
 		/**
 		 *	@inheritDoc
 		 */

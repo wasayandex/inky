@@ -80,13 +80,20 @@ package inky.xml
 		}
 
 
-
 		/**
 		 *	@inheritDoc
 		 */
 		override public function addItemAt(item:Object, index:uint):void
 		{
-throw new Error("not yet implemented");
+			var length:int = this._node.children().length;
+
+			if (index < 0 || (length && index >= length))
+				throw new ArgumentError("index " + index + " is out of bounds.");
+				
+			if (length)
+				this._node.insertChildBefore(this._node.children().getItemAt(index), item);
+			else
+				this._node.appendChild(item);
 		}
 
 

@@ -120,6 +120,23 @@
 		{
 			return this._directProxy.children();
 		}
+		
+/**
+ *	
+ */
+public function insertChildAfter(child1:Object, child2:Object):void
+{
+	this._directProxy.insertChildAfter(child1, child2);
+}		
+
+
+/**
+ *	
+ */
+public function insertChildBefore(child1:Object, child2:Object):void
+{
+	this._directProxy.insertChildBefore(child1, child2);
+}		
 
 
 		/**
