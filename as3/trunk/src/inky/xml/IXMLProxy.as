@@ -32,7 +32,7 @@ package inky.xml
 		//
 		// xml methods
 		//
-
+// TODO: Add more XML methods! http://livedocs.adobe.com/flash/9.0/ActionScriptLangRefV3/XML.html
 
 		/**
 		 *	
@@ -64,6 +64,12 @@ package inky.xml
 		 *	
 		 */
 		function children():IXMLListProxy;
+
+
+		/**
+		 *	
+		 */
+		function localName():Object;
 
 
 		/**

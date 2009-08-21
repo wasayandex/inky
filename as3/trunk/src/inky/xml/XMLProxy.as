@@ -32,7 +32,7 @@
 		 * 
 		 *
 		 */	
-	    public function XMLProxy(source:XML = null)
+	    public function XMLProxy(source:Object = null)
 	    {
 			this._directProxy = _proxyManager.getProxy(source || <root />);
 	    }
@@ -87,7 +87,7 @@
 
 
 		/**
-		 *	
+		 *	@inheritDoc
 		 */
 		public function appendChild(child:Object):void
 		{
@@ -96,7 +96,7 @@
 
 
 		/**
-		 *	
+		 *	@inheritDoc
 		 */
 		public function child(propertyName:Object):IXMLListProxy
 		{
@@ -114,7 +114,7 @@
 
 
 		/**
-		 *	
+		 *	@inheritDoc
 		 */
 		public function children():IXMLListProxy
 		{
@@ -140,7 +140,16 @@ public function insertChildBefore(child1:Object, child2:Object):void
 
 
 		/**
-		 *	
+		 *	@inheritDoc
+		 */
+		public function localName():Object
+		{
+			return this._directProxy.localName();
+		}
+
+
+		/**
+		 *	@inheritDoc
 		 */
 		public function parent():*
 		{

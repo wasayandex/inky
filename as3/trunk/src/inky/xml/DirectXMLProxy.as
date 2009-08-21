@@ -123,8 +123,6 @@
 		// xml methods
 		//
 
-// TODO: Add other XML methods
-
 
 		/**
 		 *	@inheritDoc
@@ -233,6 +231,15 @@ public function insertChildBefore(child1:Object, child2:Object):void
 	// Dispatch an ADDED event.
 	this._dispatchEvent(new XMLEvent(XMLEvent.ADDED, child2Proxy), child2Proxy);
 }		
+
+
+		/**
+		 *	@inheritDoc
+		 */
+		public function localName():Object
+		{
+			return this._source.localName();
+		}
 
 
 		/**
