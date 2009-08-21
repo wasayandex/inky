@@ -31,16 +31,12 @@
 		 */
 		public function SpringLayoutExample()
 		{
+			// Create and add a component.
 			var window:Window = new Window();
 			window.name = "window";
 			this.addChild(window);
 
-			// Create and add the components.
-			/*var label:TextField = new TextField();
-			label.name = "label";
-			label.text = "Label: ";
-			window.addChild(label);*/
-
+			// Create and add another component.
 			var textField:TextField = new TextField();
 			textField.name = "textField";
 			textField.type = TextFieldType.INPUT;
@@ -48,6 +44,7 @@
 			textField.text = "Text field";
 			this.addChild(textField);
 
+			// Create the layout.
 			var layout:SpringLayout = new SpringLayout();
 			layout.putConstraint(SpringLayout.EAST, window,
 								SpringLayout.EAST, this,
@@ -55,6 +52,8 @@
 			layout.putConstraint(SpringLayout.WEST, textField,
 								SpringLayout.WEST, window,
 								0);
+
+			// Layout the container.
 			layout.layoutContainer(this);
 		}
 
