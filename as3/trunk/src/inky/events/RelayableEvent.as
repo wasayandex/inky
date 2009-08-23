@@ -1,10 +1,9 @@
-package inky.xml.events
+package inky.events
 {
 	import flash.events.Event;
-	import inky.binding.events.PropertyChangeEvent;
 	import inky.events.IRelayableEvent;
+	import flash.events.IEventDispatcher;
 	import flash.events.EventPhase;
-
 
 	/**
 	 *
@@ -14,10 +13,10 @@ package inky.xml.events
 	 *	@playerversion Flash 9.0.0
 	 *
 	 *	@author Matthew Tretter
-	 *	@since  2009.08.19
+	 *	@since  2009.08.23
 	 *
 	 */
-	public class XMLPropertyChangeEvent extends PropertyChangeEvent implements IRelayableEvent
+	public class RelayableEvent extends Event implements IRelayableEvent
 	{
 		private var _currentTarget:Object;
 		private var _eventPhase:uint;
@@ -29,15 +28,13 @@ package inky.xml.events
 		 *
 		 *  @param type
 		 *      The event type; indicates the action that caused the event.
-		 *  @param bubbles
-		 *      Specifies whether the event can bubble up the display list hierarchy.
 		 *  @param cancelable
 		 *      Specifies whether the behavior associated with the event can be prevented.
 		 *
 		 */
-		public function XMLPropertyChangeEvent(type:String, cancelable:Boolean = false, kind:String = null, property:Object = null, oldValue:Object = null, newValue:Object = null, source:Object = null)
+		public function RelayableEvent(type:String, cancelable:Boolean = false)
 		{
-			super(type, false, cancelable, kind, property, oldValue, newValue, source);
+			super(type, false, cancelable);		
 		}
 
 
@@ -87,12 +84,10 @@ package inky.xml.events
 		 */
 		override public function clone():Event
 		{
-			var event:XMLPropertyChangeEvent = new XMLPropertyChangeEvent(type, cancelable, kind, property, oldValue, newValue, source);
-			event.prepare(this.target, this.currentTarget);
-			return event;
+			return new RelayableEvent(this.type, this.cancelable);
 		}
 
-		
+
 		/**
 		 *	@inheritDoc
 		 */
@@ -109,7 +104,7 @@ package inky.xml.events
 		 */
 		public override function toString():String
 		{
-			return this.formatToString("XMLPropertyChangeEvent", "type", "cancelable");
+			return this.formatToString("RelayableEvent", "type", "bubbles", "cancelable");
 		}
 
 

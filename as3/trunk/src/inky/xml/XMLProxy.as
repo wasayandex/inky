@@ -6,6 +6,7 @@
 	import inky.xml.IXMLProxy;
 	import flash.utils.Proxy;
 	import flash.events.Event;
+	import inky.events.EventManager;
 
 //	use namespace flash_proxy;
 	
@@ -23,6 +24,9 @@
 	 */
 	dynamic public class XMLProxy extends Proxy implements IXMLProxy
 	{
+		EventManager.registerNextTargetGetter(XMLProxy, XMLProxy._getNextTarget);
+
+
 		private var _directProxy:DirectXMLProxy;
 		private static var _proxyManager:XMLProxyManager = XMLProxyManager.getInstance();
 
@@ -343,7 +347,18 @@ public function insertChildBefore(child1:Object, child2:Object):void
 
 
 
+		//
+		//
+		//
 
+
+		/**
+		 *	
+		 */
+		private static function _getNextTarget(currentTarget:Object):Object
+		{
+			return currentTarget.source.parent() ? _proxyManager.getProxy(currentTarget.source.parent()) : null;
+		}
 
 
 

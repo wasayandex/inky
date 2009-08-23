@@ -1,8 +1,8 @@
 ﻿package inky.xml.events
 {
 	import flash.events.Event;
-	import inky.xml.xml_internal;
 	import inky.xml.IXMLProxy;
+	import inky.events.RelayableEvent;
 
 
 	/**
@@ -16,7 +16,7 @@
 	 *	@since  2009.08.19
 	 *
 	 */
-	public class XMLEvent extends Event
+	public class XMLEvent extends RelayableEvent
 	{
 		/**
 		 *  The <code>XMLEvent.ADDED</code> constant defines the value of the 
@@ -105,9 +105,9 @@
 		 *      Specifies whether the behavior associated with the event can be prevented.
 		 *
 		 */
-		public function XMLEvent(type:String, relatedNode:IXMLProxy, bubbles:Boolean = true, cancelable:Boolean = false)
+		public function XMLEvent(type:String, relatedNode:IXMLProxy, cancelable:Boolean = false)
 		{
-			super(type, bubbles, cancelable);
+			super(type, cancelable);
 			this._relatedNode = relatedNode;
 		}
 
@@ -162,9 +162,8 @@
 		 */
 		override public function clone():Event
 		{
-			var event:XMLEvent = new XMLEvent(this.type, this.relatedNode, this.bubbles, this.cancelable);
-			event.xml_internal::setCurrentTarget(this.currentTarget);
-			event.xml_internal::setTarget(this.target);
+			var event:XMLEvent = new XMLEvent(this.type, this.relatedNode, this.cancelable);
+			event.prepare(this.currentTarget, this.target);
 			return event;
 		}
 
@@ -175,30 +174,6 @@
 		public override function toString():String
 		{
 			return this.formatToString("XMLEvent", "type", "bubbles", "cancelable");
-		}
-
-
-
-		//
-		// internal methods
-		//
-		
-
-		/**
-		 *	
-		 */
-		xml_internal function setCurrentTarget(value:Object):void
-		{
-			this._currentTarget = value;
-		}
-
-		
-		/**
-		 *	
-		 */
-		xml_internal function setTarget(value:Object):void
-		{
-			this._target = value;
 		}
 
 

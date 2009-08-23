@@ -8,13 +8,16 @@
 	import inky.binding.events.PropertyChangeEventKind;
 	import inky.xml.XMLProxyManager;
 	import inky.xml.IXMLProxy;
+	import inky.xml.XMLProxy;
 	import inky.xml.XMLListProxy;
 	import inky.xml.events.XMLEvent;
-	import inky.xml.xml_internal;
 	import flash.events.Event;
 	import inky.xml.events.XMLPropertyChangeEvent;
+	import inky.events.EventManager;
 
 	use namespace flash_proxy;
+
+
 
 
 	/**
@@ -58,6 +61,8 @@
 	 */
 	dynamic internal class DirectXMLProxy extends EventDispatcherProxy implements IXMLProxy
 	{
+		EventManager.registerNextTargetGetter(DirectXMLProxy, DirectXMLProxy._getNextTarget);
+
 		private static var _constructorProperty:QName = new QName("constructor");
 	    private var _source:XML;
 		private static var _proxyManager:XMLProxyManager = XMLProxyManager.getInstance();
@@ -296,31 +301,9 @@ public function insertChildBefore(child1:Object, child2:Object):void
 		/**
 		 *	
 		 */
-		private function _dispatchEvent(event:Object, target:IXMLProxy):void
+		private function _dispatchEvent(event:Event, target:IXMLProxy):void
 		{
-// TODO: Add support for stopPropagation, etc. Probably a good idea to separate this functionality (the ability to bubble non-display object events) into an inky.events package.
-			event.xml_internal::setCurrentTarget(target);
-			event.xml_internal::setTarget(target);
-
-			target.dispatchEvent(event as Event);
-
-			if (event.bubbles)
-			{
-				var currentTarget:IXMLProxy;
-				var node:XML = target.source.parent();
-				while (node)
-				{
-					currentTarget = _proxyManager.getProxy(node, false);
-					if (currentTarget)
-					{
-						event = event.clone();
-						event.xml_internal::setCurrentTarget(currentTarget);
-						event.xml_internal::setTarget(target);
-						currentTarget.dispatchEvent(event as Event);
-					}
-					node = node.parent();
-				}
-			}
+			EventManager.dispatchEvent(event, target);
 		}
 
 
@@ -330,23 +313,8 @@ public function insertChildBefore(child1:Object, child2:Object):void
 		private function _dispatchPropertyChangeEvent(name:String, oldValue:Object, newValue:Object, kind:String = "update"):void
 		{
 			// Dispatch PROPERTY_CHANGE.
-			var event:XMLPropertyChangeEvent = new XMLPropertyChangeEvent(PropertyChangeEvent.PROPERTY_CHANGE, true, false, kind, name, oldValue, newValue, this);
+			var event:XMLPropertyChangeEvent = new XMLPropertyChangeEvent(PropertyChangeEvent.PROPERTY_CHANGE, false, kind, name, oldValue, newValue, this);
 			this._dispatchEvent(event, this);
-			
-/*			// Dispatch CHANGE events. (Use this method instead of going up the proxy parent tree so that we don't create new proxies.)
-			var xml:XML = this._source;
-			var proxy:IXMLProxy = this;
-			var event:XMLChangeEvent;
-			while (xml)
-			{
-				if (proxy)
-				{
-					event = new XMLChangeEvent(XMLChangeEvent.CHANGE, this, changeEvent);
-					proxy.dispatchEvent(event);
-				}
-				xml = xml.parent();
-				proxy = _proxyManager.getProxy(xml, false) as IXMLProxy;
-			}*/
 		}
 
 
@@ -484,6 +452,22 @@ throw new Error("not yet implemented");
 				this._dispatchPropertyChangeEvent(name, oldValue, value);
 			}
 	    }
+
+
+
+
+		//
+		//
+		//
+
+
+		/**
+		 *	
+		 */
+		private static function _getNextTarget(currentTarget:Object):Object
+		{
+			return currentTarget.source.parent() ? _proxyManager.getProxy(currentTarget.source.parent()) : null;
+		}
 
 
 
