@@ -8,6 +8,9 @@
 	import inky.app.IInkyDataParser;
 	
 	import com.gskinner.motion.GTween;
+	import inky.async.IAsyncToken;
+	import inky.async.AsyncToken;
+	import inky.async.async_internal;
 
 	/**
 	 * @langversion ActionScript 3
@@ -18,15 +21,17 @@
 		private var _gTween:GTween;
 		private var _duration:Number;
 		private var _properties:Object;
+		private var _token:IAsyncToken;
 		private var _tweenProperties:Object;		
 
 		/**
 		 */
-		public function GTweenAction(duration:Number = 10, properties:Object = null, tweenProperties:Object = null)
+		public function GTweenAction(duration:Number = 10, properties:Object = null, tweenProperties:Object = null, target:Object = null)
 		{
 			this._duration = duration;
 			if(properties) this._properties = properties;
 			if(tweenProperties) this._tweenProperties = tweenProperties;
+			if (target) this.target = target;
 			
 			/*
 			for (var prop:String in properties)
@@ -574,19 +579,29 @@
 
 		/**
 		 */
-		public function start():void
+		public function start():IAsyncToken
 		{
-			if(!this.target) return;
-			
+			return this.startAction();
+		}
+		
+		
+		/**
+		 *	
+		 */
+		public function startAction():IAsyncToken
+		{
+			if (!this.target)
+				throw new Error('target is null.');
+
+			var token:AsyncToken = new AsyncToken();
 			this._gTween.setProperties(this._properties);
 			this._gTween.setTweenProperties(this._tweenProperties);
 			this._gTween.addEventListener(Event.COMPLETE, this._gTweenCompleteHandler);
 			this._gTween.addEventListener(Event.CHANGE, this._relayEvent);
 			this._gTween.addEventListener(Event.INIT, this._relayEvent);
+			this._token = token;
 			this._gTween.play();
-			
-			this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_START, false, false));
-			
+			return token;
 		}
 		
 		
@@ -603,8 +618,7 @@
 			this._gTween.removeEventListener(Event.COMPLETE, this._gTweenCompleteHandler);
 			this._gTween.removeEventListener(Event.CHANGE, this._relayEvent);
 			this._gTween.removeEventListener(Event.INIT, this._relayEvent);
-			
-			this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_FINISH, false, false));
+			this._token.async_internal::callResponders();
 		}
 		
 		

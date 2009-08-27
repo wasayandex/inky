@@ -2,6 +2,7 @@ package inky.async
 {
 	import flash.events.EventDispatcher;
 	import inky.async.async_internal;
+	import inky.async.IAsyncToken;
 	import inky.binding.events.PropertyChangeEvent;
 	import flash.utils.Dictionary;
 	
@@ -19,21 +20,25 @@ package inky.async
 	 *	@since  2009.06.25
 	 *
 	 */
-	dynamic public class AsyncToken extends EventDispatcher
+	dynamic public class AsyncToken extends EventDispatcher implements IAsyncToken
 	{
+		private var _cancelable:Boolean;
+		private var _cancelled:Boolean;
 		private var _complete:Boolean;
 		private var _responders:Dictionary;
 		
 		/**
 		 *
 		 */
-		public function AsyncToken()
+		public function AsyncToken(cancelable:Boolean = false)
 		{
+			this._cancelable = cancelable;
+			this._cancelled = false;
 			this._complete = false;
 		}
 		
 		
-		
+
 
 		//
 		// accessors
@@ -41,7 +46,7 @@ package inky.async
 
 
 		/**
-		 *	
+		 *	@inheritDoc
 		 */
 		public function get complete():Boolean
 		{
@@ -49,20 +54,29 @@ package inky.async
 		}
 		
 		
-		
-		
+		/**
+		 *	@inheritDoc
+		 */
+		public function get cancelable():Boolean
+		{ 
+			return this._cancelable;
+		}
+
+
+
+
 		//
 		// public methods
 		//
 
 		
 		/**
-		 *	
+		 *	@inheritDoc
 		 */
 		public function addResponder(responder:Function, filter:Object = null):void
 		{
 			if (responder == null)
-				throw new ArgumentError('responder is null.');
+				throw new ArgumentError("responder is null.");
 
 			if (!this.complete)
 			{
@@ -74,19 +88,31 @@ package inky.async
 					this._responders = new Dictionary();
 				this._responders[responder] = filter;
 			}
-			else if (!filter || filter.test(this))
+			else if (!this._cancelled && (!filter || filter.test(this)))
 			{
 				responder.call(this);
 			}
 		}
-		
-		
+
+
+		/**
+		 *	
+		 */
+		public function cancel():void
+		{
+			if (this.cancelable)
+				this._cancelled = true;
+			else
+				throw new Error("Cannot cancel an uncancelable token.");
+		}
+
+
 		/**
 		 *	
 		 */
 		async_internal function callResponders():void
 		{
-			if (!this.complete)
+			if (!this.complete && !this._cancelled)
 			{
 				if (this._responders)
 				{
@@ -100,7 +126,7 @@ package inky.async
 				}
 
 				this._complete = true;
-				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, 'complete', false, true));
+				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "complete", false, true));
 			}
 		}
 
@@ -108,5 +134,4 @@ package inky.async
 
 		
 	}
-	
 }

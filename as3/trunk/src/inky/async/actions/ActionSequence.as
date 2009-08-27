@@ -6,6 +6,7 @@
 	import inky.async.actions.IAction;
 	import inky.collections.IIterator;
 	import inky.collections.ArrayList;
+	import inky.async.*;
 
 
 	/**
@@ -21,26 +22,18 @@
 	 */
 	public class ActionSequence extends ArrayList implements IAction, IInkyDataParser
 	{
-		private var _target:Object;
-		private var _currentIndex:Number;
-		private var _running:Boolean;
-
 
 		/**
 		 *
 		 *	
 		 *	
 		 */
-		public function ActionSequence(... rest)
+		public function ActionSequence(...rest:Array)
 		{
 			for each (var action:IAction in rest)
 			{
-				if (!action) return;
-				else this.addItem(action);
+				this.addItem(action);
 			}
-
-			this._currentIndex = 0;
-			this._running = false;
 		}
 
 
@@ -57,34 +50,14 @@
 		public function get cancelable():Boolean
 		{
 // TODO: Should sequence be cancelable if just current action is cancelable?
-			for (var i:IIterator = this.iterator(); i.hasNext(); )
+/*			for (var i:IIterator = this.iterator(); i.hasNext(); )
 			{
 				var action:IAction = i.next() as IAction;
 				if (!action.cancelable) return false;
 			}
-			
+*/
 			return true;
 		}
-
-		
-		/**
-		 *
-		 * The target upon which the action acts.
-		 *
-		 * @default null	
-		 * 
-		 */
-		public function get target():Object
-		{
-			return this._target;
-		}
-		/**
-		 * @private	
-		 */
-		public function set target(target:Object):void
-		{
-			this._target = target;
-		}	
 
 
 
@@ -95,63 +68,41 @@
 
 
 		/**
-		 * @inheritDoc
-		 */
-		public function cancel():void
-		{
-			if (!this.cancelable) 
-			{
-				throw new Error('ActionSequence is not cancelable.');
-			}
-			else if (this._running && (this._currentIndex < this.length))
-			{
-				var currentAction:IAction = this.getItemAt(this._currentIndex) as IAction;
-				currentAction.cancel();
-				this._running = false;
-			}
-		}
-
-
-		/**
 		 *
 		 * @inheritDoc
 		 * 
 		 */
 		public function parseData(data:XML):void
 		{
-			// TODO: Type mom?
+			/*// TODO: Type mom?
 			var mom:Object = Section.getSection(this).markupObjectManager;
 			for each (var xml:XML in data.*)
 			{
 				var obj:Object = mom.createMarkupObject(xml);
 				this.addItem(obj);
-			}
+			}*/
 		}
 
-				
+
+		/**
+		 *	@inheritDoc
+		 */
+		public function start():IAsyncToken
+		{
+			return this.startAction();
+		}
+
+
 		/**
 		 *
 		 * @inheritDoc
 		 * 
 		 */
-		public function start():void
+		public function startAction():IAsyncToken
 		{
-			if (this._running) return;
-			this._running = true;
-
-			this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_START, false, false));
-			if (!this.length)
-			{
-				this._sequenceFinish();
-				return;
-			}
-			
-			if (this._currentIndex < 0 || this._currentIndex >= this.length)
-			{
-				this._currentIndex = 0;
-			}
-
-			this._startAction(this._currentIndex);
+			var token:AsyncToken = new AsyncToken(false);
+			this._startAction(0, token);
+			return token;
 		}
 
 
@@ -161,53 +112,24 @@
 		// private methods
 		//
 
-		
-		/**
-		 *
-		 *	Starts the action designated by the index in the ActionSequence.	
-		 *	
-		 */
-		private function _startAction(index:Number):void
+		private function _startAction(index:uint, sequenceToken:IAsyncToken):void
 		{
-			var action:IAction = this.getItemAt(index) as IAction;
-			if (action.target == null)
+			if (index == this.length)
 			{
-				action.target = this.target;
-			}
-			action.addEventListener(ActionEvent.ACTION_FINISH, this._actionFinishHandler);
-			action.start();
-		}
-
-		
-		/**
-		 *	
-		 *	Dispatches an ActionEvent once the entire ActionSequence is finished. Otherwise it will call on the next action to start.
-		 *	
-		 */
-		private function _actionFinishHandler(e:ActionEvent):void
-		{
-			e.currentTarget.removeEventListener(e.type, arguments.callee);
-			this._currentIndex++;
-			
-			if (this._currentIndex >= this.length)
-			{
-				this._sequenceFinish();
+				// The sequence is done!
+				sequenceToken.async_internal::callResponders();
 			}
 			else
 			{
-				this._startAction(this._currentIndex);
+				// Start the next action in the sequence.
+				var action:IAction = this.getItemAt(index) as IAction;
+				var token:IAsyncToken = action.startAction();
+				var responder:Function = function()
+				{
+					_startAction(index + 1, sequenceToken);
+				}
+				token.addResponder(responder);
 			}
-		}
-
-
-		/**
-		 *
-		 *	
-		 */
-		private function _sequenceFinish():void
-		{
-			this._running = false;
-			this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_FINISH, false, false));
 		}
 
 

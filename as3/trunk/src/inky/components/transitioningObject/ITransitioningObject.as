@@ -4,6 +4,7 @@ package inky.components.transitioningObject
 	import inky.utils.IDisplayObject;
 	import flash.display.DisplayObject;
 	import flash.geom.Rectangle;
+	import inky.async.IAsyncToken;
 
 
     /**
@@ -113,7 +114,7 @@ package inky.components.transitioningObject
 		 * @see flash.display.DisplayObjectContainer#removeChild()
 		 * 	
 		 */
-		function remove():void;
+		function remove():IAsyncToken;
 
 
 

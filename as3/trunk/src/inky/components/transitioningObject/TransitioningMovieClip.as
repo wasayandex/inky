@@ -12,6 +12,7 @@ package inky.components.transitioningObject
 	import flash.display.SimpleButton;
 	import flash.display.Sprite;
 	import flash.text.TextField;
+	import inky.async.IAsyncToken;
 
 
 	/**
@@ -55,11 +56,11 @@ package inky.components.transitioningObject
 			// Set the default transitions.
 			if (hasIntroLabel)
 			{
-				this.intro = new PlayFrameLabelAction('intro');
+				this.intro = new PlayFrameLabelAction('intro', this);
 			}
 			if (hasOutroLabel)
 			{
-				this.outro = new PlayFrameLabelAction('outro');
+				this.outro = new PlayFrameLabelAction('outro', this);
 			}
 			
 			this._proxy.addEventListener(TransitionEvent.TRANSITION_START, this._relayEvent, false, 0, true);
@@ -125,9 +126,9 @@ package inky.components.transitioningObject
 		/**
 		 * @inheritDoc
 		 */
-		public function remove():void
+		public function remove():IAsyncToken
 		{
-			this._proxy.remove();
+			return this._proxy.remove();
 		}
 
 

@@ -1,13 +1,15 @@
 ﻿package inky.components.transitioningObject
 {
-	import inky.async.actions.events.ActionEvent;
 	import inky.async.actions.IAction;
-	import inky.utils.AddedToStageEventFixer;
+	import inky.async.IAsyncToken;
 	import inky.components.transitioningObject.TransitioningObjectState;
 	import inky.components.transitioningObject.events.TransitionEvent;
+	import inky.utils.AddedToStageEventFixer;
 	import flash.display.DisplayObject;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
+	import inky.async.async_internal;
+	import inky.async.AsyncToken;
 
 
 	/**
@@ -33,6 +35,7 @@
 		private var _intro:IAction;
 		private var _obj:DisplayObject;
 		private var _outro:IAction;
+		private var _removeToken:IAsyncToken;
 		private var _state:String;
 		private var _transition:Object;
 
@@ -45,7 +48,7 @@
 		 * ITransitioningObject.
 		 *
 		 * @param obj
-		 *     The object to decorate.
+		 *     The object to decoratevent.
 		 *
 		 */
 		public function TransitioningObjectBehavior(obj:DisplayObject)
@@ -75,26 +78,11 @@
 		 */
 		public function set intro(intro:IAction):void
 		{
-			if (this._intro)
-			{
-				this._intro.removeEventListener(ActionEvent.ACTION_FINISH, this._actionFinishHandler);
-				this._intro.removeEventListener(ActionEvent.ACTION_START, this._action2TransitionEvents);
-				this._intro.removeEventListener(ActionEvent.ACTION_FINISH, this._action2TransitionEvents);
-			}
-			
-			var playTransition:Boolean = (this.state == TransitioningObjectState.PLAYING_INTRO) && (this._intro != intro);
 			this._intro = intro;
 
-			if (intro)
-			{
-				intro.addEventListener(ActionEvent.ACTION_START, this._action2TransitionEvents, false, 0, true);
-				intro.addEventListener(ActionEvent.ACTION_FINISH, this._action2TransitionEvents, false, 0, true);
-				intro.addEventListener(ActionEvent.ACTION_FINISH, this._actionFinishHandler, false, 0, true);
-				intro.target = intro.target || this._obj;
-			}
-
-
-			if (playTransition) this._playTransition(intro);
+			var playTransition:Boolean = (this.state == TransitioningObjectState.PLAYING_INTRO) && (this._intro != intro);
+			if (playTransition) 
+				this._playTransition(intro);
 		}
 
 
@@ -110,26 +98,11 @@
 		 */
 		public function set outro(outro:IAction):void
 		{
-			if (this._outro)
-			{
-				this._outro.removeEventListener(ActionEvent.ACTION_FINISH, this._actionFinishHandler);
-				this._outro.removeEventListener(ActionEvent.ACTION_START, this._action2TransitionEvents);
-				this._outro.removeEventListener(ActionEvent.ACTION_FINISH, this._action2TransitionEvents);
-				this._outro.removeEventListener(ActionEvent.ACTION_FINISH, this._removeNow);
-			}
-			
-			var playTransition:Boolean = (this.state == TransitioningObjectState.PLAYING_OUTRO) && (this._outro != outro);
 			this._outro = outro;
 
-			if (outro)
-			{
-				outro.addEventListener(ActionEvent.ACTION_START, this._action2TransitionEvents, false, 0, true);
-				outro.addEventListener(ActionEvent.ACTION_FINISH, this._action2TransitionEvents, false, 0, true);
-				outro.addEventListener(ActionEvent.ACTION_FINISH, this._actionFinishHandler, false, 0, true);
-				outro.target = outro.target || this._obj;
-			}
-			
-			if (playTransition) this._playTransition(outro);
+			var playTransition:Boolean = (this.state == TransitioningObjectState.PLAYING_OUTRO) && (this._outro != outro);
+			if (playTransition) 
+				this._playTransition(outro);
 		}
 
 
@@ -152,9 +125,21 @@
 		/**
 		 * @copy inky.components.transitioningObject.ITransitioningObject#remove()
 		 */
-		public function remove():void
+		public function remove():IAsyncToken
 		{
-			if (this.state == TransitioningObjectState.PLAYING_OUTRO) return;	
+			var token:IAsyncToken;
+			
+			if (this.state == TransitioningObjectState.PLAYING_OUTRO)
+				token = this._removeToken;
+			else if (this._outro)
+				token = this._playTransition(this._outro);
+			else
+				token = this._removeNow(true);
+
+			this._removeToken = token;
+			return token;
+
+			/*if (this.state == TransitioningObjectState.PLAYING_OUTRO) return;	
 
 			if (this._outro)
 			{
@@ -167,7 +152,7 @@
 				// If the clip doesn't have an outro, remove it immediately.
 				this._playTransition(this._outro);
 				this._removeNow();
-			}
+			}*/
 		}
 
 
@@ -180,56 +165,57 @@
 
 		/**
 		 *
-		 * Converts ActionEvents into TransitionEvents.
-		 * 
-		 */
-		private function _action2TransitionEvents(e:ActionEvent):void
-		{
-			var newType:String;
-			switch (e.type)
-			{
-				case ActionEvent.ACTION_START:
-					newType = TransitionEvent.TRANSITION_START;
-					break;
-				case ActionEvent.ACTION_FINISH:
-					newType = TransitionEvent.TRANSITION_FINISH;
-					break;
-			}
-
-			this.dispatchEvent(new TransitionEvent(newType, false, false, this._transition));
-		}
-
-
-		/**
-		 *
 		 * Sets the state to STABLE when the transition finishes.
 		 * 
 		 */
-		private function _actionFinishHandler(e:ActionEvent):void
+		private function _actionFinishHandler(token:IAsyncToken):void
 		{
-this._transition = null;
+			this._transition = null;
+			var removeNow:Boolean = this._state == TransitioningObjectState.PLAYING_OUTRO;
 			this._state = TransitioningObjectState.STABLE;
+			this._dispatchFinishEvent();
+			if (removeNow)
+				this._removeNow();
 		}
 
-
+		
+		/**
+		 *	
+		 */
+		private function _dispatchFinishEvent():void
+		{
+			this.dispatchEvent(new TransitionEvent(TransitionEvent.TRANSITION_FINISH, false, false, null));
+		}
+		
+		
+		/**
+		 *	
+		 */
+		private function _dispatchStartEvent():void
+		{
+			this.dispatchEvent(new TransitionEvent(TransitionEvent.TRANSITION_START, false, false, null));
+		}
+		
+		
 		/**
 		 *
 		 * Initializes the clip by playing the intro. Called when the clip is
-		 * added to the stage.
+		 * added to the stagevent.
 		 * 
-		 * @param e:Event
+		 * @param event:Event
 		 *     the ADDED_TO_STAGE event that triggered the handler.
 		 *
 		 */
-		private function _init(e:Event = null):void
+		private function _init(event:Event = null):void
 		{
-			if (e.target != this._obj) return;
-			this._playTransition(this._intro);
-
-			if (!this._intro)
+			if (this._intro)
 			{
-				this.dispatchEvent(new TransitionEvent(TransitionEvent.TRANSITION_START, false, false, null));
-				this.dispatchEvent(new TransitionEvent(TransitionEvent.TRANSITION_FINISH, false, false, null));
+				this._playTransition(this._intro);
+			}
+			else
+			{
+				this._dispatchStartEvent();
+				this._dispatchFinishEvent();
 			}
 		}
 
@@ -239,18 +225,16 @@ this._transition = null;
 		 * Plays a specific transition.
 		 *
 		 */
-		private function _playTransition(transition:IAction):void
+		private function _playTransition(transition:IAction):IAsyncToken
 		{
+			var token:IAsyncToken;
+			
 			if (this._transition)
 			{
 				if (this._transition.cancelable)
-				{
 					this._transition.cancel();
-				}
 				else
-				{
 					throw new Error('You cannot start a transition while an uncancelable transition is already playing. ' + this._transition);
-				}
 			}
 
 			this._transition = transition;
@@ -258,31 +242,42 @@ this._transition = null;
 			if (transition)
 			{
 				this._state = this._transition == this.intro ? TransitioningObjectState.PLAYING_INTRO : this._transition == this.outro ? TransitioningObjectState.PLAYING_OUTRO : null;
-				transition.start();
+				token = transition.startAction();
+				token.addResponder(this._actionFinishHandler);
+				this._dispatchStartEvent();
 			}
 			else
 			{
-				this.dispatchEvent(new TransitionEvent(TransitionEvent.TRANSITION_START, false, false, null));
-				this.dispatchEvent(new TransitionEvent(TransitionEvent.TRANSITION_FINISH, false, false, null));
+				this._dispatchStartEvent();
+				this._dispatchFinishEvent();
+				token = new AsyncToken();
+				token.async_internal::callResponders();
 			}
+			
+			return token;
 		}
 
 
 		/**
 		 *
-		 * Immediately removes the clip from the display list. Can be triggerd
-		 * by an event or called directly.
-		 * 
-		 * @param e:Event
-		 *     the event that triggered the handler.
+		 * Immediately removes the clip from the display list.
 		 * 
 		 */
-		private function _removeNow(e:Event = null):void
+		private function _removeNow(createToken:Boolean = false):IAsyncToken
 		{
+			var token:IAsyncToken;
+			
 			if (this._obj.parent)
 			{
 				this._obj.parent.removeChild(this._obj);
+				if (createToken)
+				{
+					token = new AsyncToken();
+					token.async_internal::callResponders();
+				}
 			}
+			
+			return token;
 		}
 
 

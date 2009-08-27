@@ -9,6 +9,7 @@ package inky.controls
 	import inky.components.transitioningObject.events.TransitionEvent;
 	import inky.async.actions.PlayFrameLabelAction;
 	import inky.async.actions.IAction;
+	import inky.async.IAsyncToken;
 
 	
 	/**
@@ -50,11 +51,11 @@ package inky.controls
 			// Set the default transitions.
 			if (hasIntroLabel)
 			{
-				this.intro = new PlayFrameLabelAction('intro');
+				this.intro = new PlayFrameLabelAction('intro', this);
 			}
 			if (hasOutroLabel)
 			{
-				this.outro = new PlayFrameLabelAction('outro');
+				this.outro = new PlayFrameLabelAction('outro', this);
 			}
 			
 			this._proxy.addEventListener(TransitionEvent.TRANSITION_START, this._relayEvent);
@@ -133,9 +134,9 @@ package inky.controls
 		/**
 		 * @inheritDoc
 		 */
-		public function remove():void
+		public function remove():IAsyncToken
 		{
-			this._proxy.remove();
+			return this._proxy.remove();
 		}
 
 

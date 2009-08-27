@@ -1,8 +1,11 @@
-package inky.async.actions
+﻿package inky.async.actions
 {
 	import flash.events.EventDispatcher;
 	import inky.async.actions.events.ActionEvent;
 	import inky.async.actions.IAction;
+	import inky.async.AsyncToken;
+	import inky.async.IAsyncToken;
+	import inky.async.async_internal;
 
 
 	/**
@@ -24,7 +27,6 @@ package inky.async.actions
 		private var _fn:Function;
 		private var _args:Array;
 		private var _scope:Object;
-		private var _target:Object;
 		
 
 		/**
@@ -41,63 +43,43 @@ package inky.async.actions
 
 
 		//
-		// accessors
-		//
-
-
-		/**
-		 * @inheritDoc
-		 */
-		public function get cancelable():Boolean
-		{			
-			return true;
-		}
-
-
-		/**
-		 *
-		 *	The target upon which the action acts.
-		 *
-		 * 	@default null	
-		 * 
-		 */
-		public function get target():Object
-		{
-			return this._target;
-		}
-		/**
-		 * 	@private	
-		 */
-		public function set target(target:Object):void
-		{
-			this._target = target;
-		}	
-
-
-
-
-		//
 		// public methods
 		//
 
 
 		/**
-		 * @inheritDoc
+		 *	@inheritDoc
 		 */
-		public function cancel():void
+		public function start():IAsyncToken
 		{
-			
+			return this.startAction();
 		}
 
 
 		/**
 		 * 	@inheritDoc
 		 */
-		public function start():void
+		public function startAction():IAsyncToken
 		{
-			this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_START, false, false));
-			this._fn.apply(this._scope, this._args);
-			this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_FINISH, false, false));
+			var token:IAsyncToken;
+			
+			var startEvent:ActionEvent = new ActionEvent(ActionEvent.ACTION_START, token, false, true);
+			this.dispatchEvent(startEvent);
+			if (!startEvent.isDefaultPrevented())
+			{
+				token = this._fn.apply(this._scope, this._args) as IAsyncToken;
+			}
+
+			var finishEvent:ActionEvent = new ActionEvent(ActionEvent.ACTION_FINISH, token, false, true);
+			this.dispatchEvent(finishEvent);
+// Should we call the responders if default is prevented?
+			if (!token)
+			{
+				token = new AsyncToken();
+				token.async_internal::callResponders();
+			}
+
+			return token;
 		}
 
 
