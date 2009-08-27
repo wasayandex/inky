@@ -5,7 +5,9 @@ package inky.async.actions
 	import inky.app.IInkyDataParser;
 	import inky.async.actions.IAction;
 	import flash.events.EventDispatcher;
-	import flash.events.Event;
+	import inky.async.IAsyncToken;
+	import inky.async.AsyncToken;
+	import inky.async.async_internal;
 
 
 	/**
@@ -24,8 +26,6 @@ package inky.async.actions
 		private var _target:Object;
 
 		/**
-		 *
-		 *
 		 *
 		 */
 		public function TweenerAction(tweenParams:Object = null, target:Object = null)
@@ -88,7 +88,7 @@ package inky.async.actions
 		 */
 		public function cancel():void
 		{
-			Tweener.removeTweens(this.target);
+//			Tweener.removeTweens(this.target);
 		}
 
 
@@ -98,45 +98,52 @@ package inky.async.actions
 		 */
 		public function parseData(data:XML):void
 		{
-			for each (var item:XML in data.* + data.attributes())
+			/*for each (var item:XML in data.* + data.attributes())
 			{
 				var name = item.localName();
 				this[name] = item.toString();
-			}
+			}*/
+		}
+		
+		
+		/**
+		 *	@inheritDoc
+		 */
+		public function start():IAsyncToken
+		{
+			return this.startAction();
 		}
 
 
 		/**
 		 * @inheritDoc
 		 */
-		public function start():void
+		public function startAction():IAsyncToken
 		{
-			if (!this.target) return;
+			if (!this.target)
+				throw new Error('target is null.');
 
-			this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_START, false, false));			
-			Tweener.addTween(this.target, {base: this, onComplete: this._completeHandler});
+			var token:AsyncToken = new AsyncToken();
+			Tweener.addTween(this.target, {base: this, onComplete: this._completeHandler, onCompleteParams: [token, this["onComplete"], this["onCompleteParams"]]});
+			return token;
 		}
+		
+		
+		
+
+		//
+		// private methods
+		//
 
 
 		/**
-		 *
 		 *	
 		 */
-		private function _completeHandler(...args:Array):void
+		private function _completeHandler(actionToken:IAsyncToken, onComplete:Function = null, onCompleteParams:Array = null):void
 		{
-			if (this.hasOwnProperty('onComplete'))
-			{
-				var onCompleteFunc:Function = this['onComplete'];
-				if (args && args.length)
-				{
-					onCompleteFunc.apply(null, args);
-				}
-				else
-				{
-					onCompleteFunc();
-				}
-			}
-			this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_FINISH, false, false));
+			if (onComplete != null)
+				onComplete.apply(null, onCompleteParams);
+			actionToken.async_internal::callResponders();
 		}
 
 

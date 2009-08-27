@@ -1,6 +1,7 @@
 package inky.async.actions.events
 {
 	import flash.events.Event;
+	import inky.async.IAsyncToken;
 
 
 	/**
@@ -17,6 +18,9 @@ package inky.async.actions.events
 	 */
 	public class ActionEvent extends Event
 	{
+		private var _token:IAsyncToken;
+
+
 		/**
 		 * Defines the value of the <code>type</code> property for an <code>actionFinish</code> 
 		 * event object.
@@ -106,9 +110,26 @@ package inky.async.actions.events
 		 *     cancelable property of the event object.
 		 *
 		 */
-		public function ActionEvent(type:String, bubbles:Boolean, cancelable:Boolean)
+		public function ActionEvent(type:String, token:IAsyncToken, bubbles:Boolean = false, cancelable:Boolean = false)
 		{
 			super(type, bubbles, cancelable);
+			this._token = token;
+		}
+
+
+
+
+		//
+		// accessors
+		//
+
+
+		/**
+		 *	
+		 */
+		public function get token():IAsyncToken
+		{
+			return _token;
 		}
 
 
@@ -131,7 +152,7 @@ package inky.async.actions.events
 		 */
 		override public function clone():Event
 		{
-			return new ActionEvent(this.type, this.bubbles, this.cancelable);
+			return new ActionEvent(this.type, this.token, this.bubbles, this.cancelable);
 		}
 		
 		

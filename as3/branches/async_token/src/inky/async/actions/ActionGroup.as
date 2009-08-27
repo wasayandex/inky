@@ -6,6 +6,9 @@
 	import inky.async.actions.events.ActionEvent;
 	import inky.async.actions.IAction;
 	import inky.collections.Set;
+	import inky.async.IAsyncToken;
+	import inky.async.AsyncToken;
+	import inky.async.async_internal;
 
 	/**
 	 *	
@@ -24,8 +27,6 @@
 	public class ActionGroup extends Set implements IAction, IInkyDataParser
 	{
 		private var _currentIndex:Number;
-		private var _target:Object;
-		private var _running:Boolean;
 		
 
 		/**
@@ -33,12 +34,11 @@
 		 */
 		public function ActionGroup(...rest:Array)
 		{
+			this._currentIndex = 0;
 			for each (var action:IAction in rest)
 			{
-				if (!action) return;
-				else this.addItem(action);
+				this.addItem(action);
 			}
-			this._running = false;
 		}
 
 
@@ -54,34 +54,14 @@
 		 */
 		public function get cancelable():Boolean
 		{			
-			for (var i:IIterator = this.iterator(); i.hasNext(); )
+			/*for (var i:IIterator = this.iterator(); i.hasNext(); )
 			{
 				var action:IAction = i.next() as IAction;
 				if (!action.cancelable) return false;
-			}
+			}*/
 			
 			return true;
 		}
-
-
-		/**
-		 *
-		 *	The target upon which the action acts.
-		 *
-		 * 	@default null	
-		 * 
-		 */
-		public function get target():Object
-		{
-			return this._target;
-		}
-		/**
-		 * 	@private	
-		 */
-		public function set target(target:Object):void
-		{
-			this._target = target;
-		}	
 
 
 
@@ -96,7 +76,7 @@
 		 */
 		public function cancel():void
 		{
-			if (!this.cancelable) 
+			/*if (!this.cancelable) 
 			{
 				throw new Error('ActionGroup is not cancelable.');
 			}
@@ -108,7 +88,7 @@
 					action.cancel();
 					this._running = false;
 				}	
-			}
+			}*/
 		}
 
 
@@ -117,26 +97,33 @@
 		 */
 		public function parseData(data:XML):void
 		{
-			// TODO: Type mom?
+			/*// TODO: Type mom?
 			var mom:Object = Section.getSection(this).markupObjectManager;
 			for each (var xml:XML in data.*)
 			{
 				var obj:Object = mom.createMarkupObject(xml);
 				this.addItem(obj);
-			}
+			}*/
+		}
+		
+		
+		/**
+		 * @inheritDoc	
+		 */
+		public function start():IAsyncToken
+		{
+			return this.startAction();
 		}
 
 
 		/**
 		 * 	@inheritDoc
 		 */
-		public function start():void
+		public function startAction():IAsyncToken
 		{
-			if (this._running) return;
-			this._running = true;
-			this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_START, false, false));
-			this._currentIndex = 0;
-			this._startActionGroup();
+			var token:AsyncToken = new AsyncToken(false);
+			this._startGroup(token);
+			return token;
 		}
 
 
@@ -152,46 +139,29 @@
 		 *	Iterates through the Group starting every action.	
 		 *	
 		 */
-		private function _startActionGroup():void
+		private function _startGroup(groupToken:IAsyncToken):void
 		{
 			for (var i:IIterator = this.iterator(); i.hasNext(); )
 			{
+				// Start the actions in the group.
 				var action:IAction = i.next() as IAction;
-				if (action.target == null)
+				var token:IAsyncToken = action.startAction();
+				var responder:Function = function()
 				{
-					action.target = this.target;
+					_finishGroup(groupToken);
 				}
-				action.addEventListener(ActionEvent.ACTION_FINISH, this._actionFinishHandler);
-				action.start();
+				token.addResponder(responder);
 			}
 		}
 
 
 		/**
 		 *	
-		 *	Dispatches an ActionEvent once the final Action in the group is finished.
-		 *	
 		 */
-		private function _actionFinishHandler(e:ActionEvent):void
+		private function _finishGroup(groupToken:IAsyncToken):void
 		{
-			e.currentTarget.removeEventListener(e.type, arguments.callee);
-			this._currentIndex++;
-
-			if (this._currentIndex >= this.length)
-			{
-				this._groupFinish();
-			}
-		}
-
-
-		/**
-		 *
-		 *	
-		 */
-		private function _groupFinish():void
-		{
-			this._running = false;
-			this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_FINISH, false, false));
+			if (++this._currentIndex >= this.length)
+				groupToken.async_internal::callResponders();
 		}
 
 

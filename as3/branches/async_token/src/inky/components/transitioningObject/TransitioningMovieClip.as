@@ -55,11 +55,11 @@ package inky.components.transitioningObject
 			// Set the default transitions.
 			if (hasIntroLabel)
 			{
-				this.intro = new PlayFrameLabelAction('intro');
+				this.intro = new PlayFrameLabelAction('intro', this);
 			}
 			if (hasOutroLabel)
 			{
-				this.outro = new PlayFrameLabelAction('outro');
+				this.outro = new PlayFrameLabelAction('outro', this);
 			}
 			
 			this._proxy.addEventListener(TransitionEvent.TRANSITION_START, this._relayEvent, false, 0, true);

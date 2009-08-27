@@ -1,6 +1,7 @@
-package inky.async.actions
+﻿package inky.async.actions
 {
 	import flash.events.IEventDispatcher;
+	import inky.async.IAsyncToken;
 
 
     /**
@@ -49,36 +50,6 @@ package inky.async.actions
 	 */
 	public interface IAction extends IEventDispatcher
 	{
-		//
-		// accessors
-		//
-
-
-		/**
-		 *
-		 * Specifies whether the action can be cancelled.
-		 *	
-		 * @default false
-		 *		
-		 */
-		function get cancelable():Boolean;
-
-
-		/**
-		 *
-		 * The target upon which the action acts.
-		 *
-		 * @default null	
-		 * 
-		 */
-		function get target():Object;
-		/**
-		 * @private	
-		 */
-		function set target(target:Object):void;
-
-
-
 
 		//
 		// public methods
@@ -87,21 +58,10 @@ package inky.async.actions
 
 		/**
 		 *
-		 * Immediately stops the action.
-		 *	
-		 * @throws Error
-		 *     thrown if the action is not cancelable
-		 *	
-		 */
-		function cancel():void;
-
-
-		/**
-		 *
 		 * Begin the action.	
 		 * 
 		 */
-		function start():void;
+		function startAction():IAsyncToken;
 
 
 

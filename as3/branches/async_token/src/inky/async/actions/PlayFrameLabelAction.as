@@ -5,6 +5,9 @@ package inky.async.actions
 	import flash.events.EventDispatcher;
 	import inky.async.actions.events.ActionEvent;
 	import inky.async.actions.IAction;
+	import inky.async.IAsyncToken;
+	import inky.async.AsyncToken;
+	import inky.async.async_internal;
 
 
 	/**
@@ -22,9 +25,8 @@ package inky.async.actions
 	{
 		private var _labelName:String;
 		private var _labelMap:Object;
-		private var _playing:Boolean;
 		private var _target:Object;
-
+		private var _token:IAsyncToken;
 
 
 
@@ -39,7 +41,6 @@ package inky.async.actions
 				this.labelName = labelName;
 			if (target)
 				this.target = target;
-			this._playing = false;
 		}
 
 
@@ -94,17 +95,6 @@ package inky.async.actions
 		}
 
 
-		/**
-		 *
-		 * 
-		 * 
-		 */
-		public function get playing():Boolean
-		{
-			return this._playing;
-		}
-
-
 
 
 		//
@@ -117,21 +107,34 @@ package inky.async.actions
 		 */
 		public function cancel():void
 		{
-			this.stop();
+			/*this.stop();*/
+		}
+		
+		
+		/**
+		 *	
+		 */
+		public function start():IAsyncToken
+		{
+			return this.startAction();
 		}
 
 
 		/**
 		 * @inheritDoc
 		 */
-		public function start():void
+		public function startAction():IAsyncToken
 		{
-			if (!this.target) return;
-			
-			this._playing = true;
-			this.target.addEventListener(Event.ENTER_FRAME, this._detectEndHandler);
-			this.target.gotoAndPlay(this.labelName);
-			this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_START, false, false));
+			var token:AsyncToken = new AsyncToken();
+			var startEvent:ActionEvent = new ActionEvent(ActionEvent.ACTION_START, token, false, true);
+			this.dispatchEvent(startEvent);
+			if (!startEvent.isDefaultPrevented())
+			{
+				this.target.addEventListener(Event.ENTER_FRAME, this._detectEndHandler);
+				this.target.gotoAndPlay(this.labelName);
+			}
+			this._token = token;
+			return token;
 		}
 
 
@@ -142,8 +145,8 @@ package inky.async.actions
 		 */
 		public function stop():void
 		{
-			this._stop();
-			this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_STOP, false, false));
+			/*this._stop();
+			this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_STOP, false, false));*/
 		}
 
 
@@ -192,7 +195,12 @@ package inky.async.actions
 			if (this.target.currentFrame == lastFrame)
 			{
 				this._stop();
-				this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_FINISH, false, false));
+				var finishEvent:ActionEvent = new ActionEvent(ActionEvent.ACTION_FINISH, this._token, false, true);
+				this.dispatchEvent(finishEvent);
+				if (!finishEvent.isDefaultPrevented())
+				{
+					this._token.async_internal::callResponders();
+				}
 			}
 		}
 		
@@ -204,7 +212,6 @@ package inky.async.actions
 		 */
 		private function _stop():void
 		{
-			this._playing = false;
 			this.target.stop();
 			this.target.removeEventListener(Event.ENTER_FRAME, this._detectEndHandler);
 		}
