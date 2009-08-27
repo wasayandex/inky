@@ -61,19 +61,21 @@
 		 */
 		public function startAction():IAsyncToken
 		{
-			var token:AsyncToken = new AsyncToken();
+			var token:IAsyncToken;
 			
 			var startEvent:ActionEvent = new ActionEvent(ActionEvent.ACTION_START, token, false, true);
 			this.dispatchEvent(startEvent);
 			if (!startEvent.isDefaultPrevented())
 			{
-				this._fn.apply(this._scope, this._args);
+				token = this._fn.apply(this._scope, this._args) as IAsyncToken;
 			}
 
 			var finishEvent:ActionEvent = new ActionEvent(ActionEvent.ACTION_FINISH, token, false, true);
 			this.dispatchEvent(finishEvent);
-			if (!startEvent.isDefaultPrevented() && !finishEvent.isDefaultPrevented())
+// Should we call the responders if default is prevented?
+			if (!token)
 			{
+				token = new AsyncToken();
 				token.async_internal::callResponders();
 			}
 

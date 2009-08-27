@@ -12,6 +12,7 @@ package inky.components.transitioningObject
 	import flash.display.SimpleButton;
 	import flash.display.Sprite;
 	import flash.text.TextField;
+	import inky.async.IAsyncToken;
 
 
 	/**
@@ -125,9 +126,9 @@ package inky.components.transitioningObject
 		/**
 		 * @inheritDoc
 		 */
-		public function remove():void
+		public function remove():IAsyncToken
 		{
-			this._proxy.remove();
+			return this._proxy.remove();
 		}
 
 

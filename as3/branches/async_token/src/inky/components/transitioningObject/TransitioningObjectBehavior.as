@@ -8,6 +8,8 @@
 	import flash.display.DisplayObject;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
+	import inky.async.async_internal;
+	import inky.async.AsyncToken;
 
 
 	/**
@@ -33,6 +35,7 @@
 		private var _intro:IAction;
 		private var _obj:DisplayObject;
 		private var _outro:IAction;
+		private var _removeToken:IAsyncToken;
 		private var _state:String;
 		private var _transition:Object;
 
@@ -120,15 +123,19 @@
 		/**
 		 * @copy inky.components.transitioningObject.ITransitioningObject#remove()
 		 */
-		public function remove():void
+		public function remove():IAsyncToken
 		{
+			var token:IAsyncToken;
+			
 			if (this.state == TransitioningObjectState.PLAYING_OUTRO)
-				return;
-				
-			if (this._outro)
-				this._playTransition(this._outro);
+				token = this._removeToken;
+			else if (this._outro)
+				token = this._playTransition(this._outro);
 			else
-				this._removeNow();
+				token = this._removeNow(true);
+
+			this._removeToken = token;
+			return token;
 
 			/*if (this.state == TransitioningObjectState.PLAYING_OUTRO) return;	
 
@@ -216,8 +223,10 @@
 		 * Plays a specific transition.
 		 *
 		 */
-		private function _playTransition(transition:IAction):void
+		private function _playTransition(transition:IAction):IAsyncToken
 		{
+			var token:IAsyncToken;
+			
 			if (this._transition)
 			{
 				if (this._transition.cancelable)
@@ -231,7 +240,7 @@
 			if (transition)
 			{
 				this._state = this._transition == this.intro ? TransitioningObjectState.PLAYING_INTRO : this._transition == this.outro ? TransitioningObjectState.PLAYING_OUTRO : null;
-				var token:IAsyncToken = transition.startAction();
+				token = transition.startAction();
 				token.addResponder(this._actionFinishHandler);
 				this._dispatchStartEvent();
 			}
@@ -239,7 +248,11 @@
 			{
 				this._dispatchStartEvent();
 				this._dispatchFinishEvent();
+				token = new AsyncToken();
+				token.async_internal::callResponders();
 			}
+			
+			return token;
 		}
 
 
@@ -248,12 +261,21 @@
 		 * Immediately removes the clip from the display list.
 		 * 
 		 */
-		private function _removeNow():void
+		private function _removeNow(createToken:Boolean = false):IAsyncToken
 		{
+			var token:IAsyncToken;
+			
 			if (this._obj.parent)
 			{
 				this._obj.parent.removeChild(this._obj);
+				if (createToken)
+				{
+					token = new AsyncToken();
+					token.async_internal::callResponders();
+				}
 			}
+			
+			return token;
 		}
 
 

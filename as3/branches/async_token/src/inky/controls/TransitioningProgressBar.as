@@ -8,6 +8,7 @@ package inky.controls
 	import inky.components.transitioningObject.TransitioningObjectState;
 	import inky.components.transitioningObject.events.TransitionEvent;
 	import flash.display.FrameLabel;
+	import inky.async.IAsyncToken;
 
 	
 	/**
@@ -116,9 +117,9 @@ package inky.controls
 		/**
 		 * @inheritDoc
 		 */
-		public function remove():void
+		public function remove():IAsyncToken
 		{
-			this._proxy.remove();
+			return this._proxy.remove();
 		}
 
 
