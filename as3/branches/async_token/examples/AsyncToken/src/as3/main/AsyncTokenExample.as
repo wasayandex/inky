@@ -45,11 +45,6 @@ package
 			
 			var token:IAsyncToken = sequence.start();
 			trace(token);
-			
-			
-var k = new K();
-this.addChild(k);
-k.remove().addResponder(function(){trace("removed!");});
 		}
 		
 		
