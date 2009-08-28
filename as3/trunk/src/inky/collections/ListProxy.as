@@ -128,9 +128,9 @@ import flash.events.Event;
 		/**
 		 *	@inheritDoc
 		 */
-		public function isEmpty():Boolean
+		public function get isEmpty():Boolean
 		{
-			return this._list.isEmpty();
+			return this._list.isEmpty;
 		}
 
 

@@ -17,6 +17,21 @@ package inky.collections
 	 */
     public interface IMap extends IEquatable
     {
+
+		//
+		// accessors
+		//
+
+
+		/**
+		 *
+		 *
+		 */
+		function get isEmpty():Boolean;
+
+
+
+
 		//
 		// public methods
 		//
@@ -62,13 +77,6 @@ package inky.collections
 		 *
 		 */
 		function getValues():ICollection;
-
-
-		/**
-		 *
-		 *
-		 */
-		function isEmpty():Boolean;
 
 
 		/**

@@ -90,7 +90,7 @@ package inky.async
 			}
 			else if (!this._cancelled && (!filter || filter.test(this)))
 			{
-				responder.call(this);
+				responder(this);
 			}
 		}
 

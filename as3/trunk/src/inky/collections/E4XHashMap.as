@@ -48,6 +48,32 @@ package inky.collections
         /**
          * @inheritDoc
          */
+        public function get isEmpty():Boolean
+        {
+			var isEmpty:Boolean = true;
+			var dictionaries:Array = [this._dict, this._xmlDict, this._xmlListDict];
+			var dict:Dictionary;
+			
+			while (isEmpty && dictionaries.length)
+			{
+				dict = dictionaries.pop();
+            	for (var key:* in dict)
+            	{
+					if (dict[key] !== undefined)
+					{
+                		isEmpty = false;
+						break;
+					}
+            	}
+			}
+
+            return isEmpty;
+        }
+
+
+        /**
+         * @inheritDoc
+         */
         public function get length():uint
         {
             var length:uint = 0;
@@ -206,32 +232,6 @@ throw new Error('Not yet implemented!');
 		{
 			return new ArrayList(this._getValues());
 		}
-
-
-        /**
-         * @inheritDoc
-         */
-        public function isEmpty():Boolean
-        {
-			var isEmpty:Boolean = true;
-			var dictionaries:Array = [this._dict, this._xmlDict, this._xmlListDict];
-			var dict:Dictionary;
-			
-			while (isEmpty && dictionaries.length)
-			{
-				dict = dictionaries.pop();
-            	for (var key:* in dict)
-            	{
-					if (dict[key] !== undefined)
-					{
-                		isEmpty = false;
-						break;
-					}
-            	}
-			}
-
-            return isEmpty;
-        }
 
 
  		/**

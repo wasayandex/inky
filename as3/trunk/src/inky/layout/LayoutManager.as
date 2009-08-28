@@ -164,7 +164,7 @@
 			var client:DisplayObject;
 
 // TODO: Be vigilant about infinite recursion here.			
-			while (!this._invalidComponents.isEmpty())
+			while (!this._invalidComponents.isEmpty)
 			{
 				client = this._invalidComponents.removeLargest() as DisplayObject;
 				this._validateLayout(client);

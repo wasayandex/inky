@@ -231,7 +231,7 @@ throw new Error("not yet implemented");
 		/**
 		 *	@inheritDoc
 		 */
-		public function isEmpty():Boolean
+		public function get isEmpty():Boolean
 		{
 			return this._source.length() == 0;
 		}

@@ -51,6 +51,15 @@
 		/**
 		 * @inheritDoc
 		 */
+		public function get isEmpty():Boolean
+		{
+			return this._list.length == 0;
+		}
+
+
+		/**
+		 * @inheritDoc
+		 */
 		public function get length():uint
 		{
 			return this._list.length;
@@ -219,15 +228,6 @@
 		public function getSubList(fromIndex:uint, toIndex:uint):IList
 		{
 			return new RandomAccessSubList(this, fromIndex, toIndex);
-		}
-
-
-		/**
-		 * @inheritDoc
-		 */
-		public function isEmpty():Boolean
-		{
-			return this._list.length == 0;
 		}
 
 

@@ -27,6 +27,17 @@ package inky.collections
 
 		/**
 		 *
+		 * Returns true if this collection contains no elements.
+		 * 
+		 * @return
+		 *     true if this collection contains no elements		 		 		 
+		 *		 
+		 */
+		function get isEmpty():Boolean;
+
+
+		/**
+		 *
 		 * The number of elements in this collection. If this collection
 		 * contains more than uint.MAX_VALUE elements, returns uint.MAX_VALUE.
 		 *
@@ -131,19 +142,8 @@ package inky.collections
 		 *
 		 */
 		function containsItems(collection:ICollection):Boolean;
-		
-		
-		/**
-		 *
-		 * Returns true if this collection contains no elements.
-		 * 
-		 * @return
-		 *     true if this collection contains no elements		 		 		 
-		 *		 
-		 */
-		function isEmpty():Boolean;
-// FIXME: Shoudl probably be an as-style getter (i.e. get isEmpty)
-		
+
+
 		/**
 		 *
 		 * Removes all of the elements from this collection (optional

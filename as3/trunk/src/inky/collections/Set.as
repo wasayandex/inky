@@ -100,9 +100,9 @@
 		/**
 		*	@inheritDoc	
 		*/
-		public function isEmpty():Boolean
+		public function get isEmpty():Boolean
 		{
-			return this._set.isEmpty();
+			return this._set.isEmpty;
 		}
 		
 		/**
