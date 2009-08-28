@@ -140,6 +140,8 @@
 			if (!this._isInvalid)
 			{
 				this._stage.addEventListener(Event.RENDER, this._validateAll, false, 0, true);
+				// Also Listen to ENTER_FRAME to compensate for the comboBox component's tendency to hijack the RENDER event.
+				this._stage.addEventListener(Event.ENTER_FRAME, this._validateAll, false, 0, true);
 				this._stage.invalidate();
 				this._isInvalid = true;
 			}
@@ -162,6 +164,9 @@
 		private function _validateAll(event:Event):void
 		{
 			var client:DisplayObject;
+
+			this._stage.removeEventListener(Event.RENDER, this._validateAll);
+			this._stage.removeEventListener(Event.ENTER_FRAME, this._validateAll);
 
 // TODO: Be vigilant about infinite recursion here.			
 			while (!this._invalidComponents.isEmpty)
