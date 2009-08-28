@@ -7,6 +7,9 @@
 	import inky.collections.IIterator;
 	import inky.collections.ArrayList;
 	import inky.async.*;
+	import inky.async.actions.ActionQueue;
+	import inky.async.AsyncToken;
+	import inky.async.async_internal;
 
 
 	/**
@@ -16,7 +19,9 @@
 	 *	@langversion ActionScript 3.0
 	 *	@playerversion Flash 9.0
 	 *
+	 *	@author Eric Eldredge
 	 *	@author Rich Perez
+	 *	@author Matthew Tretter
 	 *	@since  2008.07.21
 	 *	
 	 */
@@ -49,13 +54,7 @@
 		 */
 		public function get cancelable():Boolean
 		{
-// TODO: Should sequence be cancelable if just current action is cancelable?
-/*			for (var i:IIterator = this.iterator(); i.hasNext(); )
-			{
-				var action:IAction = i.next() as IAction;
-				if (!action.cancelable) return false;
-			}
-*/
+			// TODO: Should sequence be cancelable if just current action is cancelable?
 			return true;
 		}
 
@@ -100,36 +99,12 @@
 		 */
 		public function startAction():IAsyncToken
 		{
-			var token:AsyncToken = new AsyncToken(false);
-			this._startAction(0, token);
-			return token;
-		}
-
-
-
-
-		//
-		// private methods
-		//
-
-		private function _startAction(index:uint, sequenceToken:IAsyncToken):void
-		{
-			if (index == this.length)
+			var queue:ActionQueue = new ActionQueue();
+			for (var i:IIterator = this.iterator(); i.hasNext(); )
 			{
-				// The sequence is done!
-				sequenceToken.async_internal::callResponders();
+				queue.addItem(i.next());
 			}
-			else
-			{
-				// Start the next action in the sequence.
-				var action:IAction = this.getItemAt(index) as IAction;
-				var token:IAsyncToken = action.startAction();
-				var responder:Function = function()
-				{
-					_startAction(index + 1, sequenceToken);
-				}
-				token.addResponder(responder);
-			}
+			return queue.startAction();
 		}
 
 
