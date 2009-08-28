@@ -4,6 +4,9 @@ package inky.collections
 	import inky.collections.IMap;
     import flash.utils.Dictionary;
 	import inky.collections.ArrayList;
+	import flash.events.EventDispatcher;
+	import inky.collections.events.CollectionEvent;
+	import inky.collections.events.CollectionEventKind;
 
 
 	/**
@@ -17,7 +20,7 @@ package inky.collections
 	 * @since  2008.06.20
 	 *
 	 */
-    public class E4XHashMap implements IMap
+    public class E4XHashMap extends EventDispatcher implements IMap
     {
         private var _dict:Dictionary;
 		private var _useWeakReferences:Boolean;
@@ -285,9 +288,12 @@ throw new Error('Not yet implemented!');
 
 				this._dict[key] = value;
 			}
+			
+			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.ADD, -1, -1, [value]));
+			
 // TODO: Return the replaced object.
 			return null;
-        }
+       	}
 
 
         /**

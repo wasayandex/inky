@@ -61,24 +61,19 @@
 		 */
 		public function startAction():IAsyncToken
 		{
-			var token:IAsyncToken;
-			
+			var token:IAsyncToken = this._fn.apply(this._scope, this._args) as IAsyncToken;
+			var fnReturnsToken:Boolean = !!token;
+			token = token || new AsyncToken();
+
+// FIXME: By the point start event is fired, fn has already been called.
 			var startEvent:ActionEvent = new ActionEvent(ActionEvent.ACTION_START, token, false, true);
 			this.dispatchEvent(startEvent);
-			if (!startEvent.isDefaultPrevented())
-			{
-				token = this._fn.apply(this._scope, this._args) as IAsyncToken;
-			}
 
 			var finishEvent:ActionEvent = new ActionEvent(ActionEvent.ACTION_FINISH, token, false, true);
 			this.dispatchEvent(finishEvent);
 // Should we call the responders if default is prevented?
-			if (!token)
-			{
-				token = new AsyncToken();
-				token.async_internal::callResponders();
-			}
 
+			token.async_internal::callResponders();
 			return token;
 		}
 
