@@ -211,6 +211,11 @@ throw new Error("not yet implemented");
 		 */
 		public function getItemIndex(item:Object):int
 		{
+			if (item is IXMLProxy)
+				item = item.source;
+			else if (!(item is XML))
+				throw new ArgumentError();
+
 			return this._source.contains(item) ? item.childIndex() : -1;
 		}
 
