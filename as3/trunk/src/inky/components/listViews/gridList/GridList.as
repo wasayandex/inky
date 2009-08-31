@@ -5,7 +5,7 @@
 	import flash.events.Event;
 	import inky.collections.IList;
 	import inky.components.listViews.IListView;
-	import com.exanimo.layout.GridLayout;
+	import inky.layout.layouts.gridLayout.GridLayout;
 
 	
 	/**
@@ -192,7 +192,6 @@
 				this.addChild(this.__contentContainer);
 			
 			this._grid = new GridLayout();
-			this._grid.register(this.__contentContainer);
 		}
 		
 
@@ -234,6 +233,7 @@
 				item.model = this.model.getItemAt(i);
 				this.__contentContainer.addChild(DisplayObject(item));
 			}
+			this._grid.layoutContainer(this.__contentContainer);
 		}
 
 

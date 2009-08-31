@@ -2,8 +2,6 @@
 {
 	import fl.video.FLVPlayback;
 	import inky.components.gallery.models.GalleryImageModel;
-	import net.eightdotthree.controls.IMediaControl;
-	import net.eightdotthree.controls.IMediaControls;
 
 	/**
 	 *
@@ -31,14 +29,15 @@
 		// accessors
 		//
 		
-		public function set flvPlayback(flvPlayback:FLVPlayback):void
+		public function set flvPlayback(value:FLVPlayback):void
 		{
-			this.__flvPlayback = flvPlayback;
+			this.__flvPlayback = value;
 		}
 		public function get flvPlayback():FLVPlayback
 		{
 			return this.__flvPlayback;
 		}
+		
 		
 		//
 		// protected functions
@@ -75,23 +74,7 @@
 						break;
 					}
 				}
-			}
-			
-			// look for video controls
-			for (var j:int = 0; j < this.numChildren; j++)
-			{
-				var control:Object = this.getChildAt(j);
-				if (control is IMediaControl)
-				{
-					IMediaControl(control).target = this.flvPlayback;
-				}
-				else if (control is IMediaControls)
-				{
-					IMediaControls(control).target = this.flvPlayback;
-				}
-				
-			}
-			
+			}			
 		}
 
 	}

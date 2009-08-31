@@ -768,6 +768,7 @@ er = 7;
 					this[this._orientation + "ScrollBar"].pageSize = this._numItemsFinallyVisible;
 				}
 				var contentSize:Number = this._getItemSize(this._model.length - 1) + this._getItemPosition(this._model.length - 1);
+			
 				this[this._orientation + "ScrollBar"].enabled = contentSize > mask[this._widthOrHeight];
 
 				if (this[this._orientation + "ScrollPolicy"] == ScrollPolicy.AUTO)
