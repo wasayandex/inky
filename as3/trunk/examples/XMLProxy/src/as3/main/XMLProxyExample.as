@@ -4,10 +4,15 @@ package
 	import flash.events.Event;
 	import flash.net.URLRequest;
 	import flash.net.URLLoader;
-	import inky.data.XMLProxy;
+	import inky.xml.XMLProxy;
 	import inky.binding.utils.BindingUtil;
-	import inky.data.XMLListProxy;
-	import inky.data.events.XMLPropertyChangeEvent;
+	import inky.xml.XMLListProxy;
+	import inky.xml.events.XMLPropertyChangeEvent;
+	import inky.binding.events.PropertyChangeEvent;
+	import inky.collections.IList;
+	import inky.xml.XMLChildrenList;
+	import inky.xml.IXMLListProxy;
+	import inky.xml.events.XMLEvent;
 
 
 	/**
@@ -45,24 +50,27 @@ package
 		{
 			var xml:XML = new XML(event.currentTarget.data);
 
+			// Listen for property change event.
 			var xmlProxy:XMLProxy = new XMLProxy(xml);
-
-//xmlProxy.addEventListener(XMLPropertyChangeEvent.CHANGE, function(event:Event):void{trace(event);});
-//			BindingUtil.bindSetter(this._changedHandler, xmlProxy.book[0], "myProperty");
-
-
-xmlProxy..author[1].@myProperty = 5;
-trace(xmlProxy..author[1].@myProperty is Number)
-
-//xmlProxy.myProperty = "5";
-//trace(xmlProxy.toXMLString());
-// trace(xmlProxy..myProperty.toXMLString())
+			xmlProxy.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, this._traceEvent);
+			xmlProxy.@myProperty = "5";
+			
+			// Get a (live) children list.
+			var childrenList:IXMLListProxy = new XMLChildrenList(xml);
+			xmlProxy.addEventListener(XMLEvent.ADDED, this._traceEvent);
+			
+			// Add a new item to the live child list!
+			childrenList.addItem(<newItem />);
+			
+			// ...or do it the normal way.
+			xmlProxy.appendChild(<newerItem />);
 		}
 
 
-		private function _changedHandler(value:Object):void
+
+		private function _traceEvent(event:Event):void
 		{
-			trace("!!!!!!!!!!!! " + value);
+			trace(event);
 		}
 
 
