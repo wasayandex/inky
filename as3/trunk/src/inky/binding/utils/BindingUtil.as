@@ -222,9 +222,16 @@ package inky.binding.utils
 				}
 				else
 				{
-					cls = cls is Class ? cls : getDefinitionByName(className);
-					var superClass:String = String(describeType(cls).factory.extendsClass[0].@type).replace(/::/, ".");
-					return BindingUtil.getPropertyBindingEvents(superClass, property);
+					try
+					{
+						cls = cls is Class ? cls : getDefinitionByName(className);
+						var superClass:String = String(describeType(cls).factory.extendsClass[0].@type).replace(/::/, ".");
+						events = BindingUtil.getPropertyBindingEvents(superClass, property);
+					}
+					catch (error:Error)
+					{
+						events = [];
+					}
 				}
 			}
 			return events;
