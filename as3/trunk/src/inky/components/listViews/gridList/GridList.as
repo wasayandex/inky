@@ -5,6 +5,7 @@
 	import flash.events.Event;
 	import inky.collections.IList;
 	import inky.components.listViews.IListView;
+	import inky.layout.ILayoutConstraints;
 	import inky.layout.layouts.gridLayout.GridLayout;
 
 	
@@ -161,7 +162,12 @@
 		{
 		}
 
-
+		
+		public function setGridConstraints(obj:DisplayObject, constraints:ILayoutConstraints):void
+		{
+			this._grid.setConstraints(obj, constraints);
+			this._grid.layoutContainer(this.__contentContainer);
+		}
 
 
 		//
