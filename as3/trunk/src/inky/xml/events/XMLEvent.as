@@ -88,8 +88,6 @@
 		 */
 		public static const REMOVED:String = "removed";
 
-		private var _currentTarget:Object;
-		private var _target:Object;
 		private var _relatedNode:IXMLProxy;
 
 
@@ -120,15 +118,6 @@
 
 
 		/**
-		 * @inheritDoc
-		 */
-		override public function get currentTarget():Object
-		{
-			return this._currentTarget; 
-		}
-
-
-		/**
 		 *	The node affected by the operation. In most cases, this is the same
 		 *  as <code>target</code>, but not always. For example, for the
 		 *  CHILD_REMOVED event, the target will be the parent, while the 
@@ -138,15 +127,6 @@
 		public function get relatedNode():IXMLProxy
 		{
 			return this._relatedNode;
-		}
-		
-
-		/**
-		 * @inheritDoc
-		 */
-		override public function get target():Object
-		{
-			return this._target; 
 		}
 
 

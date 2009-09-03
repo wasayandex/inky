@@ -14,6 +14,7 @@
 	import flash.events.Event;
 	import inky.xml.events.XMLPropertyChangeEvent;
 	import inky.events.EventManager;
+	import flash.utils.getQualifiedClassName;
 
 	use namespace flash_proxy;
 
@@ -141,7 +142,7 @@
 			else if (child is IXMLProxy)
 				childProxy = child as IXMLProxy;
 			else
-				throw new ArgumentError();
+				throw new ArgumentError("You cannot append children of type " + getQualifiedClassName(child));
 
 			// Add the child to the dom.
 			this._source.appendChild(childProxy.source);
