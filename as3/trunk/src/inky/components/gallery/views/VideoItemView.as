@@ -1,6 +1,7 @@
 ﻿package inky.components.gallery.views
 {
 	import fl.video.FLVPlayback;
+	import fl.video.VideoEvent;
 	import inky.components.gallery.models.GalleryImageModel;
 
 	/**
@@ -37,8 +38,7 @@
 		{
 			return this.__flvPlayback;
 		}
-		
-		
+						
 		//
 		// protected functions
 		//
@@ -52,6 +52,7 @@
 			else
 			{
 				this.flvPlayback.source = model.source;
+				this.removeProgressBar();
 				this.featureLoaded(this.flvPlayback);
 			}
 		}
@@ -74,8 +75,17 @@
 						break;
 					}
 				}
-			}			
+			}
+			
+			//!FIXME: Need to know how to handle progressBars with Videos. 
+			// When should it show? During bufferring state and when should it go away?
+			// These are the questions that everyone asks.
+			this.__flvPlayback.addEventListener(VideoEvent.BUFFERING_STATE_ENTERED, this._videoReadyHandler);
 		}
-
+		
+		private function _videoReadyHandler(event:VideoEvent):void
+		{
+			this.removeProgressBar();
+		}
 	}
 }
