@@ -2,15 +2,12 @@
 {
 	import flash.display.DisplayObject;
 	import flash.events.Event;
-	import flash.utils.Dictionary;
 
 
 	/**
 	 *
-	 * A decorator that provides ITransitioningObject behavior to a
-	 * DisplayObject. Use this when you can't extend TransitioningMovieClip.
-	 * 
-	 * @see inky.components.transitioningObject.ITransitioningObject
+	 * A decorator that prevents ADDED_TO_STAGE events from firing twice.
+	 * @see http://bugs.adobe.com/jira/browse/FP-1569
 	 * 
 	 * 	@langversion ActionScript 3
 	 * @playerversion Flash 9.0.0
@@ -27,26 +24,11 @@
 		private var _enabled:Boolean;
 		private var _obj:Object;
 		private var _onStage:Boolean;
-		private static var _accessEnforcer:Object = {};
-		private static var _fixers:Dictionary = new Dictionary(true);
 
 
 		/**
 		 *
-		 */
-		public function AddedToStageEventFixer(obj:DisplayObject, accessEnforcer:Object = null)
-		{
-			if (accessEnforcer != AddedToStageEventFixer._accessEnforcer)
-			{
-				throw new ArgumentError("AddedToStageEventFixer instances must be created through AddedToStageEventFixer.getAddedToStageEventFixer()");
-			}
-			this._obj = obj;
-		}
-
-
-		/**
-		 *
-		 * Gets an AddedToStageEventFixer for the specified object.
+		 * Creates an AddedToStageEventFixer for the specified object.
 		 *	
 		 * @param enable
 		 *     If true, the AddedToStageEventFixer will be immediately enabled.
@@ -55,19 +37,9 @@
 		 *	   AddedToStageEventFixer to false.
 		 *	
 		 */
-		public static function getAddedToStageEventFixer(obj:DisplayObject, enable:Boolean = false):AddedToStageEventFixer
+		public function AddedToStageEventFixer(obj:DisplayObject)
 		{
-			var fixer:AddedToStageEventFixer = AddedToStageEventFixer._fixers[obj];
-			if (fixer == null)
-			{
-				fixer =
-				AddedToStageEventFixer._fixers[obj] = new AddedToStageEventFixer(obj, AddedToStageEventFixer._accessEnforcer);
-			}
-			if (enable)
-			{
-				fixer.enabled = true;
-			}
-			return fixer;
+			this._obj = obj;
 		}
 
 
@@ -95,7 +67,7 @@
 			{
 				if (enabled)
 				{
-					this._onStage = false;
+					this._onStage = !!this._obj.stage;
 					this._obj.addEventListener(Event.ADDED_TO_STAGE, this._addedToStageHandler, false, int.MAX_VALUE, true);
 					this._obj.addEventListener(Event.REMOVED_FROM_STAGE, this._removedFromStageHandler, false, int.MAX_VALUE, true);
 				}

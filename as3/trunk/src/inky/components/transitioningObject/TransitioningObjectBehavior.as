@@ -54,7 +54,7 @@
 		public function TransitioningObjectBehavior(obj:DisplayObject)
 		{
 			this._obj = obj;
-			this._addedToStageEventFixer = AddedToStageEventFixer.getAddedToStageEventFixer(obj, true);
+			this._addedToStageEventFixer = new AddedToStageEventFixer(obj);
 			this._obj.addEventListener(Event.ADDED_TO_STAGE, this._init, false, 0, true);
 		}
 
