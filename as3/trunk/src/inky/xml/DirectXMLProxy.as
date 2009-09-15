@@ -459,7 +459,21 @@ throw new Error("not yet implemented");
 					type = Number;
 				else
 					throw new ArgumentError();
-				this._dispatchPropertyChangeEvent(name, oldValue, value);
+					
+				// Add "@" if the name is an attribute, but doesn't start with "@":
+				// Accessing o.@prop instead of o["@prop"] will result in the
+				// name.localName property of the first argument lacking a @ character.
+				// This is fine when we use the QName (because Flash knows magically
+				// how to deal with it), but will result in the QName.toString() value
+				// (which we're using for the PropertyChangeEvent's "property"" property
+				// being incorrect.
+				var propString:String;
+				if (this.isAttribute(name) && (!name.localName || (name.localName.substr(0) != "@")))
+					propString = "@" + name.localName;
+				else
+					propString = name.localName;
+
+				this._dispatchPropertyChangeEvent(propString, oldValue, this[name]);
 			}
 	    }
 
