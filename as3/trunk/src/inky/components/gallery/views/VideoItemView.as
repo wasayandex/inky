@@ -2,6 +2,7 @@
 {
 	import fl.video.FLVPlayback;
 	import fl.video.VideoEvent;
+	import fl.video.VideoState;
 	import flash.display.DisplayObject;
 	import flash.events.Event;
 	import inky.components.gallery.models.GalleryImageModel;
@@ -23,6 +24,7 @@
 	{
 		private var __flvPlayback:FLVPlayback;
 		
+		
 		public function VideoItemView()
 		{
 			this._init();
@@ -40,7 +42,7 @@
 		{
 			return this.__flvPlayback;
 		}
-						
+		
 		//
 		// protected functions
 		//
@@ -49,30 +51,30 @@
 		{
 			if (loadingSize == "preview")
 			{
+				if (this.flvPlayback.source) this.flvPlayback.stop();
 				super.startLoad(model, loadingSize);
 			}
 			else
-			{				
+			{
 				this.flvPlayback.source = model.source;
-				this.removeProgressBar();
 				this.featureLoaded(this.flvPlayback);
 			}
 		}
 
 		override protected function featureLoaded(feature:DisplayObject):void
 		{
-			this.addFeature(feature);
 			this.removePreviousPreviews();
+//this.addFeature(feature);
 			this.removeProgressBar();
 		}
-
+		
 		//
 		// private functions
 		//
 		
 		private function _init():void
 		{
-			this.flvPlayback = this.getChildByName('_flvPlayback') as FLVPlayback || null;
+			this.flvPlayback = this.getChildByName("_flvPlayback") as FLVPlayback || null;
 			if (!this.flvPlayback)
 			{
 				for (var i:int = 0; i < this.numChildren; i++)
@@ -86,26 +88,29 @@
 				}
 			}
 			
-			this.addEventListener(Event.REMOVED_FROM_STAGE, this._removedHandler);
+			this.flvPlayback.visible = false;
+			this.flvPlayback.addEventListener(VideoEvent.STATE_CHANGE, this._stateChangeHandler);
 			
-			//!FIXME: Need to know how to handle progressBars with Videos. 
-			// When should it show? During bufferring state and when should it go away?
-			// These are the questions that everyone asks.
-			this.__flvPlayback.addEventListener(VideoEvent.BUFFERING_STATE_ENTERED, this._videoReadyHandler);
+			this.addEventListener(Event.REMOVED_FROM_STAGE, this._removedHandler);
 		}
-		
 		
 		private function _removedHandler(event:Event):void
 		{	
 			this.flvPlayback.stop();
 			this.flvPlayback.getVideoPlayer(0).close();
-			this.__flvPlayback.removeEventListener(VideoEvent.BUFFERING_STATE_ENTERED, this._videoReadyHandler);
 			this.removeEventListener(Event.REMOVED, this._removedHandler);
 		}
 		
-		private function _videoReadyHandler(event:VideoEvent):void
+		private function _stateChangeHandler(event:VideoEvent):void
 		{
-			this.removeProgressBar();
+			switch (event.state)
+			{
+				case VideoState.PLAYING:
+					this.clearContainer();
+					this.addFeature(this.flvPlayback);
+					this.flvPlayback.visible = true;
+					break;
+			}
 		}
 	}
 }
