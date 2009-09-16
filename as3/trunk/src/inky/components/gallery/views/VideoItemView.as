@@ -23,7 +23,7 @@
 	public class VideoItemView extends BaseGalleryItemView
 	{
 		private var __flvPlayback:FLVPlayback;
-		
+		private var _previewImage:DisplayObject;
 		
 		public function VideoItemView()
 		{
@@ -47,6 +47,11 @@
 		// protected functions
 		//
 		
+		override protected function addPreview(preview:DisplayObject):void
+		{
+			this._previewImage = preview;
+			super.addPreview(preview);
+		}
 		override protected function startLoad(model:GalleryImageModel, loadingSize:String):void
 		{
 			if (loadingSize == "preview")
@@ -64,7 +69,6 @@
 		override protected function featureLoaded(feature:DisplayObject):void
 		{
 			this.removePreviousPreviews();
-//this.addFeature(feature);
 			this.removeProgressBar();
 		}
 		
@@ -88,17 +92,17 @@
 				}
 			}
 			
-			this.flvPlayback.visible = false;
+			this.addFeature(this.flvPlayback);
 			this.flvPlayback.addEventListener(VideoEvent.STATE_CHANGE, this._stateChangeHandler);
-			
 			this.addEventListener(Event.REMOVED_FROM_STAGE, this._removedHandler);
 		}
 		
 		private function _removedHandler(event:Event):void
 		{	
+			this.removeEventListener(Event.REMOVED, this._removedHandler);
+
 			this.flvPlayback.stop();
 			this.flvPlayback.getVideoPlayer(0).close();
-			this.removeEventListener(Event.REMOVED, this._removedHandler);
 		}
 		
 		private function _stateChangeHandler(event:VideoEvent):void
@@ -106,9 +110,7 @@
 			switch (event.state)
 			{
 				case VideoState.PLAYING:
-					this.clearContainer();
-					this.addFeature(this.flvPlayback);
-					this.flvPlayback.visible = true;
+					this.removePreview(this._previewImage);
 					break;
 			}
 		}

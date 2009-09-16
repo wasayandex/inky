@@ -513,7 +513,7 @@
 				var shape:Shape;
 				for (var i:int = 0; i < this.numChildren; i++)
 				{
-					shape = Shape(this.getChildAt(i));
+					shape = this.getChildAt(i) as Shape;
 					if (shape)
 						break;
 				}
