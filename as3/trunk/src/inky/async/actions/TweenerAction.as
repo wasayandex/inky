@@ -124,7 +124,16 @@ package inky.async.actions
 				throw new Error('target is null.');
 
 			var token:AsyncToken = new AsyncToken();
-			Tweener.addTween(this.target, {base: this, onComplete: this._completeHandler, onCompleteParams: [token, this["onComplete"], this["onCompleteParams"]]});
+			
+			// Get the tween params from this instance. (Using this as the base value for Tweener results in a memory leak.)
+			var base:Object = {};
+			for (var p:String in this)
+			{
+				base[p] = this[p];
+			}
+			
+			// Create the tween.
+			Tweener.addTween(this.target, {base: base, onComplete: this._completeHandler, onCompleteParams: [token, this["onComplete"], this["onCompleteParams"]]});
 			return token;
 		}
 		
