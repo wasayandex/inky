@@ -265,7 +265,7 @@ public function get loaded():Boolean
 		 * 
 		 */
 		private function _createLoader():Object
-		{
+		{			
 			this._loader = new Loader();
 			
 			// Configure listeners.
@@ -294,12 +294,18 @@ public function get loaded():Boolean
 		}
 
 
+//FIXME: Not sure if this is should be here or exposed in another manner. I needed a way to add in custom LoaderContext object when trying to load images from Flickr.
+private var _loaderContent:LoaderContext;
+public function set loaderContext(value:LoaderContext):void
+{
+	this._loaderContent = value;
+}
 		/**
 		 * 
 		 */
 		private function _getLoadArgs():Array
 		{
-			return [this._behavior.getURLRequest(), new LoaderContext(false, ApplicationDomain.currentDomain)];
+			return [this._behavior.getURLRequest(), this._loaderContent || new LoaderContext(false, ApplicationDomain.currentDomain)];
 		}
 
 
