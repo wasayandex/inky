@@ -132,6 +132,9 @@ package inky.async.actions
 				base[p] = this[p];
 			}
 			
+			// Dispatch an ACTION_START event.
+			this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_START, token));
+			
 			// Create the tween.
 			Tweener.addTween(this.target, {base: base, onComplete: this._completeHandler, onCompleteParams: [token, this["onComplete"], this["onCompleteParams"]]});
 			return token;
@@ -152,7 +155,9 @@ package inky.async.actions
 		{
 			if (onComplete != null)
 				onComplete.apply(null, onCompleteParams);
-			actionToken.async_internal::callResponders();
+				
+			if (this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_FINISH, actionToken)))
+				actionToken.async_internal::callResponders();
 		}
 
 
