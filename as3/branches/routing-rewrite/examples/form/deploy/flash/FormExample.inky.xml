@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<inky:Application xmlns:inky="http://inkyframework.com/2008/inky"
+	inky:base="../">
+
+	<inky:Section name="about" inky:class="AboutSection" y="25">
+		<inky:Route path="#" />
+	</inky:Section>
+	<inky:Section name="contact" inky:class="ContactSection" y="25" />
+
+</inky:Application>
