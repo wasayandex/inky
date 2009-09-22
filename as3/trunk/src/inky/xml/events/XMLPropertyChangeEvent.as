@@ -88,7 +88,7 @@ package inky.xml.events
 		override public function clone():Event
 		{
 			var event:XMLPropertyChangeEvent = new XMLPropertyChangeEvent(type, cancelable, kind, property, oldValue, newValue, source);
-			event.prepare(this.target, this.currentTarget);
+			event.prepare(this.currentTarget, this.target);
 			return event;
 		}
 

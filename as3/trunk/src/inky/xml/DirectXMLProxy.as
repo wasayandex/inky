@@ -457,6 +457,8 @@ throw new Error("not yet implemented");
 					type = String;
 				else if (value is Number)
 					type = Number;
+				else if (value is Boolean)
+					type = Boolean;
 				else
 					throw new ArgumentError();
 					
