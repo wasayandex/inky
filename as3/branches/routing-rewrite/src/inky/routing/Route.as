@@ -1,24 +1,11 @@
 package inky.routing
 {
 	import inky.utils.CloningUtil;
-	import inky.app.SPath;
 
 
 	/**
 	 *
-	 * <p>An object that pairs a path with a section. Routes give you control over
-	 * the application's deep-linking. Routes are generally not created by the
-	 * user in ActionScript. Instead, you can add a Route to a Section in your
-	 * inky XML with an inky:Route node:</p>
-	 *	
-	 * <listing>&lt;inky:Application xmlns:inky="http://exanimo.com/2008/inky">
-	 * 	&lt;inky:Section inky:class="AnimalsSection" name="animals">
-	 * 		&lt;inky:Route path="#/animals" />
-	 * 	&lt;/inky:Section>
-	 * &lt;/inky:Application>
-	 * </listing>
-	 *	
-	 * <p>This class should be considered an implementation detail and is subject to change.</p>
+	 * ..
 	 *	
 	 * @see http://code.google.com/p/inky/wiki/Routing
 	 * 
@@ -32,42 +19,39 @@ package inky.routing
 	 */
 	public class Route
 	{
-		private var _defaultOptions:Object;
+		private var _defaults:Object;
 		private var _dynamicSegmentNames:Array;
+		private var _pattern:String;
+		private var _patternSource:String;
 		private var _requirements:Object;
-		private var _sPath:SPath;
-		private var _tokenizedPath:Array;
-		private var _path:String;
-		private var _pattern:RegExp;
+		private var _tokenizedPattern:Array;
+		private var _regExp:RegExp;
+		
+		// Token types.
+		private static const TEXT:String = "text";
+		private static const SEPARATOR:String = "separator";
+		private static const DYNAMIC:String = "dynamic";
 
 
 		/**
 		 *
 		 * Creates a new Route
 		 *
-		 * @param path
-		 * @param sPath
-		 * @param defaultOptions
+		 * @param pattern
+		 * @param defaults
 		 * @param requirements
 		 * 
 		 */
-		public function Route(path:String, sPath:SPath, defaultOptions:Object = null, requirements:Object = null)
+		public function Route(pattern:String, defaults:Object = null, requirements:Object = null)
 		{
-			this._defaultOptions = defaultOptions || {};
+			this._defaults = defaults || {};
 			this._requirements = requirements || {};
 
-			this._path = path;
-			
-			// If the SPath isn't absolute, throw an error.
-			if (!sPath.absolute)
-			{
-				throw new ArgumentError('A Route\'s SPath must be absolute.');
-			}
-			this._sPath = sPath.normalize();
+			this._patternSource = pattern;
 
-			for (var optionName:String in defaultOptions)
+			for (var optionName:String in defaults)
 			{
-				this.setDefaultOption(optionName, defaultOptions[optionName]);
+				this.defaults[optionName] = defaults[optionName];
 			}
 
 			for (var requirementName:String in requirements)
@@ -86,10 +70,10 @@ package inky.routing
 				{
 					throw new ArgumentError();
 				}
-				this.setRequirement(requirementName, requirement);
+				this.requirements[requirementName] = requirement;
 			}
 
-			this._createPattern();
+			this._createRegExp();
 		}
 
 
@@ -101,24 +85,37 @@ package inky.routing
 
 
 		/**
-		 *
-		 * Gets the path of a route.
-		 * 
+		 * Gets a (cleaned version) of this route's pattern.
 		 */
-		public function get path():String
+		public function get pattern():String
 		{
-			return this._path;
-		}
-
-
-		/**
-		 *
-		 * Gets the SPath that this route directs to.
-		 * 
-		 */
-		public function get sPath():SPath
-		{
-			return this._sPath;
+			if (this._pattern == null)
+			{
+				var pattern:String = "";
+				for each (var token:Object in this._tokenizedPattern)
+				{
+					switch (token.type)
+					{
+						case TEXT:
+						{
+							pattern += token.value;
+							break;
+						}
+						case SEPARATOR:
+						{
+							pattern += token.value;
+							break;
+						}
+						case DYNAMIC:
+						{
+							pattern += ":" + token.name;
+							break;
+						}
+					}
+				}
+				this._pattern = pattern;
+			}
+			return this._pattern;
 		}
 
 
@@ -131,50 +128,40 @@ package inky.routing
 
 		/**
 		 *
-		 * 
 		 */
-		public function getDefaultOption(name:String):String
+		public function get defaults():Object
+		{ 
+			return this._defaults; 
+		}
+		/**
+		 * @private
+		 */
+		public function set defaults(value:Object):void
 		{
-			return this._defaultOptions[name];
+			this._defaults = value;
 		}
 
 
 		/**
 		 *
-		 * 
 		 */
-		public function getRequirement(name:String):RegExp
-		{
-			return this._requirements[name];
+		public function get requirements():Object
+		{ 
+			return this._requirements; 
 		}
-
 		/**
-		 *
-		 * 
-		 * 
+		 * @private
 		 */
-		public function setDefaultOption(name:String, value:String):void
+		public function set requirements(value:Object):void
 		{
-			this._defaultOptions[name] = value;
-		}
-
-		/**
-		 *
-		 * 
-		 * 
-		 */
-		public function setRequirement(name:String, requirement:RegExp):void
-		{
-			this._requirements[name] = requirement;
+			this._requirements = value;
 		}
 
 
 		/**
-		 *
 		 * Generates a url for this route using the provided options Object.
 		 * Returns the url associated with this Route, with the dynamic parts
 		 * replaced with the values in the options object.	
-		 * 
 		 */
 		public function generateURL(options:Object = null):String
 		{
@@ -187,12 +174,12 @@ package inky.routing
 			var token:Object;
 			var optionalTokens:Array = [];
 
-			// Clone the tokenized path, inserting values for dynamic parts.
-			var tokenizedPath:Array = [];
-			for (i = 0; i < this._tokenizedPath.length; i++)
+			// Clone the tokenized pattern, inserting values for dynamic parts.
+			var tokenizedPattern:Array = [];
+			for (i = 0; i < this._tokenizedPattern.length; i++)
 			{
-				token = CloningUtil.clone(this._tokenizedPath[i]);
-				if (token.type == 'dynamic')
+				token = CloningUtil.clone(this._tokenizedPattern[i]);
+				if (token.type == DYNAMIC)
 				{
 					var value:String;
 					if (options)
@@ -201,38 +188,38 @@ package inky.routing
 					}
 					if (value == null)
 					{
-						var defaultValue:String = this.getDefaultOption(token.name);
+						var defaultValue:String = this.defaults[token.name];
 						if (defaultValue == null)
 						{
-							throw new Error('No value was provided for dynamic option ' + token.name + ' and there is no default');
+							throw new Error("No value was provided for dynamic option " + token.name + " and there is no default");
 						}
 						else
 						{
 							value = defaultValue;
 						}
 					}
-					if (value == this.getDefaultOption(token.name))
+					if (value == this.defaults[token.name])
 					{
 						optionalTokens.push(token);
 					}
 					usedOptions.push(token.name);
 					token.value = value;
 				}
-				tokenizedPath[i] = token;
+				tokenizedPattern[i] = token;
 			}
 
-			// Break path into chunks at the separators.
+			// Break pattern into chunks at the separators.
 			var chunks:Array = [];
 			j = 0;
-			for (i = 0; i < tokenizedPath.length; i++)
+			for (i = 0; i < tokenizedPattern.length; i++)
 			{
 				if (!chunks[j])
 				{
 					chunks[j] = [];
 				}
 
-				token = tokenizedPath[i];
-				if (token.type == 'separator' && token.value == '/')
+				token = tokenizedPattern[i];
+				if (token.type == SEPARATOR && token.value == "/")
 				{
 					j++;
 				}
@@ -264,30 +251,12 @@ package inky.routing
 					break;
 				}
 			}
-/*
-Removed because routes now don't need to include all of the dynamic parts. For example, 
-
-<inky:Route path="#/my-favorite-image/">
-	<defaults groupName="residences" itemIndex="6" />
-	<requirements groupName="residences" itemIndex="6" />
-</inky:Route>
-
-The path contains neither dynamic part but specifies their values.
-
-			// If an option is not included in the route url, throw an error.
-			for (var k:String in options)
-			{
-				if (usedOptions.indexOf(k) == -1)
-				{
-					throw new ArgumentError('Could not generate url: the routed path ' + this.path + ' does not specify where to include the dynamic part "' + k + '". Create a route that includes the dynamic part "' + k + '".');	
-				}
-			}*/
 
 			// Make the url.
 			var urlArray:Array = [];
 			for (i = 0; i < chunks.length; i++)
 			{
-				var chunk:String = ''
+				var chunk:String = "";
 				for (j = 0; j < chunks[i].length; j++)
 				{
 					chunk += chunks[i][j].value;
@@ -295,62 +264,61 @@ The path contains neither dynamic part but specifies their values.
 				urlArray.push(chunk);
 			}
 
-			return urlArray.join('/');
+			return urlArray.join("/");
 		}
 
 
 		/**
 		 *	@private
-		 *	Determines whether this is a route for the given sPath and options.
+		 *	Determines whether this is a route for the given options.
 		 *	TODO: rename? expose?
 		 *	
 		 */
-		public function isRouteFor(sPath:SPath, options:Object = null):Boolean
+		public function isRouteFor(options:Object = null):Boolean
 		{
-			var isRouteFor:Boolean = this.sPath.equals(sPath);
+			var isRouteFor;
 			options = options || {};
+
+			var p:String;
+			
+			// Make sure each of the dynamic parts has a corresponding option.
+			for each (p in this._dynamicSegmentNames)
+			{
+				if (!options.hasOwnProperty(p) && (this.defaults[p] == null))
+				{
+					isRouteFor = false;
+					break;
+				}
+			}
+
+			// Make sure there are no extra options. (Strict mode only)
 			if (isRouteFor)
 			{
-				var p:String;
-				
-				// Make sure each of the dynamic parts has a corresponding option.
-				for each (p in this._dynamicSegmentNames)
+				for (p in options)
 				{
-					if (!options.hasOwnProperty(p) && (this.getDefaultOption(p) == null))
+					if (this._dynamicSegmentNames.indexOf(p) == -1)
 					{
 						isRouteFor = false;
 						break;
 					}
 				}
+			}
 
-				// Make sure there are no extra options. (Strict mode only)
-				if (isRouteFor)
+			// Make sure all the requirements are satisfied.
+			if (isRouteFor)
+			{
+				for (p in this.requirements)
 				{
-					for (p in options)
+					var requirement:RegExp = this.requirements[p];
+					var value:String = options.hasOwnProperty(p) ? options[p] : this.defaults[p];
+					if (!requirement.test(value))
 					{
-						if (this._dynamicSegmentNames.indexOf(p) == -1)
-						{
-							isRouteFor = false;
-							break;
-						}
-					}
-				}
-
-				// Make sure all the requirements are satisfied.
-				if (isRouteFor)
-				{
-					for (p in this._requirements)
-					{
-						var requirement:RegExp = this._requirements[p];
-						var value:String = options.hasOwnProperty(p) ? options[p] : this._defaultOptions[p];
-						if (!requirement.test(value))
-						{
-							isRouteFor = false;
-							break;
-						}
+						isRouteFor = false;
+						break;
 					}
 				}
 			}
+
 			return isRouteFor;
 		}
 
@@ -365,7 +333,7 @@ The path contains neither dynamic part but specifies their values.
 		public function match(url:String):Object
 		{
 			var result:Object; 
-			var o:Array = url.match(this._pattern);
+			var o:Array = url.match(this._regExp);
 
 			if (o)
 			{
@@ -373,20 +341,19 @@ The path contains neither dynamic part but specifies their values.
 				// add the default options to compensate for a
 				// route that has no dynamic segments, but could have
 				// implied options (as in the case of an overrideURL.)
-				for (var p:String in this._defaultOptions)
+				for (var p:String in this.defaults)
 				{
-					result[p] = this._defaultOptions[p];
+					result[p] = this.defaults[p];
 				}
 				for (var i:uint = 0; i < o.length - 1; i++)
 				{
 					var optionName:String = this._dynamicSegmentNames[i];
-					result[optionName] = o[i + 1] != null ? o[i + 1] : this.getDefaultOption(optionName);
+					result[optionName] = o[i + 1] != null ? o[i + 1] : this.defaults[optionName];
 				}
 			}
 
 			return result;
 		}
-
 
 
 
@@ -399,10 +366,10 @@ The path contains neither dynamic part but specifies their values.
 		/**
 		 *	
 		 */
-		private function _createPattern():void
+		private function _createRegExp():void
 		{
-			this._tokenize(this.path);
-			this._pattern = new RegExp('\\A' + this._getPatternSource(this._tokenizedPath) + '\\Z');
+			this._tokenize(this._patternSource);
+			this._regExp = new RegExp("\\A" + this._getRegExpSource(this._tokenizedPattern) + "\\Z");
 		}
 
 
@@ -414,7 +381,7 @@ The path contains neither dynamic part but specifies their values.
 		private function _escapeForRegExp(input:String):String
 		{
 // TODO: This needs to escape more characters.
-			return input.replace('\\', '\\\\').replace('/', '\\/');
+			return input.replace("\\", "\\\\").replace("/", "\\/");
 		}
 
 
@@ -424,12 +391,12 @@ The path contains neither dynamic part but specifies their values.
 		 * this route.
 		 *
 		 */		 		 		 		
-		private function _getPatternSource(segments:Array, wrap:Boolean = true):String
+		private function _getRegExpSource(segments:Array, wrap:Boolean = true):String
 		{
-			// Create the regexp from the tokenized path.
+			// Create the regexp from the tokenized pattern.
 			var segment:Object;
-			var pattern:String = '';
-			var segmentPattern:String = '';
+			var source:String = "";
+			var segmentSource:String = "";
 			var optional:Boolean;
 			var i:int, j:int;
 			for (i = 0; i < segments.length; i++)
@@ -438,10 +405,10 @@ The path contains neither dynamic part but specifies their values.
 
 				switch (segment.type)
 				{
-					case 'text':
-						pattern += this._escapeForRegExp(segment.value);
+					case TEXT:
+						source += this._escapeForRegExp(segment.value);
 						break;
-					case 'separator':
+					case SEPARATOR:
 						// Determine whether the separator is optional based on whether subsequent parts are optional.
 						optional = true;
 						
@@ -449,11 +416,11 @@ The path contains neither dynamic part but specifies their values.
 						{
 							switch (segments[j].type)
 							{
-								case 'text':
+								case TEXT:
 									optional = false;
 									break;
-								case 'dynamic':
-									optional = this.getDefaultOption(segments[j].name) != null;
+								case DYNAMIC:
+									optional = this.defaults[segments[j].name] != null;
 									break;
 							}
 							if (!optional) break;
@@ -461,43 +428,42 @@ The path contains neither dynamic part but specifies their values.
 						
 						if (!optional)
 						{
-							pattern += this._escapeForRegExp(segment.type == 'dynamic' ? segment.name : segment.value);
+							source += this._escapeForRegExp(segment.type == DYNAMIC ? segment.name : segment.value);
 						}
 						else
 						{
 							var remainingSegments:Array = segments.slice(i + 1);
 							
-							if (!remainingSegments.length || ((remainingSegments.length == 1) && (remainingSegments[0].type == 'separator')))
+							if (!remainingSegments.length || ((remainingSegments.length == 1) && (remainingSegments[0].type == SEPARATOR)))
 							{
-								pattern += '\\/?';
+								source += "\\/?";
 							}
 							else
 							{
-								return pattern + '(?:\\/?\\Z|\\/' + this._getPatternSource(remainingSegments) + ')';
+								return source + "(?:\\/?\\Z|\\/" + this._getRegExpSource(remainingSegments) + ")";
 							}
 						}
 						break;
-					case 'dynamic':
-						var requirement:RegExp = this.getRequirement(segment.name);
-						segmentPattern = requirement ? '(' + requirement.source + ')' : '([^\\/;.,?]+)';
-						pattern += segmentPattern;
+					case DYNAMIC:
+						var requirement:RegExp = this.requirements[segment.name];
+						segmentSource = requirement ? "(" + requirement.source + ")" : "([^\\/;.,?]+)";
+						source += segmentSource;
 						break;
 				}
 			}
 
-			return pattern;
+			return source;
 		}
 
 
 		/**
-		 *
 		 * Tokenizes a string.
-		 * 
 		 */
-		private function _tokenize(path:String):Array
+		private function _tokenize(pattern:String):Array
 		{
+// TODO: Need to do some cleaning up here. For example, normalize the path.
 			// Get the dynamic segments.
-			var dynamicSegments:Array = path.match(/:([\w]+)/g);
+			var dynamicSegments:Array = pattern.match(/:([\w]+)/g);
 
 			// Create a list of dynamic segment names.
 			this._dynamicSegmentNames = dynamicSegments.slice();
@@ -517,31 +483,31 @@ The path contains neither dynamic part but specifies their values.
 			}
 		
 			//
-			// Tokenize the path.
+			// Tokenize the pattern.
 			//
 
 			// Add a trailing slash.
-			path = path.replace(/\/?$/, '/');
-			var a:Array = [path];
+			pattern = pattern.replace(/\/?$/, "/");
+			var a:Array = [pattern];
 			
 			// Make dynamic parts into tokens
 			for each (var dynamicSegment:String in dynamicSegments)
 			{
-				this._replaceWithToken(a, dynamicSegment, 'dynamic');
+				this._replaceWithToken(a, dynamicSegment, DYNAMIC);
 			}
 
 			// Make separators into tokens.
-			this._replaceWithToken(a, '/', 'separator');
+			this._replaceWithToken(a, "/", SEPARATOR);
 
 			// Make remaining strings into tokens.
 			for (i = 0; i < a.length; i++)
 			{
 				if (a[i] is String)
 				{
-					a.splice(i, 1, {value: a[i], type: 'text'});
+					a.splice(i, 1, {value: a[i], type: TEXT});
 				}
 			}
-			return this._tokenizedPath = a;
+			return this._tokenizedPattern = a;
 		}
 
 
@@ -566,7 +532,7 @@ The path contains neither dynamic part but specifies their values.
 					{
 						// Remove the preceding color from dynamic segments.
 						var o:Object = {type: type};
-						if (type == 'dynamic')
+						if (type == DYNAMIC)
 						{
 							o.name = str.substr(1);;
 						}
@@ -581,7 +547,7 @@ The path contains neither dynamic part but specifies their values.
 					// Remove the empty items.
 					for (j = 0; j < tmp.length; j++)
 					{
-						if (tmp[j] == '')
+						if (tmp[j] == "")
 						{
 							tmp.splice(j--, 1);
 						}
