@@ -71,9 +71,11 @@
 
 			var finishEvent:ActionEvent = new ActionEvent(ActionEvent.ACTION_FINISH, token, false, true);
 			this.dispatchEvent(finishEvent);
-// Should we call the responders if default is prevented?
 
-			token.async_internal::callResponders();
+// Should we call the responders if default is prevented?
+if (!fnReturnsToken)
+	token.async_internal::callResponders();
+
 			return token;
 		}
 
