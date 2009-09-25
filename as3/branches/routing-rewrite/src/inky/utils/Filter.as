@@ -17,7 +17,7 @@
 	dynamic public class Filter extends ObjectProxy
 	{
 // TODO: Rename this?
-
+trace("Warning: inky.utils.Filter has been deprecated in favor of inky.utils.Requirement. SWITCH.");
 		/**
 		 *
 		 */

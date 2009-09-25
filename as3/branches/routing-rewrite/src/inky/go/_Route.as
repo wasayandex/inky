@@ -1,4 +1,4 @@
-package inky.routing
+package inky.go
 {
 	import inky.utils.CloningUtil;
 
@@ -324,11 +324,7 @@ package inky.routing
 
 
 		/**
-		 *
-		 * Match the route against a url. If the url matches the route, this
-		 * function returns a hashmap of the dynamic parts (an "options"
-		 * object). Otherwise, it returns null.
-		 * 
+		 * @inheritDoc
 		 */
 		public function match(url:String):Object
 		{

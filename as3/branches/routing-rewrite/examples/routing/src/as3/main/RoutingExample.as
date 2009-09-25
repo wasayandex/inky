@@ -1,7 +1,10 @@
 package  
 {
 	import flash.display.Sprite;
-	import inky.routing.Mapper;
+	import inky.go.*;
+	import inky.go.events.*;
+	import flash.events.MouseEvent;
+	import flash.events.Event;
 
 	/**
 	 *
@@ -16,28 +19,31 @@ package
 	 */
 	public class RoutingExample extends Sprite
 	{
-		
+		private var _frontController:FrontController;
+
+
 		/**
 		 *
 		 */
 		public function RoutingExample()
 		{
-			var m:Mapper = new Mapper();
-			m.connect("#/some/pretty/:path", this.doStuff, {controller: "happy"});
+			// Create a router.
+			var map:Router = new Router();
+			map.addRoute(new Route("showEmployee", {id: 5}, {id: 5}));
+
+			var frontController:FrontController = new FrontController(this, map);
+			this._frontController = frontController;
+
+			// Add a dumb button.
+			var button:Sprite = new Sprite();
+			button.graphics.beginFill(0xff0000);
+			button.graphics.drawRect(0, 0, 100, 100);
+			this.addChild(button);
+			button.addEventListener(MouseEvent.CLICK, function(event:MouseEvent):void {dispatchEvent(new Event("showEmployee"))});
 		}
 
 
-		/**
-		 *	
-		 */
-		private function doStuff(params:Object):void
-		{
-			trace(params)
-			for (var p:String in params)
-				trace("\t" + p + ":\t" + params[p]);
-		}
 
 		
 	}
-	
 }
