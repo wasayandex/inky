@@ -216,7 +216,22 @@ throw new Error("not yet implemented");
 			else if (!(item is XML))
 				throw new ArgumentError();
 
-			return this._source.contains(item) ? item.childIndex() : -1;
+			var index:int = -1;
+			if (this._source.contains(item))
+			{
+				// Determine the item's index. (Can't use childIndex() because we need the position in this list, not the items children list.)
+				var len:int = this._source.length();
+				for (var i:int = 0; i < len; i++)
+				{
+					if (this._source[i] === item)
+					{
+						index = i;
+						break;
+					}
+				}
+			}
+
+			return index;
 		}
 
 
@@ -311,16 +326,20 @@ throw new Error("not yet implemented");
 
 			if (index < 0 || index > this.length)
 				throw new RangeError("The supplied index (" + index + ") is out of bounds.");
-			
+
 			// Update the list.
 			var newSource:XMLList = new XMLList();
-			for (var i:int = 0; i < this._source.length() + 1; i++)
+			var j:int = 0;
+			for (var i:int = 0; i < this._source.length(); i++)
 			{
 				if (i != index)
-					newSource = newSource + this._source[i];
+				{
+					newSource = newSource + this._source[j];
+					j++;
+				}
 			}
 			this._source = newSource;
-			
+
 			var event:CollectionEvent = new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.REMOVE, -1, index, [item]);
 			this.dispatchEvent(event);
 			

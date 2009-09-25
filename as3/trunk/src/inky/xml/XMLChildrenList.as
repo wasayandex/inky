@@ -37,8 +37,8 @@ package inky.xml
 			if (proxy)
 			{
 				super(proxy.children());
-				proxy.addEventListener(XMLEvent.ADDED, this._childrenChangeHandler, false, 0, true);
-				proxy.addEventListener(XMLEvent.CHILD_REMOVED, this._childrenChangeHandler, false, 0, true);
+				proxy.addEventListener(XMLEvent.ADDED, this._addedHandler, false, 0, true);
+				proxy.addEventListener(XMLEvent.CHILD_REMOVED, this._childRemovedHandler, false, 0, true);
 				this._node = proxy;
 			}
 			else
@@ -88,7 +88,7 @@ package inky.xml
 			var length:int = this._node.children().length;
 
 			if (index < 0 || (length && index >= length))
-				throw new ArgumentError("index " + index + " is out of bounds.");
+				throw new RangeError("index " + index + " is out of bounds.");
 				
 			if (length)
 				this._node.insertChildBefore(this._node.children().getItemAt(index), item);
@@ -142,7 +142,12 @@ throw new Error("not yet implemented");
 		 */
 		override public function removeItemAt(index:uint):Object
 		{
-throw new Error("not yet implemented");
+			if (index < 0 || index >= this.length)
+				throw new RangeError();
+			
+			var item:Object = this.getItemAt(index);
+			this._node.removeChild(item);
+			return item;
 		}
 
 
@@ -173,10 +178,6 @@ throw new Error("not yet implemented");
 		}
 
 
-
-
-
-
 		/**
 		 *	@inheritDoc
 		 */
@@ -188,37 +189,37 @@ throw new Error("not yet implemented");
 
 
 
+		//
+		// private methods
+		//
+
 
 		/**
 		 *	
 		 */
-		private function _childrenChangeHandler(event:XMLEvent):void
+		private function _addedHandler(event:XMLEvent):void
 		{
 			var relatedNode:IXMLProxy = event.relatedNode;
-
+			
 			// Make sure the event isn't just bubbling through this node.
 			if (this._node.equals(relatedNode.parent()))
 			{
-				// Update the list.
-				switch (event.type)
-				{
-					case XMLEvent.ADDED:
-					{
-						super.addItemAt(relatedNode, relatedNode.childIndex());
-						break;
-					}
-					case XMLEvent.CHILD_REMOVED:
-					{
-						super.removeItem(relatedNode);
-						break;
-					}
-				}
+				super.addItemAt(relatedNode, relatedNode.childIndex());
 			}
 		}
 
 
-
-
+		/**
+		 *	
+		 */
+		private function _childRemovedHandler(event:XMLEvent):void
+		{
+			// Make sure the event isn't just bubbling through this node.
+			if (this._node.equals(event.target))
+			{
+				super.removeItem(event.relatedNode);
+			}
+		}
 
 
 
