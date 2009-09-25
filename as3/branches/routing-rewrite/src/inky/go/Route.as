@@ -67,7 +67,7 @@ package inky.go
 				match = {};
 				var p:String;
 			
-				// Do the mapping, if necessary.
+				// Map the event to an args object.
 				if (this._argumentMap)
 				{
 					for (p in this._argumentMap)
@@ -77,14 +77,34 @@ package inky.go
 				}
 				else
 				{
-	// FIXME: Yikes, this is some costly stuff. How to improve?
+					// Perform the default event -> args mapping.
+// FIXME: Yikes, this is some costly stuff. How to improve?
 					match = {};
 					var typeDescription:XML = describeType(obj);
 					var properties:XMLList = typeDescription.variable + typeDescription.accessor;
 					for each (var prop:XML in properties.(@type == "String" || @type == "Number" || @type == "Boolean" || @type == "uint" || @type == "int"))
 					{
 						var propName:String = prop.@name;
-						match[propName] = obj[propName];
+						switch (propName)
+						{
+							case "eventPhase":
+							case "bubbles":
+							case "cancelable":
+							{
+								// ignore event properties.
+								break;
+							}
+							case "type":
+							{
+								match.action = obj[propName];
+								break;
+							}
+							default:
+							{
+								match[propName] = obj[propName];
+								break;
+							}
+						}
 					}
 				}
 

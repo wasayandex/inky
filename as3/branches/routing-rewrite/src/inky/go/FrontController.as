@@ -82,13 +82,19 @@ package inky.go
 		private function _handleRequest(event:Event):void
 		{
 			var match:Object = this.router.findMatch(event);
-if (match)
-{
-	trace("Found match!");
-	for (var p in match.params)
-		trace("\t" + p + ":\t" + match.params[p]);
-}
-else trace("no match");
+			if (match)
+				this.handleRequest(match.params);
+			else
+				trace("no match");
+		}
+
+
+
+		protected function handleRequest(params:Object):void
+		{
+			trace("Found match!");
+			for (var p in params)
+				trace("\t" + p + ":\t" + params[p]);
 		}
 
 
