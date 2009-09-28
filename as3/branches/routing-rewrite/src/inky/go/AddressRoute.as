@@ -212,34 +212,6 @@ package inky.go
 			return match;
 		}
 
-		/**
-		 * @inheritDoc
-		 */
-		private function _matchAddress(url:String):Object
-		{
-			var result:Object; 
-			var o:Array = url.match(this._regExp);
-
-			if (o)
-			{
-				result = {};
-				// add the default options to compensate for a
-				// route that has no dynamic segments, but could have
-				// implied options (as in the case of an overrideURL.)
-				for (var p:String in this.defaults)
-				{
-					result[p] = this.defaults[p];
-				}
-				for (var i:uint = 0; i < o.length - 1; i++)
-				{
-					var optionName:String = this._dynamicSegmentNames[i];
-					result[optionName] = o[i + 1] != null ? o[i + 1] : this.defaults[optionName];
-				}
-			}
-
-			return result;
-		}
-
 
 
 
@@ -338,6 +310,35 @@ package inky.go
 			}
 
 			return source;
+		}
+
+
+		/**
+		 * @inheritDoc
+		 */
+		private function _matchAddress(url:String):Object
+		{
+			var result:Object; 
+			var o:Array = url.match(this._regExp);
+
+			if (o)
+			{
+				result = {};
+				// add the default options to compensate for a
+				// route that has no dynamic segments, but could have
+				// implied options (as in the case of an overrideURL.)
+				for (var p:String in this.defaults)
+				{
+					result[p] = this.defaults[p];
+				}
+				for (var i:uint = 0; i < o.length - 1; i++)
+				{
+					var optionName:String = this._dynamicSegmentNames[i];
+					result[optionName] = o[i + 1] != null ? o[i + 1] : this.defaults[optionName];
+				}
+			}
+
+			return result;
 		}
 
 
