@@ -29,17 +29,28 @@ package
 		{
 			// Create a router.
 			var map:Router = new Router();
-			map.addRoute(new Route("showEmployee", {id: 5}, {id: 5}));
+			map.addRoute(new Route("showEmployee", {controller: "employee", action: "view", id: "0"}, {id: /[0-9]+/}));
+			map.addRoute(new AddressRoute("#/books/:id", "showBook", {controller: "books", action: "view", id: "0"}, {id: /[0-9]+/}));
 
-			var frontController:FrontController = new FrontController(this, map);
+			var frontController:AddressFrontController = new AddressFrontController(this, map);
 			this._frontController = frontController;
 
-			// Add a dumb button.
+			// Add a "show employee" button.
+			this._createButton("showEmployee", 0, 0);
+			
+			// Add a "show book" button.
+			this._createButton("showBook", 110, 0);
+		}
+		
+		private function _createButton(eventType:String, x:Number = 0, y:Number = 0):void
+		{
 			var button:Sprite = new Sprite();
-			button.graphics.beginFill(0xff0000);
+			button.graphics.beginFill(uint(Math.random() * 0xff0000));
 			button.graphics.drawRect(0, 0, 100, 100);
 			this.addChild(button);
-			button.addEventListener(MouseEvent.CLICK, function(event:MouseEvent):void {dispatchEvent(new Event("showEmployee"))});
+			button.x = x;
+			button.y = y;
+			button.addEventListener(MouseEvent.CLICK, function(event:MouseEvent):void {dispatchEvent(new Event(eventType, true))});
 		}
 
 

@@ -1,29 +1,25 @@
-package inky.go
+package inky.go 
 {
+	import com.asual.swfaddress.SWFAddressEvent;
 	import inky.utils.CloningUtil;
 
-
+	
 	/**
 	 *
-	 * ..
+	 *  ..
 	 *	
-	 * @see http://code.google.com/p/inky/wiki/Routing
-	 * 
-	 * @langversion ActionScript 3
-	 * @playerversion Flash 9.0.0
+	 * 	@langversion ActionScript 3
+	 *	@playerversion Flash 9.0.0
 	 *
-	 * @author Eric Eldredge
-	 * @author Matthew Tretter
-	 * @since  2007.11.02
+	 *	@author Matthew Tretter
+	 *	@since  2009.09.28
 	 *
 	 */
-	public class Route
+	public class AddressRoute extends Route
 	{
-		private var _defaults:Object;
 		private var _dynamicSegmentNames:Array;
 		private var _pattern:String;
 		private var _patternSource:String;
-		private var _requirements:Object;
 		private var _tokenizedPattern:Array;
 		private var _regExp:RegExp;
 		
@@ -32,47 +28,13 @@ package inky.go
 		private static const SEPARATOR:String = "separator";
 		private static const DYNAMIC:String = "dynamic";
 
-
 		/**
-		 *
-		 * Creates a new Route
-		 *
-		 * @param pattern
-		 * @param defaults
-		 * @param requirements
-		 * 
+		 *	
 		 */
-		public function Route(pattern:String, defaults:Object = null, requirements:Object = null)
+		public function AddressRoute(addressPattern:String, triggers:Object, defaults:Object = null, requirements:Object = null, argumentMap:Object = null)
 		{
-			this._defaults = defaults || {};
-			this._requirements = requirements || {};
-
-			this._patternSource = pattern;
-
-			for (var optionName:String in defaults)
-			{
-				this.defaults[optionName] = defaults[optionName];
-			}
-
-			for (var requirementName:String in requirements)
-			{
-				var r:Object = requirements[requirementName];
-				var requirement:RegExp;
-				if (r is String)
-				{
-					requirement = new RegExp(r as String);
-				}
-				else if (r is RegExp)
-				{
-					requirement = r as RegExp;
-				}
-				else
-				{
-					throw new ArgumentError();
-				}
-				this.requirements[requirementName] = requirement;
-			}
-
+			super(triggers, defaults, requirements, argumentMap);
+			this._patternSource = addressPattern;
 			this._createRegExp();
 		}
 
@@ -124,38 +86,6 @@ package inky.go
 		//
 		// public methods
 		//
-
-
-		/**
-		 *
-		 */
-		public function get defaults():Object
-		{ 
-			return this._defaults; 
-		}
-		/**
-		 * @private
-		 */
-		public function set defaults(value:Object):void
-		{
-			this._defaults = value;
-		}
-
-
-		/**
-		 *
-		 */
-		public function get requirements():Object
-		{ 
-			return this._requirements; 
-		}
-		/**
-		 * @private
-		 */
-		public function set requirements(value:Object):void
-		{
-			this._requirements = value;
-		}
 
 
 		/**
@@ -241,7 +171,7 @@ package inky.go
 					removeChunk = optionalTokens.indexOf(token) != -1;
 					j++
 				}
-				
+
 				if (removeChunk)
 				{
 					chunks.splice(i, 1);
@@ -269,64 +199,23 @@ package inky.go
 
 
 		/**
-		 *	@private
-		 *	Determines whether this is a route for the given options.
-		 *	TODO: rename? expose?
-		 *	
+		 *	@inheritDoc
 		 */
-		public function isRouteFor(options:Object = null):Boolean
+		override public function match(obj:Object):Object
 		{
-			var isRouteFor;
-			options = options || {};
+			var match:Object;
+			if (obj is SWFAddressEvent && obj.type == SWFAddressEvent.CHANGE)
+				match = this._matchAddress("#" + obj.value);
+			else if (this.triggers.indexOf(obj.type) != -1)
+				match = super.match(obj);
 
-			var p:String;
-			
-			// Make sure each of the dynamic parts has a corresponding option.
-			for each (p in this._dynamicSegmentNames)
-			{
-				if (!options.hasOwnProperty(p) && (this.defaults[p] == null))
-				{
-					isRouteFor = false;
-					break;
-				}
-			}
-
-			// Make sure there are no extra options. (Strict mode only)
-			if (isRouteFor)
-			{
-				for (p in options)
-				{
-					if (this._dynamicSegmentNames.indexOf(p) == -1)
-					{
-						isRouteFor = false;
-						break;
-					}
-				}
-			}
-
-			// Make sure all the requirements are satisfied.
-			if (isRouteFor)
-			{
-				for (p in this.requirements)
-				{
-					var requirement:RegExp = this.requirements[p];
-					var value:String = options.hasOwnProperty(p) ? options[p] : this.defaults[p];
-					if (!requirement.test(value))
-					{
-						isRouteFor = false;
-						break;
-					}
-				}
-			}
-
-			return isRouteFor;
+			return match;
 		}
-
 
 		/**
 		 * @inheritDoc
 		 */
-		public function match(url:String):Object
+		private function _matchAddress(url:String):Object
 		{
 			var result:Object; 
 			var o:Array = url.match(this._regExp);
@@ -407,7 +296,7 @@ package inky.go
 					case SEPARATOR:
 						// Determine whether the separator is optional based on whether subsequent parts are optional.
 						optional = true;
-						
+
 						for (j = i + 1; j < segments.length; j++)
 						{
 							switch (segments[j].type)
@@ -421,7 +310,7 @@ package inky.go
 							}
 							if (!optional) break;
 						}
-						
+
 						if (!optional)
 						{
 							source += this._escapeForRegExp(segment.type == DYNAMIC ? segment.name : segment.value);
@@ -429,7 +318,7 @@ package inky.go
 						else
 						{
 							var remainingSegments:Array = segments.slice(i + 1);
-							
+
 							if (!remainingSegments.length || ((remainingSegments.length == 1) && (remainingSegments[0].type == SEPARATOR)))
 							{
 								source += "\\/?";
@@ -477,7 +366,7 @@ package inky.go
 					dynamicSegments.splice(i--, 1);
 				}
 			}
-		
+
 			//
 			// Tokenize the pattern.
 			//
@@ -485,7 +374,7 @@ package inky.go
 			// Add a trailing slash.
 			pattern = pattern.replace(/\/?$/, "/");
 			var a:Array = [pattern];
-			
+
 			// Make dynamic parts into tokens
 			for each (var dynamicSegment:String in dynamicSegments)
 			{
@@ -536,7 +425,7 @@ package inky.go
 						{
 							o.value = str;
 						}
-						
+
 						tmp.splice(p, 0, o);
 					}
 

@@ -19,8 +19,9 @@ package inky.go
 	{
 		private var _argumentMap:Object;
 		private var _defaults:Object;
-		private var _requirements:Requirement;
-		private var _trigger:String;
+		private var _requirements:Object;
+		private var _requirementTester:Requirement;
+		private var _triggers:Array;
 		
 		/**
 		 *
@@ -31,25 +32,80 @@ package inky.go
 		 * 
 		 * 
 		 */
-		public function Route(trigger:String, defaults:Object = null, requirements:Object = null, argumentMap:Object = null)
+		public function Route(triggers:Object, defaults:Object = null, requirements:Object = null, argumentMap:Object = null)
 		{
+// FIXME: Last argument should be an adapter object. (Simple one should be creatable with argument map)
+			if (triggers is String)
+				this._triggers = [triggers];
+			else if (triggers is Array)
+				this._triggers = triggers.concat();
+			else
+				throw new ArgumentError();
+			
 			if (typeof argumentMap != "object")
 				throw new ArgumentError("Invalid arguments map!");
+				
+			// Create the requirements object.
+			var requirements:Object = {};
+			for (var requirementName:String in requirements)
+			{
+				var r:Object = requirements[requirementName];
+				var requirement:RegExp;
+				if (r is String)
+					requirement = new RegExp(r as String);
+				else if (r is RegExp)
+					requirement = r as RegExp;
+				else
+					throw new ArgumentError();
+				requirements[requirementName] = requirement;
+			}
 			
-			this._trigger = trigger;
+			this._requirements = requirements;
+			this._requirementTester = new Requirement(requirements);
 			this._argumentMap = argumentMap;
 			this._defaults = defaults || {};
-			this._requirements = requirements ? new Requirement(requirements) : null;
+		}
+
+
+
+
+		//
+		// accessors
+		//
+
+
+		/**
+		 *
+		 */
+		public function get defaults():Object
+		{ 
+			return this._defaults; 
+		}
+
+
+		/**
+		 *
+		 */
+		public function get requirements():Object
+		{ 
+			return this._requirements; 
 		}
 
 
 		/**
 		 *	
 		 */
-		public function get trigger():String
+		public function get triggers():Array
 		{
-			return this._trigger;
+			return this._triggers;
 		}
+
+
+
+
+		//
+		// public methods
+		//
 
 
 		/**
@@ -58,7 +114,7 @@ package inky.go
 		public function match(obj:Object):Object
 		{
 			var match:Object;
-			if (!obj.type == this._trigger)
+			if (this._triggers.indexOf(obj.type) == -1)
 			{
 				match = null;
 			}
@@ -96,7 +152,7 @@ package inky.go
 							}
 							case "type":
 							{
-								match.action = obj[propName];
+								match.action = this.defaults.action == null ? obj[propName] : this.defaults.action;
 								break;
 							}
 							default:
@@ -114,7 +170,7 @@ package inky.go
 						match[p] = this._defaults[p];
 			
 				// Make sure it meets the requirements.
-				if (this._requirements && !this._requirements.test(match))
+				if (this._requirements && !this._requirementTester.test(match))
 					match = null;
 			}
 
