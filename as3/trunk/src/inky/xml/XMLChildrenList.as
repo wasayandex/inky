@@ -216,9 +216,7 @@ throw new Error("not yet implemented");
 		{
 			// Make sure the event isn't just bubbling through this node.
 			if (this._node.equals(event.target))
-			{
 				super.removeItem(event.relatedNode);
-			}
 		}
 
 

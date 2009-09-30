@@ -47,9 +47,9 @@
 		 * 
 		 *
 		 */	
-	    public function XMLListProxy(source:XMLList)
+	    public function XMLListProxy(source:XMLList = null)
 	    {
-			this.setSource(source);
+			this.setSource(source || new XMLList());
 	    }
 
 
@@ -329,14 +329,10 @@ throw new Error("not yet implemented");
 
 			// Update the list.
 			var newSource:XMLList = new XMLList();
-			var j:int = 0;
 			for (var i:int = 0; i < this._source.length(); i++)
 			{
 				if (i != index)
-				{
-					newSource = newSource + this._source[j];
-					j++;
-				}
+					newSource = newSource + this._source[i];
 			}
 			this._source = newSource;
 
