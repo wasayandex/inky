@@ -1,4 +1,4 @@
-package inky.db
+package inky.orm
 {
 	import inky.collections.ArrayList;
 
