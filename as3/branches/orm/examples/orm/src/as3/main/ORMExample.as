@@ -24,7 +24,7 @@ package
 		 */
 		public function ORMExample()
 		{
-			var db:Database = new Database(
+			var db:Repository = new Repository(
 				<db>
 					<book id="0" title="James and the Giant Peach" author="1" />
 					<book id="1" title="On The Road" author="5" />

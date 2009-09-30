@@ -1,7 +1,7 @@
 package inky.orm 
 {
 	import inky.async.AsyncToken;
-	import inky.orm.IDatabase;
+	import inky.orm.IRepository;
 
 	
 	/**
@@ -15,14 +15,14 @@ package inky.orm
 	 *	@since  2009.09.28
 	 *
 	 */
-	public class Database implements IDatabase
+	public class Repository implements IRepository
 	{
 		private var _data:XML;
 		
 		/**
 		 *
 		 */
-		public function Database(data:XML = null)
+		public function Repository(data:XML = null)
 		{
 			this._data = data || <db />;
 		}

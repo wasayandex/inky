@@ -1,6 +1,6 @@
 package
 {
-	import inky.orm.BusinessObject;
+	import inky.orm.DataMapperResource;
 
 
 	/**
@@ -14,7 +14,7 @@ package
 	 *	@since  2009.09.29
 	 *
 	 */
-	dynamic public class Book extends BusinessObject
+	dynamic public class Book extends DataMapperResource
 	{
 /*
 

@@ -3,8 +3,9 @@ package inky.orm
 	import flash.utils.getQualifiedClassName;
 	import flash.utils.describeType;
 	import inky.async.AsyncToken;
-	import inky.orm.IDatabase;
+	import inky.orm.IRepository;
 	import inky.orm.IDataMapper;
+	import inky.collections.IList;
 
 	
 	/**
@@ -20,13 +21,13 @@ package inky.orm
 	 */
 	public class DataMapper implements IDataMapper
 	{
-		private var _db:IDatabase;
+		private var _db:IRepository;
 
 
 		/**
 		 *
 		 */
-		public function DataMapper(db:IDatabase)
+		public function DataMapper(db:IRepository)
 		{
 			this._db = db;
 		}
@@ -42,7 +43,7 @@ package inky.orm
 		/**
 		 *	
 		 */
-		public function find(conditions:Object):ActiveCollection
+		public function find(conditions:Object):IList
 		{
 			return null;
 		}
@@ -60,7 +61,7 @@ package inky.orm
 		/**
 		 *	@inheritDoc
 		 */
-		public function load(obj:BusinessObject, conditions:Object):AsyncToken
+		public function load(obj:DataMapperResource, conditions:Object):AsyncToken
 		{
 			return null;
 		}
@@ -69,7 +70,7 @@ package inky.orm
 		/**
 		 *	@inheritDoc
 		 */
-		public function remove(obj:BusinessObject, cascade:Boolean = true):AsyncToken
+		public function remove(obj:DataMapperResource, cascade:Boolean = true):AsyncToken
 		{
 			return null;
 		}
@@ -78,7 +79,7 @@ package inky.orm
 		/**
 		 *	
 		 */
-		public function save(obj:BusinessObject, cascade:Boolean = false):AsyncToken
+		public function save(obj:DataMapperResource, cascade:Boolean = false):AsyncToken
 		{
 			if (!obj)
 				throw new ArgumentError();
@@ -105,7 +106,7 @@ package inky.orm
 		 *  from scratch. The default implementation is to put all of the
 		 *  business object's properties of primitive type onto the DTO.
 		 */
-		protected function getDTO(obj:BusinessObject):Object
+		protected function getDTO(obj:DataMapperResource):Object
 		{
 			var dto:Object = {};
 
@@ -141,7 +142,7 @@ package inky.orm
 		 *	Given a business object, this function returns the name of the table
 		 *  in which this object's data should be stored.
 		 */
-		protected function getTableName(obj:BusinessObject):String
+		protected function getTableName(obj:DataMapperResource):String
 		{
 			var className:String = getQualifiedClassName(obj).split("::").pop();
 			return className.substr(0, 1).toLowerCase() + className.substr(1);

@@ -14,7 +14,7 @@ package inky.orm
 	 *	@since  2009.09.28
 	 *
 	 */
-	public interface IDatabase
+	public interface IRepository
 	{
 		
 		/**
