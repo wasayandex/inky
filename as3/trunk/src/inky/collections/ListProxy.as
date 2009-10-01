@@ -1,6 +1,6 @@
 package inky.collections 
 {
-import flash.events.Event;
+	import flash.events.Event;
 	
 	/**
 	 *
