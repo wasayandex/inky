@@ -49,7 +49,7 @@ public function get ' + accessor_name + '():${2:' + class_type + '}
 public function set ' + accessor_name + '(value:${2:' + class_type + '}):void
 {
 	var oldValue:${2:' + class_type + '} = this.${1:_' + accessor_name + '};
-	if (value != this.${1:_' + accessor_name + '})
+	if (value != oldValue)
 	{
 		this.${1:_' + accessor_name + '} = value;
 		this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "' + accessor_name + '", oldValue, value));	
