@@ -77,7 +77,7 @@ package inky.utils
 		 */
 	    override flash_proxy function getDescendants(name:*):*
 	    {
-	    	throw new TypeError('Error #1016: Descendants operator (..) not supported on type ModelData.');
+	    	throw new TypeError("Error #1016: Descendants operator (..) not supported on " + this);
 	    }
 
 
@@ -86,6 +86,7 @@ package inky.utils
 		 */
 	    override flash_proxy function getProperty(name:*):*
 	    {
+// FIXME: new ObjectProxy().constructor (or new ObjectProxySubclass().constructor) will not return the correct values.
 			return this._item[name];
 	    }
 

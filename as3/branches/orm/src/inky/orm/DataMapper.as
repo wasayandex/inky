@@ -61,7 +61,7 @@ package inky.orm
 		/**
 		 *	@inheritDoc
 		 */
-		public function load(obj:DataMapperResource, conditions:Object):AsyncToken
+		public function load(obj:DomainModel, conditions:Object):AsyncToken
 		{
 			return null;
 		}
@@ -70,7 +70,7 @@ package inky.orm
 		/**
 		 *	@inheritDoc
 		 */
-		public function remove(obj:DataMapperResource, cascade:Boolean = true):AsyncToken
+		public function remove(obj:DomainModel, cascade:Boolean = true):AsyncToken
 		{
 			return null;
 		}
@@ -79,7 +79,7 @@ package inky.orm
 		/**
 		 *	
 		 */
-		public function save(obj:DataMapperResource, cascade:Boolean = false):AsyncToken
+		public function save(obj:DomainModel, cascade:Boolean = false):AsyncToken
 		{
 			if (!obj)
 				throw new ArgumentError();
@@ -106,7 +106,7 @@ package inky.orm
 		 *  from scratch. The default implementation is to put all of the
 		 *  business object's properties of primitive type onto the DTO.
 		 */
-		protected function getDTO(obj:DataMapperResource):Object
+		protected function getDTO(obj:DomainModel):Object
 		{
 			var dto:Object = {};
 
@@ -142,7 +142,7 @@ package inky.orm
 		 *	Given a business object, this function returns the name of the table
 		 *  in which this object's data should be stored.
 		 */
-		protected function getTableName(obj:DataMapperResource):String
+		protected function getTableName(obj:DomainModel):String
 		{
 			var className:String = getQualifiedClassName(obj).split("::").pop();
 			return className.substr(0, 1).toLowerCase() + className.substr(1);
