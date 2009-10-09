@@ -659,8 +659,10 @@ package inky.media
 		private function _stop():void
 		{
 			this._stopBufferingTimer();
-			this._soundChannel.stop();
-			this._playheadUpdateTimer.stop();
+			if (this._soundChannel)
+				this._soundChannel.stop();
+			if (this._playheadUpdateTimer)
+				this._playheadUpdateTimer.stop();
 		}
 
 
