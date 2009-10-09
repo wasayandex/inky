@@ -52,6 +52,9 @@ package
 			myComment.author = new User("Matthew", "Tretter");
 			myComment.save();
 
+			// Test the getter.
+			myComment.user;
+
 return;
 db.dump();
 

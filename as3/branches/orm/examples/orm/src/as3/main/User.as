@@ -16,8 +16,6 @@ package
 	 */
 	dynamic public class User extends DomainModel
 	{
-//!		defineRelationship(User, Relationship.HAS_N, "comments");
-//!		defineRelationship(User, Relationship.HAS_N, "friends", {className: "User", through: "friendships"});
 
 		addProperty(User, "comments");
 

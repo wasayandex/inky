@@ -17,6 +17,5 @@ package
 	dynamic public class Comment extends DomainModel
 	{
 		addProperty(Comment, "user");
-
 	}
 }

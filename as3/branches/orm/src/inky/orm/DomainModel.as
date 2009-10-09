@@ -42,7 +42,7 @@ package inky.orm
 		/**
 		 *	
 		 */
-		public static function addProperty(theClass:Class, property:String, options:Object = null):void
+		protected static function addProperty(theClass:Class, property:String, options:Object = null):void
 		{
 			if (!property)
 				throw new ArgumentError("Property name must be a non-empty, non-null String.");
@@ -82,8 +82,6 @@ package inky.orm
 			var relationship:IRelationship = new relationshipClass();
 			var relationshipMap:Object = _properties2Relationships[theClass] || (_properties2Relationships[theClass] = {});
 			relationshipMap[property] = relationship;
-trace("Related:\t" + theClass + "\t" + property + "\t" + relationship);
-// TODO: create the relationship.
 		}
 
 
@@ -92,7 +90,9 @@ trace("Related:\t" + theClass + "\t" + property + "\t" + relationship);
 		 */
 	    override flash_proxy function getProperty(name:*):*
 	    {
-trace("!");
+var o:Object = _properties2Relationships[this._class];
+var r:Object = o ? o[name] : null;
+trace("getting\t" + name + "\t" + r);
 			return super.flash_proxy::getProperty(name);
 	    }
 
