@@ -34,7 +34,7 @@ package inky.go
 		 */
 		public function Route(triggers:Object, defaults:Object = null, requirements:Object = null, argumentMap:Object = null)
 		{
-// FIXME: Last argument should be an adapter object. (Simple one should be creatable with argument map)
+// FIXME: Last argument should be an adapter object. (Simple one should be creatable with argument map). Then again, maybe just also allow a function?
 			if (triggers is String)
 				this._triggers = [triggers];
 			else if (triggers is Array)

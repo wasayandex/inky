@@ -4,6 +4,10 @@ package inky.go
 	import inky.go.events.RouterEvent;
 	import inky.go.Route;
 	import flash.events.Event;
+	import flash.events.EventDispatcher;
+	import inky.go.IRequestHandler;
+	import inky.go.events.RoutingEvent;
+	import inky.go.IFrontController;
 
 
 	/**
@@ -17,16 +21,17 @@ package inky.go
 	 *	@since  2009.09.24
 	 *
 	 */
-	public class FrontController
+	public class FrontController extends EventDispatcher implements IFrontController
 	{
 		private var _dispatchers:Array
 		private var _router:Router;
+		public var requestHandler:Object;
 
 
 		/**
 		 *
 		 */
-		public function FrontController(dispatchers:Object, router:Router)
+		public function FrontController(dispatchers:Object, router:Router, requestHandler:IRequestHandler)
 		{
 			if (dispatchers is Array)
 				this._dispatchers = dispatchers.concat();
@@ -34,13 +39,21 @@ package inky.go
 				this._dispatchers = [dispatchers];
 			else
 				throw new ArgumentError();
-
+			
+			this.requestHandler = requestHandler;
 			this.router = router;
 		}
 
 
+
+
+		//
+		// accessors
+		//
+
+
 		/**
-		 *
+		 * @inheritDoc
 		 */
 		public function get router():Router
 		{ 
@@ -63,7 +76,7 @@ package inky.go
 					for each (route in this._router.getRoutes())
 						for each (dispatcher in this._dispatchers)
 							for each (trigger in route.triggers)
-								dispatcher.removeEventListener(trigger, this.handleRequest);
+								dispatcher.removeEventListener(trigger, this.routeRequest);
 					this._router.removeEventListener(RouterEvent.ROUTE_ADDED, this._routeAddedHandler);
 				}
 				if (value)
@@ -71,7 +84,7 @@ package inky.go
 					for each (route in value.getRoutes())
 						for each (dispatcher in this._dispatchers)
 							for each (trigger in route.triggers)
-								dispatcher.addEventListener(trigger, this.handleRequest, false, 0, true);
+								dispatcher.addEventListener(trigger, this.routeRequest, false, 0, true);
 					value.addEventListener(RouterEvent.ROUTE_ADDED, this._routeAddedHandler, false, 0, true);
 				}
 
@@ -80,28 +93,46 @@ package inky.go
 		}
 
 
+
+
+		//
+		// public methods
+		//
+
+
 		/**
-		 *	
+		 *	@inheritDoc
+		 */
+		public function routeRequest(event:Event):void
+		{
+			// Map the event to a request object.
+			var match:Object = this.router.findMatch(event);
+			if (match)
+			{
+				var route:Route = match.route;
+				var params:Object = match.params;
+
+				if (this.dispatchEvent(new RoutingEvent(RoutingEvent.REQUEST_ROUTED, event, route, params)))
+					this.requestHandler.handleRequest(params);
+			}
+		}
+
+
+
+
+		//
+		// private methods
+		//
+
+
+		/**
+		 *	Add listeners to the dispatchers whenever a route is added.
 		 */
 		private function _routeAddedHandler(event:RouterEvent):void
 		{
 			for each (var trigger:String in event.route.triggers)
 				for each (var dispatcher:IEventDispatcher in this._dispatchers)
-					dispatcher.addEventListener(trigger, this.handleRequest, false, 0, true);
-		}
-
-
-		protected function handleRequest(event:Event):void
-		{
-			var match:Object = this.router.findMatch(event);
-			if (match)
-			{
-trace("Found match!");
-for (var p in match.params)
-	trace("\t" + p + ":\t" + match.params[p]);
-			}
-else
-	trace("no match");
+					dispatcher.addEventListener(trigger, this.routeRequest, false, 0, true);
 		}
 
 

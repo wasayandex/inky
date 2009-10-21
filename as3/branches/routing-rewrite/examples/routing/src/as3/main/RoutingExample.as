@@ -19,7 +19,7 @@ package
 	 */
 	public class RoutingExample extends Sprite
 	{
-		private var _frontController:FrontController;
+		private var _frontController:IFrontController;
 
 
 		/**
@@ -32,7 +32,8 @@ package
 			map.addRoute(new Route("showEmployee", {controller: "employee", action: "view", id: "0"}, {id: /[0-9]+/}));
 			map.addRoute(new AddressRoute("#/books/:id", "showBook", {controller: "books", action: "view", id: "0"}, {id: /[0-9]+/}));
 
-			var frontController:AddressFrontController = new AddressFrontController(this, map);
+			// Create the front controller.
+			var frontController:IFrontController = new AddressFrontController(new FrontController(this, map, new RequestHandler()));
 			this._frontController = frontController;
 
 			// Add a "show employee" button.
