@@ -1,9 +1,11 @@
-package inky.go 
+package inky.go.router 
 {
-	import inky.go.Route;
+	import inky.go.router.Route;
 	import inky.go.events.RouterEvent;
 	import flash.events.EventDispatcher;
 	import flash.events.Event;
+	import inky.go.router.IRoute;
+	import inky.go.router.IRouter;
 
 
 	/**
@@ -17,7 +19,7 @@ package inky.go
 	 *	@since  2009.09.24
 	 *
 	 */
-	public class Router extends EventDispatcher
+	public class Router extends EventDispatcher implements IRouter
 	{
 		private var _routes:Array;
 		
@@ -33,7 +35,7 @@ package inky.go
 		/**
 		 *	
 		 */
-		public function addRoute(route:Route):void
+		public function addRoute(route:IRoute):void
 		{
 			this._routes.push(route);
 			this.dispatchEvent(new RouterEvent(RouterEvent.ROUTE_ADDED, route));
@@ -46,7 +48,7 @@ package inky.go
 		public function findMatch(event:Event):Object
 		{
 			var matches:Object;
-			for each (var route:Route in this._routes)
+			for each (var route:IRoute in this._routes)
 			{
 				if ((matches = route.match(event)))
 				{

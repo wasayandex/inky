@@ -1,5 +1,6 @@
-package inky.go 
+package inky.go.dispatcher
 {
+	import inky.go.request.IRequest;
 	
 	/**
 	 *
@@ -12,13 +13,13 @@ package inky.go
 	 *	@since  2009.10.20
 	 *
 	 */
-	public interface IRequestHandler
+	public interface IRequestDispatcher
 	{
 
 		/**
 		 *	
 		 */
-		function handleRequest(request:Object):void;
+		function dispatchRequest(request:IRequest):void;
 	
 	}
 	

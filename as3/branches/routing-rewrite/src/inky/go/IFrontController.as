@@ -1,8 +1,9 @@
 package inky.go 
 {
 	import flash.events.IEventDispatcher;
-	import inky.go.Router;
 	import flash.events.Event;
+	import inky.go.router.IRouter;
+	
 
 	/**
 	 *
@@ -21,14 +22,14 @@ package inky.go
 		/**
 		 *
 		 */
-		function get router():Router;
-		function set router(value:Router):void;
+		function get router():IRouter;
+		function set router(value:IRouter):void;
 
 
 		/**
 		 *	
 		 */
-		function routeRequest(request:Event):void;
+		function routeEvent(event:Event):void;
 
 
 		

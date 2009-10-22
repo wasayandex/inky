@@ -1,7 +1,7 @@
 package inky.go.events
 {
 	import flash.events.Event;
-	import inky.go.Route;
+	import inky.go.router.IRoute;
 
 
 	/**
@@ -17,7 +17,7 @@ package inky.go.events
 	 */
 	public class RouterEvent extends Event
 	{
-		public var route:Route;
+		public var route:IRoute;
 		
 		
 		/**
@@ -79,7 +79,7 @@ package inky.go.events
 		 *      Specifies whether the behavior associated with the event can be prevented.
 		 *
 		 */
-		public function RouterEvent(type:String, route:Route, bubbles:Boolean = false, cancelable:Boolean = false)
+		public function RouterEvent(type:String, route:IRoute, bubbles:Boolean = false, cancelable:Boolean = false)
 		{
 			this.route = route;
 			super(type, bubbles, cancelable);		

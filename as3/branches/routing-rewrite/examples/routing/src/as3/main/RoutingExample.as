@@ -2,6 +2,9 @@ package
 {
 	import flash.display.Sprite;
 	import inky.go.*;
+	import inky.go.request.*;
+	import inky.go.dispatcher.*;
+	import inky.go.router.*;
 	import inky.go.events.*;
 	import flash.events.MouseEvent;
 	import flash.events.Event;
@@ -33,7 +36,7 @@ package
 			map.addRoute(new AddressRoute("#/books/:id", "showBook", {controller: "books", action: "view", id: "0"}, {id: /[0-9]+/}));
 
 			// Create the front controller.
-			var frontController:IFrontController = new AddressFrontController(new FrontController(this, map, new RequestHandler()));
+			var frontController:IFrontController = new AddressFrontController(new FrontController(this, map, new RequestDispatcher()));
 			this._frontController = frontController;
 
 			// Add a "show employee" button.

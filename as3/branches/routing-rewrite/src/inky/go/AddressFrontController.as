@@ -3,12 +3,14 @@ package inky.go
 	import com.asual.swfaddress.SWFAddress;
 	import com.asual.swfaddress.SWFAddressEvent;
 	import flash.events.Event;
-	import inky.go.AddressRoute;
+	import inky.go.router.AddressRoute;
 	import inky.utils.CloningUtil;
 	import inky.utils.EqualityUtil;
 	import flash.events.EventDispatcher;
 	import inky.go.events.RoutingEvent;
-	import inky.go.Router;
+	import inky.go.router.Router;
+	import inky.go.router.IRoute;
+	import inky.go.router.IRouter;
 	
 	/**
 	 *
@@ -40,7 +42,7 @@ package inky.go
 			// Relay all of the events from the decorated front controller.
 			this._setupEventRelaying([RoutingEvent.REQUEST_ROUTED]);
 
-			SWFAddress.addEventListener(SWFAddressEvent.CHANGE, this.routeRequest);
+			SWFAddress.addEventListener(SWFAddressEvent.CHANGE, this.routeEvent);
 		}
 
 
@@ -57,12 +59,11 @@ package inky.go
 		 */
 		private function _requestRoutedHandler(event:RoutingEvent):void
 		{
-			var request:Event = event.request;
-			var route:Route = event.route;
-			var params:Object = event.params;
-
+			var params:Object = event.request.params;
+			var triggerEvent:Event = event.triggerEvent;
+			var route:IRoute = event.route;
 			// Prevent responding to the same request twice. (Routed events will trigger address changes which will trigger this to fire again.)
-			if (this._lastParams && request is SWFAddressEvent && request.type == SWFAddressEvent.CHANGE && EqualityUtil.propertiesAreEqual(this._lastParams, params))
+			if (this._lastParams && triggerEvent is SWFAddressEvent && triggerEvent.type == SWFAddressEvent.CHANGE && EqualityUtil.propertiesAreEqual(this._lastParams, params))
 			{
 				this._lastParams = null;
 				event.preventDefault();
@@ -73,7 +74,7 @@ package inky.go
 				this._lastParams = null;
 			}
 
-			if (!(request is SWFAddressEvent && request.type == SWFAddressEvent.CHANGE) && route is AddressRoute)
+			if (!(triggerEvent is SWFAddressEvent && triggerEvent.type == SWFAddressEvent.CHANGE) && route is AddressRoute)
 			{
 				// Remember the params so we can prevent interpreting the same request twice.
 				this._lastParams = CloningUtil.clone(params);
@@ -121,17 +122,17 @@ package inky.go
 		/**
 		 *	@inheritDoc
 		 */
-		public function get router():Router { return this._frontController.router; }
+		public function get router():IRouter { return this._frontController.router; }
 		/**
 		 *	@private
 		 */
-		public function set router(value:Router):void { this._frontController.router = value; }
+		public function set router(value:IRouter):void { this._frontController.router = value; }
 
 
 		/**
 		 *	@inheritDoc
 		 */
-		public function routeRequest(event:Event):void { this._frontController.routeRequest(event); }
+		public function routeEvent(event:Event):void { this._frontController.routeEvent(event); }
 
 
 

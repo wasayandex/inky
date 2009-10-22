@@ -1,4 +1,4 @@
-package inky.go 
+package inky.go.router 
 {
 	import inky.utils.PropertyChain;
 	import inky.utils.Requirement;
@@ -15,7 +15,7 @@ package inky.go
 	 *	@since  2009.09.24
 	 *
 	 */
-	public class Route
+	public class Route implements IRoute
 	{
 		private var _argumentMap:Object;
 		private var _defaults:Object;

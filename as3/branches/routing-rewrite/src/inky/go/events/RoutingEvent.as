@@ -1,7 +1,8 @@
 package inky.go.events
 {
 	import flash.events.Event;
-	import inky.go.Route;
+	import inky.go.router.IRoute;
+	import inky.go.request.IRequest;
 
 	/**
 	 *
@@ -16,9 +17,9 @@ package inky.go.events
 	 */
 	public class RoutingEvent extends Event
 	{
-		public var request:Event;
-		public var route:Route;
-		public var params:Object;
+		public var triggerEvent:Event;
+		public var route:IRoute;
+		public var request:IRequest;
 
 
 		/**
@@ -52,12 +53,12 @@ package inky.go.events
 		 *      The event type; indicates the action that caused the event.
 		 *
 		 */
-		public function RoutingEvent(type:String, request:Event, route:Route, params:Object)
+		public function RoutingEvent(type:String, triggerEvent:Event, route:IRoute, request:IRequest)
 		{
 			super(type, false, true);
-			this.request = request;
+			this.triggerEvent = triggerEvent;
 			this.route = route;
-			this.params = params;
+			this.request = request;
 		}
 
 
@@ -73,7 +74,7 @@ package inky.go.events
 		 */
 		override public function clone():Event
 		{
-			return new RoutingEvent(this.type, this.request, this.route, this.params);
+			return new RoutingEvent(this.type, this.triggerEvent, this.route, this.request);
 		}
 
 
@@ -82,7 +83,7 @@ package inky.go.events
 		 */
 		public override function toString():String
 		{
-			return this.formatToString("RoutingEvent", "type", "request", "route", "params");
+			return this.formatToString("RoutingEvent", "type", "triggerEvent", "route", "request");
 		}
 
 

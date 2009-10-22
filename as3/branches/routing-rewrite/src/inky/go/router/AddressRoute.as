@@ -1,4 +1,4 @@
-package inky.go 
+package inky.go.router 
 {
 	import com.asual.swfaddress.SWFAddressEvent;
 	import inky.utils.CloningUtil;

@@ -2,12 +2,15 @@ package inky.go
 {
 	import flash.events.IEventDispatcher;
 	import inky.go.events.RouterEvent;
-	import inky.go.Route;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
-	import inky.go.IRequestHandler;
+	import inky.go.dispatcher.IRequestDispatcher;
 	import inky.go.events.RoutingEvent;
 	import inky.go.IFrontController;
+	import inky.go.request.Request;
+	import inky.go.router.IRoute;
+	import inky.go.router.IRouter;
+	import inky.go.router.Router;
 
 
 	/**
@@ -24,14 +27,14 @@ package inky.go
 	public class FrontController extends EventDispatcher implements IFrontController
 	{
 		private var _dispatchers:Array
-		private var _router:Router;
-		public var requestHandler:Object;
+		private var _router:IRouter;
+		public var requestDispatcher:Object;
 
 
 		/**
 		 *
 		 */
-		public function FrontController(dispatchers:Object, router:Router, requestHandler:IRequestHandler)
+		public function FrontController(dispatchers:Object, router:IRouter, requestDispatcher:IRequestDispatcher)
 		{
 			if (dispatchers is Array)
 				this._dispatchers = dispatchers.concat();
@@ -40,7 +43,7 @@ package inky.go
 			else
 				throw new ArgumentError();
 			
-			this.requestHandler = requestHandler;
+			this.requestDispatcher = requestDispatcher;
 			this.router = router;
 		}
 
@@ -55,19 +58,19 @@ package inky.go
 		/**
 		 * @inheritDoc
 		 */
-		public function get router():Router
+		public function get router():IRouter
 		{ 
 			return this._router; 
 		}
 		/**
 		 * @private
 		 */
-		public function set router(value:Router):void
+		public function set router(value:IRouter):void
 		{
 			if (value != this._router)
 			{
 				var trigger:String;
-				var route:Route;
+				var route:IRoute;
 				var dispatcher:IEventDispatcher;
 				if (this._router)
 				{
@@ -76,7 +79,7 @@ package inky.go
 					for each (route in this._router.getRoutes())
 						for each (dispatcher in this._dispatchers)
 							for each (trigger in route.triggers)
-								dispatcher.removeEventListener(trigger, this.routeRequest);
+								dispatcher.removeEventListener(trigger, this.routeEvent);
 					this._router.removeEventListener(RouterEvent.ROUTE_ADDED, this._routeAddedHandler);
 				}
 				if (value)
@@ -84,7 +87,7 @@ package inky.go
 					for each (route in value.getRoutes())
 						for each (dispatcher in this._dispatchers)
 							for each (trigger in route.triggers)
-								dispatcher.addEventListener(trigger, this.routeRequest, false, 0, true);
+								dispatcher.addEventListener(trigger, this.routeEvent, false, 0, true);
 					value.addEventListener(RouterEvent.ROUTE_ADDED, this._routeAddedHandler, false, 0, true);
 				}
 
@@ -103,17 +106,17 @@ package inky.go
 		/**
 		 *	@inheritDoc
 		 */
-		public function routeRequest(event:Event):void
+		public function routeEvent(event:Event):void
 		{
 			// Map the event to a request object.
 			var match:Object = this.router.findMatch(event);
 			if (match)
 			{
-				var route:Route = match.route;
-				var params:Object = match.params;
+				var route:IRoute = match.route;
+				var request:Request = new Request(match.params);
 
-				if (this.dispatchEvent(new RoutingEvent(RoutingEvent.REQUEST_ROUTED, event, route, params)))
-					this.requestHandler.handleRequest(params);
+				if (this.dispatchEvent(new RoutingEvent(RoutingEvent.REQUEST_ROUTED, event, route, request)))
+					this.requestDispatcher.dispatchRequest(request);
 			}
 		}
 
@@ -132,7 +135,7 @@ package inky.go
 		{
 			for each (var trigger:String in event.route.triggers)
 				for each (var dispatcher:IEventDispatcher in this._dispatchers)
-					dispatcher.addEventListener(trigger, this.routeRequest, false, 0, true);
+					dispatcher.addEventListener(trigger, this.routeEvent, false, 0, true);
 		}
 
 
