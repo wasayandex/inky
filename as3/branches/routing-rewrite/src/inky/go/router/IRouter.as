@@ -27,7 +27,7 @@ package inky.go.router
 		/**
 		 *	
 		 */
-		function findMatch(event:Event):Object;
+		function route(event:Event):Object;
 
 
 		/**

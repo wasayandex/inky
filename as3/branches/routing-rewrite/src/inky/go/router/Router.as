@@ -6,6 +6,7 @@ package inky.go.router
 	import flash.events.Event;
 	import inky.go.router.IRoute;
 	import inky.go.router.IRouter;
+	import inky.go.request.IRequest;
 
 
 	/**
@@ -45,14 +46,15 @@ package inky.go.router
 		/**
 		 *	
 		 */
-		public function findMatch(event:Event):Object
+		public function route(event:Event):Object
 		{
-			var matches:Object;
+			var request:IRequest;
 			for each (var route:IRoute in this._routes)
 			{
-				if ((matches = route.match(event)))
+				if ((request = route.formatRequest(event)))
 				{
-					return {route: route, params: matches};
+// FIXME: I don't like returning this object. Is there any way we could just return the request? (The sticking point in that AddressFC needs the route to generate the URL)
+					return {route: route, request: request};
 				}
 			}
 			return null;

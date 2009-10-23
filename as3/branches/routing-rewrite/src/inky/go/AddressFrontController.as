@@ -26,7 +26,7 @@ package inky.go
 	public class AddressFrontController extends EventDispatcher implements IFrontController
 	{
 		private var _frontController:IFrontController;
-		private var _lastParams:Object;
+		private var _lastAddress:String;
 
 
 		/**
@@ -62,26 +62,23 @@ package inky.go
 			var params:Object = event.request.params;
 			var triggerEvent:Event = event.triggerEvent;
 			var route:IRoute = event.route;
+
 			// Prevent responding to the same request twice. (Routed events will trigger address changes which will trigger this to fire again.)
-			if (this._lastParams && triggerEvent is SWFAddressEvent && triggerEvent.type == SWFAddressEvent.CHANGE && EqualityUtil.propertiesAreEqual(this._lastParams, params))
+			if (triggerEvent is SWFAddressEvent && triggerEvent.type == SWFAddressEvent.CHANGE && (this._lastAddress == SWFAddressEvent(triggerEvent).value))
 			{
-				this._lastParams = null;
 				event.preventDefault();
 				return;
-			}
-			else
-			{
-				this._lastParams = null;
 			}
 
 			if (!(triggerEvent is SWFAddressEvent && triggerEvent.type == SWFAddressEvent.CHANGE) && route is AddressRoute)
 			{
-				// Remember the params so we can prevent interpreting the same request twice.
-				this._lastParams = CloningUtil.clone(params);
-
 				// Update the address.
-				var address:String = AddressRoute(route).generateAddress(params);
-				SWFAddress.setValue(address.replace(/.*#/, ""));
+				var address:String = AddressRoute(route).generateAddress(params).replace(/.*#/, "");
+
+				// Remember the params so we can prevent interpreting the same request twice.
+				this._lastAddress = address;
+
+				SWFAddress.setValue(address);
 			}
 		}
 

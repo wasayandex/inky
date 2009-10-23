@@ -3,6 +3,11 @@ package inky.go.router
 	import inky.utils.PropertyChain;
 	import inky.utils.Requirement;
 	import flash.utils.describeType;
+	import inky.go.request.IRequest;
+	import inky.go.request.IRequestFormatter;
+	import flash.events.Event;
+	import inky.go.request.StandardRequestFormatter;
+
 	
 	/**
 	 *
@@ -17,34 +22,17 @@ package inky.go.router
 	 */
 	public class Route implements IRoute
 	{
-		private var _argumentMap:Object;
 		private var _defaults:Object;
+		private var _requestFormatter:IRequestFormatter;
 		private var _requirements:Object;
 		private var _requirementTester:Requirement;
-		private var _triggers:Array;
+		private var _trigger:String;
 		
 		/**
-		 *
-		 * @param argumentMap An object that defines the mapping from the event
-		 * type to the action arguments object. Properties represent the target
-		 * of the mapping. The values are property-chain-style values.
-		 * @see inky.utils.PropertyChain
-		 * 
 		 * 
 		 */
-		public function Route(triggers:Object, defaults:Object = null, requirements:Object = null, argumentMap:Object = null)
+		public function Route(trigger:String, defaults:Object = null, requirements:Object = null, requestFormatter:IRequestFormatter = null)
 		{
-// FIXME: Last argument should be an adapter object. (Simple one should be creatable with argument map). Then again, maybe just also allow a function?
-			if (triggers is String)
-				this._triggers = [triggers];
-			else if (triggers is Array)
-				this._triggers = triggers.concat();
-			else
-				throw new ArgumentError();
-			
-			if (typeof argumentMap != "object")
-				throw new ArgumentError("Invalid arguments map!");
-				
 			// Create the requirements object.
 			var requirements:Object = {};
 			for (var requirementName:String in requirements)
@@ -60,9 +48,10 @@ package inky.go.router
 				requirements[requirementName] = requirement;
 			}
 			
+			this._trigger = trigger;
+			this._requestFormatter = requestFormatter;
 			this._requirements = requirements;
 			this._requirementTester = new Requirement(requirements);
-			this._argumentMap = argumentMap;
 			this._defaults = defaults || {};
 		}
 
@@ -84,6 +73,18 @@ package inky.go.router
 
 
 		/**
+		 *	
+		 */
+		public function get requestFormatter():IRequestFormatter
+		{
+			if (!this._requestFormatter)
+				this._requestFormatter = new StandardRequestFormatter();
+
+			return this._requestFormatter;
+		}
+
+
+		/**
 		 *
 		 */
 		public function get requirements():Object
@@ -95,9 +96,9 @@ package inky.go.router
 		/**
 		 *	
 		 */
-		public function get triggers():Array
+		public function get trigger():String
 		{
-			return this._triggers;
+			return this._trigger;
 		}
 
 
@@ -109,72 +110,25 @@ package inky.go.router
 
 
 		/**
-		 *	
+		 *	@inheritDoc
 		 */
-		public function match(obj:Object):Object
+		public function formatRequest(event:Event):IRequest
 		{
-			var match:Object;
-			if (this._triggers.indexOf(obj.type) == -1)
+			var request:IRequest;
+			if (this._trigger != event.type)
 			{
-				match = null;
+				request = null;
 			}
 			else
 			{
-				match = {};
-				var p:String;
-			
-				// Map the event to an args object.
-				if (this._argumentMap)
-				{
-					for (p in this._argumentMap)
-					{
-						match[p] = PropertyChain.evaluateChain(obj, this._argumentMap[p]);
-					}
-				}
-				else
-				{
-					// Perform the default event -> args mapping.
-// FIXME: Yikes, this is some costly stuff. How to improve?
-					match = {};
-					var typeDescription:XML = describeType(obj);
-					var properties:XMLList = typeDescription.variable + typeDescription.accessor;
-					for each (var prop:XML in properties.(@type == "String" || @type == "Number" || @type == "Boolean" || @type == "uint" || @type == "int"))
-					{
-						var propName:String = prop.@name;
-						switch (propName)
-						{
-							case "eventPhase":
-							case "bubbles":
-							case "cancelable":
-							{
-								// ignore event properties.
-								break;
-							}
-							case "type":
-							{
-								match.action = this.defaults.action == null ? obj[propName] : this.defaults.action;
-								break;
-							}
-							default:
-							{
-								match[propName] = obj[propName];
-								break;
-							}
-						}
-					}
-				}
+				request = this.requestFormatter.format(event, this.defaults);
 
-				// Apply the defaults.
-				for (p in this._defaults)
-					if (match[p] == null)
-						match[p] = this._defaults[p];
-			
-				// Make sure it meets the requirements.
-				if (this._requirements && !this._requirementTester.test(match))
-					match = null;
+				// Make sure the params meet the requirements.
+				if (this._requirements && !this._requirementTester.test(request.params))
+					request = null;
 			}
-
-			return match;
+				
+			return request;
 		}
 
 

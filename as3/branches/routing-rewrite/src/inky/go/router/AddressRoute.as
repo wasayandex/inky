@@ -2,6 +2,10 @@ package inky.go.router
 {
 	import com.asual.swfaddress.SWFAddressEvent;
 	import inky.utils.CloningUtil;
+	import flash.events.Event;
+	import inky.go.request.IRequest;
+	import inky.go.request.Request;
+	import inky.go.request.IRequestFormatter;
 
 	
 	/**
@@ -31,9 +35,9 @@ package inky.go.router
 		/**
 		 *	
 		 */
-		public function AddressRoute(addressPattern:String, triggers:Object, defaults:Object = null, requirements:Object = null, argumentMap:Object = null)
+		public function AddressRoute(addressPattern:String, trigger:String, defaults:Object = null, requirements:Object = null, requestFormatter:IRequestFormatter = null)
 		{
-			super(triggers, defaults, requirements, argumentMap);
+			super(trigger, defaults, requirements, requestFormatter);
 			this._patternSource = addressPattern;
 			this._createRegExp();
 		}
@@ -201,15 +205,15 @@ package inky.go.router
 		/**
 		 *	@inheritDoc
 		 */
-		override public function match(obj:Object):Object
+		override public function formatRequest(event:Event):IRequest
 		{
-			var match:Object;
-			if (obj is SWFAddressEvent && obj.type == SWFAddressEvent.CHANGE)
-				match = this._matchAddress("#" + obj.value);
-			else if (this.triggers.indexOf(obj.type) != -1)
-				match = super.match(obj);
+			var request:IRequest;
+			if (event is SWFAddressEvent && event.type == SWFAddressEvent.CHANGE)
+				request = this._matchAddress("#" + SWFAddressEvent(event).value);
+			else if (this.trigger == event.type)
+				request = super.formatRequest(event);
 
-			return match;
+			return request;
 		}
 
 
@@ -316,29 +320,29 @@ package inky.go.router
 		/**
 		 * @inheritDoc
 		 */
-		private function _matchAddress(url:String):Object
+		private function _matchAddress(url:String):IRequest
 		{
-			var result:Object; 
+			var request:IRequest; 
 			var o:Array = url.match(this._regExp);
 
 			if (o)
 			{
-				result = {};
+				request = new Request();
 				// add the default options to compensate for a
 				// route that has no dynamic segments, but could have
 				// implied options (as in the case of an overrideURL.)
 				for (var p:String in this.defaults)
 				{
-					result[p] = this.defaults[p];
+					request.params[p] = this.defaults[p];
 				}
 				for (var i:uint = 0; i < o.length - 1; i++)
 				{
 					var optionName:String = this._dynamicSegmentNames[i];
-					result[optionName] = o[i + 1] != null ? o[i + 1] : this.defaults[optionName];
+					request.params[optionName] = o[i + 1] != null ? o[i + 1] : this.defaults[optionName];
 				}
 			}
 
-			return result;
+			return request;
 		}
 
 

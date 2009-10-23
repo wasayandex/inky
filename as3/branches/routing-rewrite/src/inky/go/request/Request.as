@@ -1,5 +1,6 @@
-package inky.go.request
+package inky.go.request 
 {
+	import inky.go.request.IRequest;
 	
 	/**
 	 *
@@ -8,8 +9,8 @@ package inky.go.request
 	 * 	@langversion ActionScript 3
 	 *	@playerversion Flash 9.0.0
 	 *
-	 *	@author Matthew Tretter
-	 *	@since  2009.10.22
+	 *	@author matthew
+	 *	@since  2009.10.23
 	 *
 	 */
 	public class Request implements IRequest
@@ -20,9 +21,9 @@ package inky.go.request
 		/**
 		 *
 		 */
-		public function Request(params:Object = null)
+		public function Request()
 		{
-			this._params = params || {};
+			this._params = {};
 		}
 
 
@@ -36,9 +37,7 @@ package inky.go.request
 		/**
 		 *  @inheritDoc
 		 */
-		public function get params():Object	{ return this._params; }
-
-
+		public function get params():Object { return this._params; }
 
 
 	}

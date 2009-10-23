@@ -1,6 +1,9 @@
 package inky.go.router 
 {
-	
+	import inky.go.request.IRequest;
+	import flash.events.Event;
+
+
 	/**
 	 *
 	 *  ..
@@ -15,10 +18,9 @@ package inky.go.router
 	public interface IRoute
 	{
 		/**
-		 *	
+		 *	Converts the event into a request object. If the event does not match this route, null is returned.
 		 */
-		function match(obj:Object):Object;
-
+		function formatRequest(event:Event):IRequest;
 
 
 		/**
@@ -36,7 +38,7 @@ package inky.go.router
 		/**
 		 *	
 		 */
-		function get triggers():Array;
+		function get trigger():String;
 
 		
 	}

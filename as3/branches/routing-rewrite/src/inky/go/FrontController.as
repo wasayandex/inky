@@ -11,6 +11,7 @@ package inky.go
 	import inky.go.router.IRoute;
 	import inky.go.router.IRouter;
 	import inky.go.router.Router;
+	import inky.go.request.IRequest;
 
 
 	/**
@@ -74,20 +75,17 @@ package inky.go
 				var dispatcher:IEventDispatcher;
 				if (this._router)
 				{
-// FIXME: what if triggers have been removed?
 // FIXME: what if dispatcher has changed?
 					for each (route in this._router.getRoutes())
 						for each (dispatcher in this._dispatchers)
-							for each (trigger in route.triggers)
-								dispatcher.removeEventListener(trigger, this.routeEvent);
+							dispatcher.removeEventListener(route.trigger, this.routeEvent);
 					this._router.removeEventListener(RouterEvent.ROUTE_ADDED, this._routeAddedHandler);
 				}
 				if (value)
 				{
 					for each (route in value.getRoutes())
 						for each (dispatcher in this._dispatchers)
-							for each (trigger in route.triggers)
-								dispatcher.addEventListener(trigger, this.routeEvent, false, 0, true);
+							dispatcher.addEventListener(route.trigger, this.routeEvent, false, 0, true);
 					value.addEventListener(RouterEvent.ROUTE_ADDED, this._routeAddedHandler, false, 0, true);
 				}
 
@@ -109,11 +107,11 @@ package inky.go
 		public function routeEvent(event:Event):void
 		{
 			// Map the event to a request object.
-			var match:Object = this.router.findMatch(event);
+			var match:Object = this.router.route(event);
 			if (match)
 			{
 				var route:IRoute = match.route;
-				var request:Request = new Request(match.params);
+				var request:IRequest = match.request;
 
 				if (this.dispatchEvent(new RoutingEvent(RoutingEvent.REQUEST_ROUTED, event, route, request)))
 					this.requestDispatcher.dispatchRequest(request);
@@ -133,9 +131,8 @@ package inky.go
 		 */
 		private function _routeAddedHandler(event:RouterEvent):void
 		{
-			for each (var trigger:String in event.route.triggers)
-				for each (var dispatcher:IEventDispatcher in this._dispatchers)
-					dispatcher.addEventListener(trigger, this.routeEvent, false, 0, true);
+			for each (var dispatcher:IEventDispatcher in this._dispatchers)
+				dispatcher.addEventListener(event.route.trigger, this.routeEvent, false, 0, true);
 		}
 
 
