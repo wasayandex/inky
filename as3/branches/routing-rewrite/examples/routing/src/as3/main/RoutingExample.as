@@ -3,7 +3,6 @@ package
 	import flash.display.Sprite;
 	import inky.go.*;
 	import inky.go.request.*;
-	import inky.go.dispatcher.*;
 	import inky.go.router.*;
 	import inky.go.events.*;
 	import flash.events.MouseEvent;
@@ -36,7 +35,7 @@ package
 			map.addRoute(new AddressRoute("#/books/:id", "showBook", {controller: "books", action: "view", id: "0"}, {id: /[0-9]+/}, new StandardRequestFormatter({examplePropertyFromEvent: "bubbles"})));
 
 			// Create the front controller.
-			var frontController:IFrontController = new AddressFrontController(new FrontController(this, map, new RequestDispatcher()));
+			var frontController:IFrontController = new AddressFrontController(new FrontController(this, map, this._handleRequest));
 			this._frontController = frontController;
 
 			// Add a "show employee" button.
@@ -45,7 +44,11 @@ package
 			// Add a "show book" button.
 			this._createButton("showBook", 110, 0);
 		}
-		
+
+
+		/**
+		 *	Creates a button on the stage that will dispatch an event of the specified type when clicked.
+		 */
 		private function _createButton(eventType:String, x:Number = 0, y:Number = 0):void
 		{
 			var button:Sprite = new Sprite();
@@ -57,6 +60,16 @@ package
 			button.addEventListener(MouseEvent.CLICK, function(event:MouseEvent):void {dispatchEvent(new Event(eventType, true))});
 		}
 
+
+		/**
+		 *	Handles a request.
+		 */
+		private function _handleRequest(request:IRequest):void
+		{
+			trace("Received request:");
+			for (var p:String in request.params)
+				trace("\t" + p + ": " + request.params[p]);
+		}
 
 
 		

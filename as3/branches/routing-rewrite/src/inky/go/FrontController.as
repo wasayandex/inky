@@ -4,7 +4,6 @@ package inky.go
 	import inky.go.events.RouterEvent;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
-	import inky.go.dispatcher.IRequestDispatcher;
 	import inky.go.events.RoutingEvent;
 	import inky.go.IFrontController;
 	import inky.go.request.Request;
@@ -27,15 +26,15 @@ package inky.go
 	 */
 	public class FrontController extends EventDispatcher implements IFrontController
 	{
+		private var _callback:Function;
 		private var _dispatchers:Array
 		private var _router:IRouter;
-		public var requestDispatcher:Object;
 
 
 		/**
 		 *
 		 */
-		public function FrontController(dispatchers:Object, router:IRouter, requestDispatcher:IRequestDispatcher)
+		public function FrontController(dispatchers:Object, router:IRouter, callback:Function)
 		{
 			if (dispatchers is Array)
 				this._dispatchers = dispatchers.concat();
@@ -44,7 +43,7 @@ package inky.go
 			else
 				throw new ArgumentError();
 			
-			this.requestDispatcher = requestDispatcher;
+			this._callback = callback;
 			this.router = router;
 		}
 
@@ -114,7 +113,7 @@ package inky.go
 				var request:IRequest = match.request;
 
 				if (this.dispatchEvent(new RoutingEvent(RoutingEvent.REQUEST_ROUTED, event, route, request)))
-					this.requestDispatcher.dispatchRequest(request);
+					this._callback(request);
 			}
 		}
 
