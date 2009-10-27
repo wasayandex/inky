@@ -1,4 +1,4 @@
-package  
+package controllers
 {
 	import inky.utils.EventDispatcherProxy;
 	import flash.utils.flash_proxy;
@@ -18,7 +18,58 @@ package
 	 */
 	dynamic public class ActionController extends EventDispatcherProxy
 	{
+
+
+
+		public function preDispatch():void
+		{
+		}
 		
+		public function postDispatch():void
+		{
+		}
+
+
+
+
+	   /**
+	     * Dispatch the requested action
+	     *
+	     * @param string $action Method name of action
+	     * @return void
+	     */
+	    public function dispatch(action:String):void
+	    {
+			this.preDispatch();
+			this[action]();
+			this.postDispatch();
+	    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		//
 		// overridable proxy methods.
 		//
@@ -68,7 +119,7 @@ package
 			}
 			else if (name.toString().match(/Action$/))
 			{
-				return this._defaultAction as Function;
+				throw new Error("Action " + name.toString().substr(0, -6) + " does not exist and was not trapped in getProperty()");
 			}
 			else
 			{
@@ -77,12 +128,6 @@ package
 			}	
 //			throw new Error("You must override flash_proxy::getProperty()");
 	    }
-
-
-private function _defaultAction(...args:Array):void
-{
-	trace("doing the default");
-}
 
 
 		/**

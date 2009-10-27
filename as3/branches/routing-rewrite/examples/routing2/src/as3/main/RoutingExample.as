@@ -8,6 +8,7 @@ package
 	import flash.events.MouseEvent;
 	import flash.events.Event;
 	import ViewStack;
+	import controllers.*;
 
 
 	/**
@@ -26,8 +27,8 @@ package
 		private var _frontController:IFrontController;
 
 // FIXME: How do these get compiled in?!
-Tier;
-Unit;
+TierController;
+UnitController;
 
 		/**
 		 *

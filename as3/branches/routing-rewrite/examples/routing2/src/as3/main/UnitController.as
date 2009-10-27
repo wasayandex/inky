@@ -1,8 +1,8 @@
-package  
+package
 {
 	import viewRenderers.IViewRenderer;
 	import viewRenderers.UnitViewRenderer;
-	import ActionController;
+	import controllers.ActionController;
 	
 	/**
 	 *
@@ -15,30 +15,19 @@ package
 	 *	@since  2009.10.26
 	 *
 	 */
-	public class Unit extends ActionController
+	public class UnitController extends ActionController
 	{
-		
 		
 		/**
 		 *	
 		 */
-		public function view(params:Object):void
-		{
-			/*this.render("tier");
-			this.render("unit");*/
-		}
-		
-		
-		/*
-		 *	
-		 *
-		public function view(id:String):void
+		public function viewAction():void
 		{
 			var renderer:IViewRenderer = new UnitViewRenderer();
 			renderer.render();
 		}
-		*/
-		
+
+
 	}
 	
 }

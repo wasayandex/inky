@@ -1,8 +1,8 @@
-package  
+package
 {
 	import viewRenderers.TierViewRenderer;
 	import viewRenderers.IViewRenderer;
-	import ActionController;
+	import controllers.ActionController;
 	
 	/**
 	 *
@@ -15,23 +15,21 @@ package
 	 *	@since  2009.10.26
 	 *
 	 */
-	public class Tier extends ActionController
+	public class TierController extends ActionController
 	{
-		
-		public function view(params:Object):void
-		{
-			
-		}
-		
-		/*
+
+		/**
 		 *	
-		 *
-		public function view(id:String):void
+		 */
+		public function viewAction():void
 		{
 			var renderer:IViewRenderer = new TierViewRenderer();
 			renderer.render();
 		}
-		*/
+
+
+
+
 	}
 	
 }

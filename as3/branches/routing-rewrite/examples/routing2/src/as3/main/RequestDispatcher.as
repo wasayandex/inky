@@ -38,9 +38,7 @@ package
 // TODO: throw error if action function doesn't exist on controller.
 trace("c: " + controller + "\ta: " + action)
 
-			controller[action](request.params);
-			//controller[action + "Action"](request.params);
-
+			controller.dispatch(action);
 		}
 
 
@@ -50,7 +48,7 @@ trace("c: " + controller + "\ta: " + action)
 		public function formatController(name:String):String
 		{
 // TODO: Actually format! (i.e. "unit" -> com.blah.Unit)
-			return name;
+			return name + "Controller";
 		}
 
 
@@ -59,7 +57,7 @@ trace("c: " + controller + "\ta: " + action)
 		 */
 		public function formatAction(name:String):String
 		{
-			return name;
+			return name + "Action";
 		}
 
 	
