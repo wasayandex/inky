@@ -1,16 +1,16 @@
-package inky.go 
+package inky.routing 
 {
 	import com.asual.swfaddress.SWFAddress;
 	import com.asual.swfaddress.SWFAddressEvent;
 	import flash.events.Event;
-	import inky.go.router.AddressRoute;
+	import inky.routing.router.AddressRoute;
 	import inky.utils.CloningUtil;
 	import inky.utils.EqualityUtil;
 	import flash.events.EventDispatcher;
-	import inky.go.events.RoutingEvent;
-	import inky.go.router.Router;
-	import inky.go.router.IRoute;
-	import inky.go.router.IRouter;
+	import inky.routing.events.RoutingEvent;
+	import inky.routing.router.Router;
+	import inky.routing.router.IRoute;
+	import inky.routing.router.IRouter;
 	
 	/**
 	 *

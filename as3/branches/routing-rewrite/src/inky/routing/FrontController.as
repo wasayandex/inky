@@ -1,16 +1,16 @@
-package inky.go
+package inky.routing
 {
 	import flash.events.IEventDispatcher;
-	import inky.go.events.RouterEvent;
+	import inky.routing.events.RouterEvent;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
-	import inky.go.events.RoutingEvent;
-	import inky.go.IFrontController;
-	import inky.go.request.Request;
-	import inky.go.router.IRoute;
-	import inky.go.router.IRouter;
-	import inky.go.router.Router;
-	import inky.go.request.IRequest;
+	import inky.routing.events.RoutingEvent;
+	import inky.routing.IFrontController;
+	import inky.routing.request.Request;
+	import inky.routing.router.IRoute;
+	import inky.routing.router.IRouter;
+	import inky.routing.router.Router;
+	import inky.routing.request.IRequest;
 
 
 	/**

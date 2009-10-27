@@ -1,4 +1,4 @@
-package inky.go.request 
+package inky.routing.request 
 {
 	import flash.events.Event;
 

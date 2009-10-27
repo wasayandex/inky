@@ -1,7 +1,7 @@
-package inky.go.events
+package inky.routing.events
 {
 	import flash.events.Event;
-	import inky.go.router.IRoute;
+	import inky.routing.router.IRoute;
 
 
 	/**

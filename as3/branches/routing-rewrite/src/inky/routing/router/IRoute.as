@@ -1,6 +1,6 @@
-package inky.go.router 
+package inky.routing.router 
 {
-	import inky.go.request.IRequest;
+	import inky.routing.request.IRequest;
 	import flash.events.Event;
 
 

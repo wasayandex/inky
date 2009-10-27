@@ -1,11 +1,11 @@
-package inky.go.router 
+package inky.routing.router 
 {
 	import com.asual.swfaddress.SWFAddressEvent;
 	import inky.utils.CloningUtil;
 	import flash.events.Event;
-	import inky.go.request.IRequest;
-	import inky.go.request.Request;
-	import inky.go.request.IRequestFormatter;
+	import inky.routing.request.IRequest;
+	import inky.routing.request.Request;
+	import inky.routing.request.IRequestFormatter;
 
 	
 	/**

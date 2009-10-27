@@ -1,6 +1,6 @@
-package inky.go.request 
+package inky.routing.request 
 {
-	import inky.go.request.IRequest;
+	import inky.routing.request.IRequest;
 	
 	/**
 	 *

@@ -1,12 +1,12 @@
-package inky.go.router 
+package inky.routing.router 
 {
 	import inky.utils.PropertyChain;
 	import inky.utils.Requirement;
 	import flash.utils.describeType;
-	import inky.go.request.IRequest;
-	import inky.go.request.IRequestFormatter;
+	import inky.routing.request.IRequest;
+	import inky.routing.request.IRequestFormatter;
 	import flash.events.Event;
-	import inky.go.request.StandardRequestFormatter;
+	import inky.routing.request.StandardRequestFormatter;
 
 	
 	/**

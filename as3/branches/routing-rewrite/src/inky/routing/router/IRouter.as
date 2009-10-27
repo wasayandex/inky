@@ -1,4 +1,4 @@
-package inky.go.router 
+package inky.routing.router 
 {
 	import flash.events.Event;
 	import flash.events.IEventDispatcher;

@@ -1,7 +1,7 @@
-package inky.go.request 
+package inky.routing.request 
 {
-	import inky.go.request.IRequest;
-	import inky.go.request.Request;
+	import inky.routing.request.IRequest;
+	import inky.routing.request.Request;
 	import inky.utils.PropertyChain;
 	import flash.events.Event;
 	import flash.utils.describeType;

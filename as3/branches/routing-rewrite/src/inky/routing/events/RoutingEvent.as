@@ -1,8 +1,8 @@
-package inky.go.events
+package inky.routing.events
 {
 	import flash.events.Event;
-	import inky.go.router.IRoute;
-	import inky.go.request.IRequest;
+	import inky.routing.router.IRoute;
+	import inky.routing.request.IRequest;
 
 	/**
 	 *
