@@ -395,7 +395,7 @@ package inky.media
 		 */
 		private function _bufferingTimerHandler(e:TimerEvent = null):void
 		{
-			if (!this._sound.isBuffering)
+			if (this._sound && !this._sound.isBuffering)
 			{
 				// When the sound has finished buffering, dispatch a playing event.
 				if (this._state == MediaState.BUFFERING)
