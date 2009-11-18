@@ -13,6 +13,7 @@
 	import inky.async.async_internal;
 	import inky.async.actions.events.ActionEvent;
 	import inky.async.AsyncToken;
+	import flash.utils.Dictionary;
 
 
 	/**
@@ -29,7 +30,7 @@
 	public class ActionQueue implements IEventDispatcher, IQueue, IAction, IInkyDataParser
 	{
 		private var _list:IList;
-		private var _token:IAsyncToken;
+		private var _token:AsyncToken;
 
 
 		/**
@@ -40,7 +41,7 @@
 		public function ActionQueue(...rest:Array)
 		{
 			this._list = new ArrayList();
-			
+
 			for each (var action:IAction in rest)
 			{
 				this.addItem(action);
@@ -233,13 +234,16 @@
 		 */
 		public function startAction():IAsyncToken
 		{
-			if (!this._token)
+			var token:AsyncToken = this._token;
+			if (!token)
 			{
+				token =
 				this._token = new AsyncToken(false);
-				this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_START, this._token, false, true))
+				token.subprocesses = [];
+				this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_START, token, false, true))
 				this._executeHeadItem();
 			}
-			return this._token;
+			return token;
 		}
 
 
@@ -316,9 +320,10 @@
 		 */
 		private function _executeHeadItem():void
 		{
+			// Get the token that corresponds to the queue.
+			var token:AsyncToken = this._token;
 			if (this.isEmpty)
 			{
-				var token:IAsyncToken = this._token;
 				this._token = null;
 				token.async_internal::callResponders();
 				this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_FINISH, token, false, true));
@@ -326,7 +331,9 @@
 			else
 			{
 				var headItem:IAction = this.getHeadItem() as IAction;
-				headItem.startAction().addResponder(this._itemCompleteHandler);
+				var subprocessToken:IAsyncToken = headItem.startAction();
+				token.subprocesses.push(subprocessToken);
+				subprocessToken.addResponder(this._itemCompleteHandler);
 			}
 		}
 
@@ -336,13 +343,13 @@
 		 */
 		private function _itemCompleteHandler(token:IAsyncToken):void
 		{
-			// Remove the action that just finished.
-			if (!this.isEmpty)
-				this.removeHeadItem();
-
-			// Execute the next action.
+			// Remove the item that just completed.
+			this.removeHeadItem();
+			
+			// Execute the next item.
 			this._executeHeadItem();
 		}
+
 
 
 
