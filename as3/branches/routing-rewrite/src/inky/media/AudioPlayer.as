@@ -518,7 +518,7 @@ package inky.media
 				this._sound.removeEventListener(Event.ID3, this._relayID3Event);
 				this._sound.removeEventListener(ProgressEvent.PROGRESS, this._progressHandler);
 				
-				// Do this without a try/catch
+				// TODO: Do this without a try/catch
 				try
 				{
 					this._sound.close();
