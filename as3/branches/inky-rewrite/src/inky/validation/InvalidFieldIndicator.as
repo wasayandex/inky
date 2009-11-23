@@ -1,6 +1,5 @@
 ﻿package inky.validation
 {
-	import caurina.transitions.Tweener;
 	import flash.display.*;
 	import flash.text.*;
 	import inky.validation.IValidator;
@@ -103,7 +102,7 @@
 		 */
 		public function update():void
 		{
-			Tweener.addTween(this, {alpha: this.valid ? 0 : 1, time: 1});
+			this.alpha = this.valid ? 0 : 1;
 		}
 
 

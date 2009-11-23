@@ -26,9 +26,6 @@
 	import inky.binding.utils.ChangeWatcher;
 	import inky.binding.utils.IChangeWatcher;
 	import inky.app.inky;
-	import inky.app.Application;
-	import inky.app.managers.MarkupObjectManager;
-	import inky.data.Model;
 	import inky.forms.events.FormEvent;
 	import inky.validation.*;
 
@@ -249,22 +246,14 @@
 				var match:Array = control.name.match(re);
 				var modelId:String = modelOrModelId as String;
 				model = modelId == null ? modelOrModelId : null;
-				var mom:MarkupObjectManager = MarkupObjectManager.masterMarkupObjectManager;
 
 				// Get the model, modelId, and submission name.
 				if (match)
 				{
 					if (!modelId)
 					{
-						if (model)
-						{
-							modelId = mom.getMarkupObjectId(model);
-						}
-						else
-						{
-							modelId = match[1];
-							model = this._getModel(modelId);
-						}
+						modelId = match[1];
+						model = this._getModel(modelId);
 					}
 					if (modelProp == null)
 					{
@@ -523,7 +512,6 @@
 		 */
 		public function restoreControl(control:Object, prop:String, delay:Boolean = false):void
 		{
-			var mom:MarkupObjectManager = MarkupObjectManager.masterMarkupObjectManager;
 			var info:Object = this._formControlsMap[control][prop];
 			var model:Object = this._getModel(info.modelId);
 
@@ -587,14 +575,13 @@
 			{
 				var request:URLRequest = this._getURLRequest();
 				var vars:URLVariables = new URLVariables();
-				var mom:MarkupObjectManager = MarkupObjectManager.masterMarkupObjectManager;
 
 				for (var control:Object in this._formControlsMap)
 				{
 					for (var p:String in this._formControlsMap[control])
 					{
 						var info:Object = this._formControlsMap[control][p];
-						var model:Object = mom.getMarkupObjectById(info.modelId);
+						var model:Object = this._getModel(info.modelId);
 // TODO: Use serializable interface.
 						var value:* = model[info.modelProp];
 						vars[info.submissionName] = value === undefined ? '' : String(value);
@@ -768,10 +755,12 @@
 		 */
 		private function _getModel(modelId:String):Object
 		{
-			var mom:MarkupObjectManager = MarkupObjectManager.masterMarkupObjectManager;
+// TODO: Figure out what this was doing and why.
+			return {};
+			/*var mom:MarkupObjectManager = MarkupObjectManager.masterMarkupObjectManager;
 // TODO: This is lame. Why should it parse XML? Stupid.
 			var model:Object = mom.getMarkupObjectById(modelId) || mom.createMarkupObject(<inky:Model xmlns:inky={inky.uri} inky:id={modelId} />);
-			return model;
+			return model;*/
 		}
 
 
