@@ -5,7 +5,7 @@ package inky.injection
 	
 	/**
 	 *
-	 *  The InjectionAdapter is a basic implementation of the IInjectionAdapter interface.
+	 *  The ModelInjectionAdapter is a basic implementation of the IInjectionAdapter interface.
 	 *  @see inky.injection.IInjectionAdapter
 	 *	
 	 * 	@langversion ActionScript 3
@@ -15,7 +15,7 @@ package inky.injection
 	 *	@since  2009.11.19
 	 *
 	 */
-	public class InjectionAdapter implements IInjectionAdapter
+	public class ModelInjectionAdapter implements IInjectionAdapter
 	{
 		private var _map:Array;
 		private var _source:Object;
@@ -23,11 +23,11 @@ package inky.injection
 
 		/**
 		 *
-		 * Creates a new InjectionAdapter.
+		 * Creates a new ModelInjectionAdapter.
 		 * 
 		 * 
 		 */
-		public function InjectionAdapter(source:Object, modelClass:Class, map:Array)
+		public function ModelInjectionAdapter(source:Object, modelClass:Class, map:Array)
 		{
 			this._source = source;
 			this._modelClass = modelClass;
