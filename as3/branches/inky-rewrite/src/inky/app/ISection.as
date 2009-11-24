@@ -1,6 +1,7 @@
 package inky.app 
 {
 	import inky.utils.IDisplayObject;
+	import inky.utils.IDestroyable;
 	
 	/**
 	 *
@@ -13,7 +14,7 @@ package inky.app
 	 *	@since  2009.11.22
 	 *
 	 */
-	public interface ISection extends IDisplayObject
+	public interface ISection extends IDisplayObject, IDestroyable
 	{
 		
 

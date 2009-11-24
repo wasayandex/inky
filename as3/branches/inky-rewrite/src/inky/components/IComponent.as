@@ -1,6 +1,7 @@
 package inky.components 
 {
 	import inky.layout.ILayoutManagerClient;
+	import inky.utils.IDestroyable;
 	
 	/**
 	 *
@@ -13,13 +14,8 @@ package inky.components
 	 *	@since  2009.08.21
 	 *
 	 */
-	public interface IComponent extends ILayoutManagerClient
+	public interface IComponent extends ILayoutManagerClient, IDestroyable
 	{
-
-		/**
-		 *	
-		 */
-		function destroy():void;
 		
 		
 		/**

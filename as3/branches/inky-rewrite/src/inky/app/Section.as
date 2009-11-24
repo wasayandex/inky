@@ -16,6 +16,15 @@
 	public class Section extends TransitioningMovieClip implements ISection
 	{
 
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function destroy():void
+		{
+			
+		}
+
 
 
 

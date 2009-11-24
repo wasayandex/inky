@@ -13,6 +13,7 @@ package inky.app
 	import inky.components.transitioningObject.events.TransitionEvent;
 	import inky.async.async_internal;
 	import inky.app.ISection;
+	import inky.utils.IDestroyable;
 	
 	/**
 	 *
@@ -210,6 +211,11 @@ package inky.app
 			else
 				action = new FunctionAction(leaf.parent.removeChild, [leaf]);
 			this._queue.addItem(action);
+
+// TODO: Destroy before or after the remove?
+			if (leaf is IDestroyable)
+				this._queue.addItem(new FunctionAction(IDestroyable(leaf).destroy));
+
 			this._queue.start();
 		}
 		
@@ -220,15 +226,6 @@ package inky.app
 		private function _removeTransitioningObject(child:ITransitioningObject):IAsyncToken
 		{
 			return child.remove();
-			/*var token:IAsyncToken = new AsyncToken();
-			child.addEventListener(TransitionEvent.TRANSITION_FINISH,
-				function(event:TransitionEvent)
-				{
-					event.target.removeEventListener(event.type, arguments.callee);
-					token.async_internal::callResponders(); 
-				}
-			);
-			return token;*/
 		}
 		
 		
