@@ -118,10 +118,6 @@ package inky.app.controllers
 			{
 				return Object.prototype[name];
 			}
-			else if (name.toString().match(/Action$/))
-			{
-				throw new Error("Action " + name.toString().substr(0, -6) + " does not exist and was not trapped in getProperty()");
-			}
 			else
 			{
 				trace("getProperty\t" + name);

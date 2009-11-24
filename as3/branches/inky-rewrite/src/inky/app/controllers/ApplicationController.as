@@ -26,8 +26,9 @@ package inky.app.controllers
 	{
 		private var _application:Application;
 		private var _frontController:IFrontController;
+		private var _requestDispatcher:RequestDispatcher;
 
-// FIXME: how does this get compiled in? 		
+// FIXME: how does this get compiled in?
 SectionController;
 
 		use namespace inky;
@@ -46,30 +47,45 @@ SectionController;
 		
 
 
+
+// TODO: Do we want to expose the request dispatcher like this?
+		/**
+		 *
+		 */
+		public function get requestDispatcher():RequestDispatcher
+		{ 
+			return this._requestDispatcher || (this._requestDispatcher = new RequestDispatcher()); 
+		}
+		/**
+		 * @private
+		 */
+		public function set requestDispatcher(value:RequestDispatcher):void
+		{
+			this._requestDispatcher = value;
+		}
+
+
+
+
 		//
 		// private methods
 		//
 
-		
+// FIXME: Is parsing really the job of the controller?
 		/**
 		 *	
 		 */
 		private function _parseData(data:XML):void
 		{
-// TODO: MarkupObjectManager? 
-			if (data.Section.length())
-			{
-				// Create the Router.
-				var router:Router = new Router();
-				// Parse the routes from the data (and map them).
-				new RouteParser(router).parseData(data);
-				
-				// Create the RequestDispatcher.
-				var dispatcher:RequestDispatcher = new RequestDispatcher();
-				
-				// Create the FrontController.
-				this._frontController = new AddressFrontController(new FrontController(this._application, router, dispatcher.handleRequest));
-			}
+// FIXME: No way to specify custom values for these.
+			// Create the Router.
+			var router:Router = new Router();
+
+			// Parse the routes from the data (and map them).
+			new RouteParser(router).parseData(data);
+
+			// Create the FrontController.
+			this._frontController = new AddressFrontController(new FrontController(this._application, router, this.requestDispatcher.handleRequest));
 		}
 		
 

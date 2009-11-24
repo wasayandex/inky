@@ -10,6 +10,9 @@ package inky.app.bootstrapper
 	import inky.app.model.ApplicationModel;
 	import inky.app.IApplication;
 	import inky.routing.IFrontController;
+	import inky.app.bootstrapper.ConfigDataDeserializer;
+	import flash.utils.getQualifiedClassName;
+	import flash.utils.getDefinitionByName;
 	
 	/**
 	 *
@@ -26,6 +29,8 @@ package inky.app.bootstrapper
 	{
 		private var _application:IApplication;
 		private var _applicationModelDeserializer:IDeserializer;
+		private var _config:Object;
+		private var _configDataDeserializer:IDeserializer;
 		private var _configLoader:URLLoader;
 		private var _stage:Stage;
 
@@ -61,6 +66,39 @@ package inky.app.bootstrapper
 		public function set applicationModelDeserializer(value:IDeserializer):void
 		{
 			this._applicationModelDeserializer = value;
+		}
+
+
+// FIXME: Not sure I like "config". Maybe "configOptions" or something would be better.
+		/**
+		 *
+		 */
+		public function get config():Object
+		{ 
+			return this._config; 
+		}
+		/**
+		 * @private
+		 */
+		public function set config(value:Object):void
+		{
+			this._config = value;
+		}
+
+
+		/**
+		 *
+		 */
+		public function get configDataDeserializer():IDeserializer
+		{ 
+			return this._configDataDeserializer || (this._configDataDeserializer = new ConfigDataDeserializer()); 
+		}
+		/**
+		 * @private
+		 */
+		public function set configDataDeserializer(value:IDeserializer):void
+		{
+			this._configDataDeserializer = value;
 		}
 
 
@@ -103,19 +141,30 @@ package inky.app.bootstrapper
 		 */
 		private function _configLoaderCompleteHandler(event:Event):void
 		{
+			this.config = this.configDataDeserializer.deserialize(event.currentTarget.data);
+
+			// Create the application controller
+			var controllerClass:Class;
+			try
+			{
+				if (this.config.applicationControllerClass)
+					controllerClass = getDefinitionByName(this.config.applicationControllerClass) as Class;
+				else
+					controllerClass = getDefinitionByName(getQualifiedClassName(this._application) + "Controller") as Class;
+			}
+			catch (error:Error)
+			{
+// TODO: Use default?
+				throw new Error("Could not find an application controller.");
+			}
+
 			// Create the application model.
 			var applicationModel:ApplicationModel = this.applicationModelDeserializer.deserialize(event.currentTarget.data) as ApplicationModel;
 
-// Create the application controller
-			// TODO: How to get the controllerClass?  From the app model?
-			var controllerClass:Class = applicationModel.controllerClass;
-			
 			// Set the model on the application.
 			this._application.model = applicationModel;
 			// Set the controller on the application.
 			this._application.controller = new controllerClass(this._application);
-			
-
 
 			// Clean up.
 			event.currentTarget.removeEventListener(event.type, arguments.callee);

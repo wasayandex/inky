@@ -61,41 +61,42 @@ package inky.app
 		 */
 		private function _parseRoutes(section:XML, sPath:SPath):void
 		{
-			for each (var subsection:XML in section.Section)
+			// Create an sPath for this section.
+			var controller:String = section.@inky::controller.length() ? section.@inky::controller : section.@name;
+
+			for each (var route:XML in section.inky::Route)
 			{
-				// Create an sPath for this subsection.
-				var subSPath:SPath = new SPath(subsection.@name).resolve(sPath);
-				
-				for each (var route:XML in subsection.Route)
-				{
-					var addressPattern:String = route.@path;
+				var addressPattern:String = route.@path;
 // TODO: default trigger based on section name?
 // What if a section has multiple routes? Would they all get the same default trigger?
-					var trigger:String = route.@trigger;
+				var trigger:String = route.@trigger;
+
+// TODO: Let route specify controller?
 
 // TODO: Get controller and action from the XML, and use these as defaults?
-					var controller:String = "section";
-					var action:String = "view";
+				var action:String = "index";
 
 // TODO: Get defaults from XML.
-					var defaults:Object = {};
-					defaults.controller = controller;
-					defaults.action = action;
-					defaults.sPath = subSPath;
+				var defaults:Object = {};
+				defaults.controller = controller;
+				defaults.action = action;
+				defaults.sPath = sPath;
 
 // TODO: Get requirements from XML.
-					var requirements:Object = {};
-					
-// TODO: How to define the RequestFormatter??
-					var requestFormatter:IRequestFormatter = new StandardRequestFormatter({options: "options"});
-
-					// Add a new Route to the Router.
-					this._router.addRoute(new AddressRoute(addressPattern, trigger, defaults, requirements, requestFormatter));
-				}
+				var requirements:Object = {};
 				
-				// Recursively parse routes for subsections.
-				if (subsection.Section.length())
-					this._parseRoutes(subsection, subSPath);
+// TODO: How to define the RequestFormatter??
+				var requestFormatter:IRequestFormatter = new StandardRequestFormatter({options: "options"});
+
+				// Add a new Route to the Router.
+				this._router.addRoute(new AddressRoute(addressPattern, trigger, defaults, requirements, requestFormatter));
+			}
+			
+			// Recursively parse routes for subsections.
+			if (section.Section.length())
+			{
+				for each (var subsection:XML in section.Section)
+					this._parseRoutes(subsection, SPath.parse(subsection.@name).resolve(sPath));
 			}
 		}
 		

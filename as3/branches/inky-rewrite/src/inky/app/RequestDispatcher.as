@@ -2,6 +2,7 @@ package inky.app
 {
 	import inky.routing.request.IRequest;
 	import flash.utils.getDefinitionByName;
+	import inky.app.IRequestDispatcher;
 	
 	/**
 	 *
@@ -14,10 +15,10 @@ package inky.app
 	 *	@since  2009.10.28
 	 *
 	 */
-	public class RequestDispatcher
+	public class RequestDispatcher implements IRequestDispatcher
 	{
 		// TODO: How to manage this pacakge information??
-		public var controllerPackage:Array = ["inky.app.controllers"];
+		public var controllerPackages:Array = ["inky.app.controllers"];
 
 
 
@@ -28,7 +29,7 @@ package inky.app
 		
 		
 		/**
-		 *	
+		 *	@inheritDoc
 		 */
 		public function handleRequest(request:IRequest):void
 		{
@@ -40,11 +41,11 @@ package inky.app
 
 			// Get the controller.
 			var controllerClass:Class;
-			for (var i:int = 0; (i < this.controllerPackage.length) && !controllerClass; i++)
+			for (var i:int = 0; (i < this.controllerPackages.length) && !controllerClass; i++)
 			{
 				try
 				{
-					var controllerName:String = this.formatController(this.controllerPackage[i], request.params.controller);
+					var controllerName:String = this.formatController(this.controllerPackages[i], request.params.controller);
 				 	controllerClass = Class(getDefinitionByName(controllerName));
 				}
 				catch(error:Error)
@@ -89,7 +90,7 @@ package inky.app
 		 */
 		private function formatAction(name:String):String
 		{
-			return name + "Action";
+			return name;
 		}
 
 

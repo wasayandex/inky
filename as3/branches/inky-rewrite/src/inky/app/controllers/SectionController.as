@@ -20,7 +20,7 @@ package inky.app.controllers
 	{
 		
 		
-		public function viewAction(params:Object = null):void
+		public function index(params:Object = null):void
 		{
 			var sPath:SPath = SPath(params.sPath);
 			

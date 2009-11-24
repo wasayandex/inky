@@ -95,7 +95,7 @@ package inky.app
 				}
 				else
 				{
-					throw new Error(view + " is not an iSection.");
+					throw new Error(view + " is not an ISection.");
 				}
 			}
 
