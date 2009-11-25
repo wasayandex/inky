@@ -1,6 +1,6 @@
 package inky.app 
 {
-	import inky.loading.IAsset;
+	import inky.utils.EqualityUtil;
 	
 	/**
 	 *
@@ -32,7 +32,20 @@ package inky.app
 		/**
 		 * 
 		 */
-		public function putAsset(id:String, asset:IAsset):void
+		public function containsItem(asset:Object):Boolean
+		{
+			for each (var item:Object in this._assets)
+			{
+				if (EqualityUtil.objectsAreEqual(asset, item))
+					return true;
+			}
+			return false;
+		}
+		
+		/**
+		 * 
+		 */
+		public function putAsset(id:String, asset:Object):void
 		{
 			this._assets[id] = asset;
 		}
@@ -41,7 +54,7 @@ package inky.app
 		/**
 		 * 
 		 */
-		public function getAssetById(id:String):IAsset
+		public function getAssetById(id:String):Object
 		{
 			return this._assets[id];
 		}

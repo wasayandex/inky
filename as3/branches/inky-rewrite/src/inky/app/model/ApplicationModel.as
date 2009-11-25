@@ -5,9 +5,9 @@ package inky.app.model
 	import inky.app.controllers.ApplicationController;
 	import inky.app.SPath;
 	import inky.app.AssetRepository;
-	import inky.loading.SoundAsset;
-	import inky.loading.BinaryAsset;
-	import inky.loading.IAsset;
+	import inky.loading.SoundLoader;
+	import inky.loading.BinaryLoader;
+	import inky.loading.IAssetLoader;
 	
 	/**
 	 *
@@ -22,8 +22,8 @@ package inky.app.model
 	 */
 	dynamic public class ApplicationModel
 	{
-SoundAsset;
-BinaryAsset;
+SoundLoader;
+BinaryLoader;
 		
 // FIXME: This should not be exposed. In fact, the model shouldn't even have it.
 		public var data:XML;
@@ -72,13 +72,12 @@ BinaryAsset;
 
 
 // FIXME: ARGGG MORE PARSING IN THE MODEL!!>!!> GROSS!!LK
-		public function getPreloadAssetsFor(sPath:SPath):Array
+		public function getPreloadAssetLoadersFor(sPath:SPath):Array
 		{
 			if (!sPath.absolute)
 				throw new ArgumentError();
 			
-			var assets:Array = [];
-			
+			var loaders:Array = [];
 			var xml:XML = this.data;
 			for (var i:int = 0; i < sPath.length; i++)
 			{
@@ -88,26 +87,29 @@ BinaryAsset;
 					throw new Error();
 				xml = list[0];
 
-				for each (var assetData:XML in xml.inky::Asset + xml.inky::SoundAsset + xml.inky::BinaryAsset)
+				for each (var assetData:XML in xml.inky::AssetLoader + xml.inky::SoundLoader + xml.inky::BinaryLoader)
 				{
 					var source:String = assetData.@source;
 					var id:String = assetData.@id;
 					if (!source)
 						throw new Error();
-				
+
 					var repository:AssetRepository = AssetRepository.getInstance();
-					var asset:IAsset = 	repository.getAssetById(id);
+					var asset:Object = repository.getAssetById(id);
 					if (!asset)
 					{
 						var assetClass:Class = getDefinitionByName("inky.loading." + assetData.localName()) as Class;
-						asset = new assetClass();
-						asset.source = source;
-						repository.putAsset(id, asset);
+						var assetLoader:IAssetLoader = new assetClass();
+						asset = assetLoader.asset;
+						assetLoader.source = source;
+						if (assetData.@cache == "true")
+							repository.putAsset(id, asset);
+// FIXME: How do you even get the asset if it's not cached??!!
+						loaders.push(assetLoader);
 					}
-					assets.push(asset);
 				}
 			}
-			return assets;
+			return loaders;
 		}
 
 		
