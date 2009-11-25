@@ -68,6 +68,7 @@ package inky.app
 			return _instance || (_instance = new ViewStack());
 		}
 		
+
 		
 		/**
 		 *	
@@ -90,7 +91,7 @@ package inky.app
 						child = section as ISection;
 					}
 					if (!child)
-						throw new Error("An iSection with a class name of " + view + " cannot be found.");
+						throw new Error("An ISection with a class name of " + view + " cannot be found.");
 				}
 				else
 				{
@@ -112,13 +113,23 @@ package inky.app
 		 */
 		public function transitionTo(sPath:SPath):void
 		{
+			var queue:ActionQueue = new ActionQueue();
+			this._queue.addItem(new FunctionAction(this._transitionTo, [sPath, queue]));
+			this._queue.addItem(queue);
+			this._queue.start();
+		}
+		
+		
+		private function _transitionTo(sPath:SPath, queue:ActionQueue):void
+		{
 			var currentSPath:SPath = this._getCurrentSPath();
 
 			if (!sPath.absolute)
 				throw new ArgumentError();
 
 			var sectionsToAdd:SPath = currentSPath.relativize(sPath);
-			this.transitionToCommonAncestor(sPath);
+			
+			this._transitionToCommonAncestor(sPath, queue);
 
 			// Iterate through the remaining portion of the sPath and create and add the sections.
 			for (var i:IIterator = sectionsToAdd.iterator(); i.hasNext(); )
@@ -126,7 +137,7 @@ package inky.app
 				var sectionName:String = String(i.next());
 // TODO: How to convey section options to the sections?
 // We assume that the section's transition will happen last.
-				this.add(sectionName);
+				queue.addItem(new FunctionAction(this.add, [sectionName]));;
 			}
 		}
 
@@ -134,7 +145,16 @@ package inky.app
 		/**
 		 *	
 		 */
-		public function transitionToCommonAncestor(sPath:SPath):SPath
+		public function transitionToCommonAncestor(sPath:SPath):void
+		{
+			var queue:ActionQueue = new ActionQueue();
+			this._queue.addItem(new FunctionAction(this._transitionToCommonAncestor, [sPath, queue]));
+			this._queue.addItem(queue);
+			this._queue.start();
+		}
+		
+		
+		private function _transitionToCommonAncestor(sPath:SPath, queue:ActionQueue):void
 		{
 			var currentSPath:SPath = SPath.parse("/" + this._stack.map(function(o:Object, i:int, a:Array) { return o.name; }).splice(1).join("/"));
 			var remainder:SPath = currentSPath.relativize(sPath);
@@ -144,7 +164,7 @@ package inky.app
 				if (remainder.getItemAt(i) == "..")
 				{
 					remainder.removeItemAt(i);
-					this.removeLeaf();
+					queue.addItem(new FunctionAction(this.removeLeaf));
 					i--;
 				}
 				else
@@ -152,8 +172,6 @@ package inky.app
 					break;
 				}
 			}
-
-			return remainder;
 		}
 		
 		

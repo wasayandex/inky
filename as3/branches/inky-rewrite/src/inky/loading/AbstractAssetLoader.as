@@ -67,8 +67,15 @@ package inky.loading
 			loaderInfo.addEventListener(Event.COMPLETE, this._completeHandler, false, 0, true);
 			loaderInfo.addEventListener(ProgressEvent.PROGRESS, this._progressHandler, false, 0, true);
 			
-			loader.load(toURLRequest(this.source));
+			loader.load.apply(null, this.getLoadArguments());
 		}
+
+
+
+protected function getLoadArguments():Array
+{
+	return [toURLRequest(this.source)];
+}
 
 
 /**

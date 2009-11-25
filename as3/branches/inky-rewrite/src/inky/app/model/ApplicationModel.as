@@ -8,6 +8,7 @@ package inky.app.model
 	import inky.loading.SoundLoader;
 	import inky.loading.BinaryLoader;
 	import inky.loading.IAssetLoader;
+	import inky.loading.RuntimeLibraryLoader;
 	
 	/**
 	 *
@@ -24,6 +25,7 @@ package inky.app.model
 	{
 SoundLoader;
 BinaryLoader;
+RuntimeLibraryLoader;
 		
 // FIXME: This should not be exposed. In fact, the model shouldn't even have it.
 		public var data:XML;
@@ -87,7 +89,7 @@ BinaryLoader;
 					throw new Error();
 				xml = list[0];
 
-				for each (var assetData:XML in xml.inky::AssetLoader + xml.inky::SoundLoader + xml.inky::BinaryLoader)
+				for each (var assetData:XML in xml.inky::AssetLoader + xml.inky::SoundLoader + xml.inky::BinaryLoader + xml.inky::RuntimeLibraryLoader)
 				{
 					var source:String = assetData.@source;
 					var id:String = assetData.@id;
