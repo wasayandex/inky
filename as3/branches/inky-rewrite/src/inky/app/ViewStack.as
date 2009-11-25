@@ -73,7 +73,7 @@ package inky.app
 		/**
 		 *	
 		 */
-		public function add(view:Object):DisplayObject
+		public function add(view:Object, callback:Function = null):DisplayObject
 		{
 			var child:ISection = view as ISection;
 			if (!child)
@@ -104,6 +104,9 @@ package inky.app
 			this._addToDisplayList(childToAdd, this._stack[this._stack.length - 1]);
 			this._stack.push(child);
 
+			if (callback)
+				callback(child);
+
 			return childToAdd;
 		}
 
@@ -111,16 +114,16 @@ package inky.app
 		/**
 		 * 
 		 */
-		public function transitionTo(sPath:SPath):void
+		public function transitionTo(sPath:SPath, callback:Function = null):void
 		{
 			var queue:ActionQueue = new ActionQueue();
-			this._queue.addItem(new FunctionAction(this._transitionTo, [sPath, queue]));
+			this._queue.addItem(new FunctionAction(this._transitionTo, [sPath, queue, callback]));
 			this._queue.addItem(queue);
 			this._queue.start();
 		}
 		
 		
-		private function _transitionTo(sPath:SPath, queue:ActionQueue):void
+		private function _transitionTo(sPath:SPath, queue:ActionQueue, callback:Function = null):void
 		{
 			var currentSPath:SPath = this._getCurrentSPath();
 
@@ -137,7 +140,10 @@ package inky.app
 				var sectionName:String = String(i.next());
 // TODO: How to convey section options to the sections?
 // We assume that the section's transition will happen last.
-				queue.addItem(new FunctionAction(this.add, [sectionName]));;
+				if (i.hasNext())
+					queue.addItem(new FunctionAction(this.add, [sectionName]));
+				else
+					queue.addItem(new FunctionAction(this.add, [sectionName, callback]));;
 			}
 		}
 

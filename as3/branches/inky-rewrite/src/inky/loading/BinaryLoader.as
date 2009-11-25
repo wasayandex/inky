@@ -66,6 +66,7 @@ package inky.loading
 				this._asset = bytes;
 			else
 				this._asset.writeBytes(bytes);
+			this._asset.position = 0;
 		}
 
 
