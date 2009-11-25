@@ -104,7 +104,7 @@ package inky.app
 			this._addToDisplayList(childToAdd, this._stack[this._stack.length - 1]);
 			this._stack.push(child);
 
-			if (callback)
+			if (callback != null)
 				callback(child);
 
 			return childToAdd;

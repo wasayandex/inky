@@ -395,17 +395,20 @@ package inky.media
 		 */
 		private function _bufferingTimerHandler(e:TimerEvent = null):void
 		{
-			if (!this._sound.isBuffering)
+			if (this._sound)
 			{
-				// When the sound has finished buffering, dispatch a playing event.
-				if (this._state == MediaState.BUFFERING)
+				if (!this._sound.isBuffering)
 				{
-					this._setAndDispatchState(MediaState.PLAYING);
+					// When the sound has finished buffering, dispatch a playing event.
+					if (this._state == MediaState.BUFFERING)
+					{
+						this._setAndDispatchState(MediaState.PLAYING);
+					}
 				}
-			}
-			else if (this._state == MediaState.PLAYING)
-			{
-				// TODO: Pause until the buffer is complete again.
+				else if (this._state == MediaState.PLAYING)
+				{
+					// TODO: Pause until the buffer is complete again.
+				}
 			}
 		}
 

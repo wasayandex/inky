@@ -170,10 +170,11 @@
 		 */
 		private function _actionFinishHandler(token:IAsyncToken):void
 		{
+			var transition:Object = this._transition;
 			this._transition = null;
 			var removeNow:Boolean = this._state == TransitioningObjectState.PLAYING_OUTRO;
 			this._state = TransitioningObjectState.STABLE;
-			this._dispatchFinishEvent();
+			this._dispatchFinishEvent(transition);
 			if (removeNow)
 				this._removeNow();
 		}
@@ -182,18 +183,18 @@
 		/**
 		 *	
 		 */
-		private function _dispatchFinishEvent():void
+		private function _dispatchFinishEvent(transition:Object):void
 		{
-			this.dispatchEvent(new TransitionEvent(TransitionEvent.TRANSITION_FINISH, false, false, null));
+			this.dispatchEvent(new TransitionEvent(TransitionEvent.TRANSITION_FINISH, false, false, transition));
 		}
 		
 		
 		/**
 		 *	
 		 */
-		private function _dispatchStartEvent():void
+		private function _dispatchStartEvent(transition:Object):void
 		{
-			this.dispatchEvent(new TransitionEvent(TransitionEvent.TRANSITION_START, false, false, null));
+			this.dispatchEvent(new TransitionEvent(TransitionEvent.TRANSITION_START, false, false, transition));
 		}
 		
 		
@@ -214,8 +215,8 @@
 			}
 			else
 			{
-				this._dispatchStartEvent();
-				this._dispatchFinishEvent();
+				this._dispatchStartEvent(null);
+				this._dispatchFinishEvent(null);
 			}
 		}
 
@@ -244,12 +245,12 @@
 				this._state = this._transition == this.intro ? TransitioningObjectState.PLAYING_INTRO : this._transition == this.outro ? TransitioningObjectState.PLAYING_OUTRO : null;
 				token = transition.startAction();
 				token.addResponder(this._actionFinishHandler);
-				this._dispatchStartEvent();
+				this._dispatchStartEvent(transition);
 			}
 			else
 			{
-				this._dispatchStartEvent();
-				this._dispatchFinishEvent();
+				this._dispatchStartEvent(null);
+				this._dispatchFinishEvent(null);
 				token = new AsyncToken();
 				token.async_internal::callResponders();
 			}
