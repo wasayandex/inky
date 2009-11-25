@@ -1,5 +1,6 @@
 ﻿package inky.async.actions
 {
+	import inky.app.IInkyDataParser;
 	import inky.async.actions.IAction;
 	import inky.collections.IIterator;
 	import inky.collections.ArrayList;
@@ -26,7 +27,7 @@
 	 *	@since  2008.07.21
 	 *	
 	 */
-	public class ActionQueue implements IEventDispatcher, IQueue, IAction
+	public class ActionQueue implements IEventDispatcher, IQueue, IAction, IInkyDataParser
 	{
 		private var _list:IList;
 		private var _token:AsyncToken;

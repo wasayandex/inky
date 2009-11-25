@@ -9,7 +9,7 @@ package inky.app.controllers
 	import inky.app.RouteParser;
 	import inky.app.RequestDispatcher;
 	import inky.app.controllers.SectionController;
-	import inky.app.ViewStack;
+	import com.hzdg.nine.app.controllers.FlowManager;
 	
 	/**
 	 *
@@ -38,8 +38,6 @@ SectionController;
 		 */
 		public function ApplicationController(application:Application)
 		{
-			ViewStack.initialize(application);
-
 			this._application = application;
 			this._parseData(application.model.data);
 		}

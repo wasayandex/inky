@@ -14,6 +14,7 @@ package inky.app
 	import inky.async.async_internal;
 	import inky.app.ISection;
 	import inky.utils.IDestroyable;
+	import inky.collections.IIterator;
 	
 	/**
 	 *
@@ -28,7 +29,7 @@ package inky.app
 	 */
 	public class ViewStack
 	{
-		private var _queue:ActionQueue;
+		protected var _queue:ActionQueue;
 		private var _stack:Array;
 		private static var _application:Application;
 		private static var _instance:ViewStack;
@@ -38,7 +39,6 @@ package inky.app
 		 */
 		public function ViewStack()
 		{
-			this._stack = [_application];
 			this._queue = new ActionQueue();
 		}
 		
@@ -53,9 +53,10 @@ package inky.app
 		/**
 		 *	
 		 */
-		public static function initialize(application:Application):void
+		public function initialize(application:Application):void
 		{
 			_application = application;
+			this._stack = [_application];
 		}
 		
 		
@@ -64,8 +65,6 @@ package inky.app
 		 */
 		public static function getInstance():ViewStack
 		{
-			if (!_application)
-				throw new Error("You must initialize ViewStack before getting one.")
 			return _instance || (_instance = new ViewStack());
 		}
 		
@@ -102,12 +101,36 @@ package inky.app
 			this._addToDisplayList(DisplayObject(child), this._stack[this._stack.length - 1]);
 			this._stack.push(child);
 		}
-		
+
+
+		/**
+		 * 
+		 */
+		public function transitionTo(sPath:SPath):void
+		{
+			var currentSPath:SPath = this._getCurrentSPath();
+
+			if (!sPath.absolute)
+				throw new ArgumentError();
+
+			var sectionsToAdd:SPath = currentSPath.relativize(sPath);
+			this.transitionToCommonAncestor(sPath);
+
+			// Iterate through the remaining portion of the sPath and create and add the sections.
+			for (var i:IIterator = sectionsToAdd.iterator(); i.hasNext(); )
+			{
+				var sectionName:String = String(i.next());
+// TODO: How to convey section options to the sections?
+// We assume that the section's transition will happen last.
+				this.add(sectionName);
+			}
+		}
+
 		
 		/**
 		 *	
 		 */
-		public function reduceToCommonAncestor(sPath:SPath):SPath
+		public function transitionToCommonAncestor(sPath:SPath):SPath
 		{
 			var currentSPath:SPath = SPath.parse("/" + this._stack.map(function(o:Object, i:int, a:Array) { return o.name; }).splice(1).join("/"));
 			var remainder:SPath = currentSPath.relativize(sPath);
@@ -198,8 +221,17 @@ package inky.app
 			parent.addChild(DisplayObject(child));
 			return token;
 		}
-		
-		
+
+
+		/**
+		 * 
+		 */
+		private function _getCurrentSPath():SPath
+		{
+			return SPath.parse("/" + this._stack.map(function(o:Object, i:int, a:Array) { return o.name; }).splice(1).join("/"));	
+		}
+
+
 		/**
 		 *	
 		 */

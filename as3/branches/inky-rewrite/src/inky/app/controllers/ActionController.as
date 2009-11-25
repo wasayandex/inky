@@ -39,7 +39,7 @@ package inky.app.controllers
 	     * @param object params Parameters to be passed to the action.
 	     * @return void
 	     */
-	    public function dispatch(action:String, params:Object = null):void
+	    public function dispatch(action:String, params:Object):void
 	    {
 			this.preDispatch();
 			this[action](params);
