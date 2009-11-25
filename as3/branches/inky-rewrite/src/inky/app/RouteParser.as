@@ -86,7 +86,7 @@ package inky.app
 				var requirements:Object = {};
 				
 // TODO: How to define the RequestFormatter??
-				var requestFormatter:IRequestFormatter = new StandardRequestFormatter({options: "options"});
+				var requestFormatter:IRequestFormatter = new StandardRequestFormatter();
 
 				// Add a new Route to the Router.
 				this._router.addRoute(new AddressRoute(addressPattern, trigger, defaults, requirements, requestFormatter));
