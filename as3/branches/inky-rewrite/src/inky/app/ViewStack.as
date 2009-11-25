@@ -72,7 +72,7 @@ package inky.app
 		/**
 		 *	
 		 */
-		public function add(view:Object):void
+		public function add(view:Object):DisplayObject
 		{
 			var child:ISection = view as ISection;
 			if (!child)
@@ -97,9 +97,13 @@ package inky.app
 					throw new Error(view + " is not an ISection.");
 				}
 			}
+			
+			var childToAdd:DisplayObject = DisplayObject(child);
 
-			this._addToDisplayList(DisplayObject(child), this._stack[this._stack.length - 1]);
+			this._addToDisplayList(childToAdd, this._stack[this._stack.length - 1]);
 			this._stack.push(child);
+
+			return childToAdd;
 		}
 
 
