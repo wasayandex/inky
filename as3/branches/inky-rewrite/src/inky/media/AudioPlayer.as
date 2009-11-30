@@ -582,7 +582,6 @@ package inky.media
 		 */
 		private function _play(time:Number):void
 		{
-trace(this._sound);
 			if (this._soundChannel)
 				this._soundChannel.stop();
 			this._setAndDispatchState(MediaState.BUFFERING);
