@@ -177,7 +177,15 @@
 		 */
 		public function removeAll():void
 		{
-			throw new Error("Not yet implemented");
+			if (this._token)
+			{
+				// Currently running. Remove all but head item.
+				this._list = new ArrayList([this.getHeadItem()]);
+			}
+			else
+			{
+				this._list.removeAll();
+			}
 		}
 
 

@@ -48,6 +48,66 @@ package inky.app
 		//
 		// public methods
 		//
+
+
+		/**
+		 *	
+		 */
+		public function add(view:Object, callback:Function = null):DisplayObject
+		{
+			var child:ISection = view as ISection;
+			if (!child)
+			{
+				var name:String = view.toString();
+				if (name)
+				{
+					var sectionClass:Class = _application.model.getSectionClassByName(name);
+					if (sectionClass)
+					{
+						var section:* = new sectionClass();
+						section.name = name;
+
+						child = section as ISection;
+					}
+					if (!child)
+						throw new ArgumentError(view + " is not an ISection.");
+				}
+				else
+				{
+					throw new ArgumentError(view + " is not an ISection.");
+				}
+			}
+
+			var childToAdd:DisplayObject = DisplayObject(child);
+			this._addToDisplayList(childToAdd);
+			this._stack.push(child);
+
+// TODO: trigger callback before or after the add?
+			if (callback != null)
+				callback(child);
+
+			this._queue.start();
+
+			return childToAdd;
+		}
+		
+		
+		/**
+		 * 
+		 */
+		public function cancelQueuedActions():void
+		{
+			this._queue.removeAll();
+		}
+		
+		
+		/**
+		 *	
+		 */
+		public static function getInstance():ViewStack
+		{
+			return _instance || (_instance = new ViewStack());
+		}
 		
 		
 		/**
@@ -63,121 +123,16 @@ package inky.app
 		/**
 		 *	
 		 */
-		public static function getInstance():ViewStack
+		public function removeAll():void
 		{
-			return _instance || (_instance = new ViewStack());
-		}
-		
-
-		
-		/**
-		 *	
-		 */
-		public function add(view:Object, callback:Function = null):DisplayObject
-		{
-			var child:ISection = view as ISection;
-			if (!child)
+			while (this._stack.length > 1)
 			{
-				var name:String = view.toString();
-				if (name)
-				{
-					// Create an instance of the section.
-					var sectionClass:Class = _application.model.getSectionClassByName(name);
-					if (sectionClass)
-					{
-						var section:* = new sectionClass();
-						section.name = name;
-
-						child = section as ISection;
-					}
-					if (!child)
-						throw new Error("An ISection with a class name of " + view + " cannot be found.");
-				}
-				else
-				{
-					throw new Error(view + " is not an ISection.");
-				}
+				var leaf:DisplayObjectContainer = this._stack.pop() as DisplayObjectContainer;
+				if (leaf.parent)
+					this._removeFromDisplayList(leaf);
 			}
-			
-			var childToAdd:DisplayObject = DisplayObject(child);
 
-			this._addToDisplayList(childToAdd, this._stack[this._stack.length - 1]);
-			this._stack.push(child);
-
-			if (callback != null)
-				callback(child);
-
-			return childToAdd;
-		}
-
-
-		/**
-		 * 
-		 */
-		public function transitionTo(sPath:SPath, callback:Function = null):void
-		{
-			var queue:ActionQueue = new ActionQueue();
-			this._queue.addItem(new FunctionAction(this._transitionTo, [sPath, queue, callback]));
-			this._queue.addItem(queue);
 			this._queue.start();
-		}
-		
-		
-		private function _transitionTo(sPath:SPath, queue:ActionQueue, callback:Function = null):void
-		{
-			var currentSPath:SPath = this._getCurrentSPath();
-
-			if (!sPath.absolute)
-				throw new ArgumentError();
-
-			var sectionsToAdd:SPath = currentSPath.relativize(sPath);
-			
-			this._transitionToCommonAncestor(sPath, queue);
-
-			// Iterate through the remaining portion of the sPath and create and add the sections.
-			for (var i:IIterator = sectionsToAdd.iterator(); i.hasNext(); )
-			{
-				var sectionName:String = String(i.next());
-// TODO: How to convey section options to the sections?
-// We assume that the section's transition will happen last.
-				if (i.hasNext())
-					queue.addItem(new FunctionAction(this.add, [sectionName]));
-				else
-					queue.addItem(new FunctionAction(this.add, [sectionName, callback]));;
-			}
-		}
-
-		
-		/**
-		 *	
-		 */
-		public function transitionToCommonAncestor(sPath:SPath):void
-		{
-			var queue:ActionQueue = new ActionQueue();
-			this._queue.addItem(new FunctionAction(this._transitionToCommonAncestor, [sPath, queue]));
-			this._queue.addItem(queue);
-			this._queue.start();
-		}
-		
-		
-		private function _transitionToCommonAncestor(sPath:SPath, queue:ActionQueue):void
-		{
-			var currentSPath:SPath = SPath.parse("/" + this._stack.map(function(o:Object, i:int, a:Array) { return o.name; }).splice(1).join("/"));
-			var remainder:SPath = currentSPath.relativize(sPath);
-			
-			for (var i:int = 0; i < remainder.length; i++)
-			{
-				if (remainder.getItemAt(i) == "..")
-				{
-					remainder.removeItemAt(i);
-					queue.addItem(new FunctionAction(this.removeLeaf));
-					i--;
-				}
-				else
-				{
-					break;
-				}
-			}
 		}
 		
 		
@@ -192,20 +147,31 @@ package inky.app
 				if (leaf.parent)
 					this._removeFromDisplayList(leaf);
 			}
+
+			this._queue.start();
 		}
-		
+
+
+		/**
+		 * 
+		 */
+		public function transitionTo(sPath:SPath, callback:Function = null):void
+		{
+			if (!sPath.absolute)
+				throw new ArgumentError();
+				
+			this._queue.addItem(new FunctionAction(this._transitionTo, [sPath, callback]));
+			this._queue.start();
+		}
+
 		
 		/**
 		 *	
 		 */
-		public function removeAll():void
+		public function transitionToCommonAncestor(sPath:SPath):void
 		{
-			while (this._stack.length > 1)
-			{
-				var leaf:DisplayObjectContainer = this._stack.pop() as DisplayObjectContainer;
-				if (leaf.parent)
-					this._removeFromDisplayList(leaf);
-			}
+			this._queue.addItem(new FunctionAction(this._transitionToCommonAncestor, [sPath]));
+			this._queue.start();
 		}
 		
 		
@@ -228,7 +194,6 @@ package inky.app
 			else
 				action = new FunctionAction(parent.addChild, [child]);
 			this._queue.addItem(action);
-			this._queue.start();
 		}
 		
 		
@@ -275,8 +240,6 @@ package inky.app
 // TODO: Destroy before or after the remove?
 			if (leaf is IDestroyable)
 				this._queue.addItem(new FunctionAction(IDestroyable(leaf).destroy));
-
-			this._queue.start();
 		}
 		
 		
@@ -286,6 +249,46 @@ package inky.app
 		private function _removeTransitioningObject(child:ITransitioningObject):IAsyncToken
 		{
 			return child.remove();
+		}
+		
+		
+		/**
+		 * 
+		 */
+		private function _transitionTo(sPath:SPath, callback:Function = null):void
+		{
+			var currentSPath:SPath = this._getCurrentSPath();
+			var relativizedPath:SPath = currentSPath.relativize(sPath);
+			for (var i:IIterator = relativizedPath.iterator(); i.hasNext(); )
+			{
+				var segment:String = String(i.next());
+				if (segment != "..")
+				{
+					if (i.hasNext())
+						this._queue.addItem(new FunctionAction(this.add, [segment]));
+					else
+						this._queue.addItem(new FunctionAction(this.add, [segment, callback]));
+				}
+			}
+		}
+		
+		
+		/**
+		 * 
+		 */
+		private function _transitionToCommonAncestor(sPath:SPath):void
+		{
+			var currentSPath:SPath = this._getCurrentSPath();
+			var relativizedPath:SPath = currentSPath.relativize(sPath);
+			
+			for (var i:IIterator = relativizedPath.iterator(); i.hasNext(); )
+			{
+				var segment:String = String(i.next());
+				if (segment == "..")
+					this._queue.addItem(new FunctionAction(this.removeLeaf));
+				else
+					break;
+			}
 		}
 		
 		
