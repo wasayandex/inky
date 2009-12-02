@@ -30,7 +30,11 @@ package inky.app.bootstrapper
 			var applicationControllerClass:String = xml.@config::applicationControllerClass.length() ? xml.@config::applicationControllerClass : null;
 			if (applicationControllerClass)
 				configData.applicationControllerClass = applicationControllerClass;
-
+			
+			configData.debug = false;
+			if (xml.@config::debug.length())
+				configData.debug = xml.@config::debug == "true" ? true : false;
+			
 			return configData;
 		}
 

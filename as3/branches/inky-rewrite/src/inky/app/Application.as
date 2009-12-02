@@ -26,6 +26,8 @@ package inky.app
 		private var _controller:Object;
 		private var _model:Object;
 		
+		public static var debug:Boolean;
+		
 		
 		/**
 		 * Creates a new Application instance. The Application constructor should

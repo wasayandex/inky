@@ -13,6 +13,7 @@ package inky.app.bootstrapper
 	import inky.app.bootstrapper.ConfigDataDeserializer;
 	import flash.utils.getQualifiedClassName;
 	import flash.utils.getDefinitionByName;
+	import inky.app.Application;
 	
 	/**
 	 *
@@ -142,6 +143,8 @@ package inky.app.bootstrapper
 		private function _configLoaderCompleteHandler(event:Event):void
 		{
 			this.config = this.configDataDeserializer.deserialize(event.currentTarget.data);
+			
+			Application.debug = this.config.debug;
 
 			// Create the application controller
 			var controllerClass:Class;
