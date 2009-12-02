@@ -4,7 +4,7 @@ package inky.app.model
 	import flash.utils.getDefinitionByName;
 	import inky.app.controllers.ApplicationController;
 	import inky.app.SPath;
-	import inky.app.AssetRepository;
+	import inky.app.AssetLoaderRepository;
 	import inky.loading.SoundLoader;
 	import inky.loading.BinaryLoader;
 	import inky.loading.IAssetLoader;
@@ -96,19 +96,18 @@ RuntimeLibraryLoader;
 					if (!source)
 						throw new Error();
 
-					var repository:AssetRepository = AssetRepository.getInstance();
-					var asset:Object = repository.getAssetById(id);
-					if (!asset)
+					var repository:AssetLoaderRepository = AssetLoaderRepository.getInstance();
+					var assetLoader:IAssetLoader = repository.getLoaderById(id) as IAssetLoader;
+					if (!assetLoader)
 					{
 						var assetClass:Class = getDefinitionByName("inky.loading." + assetData.localName()) as Class;
-						var assetLoader:IAssetLoader = new assetClass();
-						asset = assetLoader.asset;
+						assetLoader = new assetClass();
 						assetLoader.source = source;
 						if (assetData.@cache == "true")
-							repository.putAsset(id, asset);
+							repository.putLoader(id, assetLoader);
 // FIXME: How do you even get the asset if it's not cached??!!
-						loaders.push(assetLoader);
 					}
+					loaders.push(assetLoader);
 				}
 			}
 			return loaders;
