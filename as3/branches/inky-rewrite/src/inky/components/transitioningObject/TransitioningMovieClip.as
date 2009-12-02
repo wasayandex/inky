@@ -57,10 +57,12 @@ package inky.components.transitioningObject
 			if (hasIntroLabel)
 			{
 				this.intro = new PlayFrameLabelAction('intro', this);
+				this.stop();
 			}
 			if (hasOutroLabel)
 			{
 				this.outro = new PlayFrameLabelAction('outro', this);
+				this.stop();
 			}
 			
 			this._proxy.addEventListener(TransitionEvent.TRANSITION_START, this._relayEvent, false, 0, true);
