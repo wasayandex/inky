@@ -39,6 +39,7 @@ package inky.media
 		private var _autoRewind:Boolean;
 		private var _bufferTime:Number;
 		private var _bufferingTimer:Timer;
+		private var _lastPlayheadTime:Number;
 		private var _pan:Number = 0;
 		private var _position:Number;
 		private var _playheadUpdateTimer:Timer;
@@ -189,9 +190,7 @@ package inky.media
 			this._playheadUpdateTimer.addEventListener(TimerEvent.TIMER, this._dispatchPlayheadUpdateEvent, false, 0, true);
 			
 			if (this.state == MediaState.PLAYING)
-			{
 				this._playheadUpdateTimer.start();
-			}
 		}
 
 
@@ -353,7 +352,6 @@ package inky.media
 		public function play():void
 		{
 			this._play(this._position || 0);
-			this._playheadUpdateTimer.start();
 		}
 
 
@@ -432,7 +430,11 @@ package inky.media
 		 */
 		private function _dispatchPlayheadUpdateEvent(e:TimerEvent = null):void
 		{
-			this._dispatchMediaEvent(MediaEvent.PLAYHEAD_UPDATE);
+			if (this.playheadTime != this._lastPlayheadTime)
+			{
+				this._dispatchMediaEvent(MediaEvent.PLAYHEAD_UPDATE);
+				this._lastPlayheadTime = this.playheadTime;
+			}
 		}
 
 
@@ -589,6 +591,7 @@ package inky.media
 			this._soundChannel = this._sound.play(time * 1000, 0, this.soundTransform);
 			this.soundTransform = this._soundChannel.soundTransform;
 			this._soundChannel.addEventListener(Event.SOUND_COMPLETE, this._soundCompleteHandler, false, 0, true);
+			this._playheadUpdateTimer.start();
 		}
 
 
