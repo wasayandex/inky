@@ -316,7 +316,8 @@ package inky.media
 		public function close():void
 		{
 			this._stop();
-			this._sound.close();
+			if (this._sound)
+				this._sound.close();
 			this._dispatchMediaEvent(MediaEvent.CLOSE);
 		}
 
@@ -527,7 +528,7 @@ package inky.media
 				{
 				}
 			}
-			
+
 			this._sound = new Sound();
 			this._soundTransform = this._soundTransform || new SoundTransform();
 			this._updateSoundTransform();
