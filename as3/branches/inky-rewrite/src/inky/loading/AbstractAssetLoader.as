@@ -5,7 +5,7 @@ package inky.loading
 	import flash.media.Sound;
 	import flash.events.ProgressEvent;
 	import flash.events.Event;
-	import inky.loading.utils.toURLRequest;
+	import inky.net.utils.toURLRequest;
 
 	/**
 	 *

@@ -1,4 +1,4 @@
-package inky.loading.utils 
+package inky.net.utils 
 {
 	import flash.net.URLRequest;
 	
@@ -16,12 +16,14 @@ package inky.loading.utils
 	public function toURLRequest(url:Object):URLRequest
 	{
 		var request:URLRequest;
-		if (url is String)
+		if (url == null)
+			throw new ArgumentError("Argument cannot be null.");
+		else if (url is String)
 			request = new URLRequest(url as String);
 		else if (url is URLRequest)
 			request = url as URLRequest;
 		else
-			throw new ArgumentError();
+			throw new ArgumentError("Argument must be either a String or URLRequest");
 		return request;
 	}
 	

@@ -3,7 +3,7 @@ package inky.loading
 	import flash.display.Loader;
 	import flash.system.LoaderContext;
 	import flash.system.ApplicationDomain;
-	import inky.loading.utils.toURLRequest;
+	import inky.net.utils.toURLRequest;
 
 	/**
 	 *
