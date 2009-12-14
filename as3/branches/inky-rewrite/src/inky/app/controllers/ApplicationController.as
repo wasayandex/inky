@@ -43,7 +43,13 @@ SectionController;
 		}
 		
 		
-
+		/**
+		 * 
+		 */
+		public function get frontController():IFrontController
+		{
+			return this._frontController;
+		}
 
 
 // TODO: Do we want to expose the request dispatcher like this?
@@ -83,6 +89,7 @@ SectionController;
 			new RouteParser(router).parseData(data);
 
 			// Create the FrontController.
+// FIXME: This should be created on demand and you should be able to create your own.
 			this._frontController = new AddressFrontController(new FrontController(this._application, router, this.requestDispatcher.handleRequest));
 		}
 		
