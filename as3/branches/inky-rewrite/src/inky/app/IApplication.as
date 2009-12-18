@@ -16,15 +16,7 @@ package inky.app
 	 */
 	public interface IApplication extends IDisplayObject
 	{
-		
-		function get applicationModelDeserializer():IDeserializer;
-		function set applicationModelDeserializer(value:IDeserializer):void;
 
-
-		function get controller():Object;
-		function set controller(value:Object):void;
-		
-		
 		function get model():Object;
 		function set model(value:Object):void;
 		

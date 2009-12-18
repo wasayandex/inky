@@ -33,6 +33,8 @@ package inky.app
 		 */
 		public function handleRequest(request:IRequest):void
 		{
+import inky.utils.describeObject;
+trace(describeObject(request, true));
 			if (!request.params.controller)
 				throw new ArgumentError("Controller not defined for request.");
 

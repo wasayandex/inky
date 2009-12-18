@@ -1,19 +1,19 @@
 package inky.app.bootstrapper
 {
-	import flash.display.Stage;
+	config namespace INKY;
+	
 	import flash.display.LoaderInfo;
 	import flash.events.Event;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
-	import inky.serialization.deserializers.IDeserializer;
-	import inky.app.bootstrapper.XMLApplicationModelDeserializer;
-	import inky.app.model.ApplicationModel;
+	import inky.app.controllers.ApplicationController;
 	import inky.app.IApplication;
 	import inky.routing.IFrontController;
-	import inky.app.bootstrapper.ConfigDataDeserializer;
-	import flash.utils.getQualifiedClassName;
 	import flash.utils.getDefinitionByName;
-	import inky.app.Application;
+	import inky.app.IRequestDispatcher;
+	import inky.app.model.DefaultApplicationModelFactory;
+	import inky.app.model.IApplicationModelFactory;
+	import inky.routing.router.IRouter;
 	
 	/**
 	 *
@@ -29,11 +29,13 @@ package inky.app.bootstrapper
 	public class Bootstrapper
 	{
 		private var _application:IApplication;
-		private var _applicationModelDeserializer:IDeserializer;
-		private var _config:Object;
-		private var _configDataDeserializer:IDeserializer;
+		private var _applicationModel:Object;
+		private var _applicationModelFactory:IApplicationModelFactory;
+		private var _applicationController:*;
+		private var _frontController:IFrontController;
+		private var _requestDispatcher:IRequestDispatcher;
+		private var _configData:Object;
 		private var _configLoader:URLLoader;
-		private var _stage:Stage;
 
 
 		/**
@@ -53,53 +55,79 @@ package inky.app.bootstrapper
 
 
 		/**
-		 *  Gets and sets the object responsible for deserializing the application model. If none is set, returns an XMLApplicationModelDeserializer
-		 */
-		public function get applicationModelDeserializer():IDeserializer
-		{
-			if (!this._applicationModelDeserializer)
-				this._applicationModelDeserializer = new XMLApplicationModelDeserializer();
-			return this._applicationModelDeserializer; 
-		}
-		/**
-		 * @private
-		 */
-		public function set applicationModelDeserializer(value:IDeserializer):void
-		{
-			this._applicationModelDeserializer = value;
-		}
-
-
-// FIXME: Not sure I like "config". Maybe "configOptions" or something would be better.
-		/**
 		 *
 		 */
-		public function get config():Object
+		public function get application():IApplication
 		{ 
-			return this._config; 
-		}
-		/**
-		 * @private
-		 */
-		public function set config(value:Object):void
-		{
-			this._config = value;
+			return this._application; 
 		}
 
 
 		/**
 		 *
 		 */
-		public function get configDataDeserializer():IDeserializer
+		public function get applicationController():*
 		{ 
-			return this._configDataDeserializer || (this._configDataDeserializer = new ConfigDataDeserializer()); 
+			return this._applicationController || (this._applicationController = this.createApplicationController()); 
+		}
+
+
+		/**
+		 *
+		 */
+		public function get applicationModel():Object
+		{
+			if (!this._applicationModel)
+			{
+				if (!this.applicationModelFactory)
+					throw new Error("Could not create application model: applicationModelFactory has not been set!");
+				
+				if (this._configData)
+				{
+					this._applicationModel = this.applicationModelFactory.createModel(this._configData);
+					this._configData = null;
+				}
+				else
+				{
+					this._applicationModel = this.applicationModelFactory.createModel();
+				}
+			}
+				
+			return this._applicationModel;
+		}
+
+
+		/**
+		 *
+		 */
+		public function get applicationModelFactory():IApplicationModelFactory
+		{ 
+			return this._applicationModelFactory || (this._applicationModelFactory = new DefaultApplicationModelFactory()); 
 		}
 		/**
 		 * @private
 		 */
-		public function set configDataDeserializer(value:IDeserializer):void
+		public function set applicationModelFactory(value:IApplicationModelFactory):void
 		{
-			this._configDataDeserializer = value;
+			this._applicationModelFactory = value;
+		}
+
+
+		/**
+		 *
+		 */
+		public function get frontController():IFrontController
+		{ 
+			return this._frontController || (this._frontController = this.createFrontController()); 
+		}
+
+
+		/**
+		 *
+		 */
+		public function get requestDispatcher():IRequestDispatcher
+		{ 
+			return this._requestDispatcher || (this._requestDispatcher = this.createRequestDispatcher()); 
 		}
 
 
@@ -115,10 +143,10 @@ package inky.app.bootstrapper
 		 */
 		public function initialize():void
 		{
-			if (!this._application.stage)
+			if (!this.application.stage)
 				throw new Error("You cannot call initialize() until the application is on stage.");
 			
-			var loaderInfo:LoaderInfo = this._application.stage.root.loaderInfo;
+			var loaderInfo:LoaderInfo = this.application.stage.root.loaderInfo;
 // TODO: Allow other ways to set the dataSource.
 			var dataSource:String = loaderInfo.parameters.dataSource || loaderInfo.loaderURL.split(".").slice(0, -1).join(".") + ".inky.xml";
 			
@@ -142,36 +170,66 @@ package inky.app.bootstrapper
 		 */
 		private function _configLoaderCompleteHandler(event:Event):void
 		{
-			this.config = this.configDataDeserializer.deserialize(event.currentTarget.data);
+			// Save the loaded data for use by the model.
+			this._configData = event.currentTarget.data;
 			
-			Application.debug = this.config.debug;
-
-			// Create the application controller
-			var controllerClass:Class;
-			try
-			{
-				if (this.config.applicationControllerClass)
-					controllerClass = getDefinitionByName(this.config.applicationControllerClass) as Class;
-				else
-					controllerClass = getDefinitionByName(getQualifiedClassName(this._application) + "Controller") as Class;
-			}
-			catch (error:Error)
-			{
-// TODO: Use default?
-				throw new Error("Could not find an application controller.");
-			}
-
-			// Create the application model.
-			var applicationModel:ApplicationModel = this.applicationModelDeserializer.deserialize(event.currentTarget.data) as ApplicationModel;
-
-			// Set the model on the application.
-			this._application.model = applicationModel;
-			// Set the controller on the application.
-			this._application.controller = new controllerClass(this._application);
-
 			// Clean up.
 			event.currentTarget.removeEventListener(event.type, arguments.callee);
 			this._configLoader = null;
+			
+// Preload assets
+			
+			// Initialize the front controller.
+trace(this.frontController);
+		}
+
+
+
+
+		//
+		// protected methods
+		//
+
+
+		/**
+		 * 
+		 */
+		protected function createApplicationController():*
+		{
+			var applicationControllerClass:Class = getDefinitionByName("inky.application.controllers.ApplicationController") as Class;
+			var applicationController:* = new applicationControllerClass(this.application, this.applicationModel);
+			return applicationController;
+		}
+
+
+		/**
+		 * 
+		 */
+		protected function createFrontController():IFrontController
+		{
+			// Create the Router.
+			var routerClass:Class = getDefinitionByName("inky.routing.router.Router") as Class;
+			var router:IRouter = new routerClass();
+
+			if (!this.requestDispatcher)
+				throw new Error("No request dispatcher found!");
+
+			// Create the front controller.
+			var addressFCClass:Class = getDefinitionByName("inky.routing.AddressFrontController") as Class;
+			var fcClass:Class = getDefinitionByName("inky.routing.FrontController") as Class;
+			var frontController:IFrontController = new addressFCClass(new fcClass(this.application, router, this.requestDispatcher.handleRequest));
+
+			return frontController;
+		}
+
+
+		/**
+		 * 
+		 */
+		protected function createRequestDispatcher():IRequestDispatcher
+		{
+			var dispatcherClass:Class = getDefinitionByName("inky.app.RequestDispatcher") as Class;
+			return new dispatcherClass();
 		}
 
 
