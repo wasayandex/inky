@@ -1,0 +1,9 @@
+.inky\.framework\.styles\.StyleableTextField b {
+	color: #ff0000;
+	font-size: 30px;
+	font-family: _typewriter;
+}
+
+.inky\.framework\.styles\.StyleableTextField > .special {
+	color: #0000ff;
+}
