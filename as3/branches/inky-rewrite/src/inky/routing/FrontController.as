@@ -101,6 +101,15 @@ package inky.routing
 
 
 		/**
+		 * @inheritDoc
+		 */
+		public function initialize():void
+		{
+trace("init front controller");
+		}
+
+
+		/**
 		 *	@inheritDoc
 		 */
 		public function routeEvent(event:Event):void

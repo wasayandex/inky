@@ -1,4 +1,4 @@
-package inky.loading
+package inky.loading.loaders
 {
 	import flash.events.IEventDispatcher;
 	

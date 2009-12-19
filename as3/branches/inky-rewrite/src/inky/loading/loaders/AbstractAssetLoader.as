@@ -1,6 +1,6 @@
-package inky.loading 
+package inky.loading.loaders
 {
-	import inky.loading.IAssetLoader;
+	import inky.loading.loaders.IAssetLoader;
 	import flash.events.EventDispatcher;
 	import flash.media.Sound;
 	import flash.events.ProgressEvent;

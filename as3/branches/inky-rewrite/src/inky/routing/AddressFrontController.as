@@ -117,6 +117,12 @@ package inky.routing
 
 
 		/**
+		 * @inheritDoc
+		 */
+		public function initialize():void { this._frontController.initialize(); }
+
+
+		/**
 		 *	@inheritDoc
 		 */
 		public function get router():IRouter { return this._frontController.router; }

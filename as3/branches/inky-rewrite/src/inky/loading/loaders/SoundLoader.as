@@ -1,4 +1,4 @@
-package inky.loading
+package inky.loading.loaders
 {
 	import inky.loading.AbstractAssetLoader;
 	import flash.media.Sound;

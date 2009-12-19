@@ -20,6 +20,12 @@ package inky.routing
 	{
 		
 		/**
+		 * 
+		 */
+		function initialize():void;
+
+
+		/**
 		 *
 		 */
 		function get router():IRouter;

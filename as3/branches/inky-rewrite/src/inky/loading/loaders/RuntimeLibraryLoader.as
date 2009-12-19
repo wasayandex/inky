@@ -1,4 +1,4 @@
-package inky.loading 
+package inky.loading.loaders
 {
 	import flash.display.Loader;
 	import flash.system.LoaderContext;
@@ -20,6 +20,22 @@ package inky.loading
 	{
 		private var _loader:Loader;
 		private var _loaderContext:LoaderContext;
+
+
+		/**
+		 *
+		 */
+		public function RuntimeLibraryLoader(source:Object = null)
+		{
+			this.source = source;
+		}
+
+
+
+
+		//
+		// accessors
+		//
 
 
 		/**
