@@ -33,6 +33,12 @@ package inky.routing.router
 		}
 
 
+
+		//
+		// accessors
+		//
+
+
 		/**
 		 *	
 		 */
@@ -48,6 +54,9 @@ package inky.routing.router
 		 */
 		public function route(event:Event):Object
 		{
+			if (!this._routes.length)
+				throw new Error("Could not route event " + event + ". No routes have been added.");
+			
 			var request:IRequest;
 			for each (var route:IRoute in this._routes)
 			{

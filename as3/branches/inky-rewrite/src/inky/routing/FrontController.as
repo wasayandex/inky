@@ -105,7 +105,7 @@ package inky.routing
 		 */
 		public function initialize():void
 		{
-trace("init front controller");
+throw new Error("Not yet implemented!");
 		}
 
 

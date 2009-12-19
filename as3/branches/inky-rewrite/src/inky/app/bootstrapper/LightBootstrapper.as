@@ -11,8 +11,6 @@ package inky.app.bootstrapper
 	import inky.routing.IFrontController;
 	import flash.utils.getDefinitionByName;
 	import inky.app.IRequestDispatcher;
-	import inky.app.model.IApplicationModelFactory;
-	import inky.app.model.DefaultApplicationModelFactory;
 	import inky.routing.router.IRouter;
 
 	
@@ -32,7 +30,6 @@ package inky.app.bootstrapper
 		private var _applicationController:*;
 		private var _applicationModel:Object;
 		private var _applicationModelData:String;
-		private var _applicationModelFactory:IApplicationModelFactory;
 		private var _config:Object;
 		private var _frontController:IFrontController;
 		private var _loadQueue:LoadQueue;
@@ -84,39 +81,7 @@ package inky.app.bootstrapper
 		 */
 		public function get applicationModel():Object
 		{
-			if (!this._applicationModel)
-			{
-				if (!this.applicationModelFactory)
-					throw new Error("Could not create application model: applicationModelFactory has not been set!");
-				
-				if (this._applicationModelData)
-				{
-					this._applicationModel = this.applicationModelFactory.createModel(this._applicationModelData);
-					this._applicationModelData = null;
-				}
-				else
-				{
-					this._applicationModel = this.applicationModelFactory.createModel();
-				}
-			}
-				
-			return this._applicationModel;
-		}
-
-
-		/**
-		 *
-		 */
-		public function get applicationModelFactory():IApplicationModelFactory
-		{ 
-			return this._applicationModelFactory || (this._applicationModelFactory = new DefaultApplicationModelFactory()); 
-		}
-		/**
-		 * @private
-		 */
-		public function set applicationModelFactory(value:IApplicationModelFactory):void
-		{
-			this._applicationModelFactory = value;
+			return this._applicationModel || (this._applicationModel = this.createApplicationModel(this._applicationModelData));
 		}
 
 
@@ -230,6 +195,10 @@ package inky.app.bootstrapper
 			if (event)
 				event.currentTarget.removeEventListener(event.type, arguments.callee);
 
+			// Register the routes from the application model.
+			for each (var route:* in applicationModel.routes)
+				this.frontController.router.addRoute(route);
+
 			this.frontController.initialize();
 		}
 
@@ -258,9 +227,20 @@ package inky.app.bootstrapper
 		protected function createApplicationController():*
 		{
 return null;
-			/*var applicationControllerClass:Class = getDefinitionByName("inky.application.controllers.ApplicationController") as Class;
+			/*var applicationControllerClass:Class = getDefinitionByName("inky.app.controllers.ApplicationController") as Class;
 			var applicationController:* = new applicationControllerClass(this.application, this.applicationModel);
 			return applicationController;*/
+		}
+
+
+		/**
+		 * 
+		 */
+		protected function createApplicationModel(data:Object):Object
+		{
+			var applicationModelClass:Class = getDefinitionByName("inky.app.model.ApplicationModel") as Class;
+			var applicationModel:Object = new applicationModelClass(data);
+			return applicationModel;
 		}
 
 

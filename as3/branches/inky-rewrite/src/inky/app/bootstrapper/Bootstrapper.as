@@ -5,6 +5,7 @@ package inky.app.bootstrapper
 	import inky.routing.FrontController;
 	import inky.app.RequestDispatcher;
 	import inky.routing.router.Router;
+	import inky.app.model.ApplicationModel;
 	
 	/**
 	 *
@@ -19,12 +20,16 @@ package inky.app.bootstrapper
 	 */
 	public class Bootstrapper extends LightBootstrapper
 	{
-		
+		// Force the compilation of some classes that the bootstrapper uses by
+		// default. This class makes it easy to get an application running
+		// quickly. However, if you really want to minimize your initial load,
+		// it's best to use LightBootstrapper and load these classes in as
+		// runtime libraries.
+		ApplicationModel;
 		AddressFrontController;
 		FrontController;
 		RequestDispatcher;
 		Router;
-		
 	}
 	
 }

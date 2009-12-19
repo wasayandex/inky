@@ -1,12 +1,7 @@
 package inky.app.controllers
 {
 	import inky.app.inky;
-	import inky.routing.router.Router;
-	import inky.routing.AddressFrontController;
-	import inky.routing.FrontController;
 	import inky.routing.IFrontController;
-	import inky.app.Application;
-	import inky.app.RouteParser;
 	import inky.app.IApplication;
 
 	

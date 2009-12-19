@@ -41,8 +41,6 @@ package inky.routing
 
 			// Relay all of the events from the decorated front controller.
 			this._setupEventRelaying([RoutingEvent.REQUEST_ROUTED]);
-
-			SWFAddress.addEventListener(SWFAddressEvent.CHANGE, this.routeEvent);
 		}
 
 
@@ -59,6 +57,7 @@ package inky.routing
 		 */
 		private function _requestRoutedHandler(event:RoutingEvent):void
 		{
+trace(event);
 			var params:Object = event.request.params;
 			var triggerEvent:Event = event.triggerEvent;
 			var route:IRoute = event.route;
@@ -119,7 +118,7 @@ package inky.routing
 		/**
 		 * @inheritDoc
 		 */
-		public function initialize():void { this._frontController.initialize(); }
+		public function initialize():void { SWFAddress.addEventListener(SWFAddressEvent.CHANGE, this.routeEvent); }
 
 
 		/**

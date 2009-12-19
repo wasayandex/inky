@@ -20,7 +20,7 @@ package inky.routing
 	{
 		
 		/**
-		 * 
+		 * Navigates to the root route.
 		 */
 		function initialize():void;
 
