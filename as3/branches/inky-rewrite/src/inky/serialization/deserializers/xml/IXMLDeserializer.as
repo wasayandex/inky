@@ -1,4 +1,4 @@
-package inky.serialization.deserializers 
+package inky.serialization.deserializers.xml
 {
 	import inky.serialization.deserializers.IDeserializer;
 	

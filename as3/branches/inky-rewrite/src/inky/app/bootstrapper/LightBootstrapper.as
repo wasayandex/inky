@@ -239,7 +239,7 @@ return null;
 		protected function createApplicationModel(data:Object):Object
 		{
 			var applicationModelClass:Class = getDefinitionByName("inky.app.model.ApplicationModel") as Class;
-			var applicationModel:Object = new applicationModelClass(data);
+			var applicationModel:Object = new applicationModelClass(new XML(data as String));
 			return applicationModel;
 		}
 

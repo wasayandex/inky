@@ -38,6 +38,10 @@ package inky.routing.router
 		public function AddressRoute(addressPattern:String, trigger:String, defaults:Object = null, requirements:Object = null, requestFormatter:IRequestFormatter = null)
 		{
 			super(trigger, defaults, requirements, requestFormatter);
+			
+			if (addressPattern == null || trigger == null)
+				throw new ArgumentError("AddressRoute requires an address and an event type. (A null value was provided)")
+			
 			this._patternSource = addressPattern;
 			this._createRegExp();
 		}

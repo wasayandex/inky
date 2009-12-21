@@ -163,7 +163,7 @@ package inky.dynamic
 		//
 		// public methods
 		//
-
+// TODO: Should constructor accept a list of properties to add to the object and automatically freeze if present?
 // TODO: Look to ecmascript proposals for better names than freeze() and unfreeze()
 // TODO: Namespace freeze and unfreeze?
 		/**

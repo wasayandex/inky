@@ -57,7 +57,6 @@ package inky.routing
 		 */
 		private function _requestRoutedHandler(event:RoutingEvent):void
 		{
-trace(event);
 			var params:Object = event.request.params;
 			var triggerEvent:Event = event.triggerEvent;
 			var route:IRoute = event.route;

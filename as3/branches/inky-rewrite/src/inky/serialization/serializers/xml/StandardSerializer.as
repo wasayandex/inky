@@ -1,6 +1,6 @@
-package inky.serialization.serializers 
+package inky.serialization.serializers.xml
 {
-	import inky.serialization.serializers.IXMLSerializer;
+	import inky.serialization.serializers.xml.IXMLSerializer;
 	import flash.utils.describeType;
 	
 	/**
@@ -14,7 +14,7 @@ package inky.serialization.serializers
 	 *	@since  2009.11.16
 	 *
 	 */
-	public class StandardXMLSerializer implements IXMLSerializer
+	public class StandardSerializer implements IXMLSerializer
 	{
 		
 		/**

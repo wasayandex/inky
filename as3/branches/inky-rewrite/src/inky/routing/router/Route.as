@@ -7,6 +7,8 @@ package inky.routing.router
 	import inky.routing.request.IRequestFormatter;
 	import flash.events.Event;
 	import inky.routing.request.StandardRequestFormatter;
+	import inky.serialization.ShortNameRegistry;
+	import inky.app.inky;
 
 	
 	/**
