@@ -1,6 +1,5 @@
 ﻿package inky.async.actions
 {
-	import inky.app.IInkyDataParser;
 	import inky.async.actions.IAction;
 	import inky.collections.IIterator;
 	import inky.collections.ArrayList;
@@ -27,7 +26,7 @@
 	 *	@since  2008.07.21
 	 *	
 	 */
-	public class ActionQueue implements IEventDispatcher, IQueue, IAction, IInkyDataParser
+	public class ActionQueue implements IEventDispatcher, IQueue, IAction
 	{
 		private var _list:IList;
 		private var _token:AsyncToken;
@@ -160,15 +159,6 @@
 		{
 			this.addItem(item);
 			return true;
-		}
-
-
-		/**
-		 * @inheritDoc
-		 */
-		public function parseData(data:XML):void
-		{
-			throw new Error("That IInkyDataParser is dumb. Instead we should register parsers for QNames. You know that.");
 		}
 
 

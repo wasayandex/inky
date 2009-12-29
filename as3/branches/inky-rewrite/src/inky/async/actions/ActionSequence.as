@@ -1,7 +1,6 @@
 ﻿package inky.async.actions
 {
 	import inky.async.actions.events.ActionEvent;
-	import inky.app.IInkyDataParser;
 	import inky.app.Section;
 	import inky.async.actions.IAction;
 	import inky.collections.IIterator;
@@ -25,7 +24,7 @@
 	 *	@since  2008.07.21
 	 *	
 	 */
-	public class ActionSequence extends ArrayList implements IAction, IInkyDataParser
+	public class ActionSequence extends ArrayList implements IAction
 	{
 
 		/**
@@ -64,23 +63,6 @@
 		//
 		// public methods
 		//
-
-
-		/**
-		 *
-		 * @inheritDoc
-		 * 
-		 */
-		public function parseData(data:XML):void
-		{
-			/*// TODO: Type mom?
-			var mom:Object = Section.getSection(this).markupObjectManager;
-			for each (var xml:XML in data.*)
-			{
-				var obj:Object = mom.createMarkupObject(xml);
-				this.addItem(obj);
-			}*/
-		}
 
 
 		/**
