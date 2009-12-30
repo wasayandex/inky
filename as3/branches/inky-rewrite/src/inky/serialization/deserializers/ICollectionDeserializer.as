@@ -15,7 +15,7 @@ package inky.serialization.deserializers
 	 */
 	public interface ICollectionDeserializer
 	{
-// TODO: I don't like this approach. Is there any way this could just be a normal deserializer with delegates?
+// TODO: I don't like this approach. Is there any way this could just be a normal deserializer with delegates? In any case, I think this should be considered an implementation detail subject to change.
 
 
 		/**

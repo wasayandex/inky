@@ -44,7 +44,7 @@ package inky.app.model
 		// accessors
 		//
 
-
+// TODO: Get rid of ICollectionDeserializer, I think.
 		/**
 		 *
 		 */

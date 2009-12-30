@@ -56,6 +56,16 @@ throw new Error("Not yet implemented");
 		}
 
 
+		private function _getProperties(xml:XML):Array
+		{
+// TODO: Only if prop name is lowercase?
+			var props:Array = [];
+			for each (var p:XML in xml.children() + xml.attributes())
+				props.push(p.localName());
+			return props;
+		}
+
+
 
 
 	}

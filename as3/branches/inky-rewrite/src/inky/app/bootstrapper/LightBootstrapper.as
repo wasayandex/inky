@@ -10,7 +10,7 @@ package inky.app.bootstrapper
 	import inky.loading.loaders.RuntimeLibraryLoader;
 	import inky.routing.IFrontController;
 	import flash.utils.getDefinitionByName;
-	import inky.app.IRequestDispatcher;
+	import inky.app.IRequestHandler;
 	import inky.routing.router.IRouter;
 
 	
@@ -33,7 +33,7 @@ package inky.app.bootstrapper
 		private var _config:Object;
 		private var _frontController:IFrontController;
 		private var _loadQueue:LoadQueue;
-		private var _requestDispatcher:IRequestDispatcher;
+		private var _requestHandler:IRequestHandler;
 		private var _stage:Stage;
 
 
@@ -97,9 +97,9 @@ package inky.app.bootstrapper
 		/**
 		 *
 		 */
-		public function get requestDispatcher():IRequestDispatcher
+		public function get requestHandler():IRequestHandler
 		{ 
-			return this._requestDispatcher || (this._requestDispatcher = this.createRequestDispatcher()); 
+			return this._requestHandler || (this._requestHandler = this.createRequestHandler()); 
 		}
 		
 		
@@ -253,13 +253,13 @@ return null;
 			var routerClass:Class = getDefinitionByName("inky.routing.router.Router") as Class;
 			var router:IRouter = new routerClass();
 
-			if (!this.requestDispatcher)
+			if (!this.requestHandler)
 				throw new Error("No request dispatcher found!");
 
 			// Create the front controller.
 			var addressFCClass:Class = getDefinitionByName("inky.routing.AddressFrontController") as Class;
 			var fcClass:Class = getDefinitionByName("inky.routing.FrontController") as Class;
-			var frontController:IFrontController = new addressFCClass(new fcClass(this.stage, router, this.requestDispatcher.handleRequest));
+			var frontController:IFrontController = new addressFCClass(new fcClass(this.stage, router, this.requestHandler.handleRequest));
 
 			return frontController;
 		}
@@ -268,9 +268,9 @@ return null;
 		/**
 		 * 
 		 */
-		protected function createRequestDispatcher():IRequestDispatcher
+		protected function createRequestHandler():IRequestHandler
 		{
-			var dispatcherClass:Class = getDefinitionByName("inky.app.RequestDispatcher") as Class;
+			var dispatcherClass:Class = getDefinitionByName("inky.app.RequestHandler") as Class;
 			return new dispatcherClass();
 		}
 

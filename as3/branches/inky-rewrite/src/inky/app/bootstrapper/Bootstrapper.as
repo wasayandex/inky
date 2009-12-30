@@ -3,7 +3,7 @@ package inky.app.bootstrapper
 	import inky.app.bootstrapper.LightBootstrapper;
 	import inky.routing.AddressFrontController;
 	import inky.routing.FrontController;
-	import inky.app.RequestDispatcher;
+	import inky.app.RequestHandler;
 	import inky.routing.router.Router;
 	import inky.app.model.ApplicationModel;
 	
@@ -28,7 +28,7 @@ package inky.app.bootstrapper
 		ApplicationModel;
 		AddressFrontController;
 		FrontController;
-		RequestDispatcher;
+		RequestHandler;
 		Router;
 	}
 	

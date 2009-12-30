@@ -13,7 +13,7 @@ package inky.app
 	 *	@since  2009.11.24
 	 *
 	 */
-	public interface IRequestDispatcher
+	public interface IRequestHandler
 	{
 		/**
 		 * 
