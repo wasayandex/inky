@@ -29,6 +29,8 @@
 		private var _numRows:uint;
 		private var _rowHeights:Array;
 		private var _verticalSpacing:Number;
+		private var _x:Number;
+		private var _y:Number;
 
 
 
@@ -49,6 +51,8 @@
 		 */
 		public function GridLayout(numColumns:uint = uint.MAX_VALUE, numRows:uint = uint.MAX_VALUE, horizontalSpacing:Number = 0, verticalSpacing:Number = 0)
 		{
+			this._x =
+			this._y = 0;
 			this._constraints = new Dictionary(true);
 			this.numColumns = numColumns;
 			this.numRows = numRows;
@@ -66,8 +70,6 @@
 
 		/**
 		 *
-		 *
-		 *
 		 */
 		public function get columnWidths():Array
 		{
@@ -83,8 +85,6 @@
 
 
 		/**
-		 *
-		 *
 		 *
 		 */
 		public function get horizontalSpacing():Number
@@ -102,8 +102,6 @@
 
 		/**
 		 *
-		 *
-		 *
 		 */
 		public function get numColumns():uint
 		{
@@ -119,8 +117,6 @@
 
 
 		/**
-		 *
-		 *
 		 *
 		 */
 		public function get numRows():uint
@@ -138,8 +134,6 @@
 
 		/**
 		 *
-		 *
-		 *
 		 */
 		public function get rowHeights():Array
 		{
@@ -156,8 +150,6 @@
 
 		/**
 		 *
-		 *
-		 *
 		 */
 		public function get verticalSpacing():Number
 		{
@@ -169,6 +161,38 @@
 		public function set verticalSpacing(verticalSpacing:Number):void
 		{
 			this._verticalSpacing = verticalSpacing;
+		}
+
+
+		/**
+		 *
+		 */
+		public function get x():Number
+		{ 
+			return this._x; 
+		}
+		/**
+		 * @private
+		 */
+		public function set x(value:Number):void
+		{
+			this._x = value;
+		}
+
+
+		/**
+		 *
+		 */
+		public function get y():Number
+		{ 
+			return this._y; 
+		}
+		/**
+		 * @private
+		 */
+		public function set y(value:Number):void
+		{
+			this._y = value;
 		}
 
 
@@ -220,8 +244,8 @@
 			var numRows:uint = this.numColumns == uint.MAX_VALUE ? 1 : this.numRows == uint.MAX_VALUE ? Math.ceil(layoutItems.length / this.numColumns) : this.numRows;
 			var numColumns: uint = this.numColumns == uint.MAX_VALUE ? layoutItems.length : this.numColumns;
 			var rowHeights:Array = [];
-			var x:Number = 0;
-			var y:Number = 0;
+			var x:Number = this.x;
+			var y:Number = this.y;
 
 			// Sort the children so that GridLayoutConstraints are obeyed.
 
