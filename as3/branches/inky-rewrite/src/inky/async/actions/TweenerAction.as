@@ -5,9 +5,8 @@ package inky.async.actions
 	import inky.app.IInkyDataParser;
 	import inky.async.actions.IAction;
 	import flash.events.EventDispatcher;
-	import inky.async.IAsyncToken;
-	import inky.async.AsyncToken;
-	import inky.async.async_internal;
+	import inky.commands.IAsyncToken;
+	import inky.commands.AsyncToken;
 
 
 	/**
@@ -157,7 +156,7 @@ package inky.async.actions
 				onComplete.apply(null, onCompleteParams);
 				
 			if (this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_FINISH, actionToken)))
-				actionToken.async_internal::callResponders();
+				actionToken.callResponders();
 		}
 
 

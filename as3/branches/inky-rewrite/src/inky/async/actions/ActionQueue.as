@@ -8,10 +8,9 @@
 	import flash.events.Event;
 	import flash.events.IEventDispatcher;
 	import inky.collections.ICollection;
-	import inky.async.IAsyncToken;
-	import inky.async.async_internal;
+	import inky.commands.IAsyncToken;
 	import inky.async.actions.events.ActionEvent;
-	import inky.async.AsyncToken;
+	import inky.commands.AsyncToken;
 	import flash.utils.Dictionary;
 
 
@@ -323,7 +322,7 @@
 			if (this.isEmpty)
 			{
 				this._token = null;
-				token.async_internal::callResponders();
+				token.callResponders();
 				this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_FINISH, token, false, true));
 			}
 			else

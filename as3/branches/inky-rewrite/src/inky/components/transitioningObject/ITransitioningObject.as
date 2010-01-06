@@ -4,7 +4,7 @@ package inky.components.transitioningObject
 	import inky.utils.IDisplayObject;
 	import flash.display.DisplayObject;
 	import flash.geom.Rectangle;
-	import inky.async.IAsyncToken;
+	import inky.commands.IAsyncToken;
 
 
     /**

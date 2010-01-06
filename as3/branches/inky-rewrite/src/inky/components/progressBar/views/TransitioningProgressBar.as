@@ -8,7 +8,7 @@ package inky.components.progressBar.views
 	import inky.components.transitioningObject.TransitioningObjectState;
 	import inky.components.transitioningObject.events.TransitionEvent;
 	import flash.display.FrameLabel;
-	import inky.async.IAsyncToken;
+	import inky.commands.IAsyncToken;
 
 	
 	/**

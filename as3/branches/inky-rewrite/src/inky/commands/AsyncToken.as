@@ -1,16 +1,13 @@
-package inky.async 
+package inky.commands 
 {
 	import flash.events.EventDispatcher;
-	import inky.async.async_internal;
-	import inky.async.IAsyncToken;
+	import inky.commands.IAsyncToken;
 	import inky.binding.events.PropertyChangeEvent;
 	import flash.utils.Dictionary;
 	
-	use namespace async_internal;
-	
 	/**
 	 *
-	 *  ..
+	 *  @inheritDoc
 	 *	
 	 * 	@langversion ActionScript 3
 	 *	@playerversion Flash 9.0.0
@@ -28,7 +25,11 @@ package inky.async
 		private var _responders:Dictionary;
 		
 		/**
-		 *
+		 * Creates a new AsyncToken.
+		 * 
+		 * @param cancelable
+		 * 	Whether or not that process is cancelable.
+		 * 
 		 */
 		public function AsyncToken(cancelable:Boolean = false)
 		{
@@ -96,7 +97,7 @@ package inky.async
 
 
 		/**
-		 *	
+		 * @inheritDoc	
 		 */
 		public function cancel():void
 		{
@@ -108,9 +109,9 @@ package inky.async
 
 
 		/**
-		 *	
+		 * @inheritDoc	
 		 */
-		async_internal function callResponders():void
+		public function callResponders():void
 		{
 			if (!this.complete && !this._cancelled)
 			{

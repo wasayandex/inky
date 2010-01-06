@@ -12,7 +12,7 @@ package inky.components.transitioningObject
 	import flash.display.SimpleButton;
 	import flash.display.Sprite;
 	import flash.text.TextField;
-	import inky.async.IAsyncToken;
+	import inky.commands.IAsyncToken;
 
 
 	/**

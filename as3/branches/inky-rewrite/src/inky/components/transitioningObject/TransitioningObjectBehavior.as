@@ -1,15 +1,14 @@
 ﻿package inky.components.transitioningObject
 {
 	import inky.async.actions.IAction;
-	import inky.async.IAsyncToken;
+	import inky.commands.IAsyncToken;
 	import inky.components.transitioningObject.TransitioningObjectState;
 	import inky.components.transitioningObject.events.TransitionEvent;
 	import inky.utils.AddedToStageEventFixer;
 	import flash.display.DisplayObject;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
-	import inky.async.async_internal;
-	import inky.async.AsyncToken;
+	import inky.commands.AsyncToken;
 
 
 	/**
@@ -252,7 +251,7 @@
 				this._dispatchStartEvent(null);
 				this._dispatchFinishEvent(null);
 				token = new AsyncToken();
-				token.async_internal::callResponders();
+				token.callResponders();
 			}
 			
 			return token;
@@ -274,7 +273,7 @@
 				if (createToken)
 				{
 					token = new AsyncToken();
-					token.async_internal::callResponders();
+					token.callResponders();
 				}
 			}
 			

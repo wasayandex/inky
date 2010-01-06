@@ -3,10 +3,8 @@
 	import flash.events.EventDispatcher;
 	import inky.async.actions.events.ActionEvent;
 	import inky.async.actions.IAction;
-	import inky.async.AsyncToken;
-	import inky.async.IAsyncToken;
-	import inky.async.async_internal;
-
+	import inky.commands.AsyncToken;
+	import inky.commands.IAsyncToken;
 
 	/**
 	 *	
@@ -74,7 +72,7 @@
 
 // Should we call the responders if default is prevented?
 if (!fnReturnsToken)
-	token.async_internal::callResponders();
+	token.callResponders();
 			return token;
 		}
 

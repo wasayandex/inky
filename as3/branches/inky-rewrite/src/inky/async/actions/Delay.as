@@ -3,9 +3,8 @@ package inky.async.actions
 	import flash.events.EventDispatcher;
 	import inky.async.actions.events.ActionEvent;
 	import inky.async.actions.IAction;
-	import inky.async.AsyncToken;
-	import inky.async.IAsyncToken;
-	import inky.async.async_internal;
+	import inky.commands.AsyncToken;
+	import inky.commands.IAsyncToken;
 	import flash.utils.Timer;
 	import flash.events.TimerEvent;
 
@@ -74,7 +73,7 @@ package inky.async.actions
 					var finishEvent:ActionEvent = new ActionEvent(ActionEvent.ACTION_FINISH, token, false, true);
 					scope.dispatchEvent(finishEvent);					
 					
-					token.async_internal::callResponders();
+					token.callResponders();
 				}
 			);
 			

@@ -8,9 +8,8 @@
 	import inky.app.IInkyDataParser;
 	
 	import com.gskinner.motion.GTween;
-	import inky.async.IAsyncToken;
-	import inky.async.AsyncToken;
-	import inky.async.async_internal;
+	import inky.commands.IAsyncToken;
+	import inky.commands.AsyncToken;
 
 	/**
 	 * @langversion ActionScript 3
@@ -618,7 +617,7 @@
 			this._gTween.removeEventListener(Event.COMPLETE, this._gTweenCompleteHandler);
 			this._gTween.removeEventListener(Event.CHANGE, this._relayEvent);
 			this._gTween.removeEventListener(Event.INIT, this._relayEvent);
-			this._token.async_internal::callResponders();
+			this._token.callResponders();
 		}
 		
 		

@@ -5,9 +5,8 @@ package inky.async.actions
 	import flash.events.EventDispatcher;
 	import inky.async.actions.events.ActionEvent;
 	import inky.async.actions.IAction;
-	import inky.async.IAsyncToken;
-	import inky.async.AsyncToken;
-	import inky.async.async_internal;
+	import inky.commands.IAsyncToken;
+	import inky.commands.AsyncToken;
 
 
 	/**
@@ -199,7 +198,7 @@ package inky.async.actions
 				this.dispatchEvent(finishEvent);
 				if (!finishEvent.isDefaultPrevented())
 				{
-					this._token.async_internal::callResponders();
+					this._token.callResponders();
 				}
 			}
 		}

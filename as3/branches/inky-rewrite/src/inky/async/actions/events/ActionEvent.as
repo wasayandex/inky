@@ -1,7 +1,7 @@
 package inky.async.actions.events
 {
 	import flash.events.Event;
-	import inky.async.IAsyncToken;
+	import inky.commands.IAsyncToken;
 
 
 	/**

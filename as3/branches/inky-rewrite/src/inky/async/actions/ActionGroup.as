@@ -6,9 +6,8 @@
 	import inky.async.actions.events.ActionEvent;
 	import inky.async.actions.IAction;
 	import inky.collections.Set;
-	import inky.async.IAsyncToken;
-	import inky.async.AsyncToken;
-	import inky.async.async_internal;
+	import inky.commands.IAsyncToken;
+	import inky.commands.AsyncToken;
 
 	/**
 	 *	
@@ -161,7 +160,7 @@
 		private function _finishGroup(groupToken:IAsyncToken):void
 		{
 			if (++this._currentIndex >= this.length)
-				groupToken.async_internal::callResponders();
+				groupToken.callResponders();
 		}
 
 

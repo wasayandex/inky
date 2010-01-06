@@ -10,8 +10,9 @@ package inky.app.bootstrapper
 	import inky.loading.loaders.RuntimeLibraryLoader;
 	import inky.routing.IFrontController;
 	import flash.utils.getDefinitionByName;
-	import inky.app.IRequestHandler;
 	import inky.routing.router.IRouter;
+	import inky.app.controller.IApplicationController;
+	import inky.commands.IChain;
 
 	
 	/**
@@ -27,13 +28,12 @@ package inky.app.bootstrapper
 	 */
 	public class LightBootstrapper extends Sprite
 	{
-		private var _applicationController:*;
+		private var _applicationController:IApplicationController;
 		private var _applicationModel:Object;
 		private var _applicationModelData:String;
 		private var _config:Object;
 		private var _frontController:IFrontController;
 		private var _loadQueue:LoadQueue;
-		private var _requestHandler:IRequestHandler;
 		private var _stage:Stage;
 
 
@@ -70,7 +70,7 @@ package inky.app.bootstrapper
 		/**
 		 *
 		 */
-		public function get applicationController():*
+		public function get applicationController():IApplicationController
 		{ 
 			return this._applicationController || (this._applicationController = this.createApplicationController()); 
 		}
@@ -91,15 +91,6 @@ package inky.app.bootstrapper
 		public function get frontController():IFrontController
 		{ 
 			return this._frontController || (this._frontController = this.createFrontController()); 
-		}
-
-
-		/**
-		 *
-		 */
-		public function get requestHandler():IRequestHandler
-		{ 
-			return this._requestHandler || (this._requestHandler = this.createRequestHandler()); 
 		}
 		
 		
@@ -185,6 +176,15 @@ package inky.app.bootstrapper
 			// Clean up.
 			event.currentTarget.removeEventListener(event.type, arguments.callee);
 		}
+		
+		
+		/**
+		 * 
+		 */
+		private function _handleRequest(request:Object):void
+		{
+			this.applicationController.chain.start(request);
+		}
 
 
 		/**
@@ -224,12 +224,17 @@ package inky.app.bootstrapper
 		/**
 		 * 
 		 */
-		protected function createApplicationController():*
+		protected function createApplicationController():IApplicationController
 		{
-return null;
-			/*var applicationControllerClass:Class = getDefinitionByName("inky.app.controllers.ApplicationController") as Class;
-			var applicationController:* = new applicationControllerClass(this.application, this.applicationModel);
-			return applicationController;*/
+			// Create the responsibility chain.
+			var chainClass:Class = getDefinitionByName("inky.commands.Chain") as Class;
+			var chain:IChain = new chainClass();
+			
+			// Create the application controller.
+			var applicationControllerClass:Class = getDefinitionByName("inky.app.controller.ApplicationController") as Class;
+			var applicationController:IApplicationController = new applicationControllerClass(this.stage, this.applicationModel, chain);
+
+			return applicationController;
 		}
 
 
@@ -253,25 +258,12 @@ return null;
 			var routerClass:Class = getDefinitionByName("inky.routing.router.Router") as Class;
 			var router:IRouter = new routerClass();
 
-			if (!this.requestHandler)
-				throw new Error("No request dispatcher found!");
-
 			// Create the front controller.
 			var addressFCClass:Class = getDefinitionByName("inky.routing.AddressFrontController") as Class;
 			var fcClass:Class = getDefinitionByName("inky.routing.FrontController") as Class;
-			var frontController:IFrontController = new addressFCClass(new fcClass(this.stage, router, this.requestHandler.handleRequest));
+			var frontController:IFrontController = new addressFCClass(new fcClass(this.stage, router, this._handleRequest));
 
 			return frontController;
-		}
-
-
-		/**
-		 * 
-		 */
-		protected function createRequestHandler():IRequestHandler
-		{
-			var dispatcherClass:Class = getDefinitionByName("inky.app.RequestHandler") as Class;
-			return new dispatcherClass();
 		}
 
 

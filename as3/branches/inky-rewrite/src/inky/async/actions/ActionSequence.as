@@ -7,9 +7,7 @@
 	import inky.collections.ArrayList;
 	import inky.async.*;
 	import inky.async.actions.ActionQueue;
-	import inky.async.AsyncToken;
-	import inky.async.async_internal;
-
+	import inky.commands.AsyncToken;
 
 	/**
 	 *	
