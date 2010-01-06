@@ -44,10 +44,10 @@ package inky.commands
 		 */
 		public function set next(value:Object):void
 		{
-			if (value && (!(value is IChainable) || !(value is ICommand) || !(value is IAsyncCommand)))
+			if (!value || (value is IChainable || value is ICommand || value is IAsyncCommand))
+				this._next = value;
+			else
 				throw new ArgumentError("Invalid command. Command must be either IChainable, ICommand, or IAsyncCommand");
-
-			this._next = value;
 		}
 		
 		

@@ -2,6 +2,8 @@ package inky.app.controller
 {
 	import inky.app.controller.IApplicationController;
 	import inky.commands.IChain;
+	import inky.app.commands.RequestProcessor;
+	import inky.app.commands.UpdateViewStack;
 	
 	/**
 	 *
@@ -28,6 +30,8 @@ package inky.app.controller
 			this._application = application;
 			this._model = model;
 			this._chain = chain;
+			
+			this._initializeChain();
 		}
 		
 		
@@ -44,6 +48,22 @@ package inky.app.controller
 		public function get chain():IChain
 		{ 
 			return this._chain; 
+		}
+		
+		
+		
+		//
+		// private methods
+		//
+		
+		
+		/**
+		 * 
+		 */
+		private function _initializeChain():void
+		{
+			this._chain.addItem(new RequestProcessor(this));
+			this._chain.addItem(new UpdateViewStack(this, this._application));
 		}
 		
 
