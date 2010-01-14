@@ -44,10 +44,11 @@ package inky.app.commands
 			if (params.hasOwnProperty("action") && params.action == "gotoSection")
 			{
 				var sPath:Object = params.hasOwnProperty("sPath") ? params.sPath : "/";
-
-				this._applicationController.chain.start({action: "transitionToCommonAncestor", sPath: sPath});
+				
+				this._applicationController.executeCommand({action: "cancelQueuedCommands"});
+				this._applicationController.executeCommand({action: "transitionToCommonAncestor", sPath: sPath});
 // Preload assets?
-				this._applicationController.chain.start({action: "transitionTo", sPath: sPath});
+				this._applicationController.executeCommand({action: "transitionTo", sPath: sPath});
 			}
 			
 			

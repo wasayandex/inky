@@ -1,5 +1,6 @@
 package inky.app.model 
 {
+	import inky.app.SPath;
 	
 	/**
 	 *
@@ -20,6 +21,10 @@ package inky.app.model
 		function get routes():Array;
 
 		
+		/**
+		 * 
+		 */
+		function getSectionClassName(sPath:SPath):String;
 	}
 	
 }

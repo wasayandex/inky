@@ -1,6 +1,5 @@
 package inky.app.controller 
 {
-	import inky.commands.collections.ICommandChain;
 	
 	/**
 	 *
@@ -16,10 +15,8 @@ package inky.app.controller
 	public interface IApplicationController
 	{
 		
-		/**
-		 * 
-		 */
-		function get chain():ICommandChain;
+		
+		function executeCommand(params:Object):void;
 		
 
 		

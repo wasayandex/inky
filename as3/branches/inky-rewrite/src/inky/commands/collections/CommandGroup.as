@@ -49,6 +49,15 @@ package inky.commands.collections
 			this._startGroup(token);
 			return token;
 		}
+		
+		
+		/**
+		 * 
+		 */
+		public function start():IAsyncToken
+		{
+			return this.execute();
+		}
 
 
 

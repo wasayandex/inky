@@ -47,6 +47,15 @@ package inky.commands.collections
 
 			return queue.execute();
 		}
+		
+		
+		/**
+		 * 
+		 */
+		public function start():IAsyncToken
+		{
+			return this.execute();
+		}
 
 		
 

@@ -6,7 +6,6 @@ package inky.commands.collections
 	import inky.commands.IChainableCommand;
 	import inky.collections.ICollection;
 	import inky.commands.IAsyncCommand;
-	import inky.commands.collections.ICommandChain;
 	
 	/**
 	 *
@@ -19,16 +18,17 @@ package inky.commands.collections
 	 *	@since  2010.01.06
 	 *
 	 */
-	public class CommandChain extends Set implements ICommandChain
+	public class CommandChain extends Set implements IChainableCommand
 	{
 		private var _next:Object;
 		
 		/**
 		 *
 		 */
-		public function CommandChain(next:Object = null)
+		public function CommandChain(...rest:Array)
 		{
-			this.next = next;
+			for each (var cmd:Object in rest)
+				this.addItem(cmd);
 		}
 		
 		

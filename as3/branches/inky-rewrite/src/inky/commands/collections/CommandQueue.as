@@ -8,7 +8,7 @@ package inky.commands.collections
 	import inky.collections.ICollection;
 	import inky.collections.IIterator;
 	import flash.events.Event;
-	import mx.rpc.AsyncToken;
+	import inky.commands.tokens.AsyncToken;
 	
 	/**
 	 *
@@ -213,6 +213,15 @@ package inky.commands.collections
 				this._executeHeadItem();
 			}
 			return token;
+		}
+		
+		
+		/**
+		 * 
+		 */
+		public function start():IAsyncToken
+		{
+			return this.execute();
 		}
 
 

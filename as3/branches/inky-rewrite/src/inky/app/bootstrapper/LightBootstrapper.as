@@ -12,7 +12,8 @@ package inky.app.bootstrapper
 	import flash.utils.getDefinitionByName;
 	import inky.routing.router.IRouter;
 	import inky.app.controller.IApplicationController;
-	import inky.commands.collections.ICommandChain;
+	import inky.app.IRequestHandler;
+	import inky.routing.request.IRequest;
 
 	
 	/**
@@ -34,6 +35,7 @@ package inky.app.bootstrapper
 		private var _config:Object;
 		private var _frontController:IFrontController;
 		private var _loadQueue:LoadQueue;
+		private var _requestHandler:IRequestHandler;
 		private var _stage:Stage;
 
 
@@ -91,6 +93,15 @@ package inky.app.bootstrapper
 		public function get frontController():IFrontController
 		{ 
 			return this._frontController || (this._frontController = this.createFrontController()); 
+		}
+
+
+		/**
+		 *
+		 */
+		public function get requestHandler():IRequestHandler
+		{ 
+			return this._requestHandler || (this._requestHandler = this.createRequestHandler()); 
 		}
 		
 		
@@ -181,9 +192,9 @@ package inky.app.bootstrapper
 		/**
 		 * 
 		 */
-		private function _handleRequest(request:Object):void
+		private function _handleRequest(request:IRequest):void
 		{
-			this.applicationController.chain.start(request);
+			this.requestHandler.handleRequest(request);
 		}
 
 
@@ -226,13 +237,9 @@ package inky.app.bootstrapper
 		 */
 		protected function createApplicationController():IApplicationController
 		{
-			// Create the responsibility chain.
-			var chainClass:Class = getDefinitionByName("inky.commands.collections.CommandChain") as Class;
-			var chain:ICommandChain = new chainClass();
-			
 			// Create the application controller.
 			var applicationControllerClass:Class = getDefinitionByName("inky.app.controller.ApplicationController") as Class;
-			var applicationController:IApplicationController = new applicationControllerClass(this.stage, this.applicationModel, chain);
+			var applicationController:IApplicationController = new applicationControllerClass(this.stage, this.applicationModel);
 
 			return applicationController;
 		}
@@ -264,6 +271,16 @@ package inky.app.bootstrapper
 			var frontController:IFrontController = new addressFCClass(new fcClass(this.stage, router, this._handleRequest));
 
 			return frontController;
+		}
+
+
+		/**
+		 * 
+		 */
+		protected function createRequestHandler():IRequestHandler
+		{
+			var handlerClass:Class = getDefinitionByName("inky.app.RequestHandler") as Class;
+			return new handlerClass(this.applicationController);
 		}
 
 

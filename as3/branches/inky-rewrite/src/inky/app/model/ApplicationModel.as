@@ -8,6 +8,8 @@ package inky.app.model
 	import inky.routing.router.Route;
 	import inky.serialization.deserializers.xml.XMLListDeserializer;
 	import inky.serialization.deserializers.xml.RouteDeserializer;
+	import inky.app.SPath;
+	import inky.app.model.IApplicationModel;
 
 
 	/**
@@ -21,7 +23,7 @@ package inky.app.model
 	 *	@since  2009.10.28
 	 *
 	 */
-	dynamic public class ApplicationModel extends DynamicObject
+	dynamic public class ApplicationModel extends DynamicObject implements IApplicationModel
 	{
 		private var _data:Object;
 		private var _deserializer:ICollectionDeserializer;
@@ -34,13 +36,8 @@ package inky.app.model
 		public function ApplicationModel(data:Object = null)
 		{
 			this._data = data;
-
-
-
 //!
-this._routes = [
-	new AddressRoute("#/", "gotoHome", { action: "gotoSection", sPath: "/googleApplication" })
-];
+this._routes = [];
 		}
 
 
@@ -93,11 +90,10 @@ this._routes = [
 		
 		
 		
-		public function getSectionClassName(sPath:Object):String
+		public function getSectionClassName(sPath:SPath):String
 		{
-// FIXME: This parsing needs to be done by a deserializer.
-// TODO: Use real SPath..?
-			var segments:Array = sPath.toString().split("/").slice(1);
+// TODO: This parsing needs to be done by a deserializer.
+			var segments:Array = sPath.toArray();
 			var segment:String;
 			var node:XML = XML(this._data);
 			while (segments.length)

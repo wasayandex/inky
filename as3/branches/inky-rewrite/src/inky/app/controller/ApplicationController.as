@@ -1,10 +1,11 @@
 package inky.app.controller 
 {
 	import inky.app.controller.IApplicationController;
-	import inky.commands.collections.ICommandChain;
-	import inky.app.commands.RequestProcessor;
 	import inky.app.commands.UpdateViewStack;
 	import inky.app.commands.GotoSection;
+	import inky.app.model.IApplicationModel;
+	import inky.commands.collections.CommandChain;
+	import inky.app.commands.ProcessCommand;
 	
 	/**
 	 *
@@ -19,57 +20,41 @@ package inky.app.controller
 	 */
 	public class ApplicationController implements IApplicationController
 	{
-		private var _application:Object;
-		private var _chain:ICommandChain;
-		private var _model:Object;
+		private var _commandChain:CommandChain;
 		
 		/**
 		 *
 		 */
-		public function ApplicationController(application:Object, model:Object, chain:ICommandChain)
+		public function ApplicationController(application:Object, model:IApplicationModel)
 		{
-			this._application = application;
-			this._model = model;
-			this._chain = chain;
+			this._commandChain = new CommandChain
+			(
+				new ProcessCommand(),
+				new GotoSection(this),
+				new UpdateViewStack(this, application, model)
+			);
+		}
+		
+		
+		
+
+		//
+		// public methods
+		//
+		
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function executeCommand(params:Object):void
+		{
+			this._commandChain.start(params);
 			
-			this._initializeChain();
-		}
-		
-		
-		
-
-		//
-		// accessors
-		//
-
-
-		/**
-		 *
-		 */
-		public function get chain():ICommandChain
-		{ 
-			return this._chain; 
-		}
-		
-		
-		
-		//
-		// private methods
-		//
-		
-		
-		/**
-		 * 
-		 */
-		private function _initializeChain():void
-		{
-			this._chain.addItem(new RequestProcessor(this));
-			this._chain.addItem(new GotoSection(this));
-			this._chain.addItem(new UpdateViewStack(this, this._application, this._model));
 		}
 		
 
 		
+
 	}
 	
 }

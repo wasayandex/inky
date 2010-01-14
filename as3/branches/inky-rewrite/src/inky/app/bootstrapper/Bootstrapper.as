@@ -6,7 +6,7 @@ package inky.app.bootstrapper
 	import inky.routing.router.Router;
 	import inky.app.model.ApplicationModel;
 	import inky.app.controller.ApplicationController;
-	import inky.commands.collections.CommandChain;
+	import inky.app.RequestHandler;
 	
 	/**
 	 *
@@ -30,8 +30,8 @@ package inky.app.bootstrapper
 		ApplicationModel;
 		AddressFrontController;
 		FrontController;
+		RequestHandler;
 		Router;
-		CommandChain;
 	}
 	
 }
