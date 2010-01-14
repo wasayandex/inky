@@ -1,7 +1,7 @@
 package inky.commands 
 {
 	import inky.commands.ICommand;
-	import inky.commands.IChainable;
+	import inky.commands.IChainableCommand;
 	import inky.commands.IAsyncCommand;
 	
 	/**
@@ -15,7 +15,7 @@ package inky.commands
 	 *	@since  2010.01.06
 	 *
 	 */
-	public class ChainableCommand implements IChainable
+	public class ChainableCommand implements IChainableCommand
 	{
 		private var _next:Object;
 		
@@ -44,10 +44,10 @@ package inky.commands
 		 */
 		public function set next(value:Object):void
 		{
-			if (!value || (value is IChainable || value is ICommand || value is IAsyncCommand))
+			if (!value || (value is IChainableCommand || value is ICommand || value is IAsyncCommand))
 				this._next = value;
 			else
-				throw new ArgumentError("Invalid command. Command must be either IChainable, ICommand, or IAsyncCommand");
+				throw new ArgumentError("Invalid command. Command must be either IChainableCommand, ICommand, or IAsyncCommand");
 		}
 		
 		
@@ -61,7 +61,7 @@ package inky.commands
 		/**
 		 * @inheritDoc
 		 */
-		public function execute(params:Object):Boolean
+		public function execute(params:Object = null):Boolean
 		{
 			return true;
 		}
@@ -70,12 +70,12 @@ package inky.commands
 		/**
 		 * @inheritDoc
 		 */
-		public function start(params:Object):void
+		public function start(params:Object = null):void
 		{
 			var doNext:Boolean = this.execute(params);
 			if (doNext && this._next)
 			{
-				if (this._next is IChainable)
+				if (this._next is IChainableCommand)
 					this._next.start(params);
 				else
 					this._next.execute(params);

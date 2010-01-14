@@ -1,4 +1,4 @@
-package inky.commands
+package inky.commands.tokens
 {
 	
 	/**

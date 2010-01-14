@@ -1,7 +1,7 @@
 package inky.components.transitioningObject
 {
-	import inky.async.actions.PlayFrameLabelAction;
-	import inky.async.actions.IAction;
+	import inky.commands.PlayFrameLabelCommand;
+	import inky.commands.IAsyncCommand;
 	import inky.components.transitioningObject.ITransitioningObject;
 	import inky.components.transitioningObject.TransitioningObjectBehavior;
 	import inky.components.transitioningObject.events.TransitionEvent;
@@ -12,7 +12,7 @@ package inky.components.transitioningObject
 	import flash.display.SimpleButton;
 	import flash.display.Sprite;
 	import flash.text.TextField;
-	import inky.commands.IAsyncToken;
+	import inky.commands.tokens.IAsyncToken;
 
 
 	/**
@@ -56,12 +56,12 @@ package inky.components.transitioningObject
 			// Set the default transitions.
 			if (hasIntroLabel)
 			{
-				this.intro = new PlayFrameLabelAction('intro', this);
+				this.intro = new PlayFrameLabelCommand('intro', this);
 				this.stop();
 			}
 			if (hasOutroLabel)
 			{
-				this.outro = new PlayFrameLabelAction('outro', this);
+				this.outro = new PlayFrameLabelCommand('outro', this);
 				this.stop();
 			}
 			
@@ -80,14 +80,14 @@ package inky.components.transitioningObject
 		/**
 		 * @inheritDoc
 		 */
-		public function get intro():IAction
+		public function get intro():IAsyncCommand
 		{
 			return this._proxy.intro;
 		}
 		/**
 		 * @private
 		 */
-		public function set intro(intro:IAction):void
+		public function set intro(intro:IAsyncCommand):void
 		{
 			this._proxy.intro = intro;
 		}
@@ -96,14 +96,14 @@ package inky.components.transitioningObject
 		/**
 		 * @inheritDoc
 		 */
-		public function get outro():IAction
+		public function get outro():IAsyncCommand
 		{
 			return this._proxy.outro;
 		}
 		/**
 		 * @private
 		 */
-		public function set outro(outro:IAction):void
+		public function set outro(outro:IAsyncCommand):void
 		{
 			this._proxy.outro = outro;
 		}

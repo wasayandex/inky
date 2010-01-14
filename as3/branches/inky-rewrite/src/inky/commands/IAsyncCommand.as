@@ -1,6 +1,6 @@
 package inky.commands 
 {
-	import inky.commands.IAsyncToken;
+	import inky.commands.tokens.IAsyncToken;
 	
 	/**
 	 *
@@ -22,10 +22,10 @@ package inky.commands
 		 * @return
 		 * 	An IAsyncToken which represents the life cycle of the executing command.
 		 * 
-		 * @see	inky.commands.IAsyncToken
+		 * @see	inky.commands.tokens.IAsyncToken
 		 * 
 		 */
-		function execute(params:Object):IAsyncToken;
+		function execute(params:Object = null):IAsyncToken;
 		
 
 		

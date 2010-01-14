@@ -1,9 +1,10 @@
 package inky.app.controller 
 {
 	import inky.app.controller.IApplicationController;
-	import inky.commands.IChain;
+	import inky.commands.collections.ICommandChain;
 	import inky.app.commands.RequestProcessor;
 	import inky.app.commands.UpdateViewStack;
+	import inky.app.commands.GotoSection;
 	
 	/**
 	 *
@@ -19,13 +20,13 @@ package inky.app.controller
 	public class ApplicationController implements IApplicationController
 	{
 		private var _application:Object;
-		private var _chain:IChain;
+		private var _chain:ICommandChain;
 		private var _model:Object;
 		
 		/**
 		 *
 		 */
-		public function ApplicationController(application:Object, model:Object, chain:IChain)
+		public function ApplicationController(application:Object, model:Object, chain:ICommandChain)
 		{
 			this._application = application;
 			this._model = model;
@@ -45,7 +46,7 @@ package inky.app.controller
 		/**
 		 *
 		 */
-		public function get chain():IChain
+		public function get chain():ICommandChain
 		{ 
 			return this._chain; 
 		}
@@ -63,7 +64,8 @@ package inky.app.controller
 		private function _initializeChain():void
 		{
 			this._chain.addItem(new RequestProcessor(this));
-			this._chain.addItem(new UpdateViewStack(this, this._application));
+			this._chain.addItem(new GotoSection(this));
+			this._chain.addItem(new UpdateViewStack(this, this._application, this._model));
 		}
 		
 

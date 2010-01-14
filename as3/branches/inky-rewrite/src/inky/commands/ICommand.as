@@ -22,7 +22,7 @@ package inky.commands
 		 *	The object that defines conditions under which the command is executed.
 		 * 
 		 */
-		function execute(params:Object):void;
+		function execute(params:Object = null):void;
 		
 
 		

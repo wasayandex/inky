@@ -4,7 +4,6 @@ package inky.app.model
 	import inky.dynamic.DynamicObject;
 	import inky.routing.router.AddressRoute;
 	import inky.serialization.deserializers.IDeserializer;
-	import inky.serialization.deserializers.xml.StandardDeserializer;
 	import inky.serialization.deserializers.ICollectionDeserializer;
 	import inky.routing.router.Route;
 	import inky.serialization.deserializers.xml.XMLListDeserializer;
@@ -35,6 +34,13 @@ package inky.app.model
 		public function ApplicationModel(data:Object = null)
 		{
 			this._data = data;
+
+
+
+//!
+this._routes = [
+	new AddressRoute("#/", "gotoHome", { action: "gotoSection", sPath: "/googleApplication" })
+];
 		}
 
 
@@ -84,6 +90,33 @@ package inky.app.model
 		//
 		// public methods
 		//
+		
+		
+		
+		public function getSectionClassName(sPath:Object):String
+		{
+// FIXME: This parsing needs to be done by a deserializer.
+// TODO: Use real SPath..?
+			var segments:Array = sPath.toString().split("/").slice(1);
+			var segment:String;
+			var node:XML = XML(this._data);
+			while (segments.length)
+			{
+				segment = segments.shift();
+				node = node.inky::Section.(@name == segment)[0];
+
+				if (!node)
+// TODO: Throw more informative error.
+					throw new Error(sPath.toString() + " cannot be found.");
+			}
+
+			node = node.attribute(new QName(inky, "class"))[0];
+			if (!node)
+// TODO: Throw more informative error.
+				throw new Error("Class cannot be determined for " + sPath.toString());
+			
+			return node.toString();
+		}
 
 
 

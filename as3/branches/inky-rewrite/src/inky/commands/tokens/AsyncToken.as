@@ -1,7 +1,7 @@
-package inky.commands 
+package inky.commands.tokens
 {
 	import flash.events.EventDispatcher;
-	import inky.commands.IAsyncToken;
+	import inky.commands.tokens.IAsyncToken;
 	import inky.binding.events.PropertyChangeEvent;
 	import flash.utils.Dictionary;
 	

@@ -1,14 +1,14 @@
 package inky.components.progressBar.views
 {
-	import inky.async.actions.PlayFrameLabelAction;
-	import inky.async.actions.IAction;
+	import inky.commands.PlayFrameLabelCommand;
+	import inky.commands.IAsyncCommand;
 	import inky.components.progressBar.views.BaseProgressBar;
 	import inky.components.transitioningObject.ITransitioningObject;
 	import inky.components.transitioningObject.TransitioningObjectBehavior;
 	import inky.components.transitioningObject.TransitioningObjectState;
 	import inky.components.transitioningObject.events.TransitionEvent;
 	import flash.display.FrameLabel;
-	import inky.commands.IAsyncToken;
+	import inky.commands.tokens.IAsyncToken;
 
 	
 	/**
@@ -47,11 +47,11 @@ package inky.components.progressBar.views
 			// Set the default transitions.
 			if (hasIntroLabel)
 			{
-				this.intro = new PlayFrameLabelAction('intro', this);
+				this.intro = new PlayFrameLabelCommand('intro', this);
 			}
 			if (hasOutroLabel)
 			{
-				this.outro = new PlayFrameLabelAction('outro', this);
+				this.outro = new PlayFrameLabelCommand('outro', this);
 			}
 			
 			this._proxy.addEventListener(TransitionEvent.TRANSITION_START, this._relayEvent);
@@ -69,14 +69,14 @@ package inky.components.progressBar.views
 		/**
 		 * @inheritDoc
 		 */
-		public function get intro():IAction
+		public function get intro():IAsyncCommand
 		{
 			return this._proxy.intro;
 		}
 		/**
 		 * @private
 		 */
-		public function set intro(intro:IAction):void
+		public function set intro(intro:IAsyncCommand):void
 		{
 			this._proxy.intro = intro;
 		}
@@ -85,14 +85,14 @@ package inky.components.progressBar.views
 		/**
 		 * @inheritDoc
 		 */
-		public function get outro():IAction
+		public function get outro():IAsyncCommand
 		{
 			return this._proxy.outro;
 		}
 		/**
 		 * @private
 		 */
-		public function set outro(outro:IAction):void
+		public function set outro(outro:IAsyncCommand):void
 		{
 			this._proxy.outro = outro;
 		}

@@ -12,7 +12,7 @@ package inky.commands
 	 *	@since  2010.01.06
 	 *
 	 */
-	public interface IChainable
+	public interface IChainableCommand
 	{
 		/**
 		 * Set the next command in the chain of responsibility.
@@ -26,7 +26,7 @@ package inky.commands
 		 * @return Boolean
 		 * 	Whether or not the chain should continue on to the next node.
 		 */
-		function execute(params:Object):Boolean;
+		function execute(params:Object = null):Boolean;
 
 
 		/**
@@ -36,7 +36,7 @@ package inky.commands
 		 * @param params
 		 *	The object that defines conditions under which the command is executed.
 		 */
-		function start(params:Object):void;
+		function start(params:Object = null):void;
 
 	}
 	

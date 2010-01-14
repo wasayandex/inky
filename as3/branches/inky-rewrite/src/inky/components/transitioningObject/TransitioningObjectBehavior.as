@@ -1,14 +1,14 @@
 ﻿package inky.components.transitioningObject
 {
-	import inky.async.actions.IAction;
-	import inky.commands.IAsyncToken;
+	import inky.commands.IAsyncCommand;
+	import inky.commands.tokens.IAsyncToken;
 	import inky.components.transitioningObject.TransitioningObjectState;
 	import inky.components.transitioningObject.events.TransitionEvent;
 	import inky.utils.AddedToStageEventFixer;
 	import flash.display.DisplayObject;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
-	import inky.commands.AsyncToken;
+	import inky.commands.tokens.AsyncToken;
 
 
 	/**
@@ -31,9 +31,9 @@
 	public class TransitioningObjectBehavior extends EventDispatcher
 	{
 		private var _addedToStageEventFixer:AddedToStageEventFixer;
-		private var _intro:IAction;
+		private var _intro:IAsyncCommand;
 		private var _obj:DisplayObject;
-		private var _outro:IAction;
+		private var _outro:IAsyncCommand;
 		private var _removeToken:IAsyncToken;
 		private var _state:String;
 		private var _transition:Object;
@@ -68,14 +68,14 @@
 		/**
 		 * @copy inky.components.transitioningObject.ITransitioningObject#intro
 		 */
-		public function get intro():IAction
+		public function get intro():IAsyncCommand
 		{
 			return this._intro;
 		}
 		/**
 		 * @private
 		 */
-		public function set intro(intro:IAction):void
+		public function set intro(intro:IAsyncCommand):void
 		{
 			this._intro = intro;
 
@@ -88,14 +88,14 @@
 		/**
 		 * @copy inky.components.transitioningObject.ITransitioningObject#outro
 		 */
-		public function get outro():IAction
+		public function get outro():IAsyncCommand
 		{
 			return this._outro;
 		}
 		/**
 		 * @private	
 		 */
-		public function set outro(outro:IAction):void
+		public function set outro(outro:IAsyncCommand):void
 		{
 			this._outro = outro;
 
@@ -137,21 +137,6 @@
 
 			this._removeToken = token;
 			return token;
-
-			/*if (this.state == TransitioningObjectState.PLAYING_OUTRO) return;	
-
-			if (this._outro)
-			{
-				// If there is an outro, play it before removing the clip.
-				this._outro.addEventListener(ActionEvent.ACTION_FINISH, this._removeNow, false, 0, true);
-				this._playTransition(this._outro);
-			}
-			else
-			{
-				// If the clip doesn't have an outro, remove it immediately.
-				this._playTransition(this._outro);
-				this._removeNow();
-			}*/
 		}
 
 
@@ -225,7 +210,7 @@
 		 * Plays a specific transition.
 		 *
 		 */
-		private function _playTransition(transition:IAction):IAsyncToken
+		private function _playTransition(transition:IAsyncCommand):IAsyncToken
 		{
 			var token:IAsyncToken;
 			

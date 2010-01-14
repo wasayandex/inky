@@ -1,49 +1,40 @@
-﻿package inky.async.actions
+package inky.commands.collections 
 {
-	import inky.async.actions.IAction;
-	import inky.collections.IIterator;
-	import inky.collections.ArrayList;
-	import inky.collections.IList;
+	import inky.commands.IAsyncCommand;
 	import inky.collections.IQueue;
-	import flash.events.Event;
 	import flash.events.IEventDispatcher;
+	import inky.collections.ArrayList;
+	import inky.commands.tokens.IAsyncToken;
 	import inky.collections.ICollection;
-	import inky.commands.IAsyncToken;
-	import inky.async.actions.events.ActionEvent;
-	import inky.commands.AsyncToken;
-	import flash.utils.Dictionary;
-
-
+	import inky.collections.IIterator;
+	import flash.events.Event;
+	import mx.rpc.AsyncToken;
+	
 	/**
-	 *	
-	 *	Defines a list of actions to be executed sequentially.
 	 *
-	 *	@langversion ActionScript 3.0
-	 *	@playerversion Flash 9.0
-	 *
-	 *	@author Rich Perez
-	 *	@since  2008.07.21
+	 *  ..
 	 *	
+	 * 	@langversion ActionScript 3
+	 *	@playerversion Flash 9.0.0
+	 *
+	 *	@author Eric Eldredge
+	 * 	@author Matthew Tretter
+	 *	@since  2010.01.13
+	 *
 	 */
-	public class ActionQueue implements IEventDispatcher, IQueue, IAction
+	public class CommandQueue implements IEventDispatcher, IQueue, IAsyncCommand
 	{
-		private var _list:IList;
+		private var _list:ArrayList;
 		private var _token:AsyncToken;
-
-
+		
 		/**
 		 *
-		 *	
-		 *	
 		 */
-		public function ActionQueue(...rest:Array)
+		public function CommandQueue(...rest:Array)
 		{
 			this._list = new ArrayList();
-
-			for each (var action:IAction in rest)
-			{
-				this.addItem(action);
-			}
+			for each (var command:Object in rest)
+				this.addItem(command);
 		}
 
 
@@ -52,15 +43,6 @@
 		//
 		// accessors
 		//
-
-
-		/**
-		 * @inheritDoc
-		 */
-		public function get cancelable():Boolean
-		{
-			return false;
-		}
 
 
 		/**
@@ -218,18 +200,9 @@
 
 
 		/**
-		 *	@inheritDoc
-		 */
-		public function start():IAsyncToken
-		{
-			return this.startAction();
-		}
-
-
-		/**
 		 * @inheritDoc
 		 */
-		public function startAction():IAsyncToken
+		public function execute(params:Object = null):IAsyncToken
 		{
 			var token:AsyncToken = this._token;
 			if (!token)
@@ -237,7 +210,6 @@
 				token =
 				this._token = new AsyncToken(false);
 				token.subprocesses = [];
-				this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_START, token, false, true))
 				this._executeHeadItem();
 			}
 			return token;
@@ -323,12 +295,17 @@
 			{
 				this._token = null;
 				token.callResponders();
-				this.dispatchEvent(new ActionEvent(ActionEvent.ACTION_FINISH, token, false, true));
 			}
 			else
 			{
-				var headItem:IAction = this.getHeadItem() as IAction;
-				var subprocessToken:IAsyncToken = headItem.startAction();
+				var headItem:Object = this.getHeadItem();
+				var subprocessToken:IAsyncToken = headItem.execute();
+				// If the headItem's execute does not return a token, create one to represent it.
+				if (!(subprocessToken is IAsyncToken))
+				{
+					subprocessToken = new AsyncToken();
+					subprocessToken.callResponders();
+				}
 				token.subprocesses.push(subprocessToken);
 				subprocessToken.addResponder(this._itemCompleteHandler);
 			}
@@ -346,9 +323,10 @@
 			// Execute the next item.
 			this._executeHeadItem();
 		}
+		
 
-
-
+		
 
 	}
+	
 }

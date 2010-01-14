@@ -1,20 +1,25 @@
-﻿package inky.async.actions
+package inky.commands 
 {
 	import flash.events.EventDispatcher;
 	import flash.events.Event;
-	
-	import inky.async.actions.IAction;
-	import inky.async.actions.events.ActionEvent;
-	import inky.app.IInkyDataParser;
-	
+	import inky.commands.IAsyncCommand;
+	import inky.commands.tokens.IAsyncToken;
+	import inky.commands.tokens.AsyncToken;
 	import com.gskinner.motion.GTween;
-	import inky.commands.IAsyncToken;
-	import inky.commands.AsyncToken;
-
+	
 	/**
-	 * @langversion ActionScript 3
+	 *
+	 *  ..
+	 *	
+	 * 	@langversion ActionScript 3
+	 *	@playerversion Flash 9.0.0
+	 *
+	 *	@author Eric Eldredge
+	 *  @author Ryan Sprake
+	 *	@since  2010.01.14
+	 *
 	 */
-	dynamic public class GTweenAction extends EventDispatcher implements IAction, IInkyDataParser
+	public class GTweenCommand extends EventDispatcher implements IAsyncCommand
 	{
 		private var _target:Object;
 		private var _gTween:GTween;
@@ -25,7 +30,7 @@
 
 		/**
 		 */
-		public function GTweenAction(duration:Number = 10, properties:Object = null, tweenProperties:Object = null, target:Object = null)
+		public function GTweenCommand(duration:Number = 10, properties:Object = null, tweenProperties:Object = null, target:Object = null)
 		{
 			this._duration = duration;
 			if(properties) this._properties = properties;
@@ -550,44 +555,9 @@
 
 
 		/**
-		 */
-		public function cancel():void
-		{
-			if(this._gTween)
-			{
-				this._gTween.pause();
-				this._gTween = null;
-			}
-		}
-
-
-		/**
-		 * 
-		 */
-		public function parseData(data:XML):void
-		{
-			/*
-			for each (var item:XML in data.* + data.attributes())
-			{
-				var name = item.localName();
-				this[name] = item.toString();
-			}
-			*/
-		}
-
-
-		/**
-		 */
-		public function start():IAsyncToken
-		{
-			return this.startAction();
-		}
-		
-		
-		/**
 		 *	
 		 */
-		public function startAction():IAsyncToken
+		public function execute(params:Object = null):IAsyncToken
 		{
 			if (!this.target)
 				throw new Error('target is null.');
@@ -604,6 +574,8 @@
 		}
 		
 		
+
+
 		//
 		// Private Functions
 		//
@@ -628,4 +600,5 @@
 			this.dispatchEvent(event);
 		}
 	}
+	
 }

@@ -32,13 +32,13 @@ package inky.app.commands
 		/**
 		 * @inheritDoc
 		 */
-		override public function execute(params:Object):Boolean
+		override public function execute(params:Object = null):Boolean
 		{
 			if (params is IRequest)
 			{
 				params = params.params;
-				if (params.view)
-					this._applicationController.chain.start(params);
+//				if (params.view)
+				this._applicationController.chain.start(params);
 			}
 			return true;
 		}

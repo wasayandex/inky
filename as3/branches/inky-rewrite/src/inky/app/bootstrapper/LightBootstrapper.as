@@ -12,7 +12,7 @@ package inky.app.bootstrapper
 	import flash.utils.getDefinitionByName;
 	import inky.routing.router.IRouter;
 	import inky.app.controller.IApplicationController;
-	import inky.commands.IChain;
+	import inky.commands.collections.ICommandChain;
 
 	
 	/**
@@ -227,8 +227,8 @@ package inky.app.bootstrapper
 		protected function createApplicationController():IApplicationController
 		{
 			// Create the responsibility chain.
-			var chainClass:Class = getDefinitionByName("inky.commands.Chain") as Class;
-			var chain:IChain = new chainClass();
+			var chainClass:Class = getDefinitionByName("inky.commands.collections.CommandChain") as Class;
+			var chain:ICommandChain = new chainClass();
 			
 			// Create the application controller.
 			var applicationControllerClass:Class = getDefinitionByName("inky.app.controller.ApplicationController") as Class;

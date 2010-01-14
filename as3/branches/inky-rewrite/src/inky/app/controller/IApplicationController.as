@@ -1,6 +1,6 @@
 package inky.app.controller 
 {
-	import inky.commands.IChain;
+	import inky.commands.collections.ICommandChain;
 	
 	/**
 	 *
@@ -19,7 +19,7 @@ package inky.app.controller
 		/**
 		 * 
 		 */
-		function get chain():IChain;
+		function get chain():ICommandChain;
 		
 
 		

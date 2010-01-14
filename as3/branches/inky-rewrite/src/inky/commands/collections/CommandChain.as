@@ -1,12 +1,12 @@
-package inky.commands 
+package inky.commands.collections
 {
 	import inky.commands.ICommand;
 	import inky.collections.Set;
 	import inky.collections.IIterator;
-	import inky.commands.IChainable;
+	import inky.commands.IChainableCommand;
 	import inky.collections.ICollection;
 	import inky.commands.IAsyncCommand;
-	import inky.commands.IChain;
+	import inky.commands.collections.ICommandChain;
 	
 	/**
 	 *
@@ -19,14 +19,14 @@ package inky.commands
 	 *	@since  2010.01.06
 	 *
 	 */
-	public class Chain extends Set implements IChain
+	public class CommandChain extends Set implements ICommandChain
 	{
 		private var _next:Object;
 		
 		/**
 		 *
 		 */
-		public function Chain(next:Object = null)
+		public function CommandChain(next:Object = null)
 		{
 			this.next = next;
 		}
@@ -44,10 +44,10 @@ package inky.commands
 		 */
 		public function set next(value:Object):void
 		{
-			if (!value || (value is IChainable || value is ICommand || value is IAsyncCommand))
+			if (!value || (value is IChainableCommand || value is ICommand || value is IAsyncCommand))
 				this._next = value;
 			else
-				throw new ArgumentError("Invalid command. Command must be either IChainable, ICommand, or IAsyncCommand");
+				throw new ArgumentError("Invalid command. Command must be either IChainableCommand, ICommand, or IAsyncCommand");
 		}
 		
 		
@@ -63,8 +63,8 @@ package inky.commands
 		 */
 		override public function addItem(item:Object):void
 		{
-			if (!(item is IChainable))
-				throw new ArgumentError("Item must be IChainable.");
+			if (!(item is IChainableCommand))
+				throw new ArgumentError("Item must be IChainableCommand.");
 
 			super.addItem(item);
 			this._updateItemChain();
@@ -78,8 +78,8 @@ package inky.commands
 		{
 			for (var i:IIterator = collection.iterator(); i.hasNext(); )
 			{
-				if (!(i.next() is IChainable))
-					throw new ArgumentError("All items must be IChainable.");
+				if (!(i.next() is IChainableCommand))
+					throw new ArgumentError("All items must be IChainableCommand.");
 			}
 
 			super.addItems(collection);
@@ -90,7 +90,7 @@ package inky.commands
 		/**
 		 * @inheritDoc
 		 */
-		public function execute(params:Object):Boolean
+		public function execute(params:Object = null):Boolean
 		{
 			var i:IIterator = this.iterator();
 			if (i.hasNext())
@@ -104,12 +104,12 @@ package inky.commands
 		/**
 		 * @inheritDoc
 		 */
-		public function start(params:Object):void
+		public function start(params:Object = null):void
 		{
 			var doNext:Boolean = this.execute(params);
 			if (doNext && this._next)
 			{
-				if (this._next is IChainable)
+				if (this._next is IChainableCommand)
 					this._next.start(params);
 				else
 					this._next.execute(params);
