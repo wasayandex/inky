@@ -760,25 +760,23 @@ er = 7;
 		{
 			if (model)
 			{
-				var mask:DisplayObject = this.getScrollMask();
+				var scrollBar:Object = this[this._orientation + "ScrollBar"];
+				if (scrollBar)
+				{
+					var mask:DisplayObject = this.getScrollMask();
 // TODO: Instead use this.maxHorizontalScrollPosition and horizontalPageSize
-				if (this[this._orientation + "ScrollBar"])
-				{
-					this[this._orientation + "ScrollBar"].maxScrollPosition = this.model.length - this._numItemsFinallyVisible + 1;
-					this[this._orientation + "ScrollBar"].pageSize = this._numItemsFinallyVisible;
-				}
-				var contentSize:Number = this._getItemSize(this._model.length - 1) + this._getItemPosition(this._model.length - 1);
-			
-				this[this._orientation + "ScrollBar"].enabled = contentSize > mask[this._widthOrHeight];
+					scrollBar.maxScrollPosition = this.model.length - this._numItemsFinallyVisible + 1;
+					scrollBar.pageSize = this._numItemsFinallyVisible;
 
-				if (this[this._orientation + "ScrollPolicy"] == ScrollPolicy.AUTO)
-				{
-					this[this._orientation + "ScrollBar"].visible = this[this._orientation + "ScrollBar"].enabled;
+					var contentSize:Number = this._getItemSize(this._model.length - 1) + this._getItemPosition(this._model.length - 1);
+
+					scrollBar.enabled = contentSize > mask[this._widthOrHeight];
+
+					if (scrollBar == ScrollPolicy.AUTO)
+						scrollBar.visible = scrollBar.enabled;
+					else
+						scrollBar.visible = scrollBar == ScrollPolicy.ON;
 				}
-				else
-				{
-					this[this._orientation + "ScrollBar"].visible = this[this._orientation + "ScrollPolicy"] == ScrollPolicy.ON;
-				}	
 			}
 		}
 

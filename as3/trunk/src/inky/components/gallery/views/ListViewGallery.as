@@ -74,9 +74,8 @@ if (!this.model) return;
 			if (this.model && (data = this.model.selectedGroupModel))
 			{
 				if (!this._listView.itemViewClass)
-				{
 					throw new Error("galleryItemViewClass is not set!");
-				}
+
 				this._listView.model = this.model.selectedGroupModel.items;
 			}
 			else
