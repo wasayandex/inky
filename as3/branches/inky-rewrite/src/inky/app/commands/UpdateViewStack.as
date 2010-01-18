@@ -4,15 +4,12 @@ package inky.app.commands
 	import inky.app.controller.IApplicationController;
 	import flash.display.DisplayObjectContainer;
 	import flash.utils.getDefinitionByName;
-	import inky.utils.describeObject;
-	import inky.routing.request.IRequest;
 	import inky.commands.collections.CommandQueue;
 	import inky.commands.FunctionCommand;
 	import inky.commands.tokens.IAsyncToken;
 	import inky.app.SPath;
 	import inky.collections.IIterator;
 	import flash.display.DisplayObject;
-	import inky.commands.IAsyncCommand;
 	import inky.components.transitioningObject.ITransitioningObject;
 	import inky.utils.IDestroyable;
 	import inky.commands.tokens.AsyncToken;

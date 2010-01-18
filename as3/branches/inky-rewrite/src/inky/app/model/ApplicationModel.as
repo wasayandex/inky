@@ -127,6 +127,7 @@ this._routes = [];
 		 */
 		protected function createDeserializer(data:Object):ICollectionDeserializer
 		{
+/*
 			var xml:XML;
 			if (data is String)
 				xml = new XML(data as String);
@@ -140,6 +141,8 @@ this._routes = [];
 			deserializer.registerTypeDeserializer(Route, routeDeserializer);
 			deserializer.registerTypeDeserializer(AddressRoute, routeDeserializer);
 			return deserializer;
+*/
+return null;
 		}
 
 	}

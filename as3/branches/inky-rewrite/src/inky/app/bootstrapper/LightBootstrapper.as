@@ -12,8 +12,6 @@ package inky.app.bootstrapper
 	import flash.utils.getDefinitionByName;
 	import inky.routing.router.IRouter;
 	import inky.app.controller.IApplicationController;
-	import inky.app.IRequestHandler;
-	import inky.routing.request.IRequest;
 
 	
 	/**
@@ -31,11 +29,10 @@ package inky.app.bootstrapper
 	{
 		private var _applicationController:IApplicationController;
 		private var _applicationModel:Object;
-		private var _applicationModelData:String;
+		private var _applicationData:String;
 		private var _config:Object;
 		private var _frontController:IFrontController;
 		private var _loadQueue:LoadQueue;
-		private var _requestHandler:IRequestHandler;
 		private var _stage:Stage;
 
 
@@ -83,7 +80,7 @@ package inky.app.bootstrapper
 		 */
 		public function get applicationModel():Object
 		{
-			return this._applicationModel || (this._applicationModel = this.createApplicationModel(this._applicationModelData));
+			return this._applicationModel || (this._applicationModel = this.createApplicationModel(this._applicationData));
 		}
 
 
@@ -95,15 +92,6 @@ package inky.app.bootstrapper
 			return this._frontController || (this._frontController = this.createFrontController()); 
 		}
 
-
-		/**
-		 *
-		 */
-		public function get requestHandler():IRequestHandler
-		{ 
-			return this._requestHandler || (this._requestHandler = this.createRequestHandler()); 
-		}
-		
 		
 		/**
 		 * 
@@ -182,7 +170,7 @@ package inky.app.bootstrapper
 		private function _appModelDataReadyHandler(event:Event):void
 		{
 			// Save the loaded data for use by the model.
-			this._applicationModelData = event.currentTarget.data;
+			this._applicationData = event.currentTarget.data;
 
 			// Clean up.
 			event.currentTarget.removeEventListener(event.type, arguments.callee);
@@ -192,9 +180,9 @@ package inky.app.bootstrapper
 		/**
 		 * 
 		 */
-		private function _handleRequest(request:IRequest):void
+		private function _handleRequest(request:Object):void
 		{
-			this.requestHandler.handleRequest(request);
+			this.applicationController.handleRequest(request);
 		}
 
 
@@ -205,6 +193,10 @@ package inky.app.bootstrapper
 		{
 			if (event)
 				event.currentTarget.removeEventListener(event.type, arguments.callee);
+
+			// Make sure the application controller is created.
+			if (!this.applicationController)
+				throw new Error("Application has not been created!");
 
 			// Register the routes from the application model.
 			for each (var route:* in applicationModel.routes)
@@ -238,9 +230,25 @@ package inky.app.bootstrapper
 		protected function createApplicationController():IApplicationController
 		{
 			// Create the application controller.
-			var applicationControllerClass:Class = getDefinitionByName("inky.app.controller.ApplicationController") as Class;
-			var applicationController:IApplicationController = new applicationControllerClass(this.stage, this.applicationModel);
+			var applicationControllerClass:Class;
+			
+			try
+			{
+				applicationControllerClass = getDefinitionByName(this._config.applicationControllerClass) as Class;
+			}
+			catch (error:Error)
+			{
+				try
+				{
+					applicationControllerClass = getDefinitionByName("inky.app.controller.StandardApplicationController") as Class;
+				}
+				catch (error:Error)
+				{
+					throw new Error("Could not find application controller!");
+				}
+			}
 
+			var applicationController:IApplicationController = new applicationControllerClass();
 			return applicationController;
 		}
 
@@ -271,16 +279,6 @@ package inky.app.bootstrapper
 			var frontController:IFrontController = new addressFCClass(new fcClass(this.stage, router, this._handleRequest));
 
 			return frontController;
-		}
-
-
-		/**
-		 * 
-		 */
-		protected function createRequestHandler():IRequestHandler
-		{
-			var handlerClass:Class = getDefinitionByName("inky.app.RequestHandler") as Class;
-			return new handlerClass(this.applicationController);
 		}
 
 

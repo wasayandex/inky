@@ -2,7 +2,6 @@ package inky.app.commands
 {
 	import inky.commands.ChainableCommand;
 	import inky.app.controller.IApplicationController;
-	import inky.utils.describeObject;
 	
 	/**
 	 *

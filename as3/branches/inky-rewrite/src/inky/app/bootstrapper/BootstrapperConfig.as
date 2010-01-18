@@ -18,6 +18,8 @@ package inky.app.bootstrapper
 	 */
 	dynamic public class BootstrapperConfig extends DynamicObject
 	{
+		private var _appName:String;
+		private var _applicationControllerClass:String;
 		private var _applicationModelDataSource:String;
 		private var _bootstrapperDependencies:Array;
 		private var _loaderInfo:LoaderInfo;
@@ -29,6 +31,7 @@ package inky.app.bootstrapper
 		public function BootstrapperConfig(loaderInfo:LoaderInfo)
 		{
 			this._loaderInfo = loaderInfo;
+			this._appName = this._loaderInfo.loaderURL.split("/").pop().toString().split(".").slice(0, -1).join(".");
 		}
 
 
@@ -39,13 +42,26 @@ package inky.app.bootstrapper
 		//
 
 
+
+
+		/**
+		 *
+		 */
+		public function get applicationControllerClass():String
+		{
+			 if (!this._applicationControllerClass)
+				this._applicationControllerClass = this._appName + "Controller";
+			return this._applicationControllerClass; 
+		}
+
+
 		/**
 		 * 
 		 */
 		public function get applicationModelDataSource():String
 		{
-			if (!this._applicationModelDataSource && this._loaderInfo)
-				this._applicationModelDataSource = this._loaderInfo.parameters.applicationModelDataSource || this._loaderInfo.loaderURL.split(".").slice(0, -1).join(".") + ".inky.xml";
+			if (!this._applicationModelDataSource)
+				this._applicationModelDataSource = this._appName + ".inky.xml";
 			return this._applicationModelDataSource;
 		}
 
