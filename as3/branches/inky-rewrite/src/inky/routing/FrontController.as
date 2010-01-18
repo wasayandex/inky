@@ -6,11 +6,8 @@ package inky.routing
 	import flash.events.EventDispatcher;
 	import inky.routing.events.RoutingEvent;
 	import inky.routing.IFrontController;
-	import inky.routing.request.Request;
 	import inky.routing.router.IRoute;
 	import inky.routing.router.IRouter;
-	import inky.routing.router.Router;
-	import inky.routing.request.IRequest;
 
 
 	/**
@@ -119,7 +116,7 @@ throw new Error("Not yet implemented!");
 			if (match)
 			{
 				var route:IRoute = match.route;
-				var request:IRequest = match.request;
+				var request:Object = match.request;
 
 				if (this.dispatchEvent(new RoutingEvent(RoutingEvent.REQUEST_ROUTED, event, route, request)))
 					this._callback(request);

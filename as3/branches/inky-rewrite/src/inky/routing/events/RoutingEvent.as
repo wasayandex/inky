@@ -2,7 +2,6 @@ package inky.routing.events
 {
 	import flash.events.Event;
 	import inky.routing.router.IRoute;
-	import inky.routing.request.IRequest;
 
 	/**
 	 *
@@ -19,7 +18,7 @@ package inky.routing.events
 	{
 		public var triggerEvent:Event;
 		public var route:IRoute;
-		public var request:IRequest;
+		public var request:Object;
 
 
 		/**
@@ -53,7 +52,7 @@ package inky.routing.events
 		 *      The event type; indicates the action that caused the event.
 		 *
 		 */
-		public function RoutingEvent(type:String, triggerEvent:Event, route:IRoute, request:IRequest)
+		public function RoutingEvent(type:String, triggerEvent:Event, route:IRoute, request:Object)
 		{
 			super(type, false, true);
 			this.triggerEvent = triggerEvent;

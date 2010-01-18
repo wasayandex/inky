@@ -3,9 +3,7 @@ package inky.routing.router
 	import com.asual.swfaddress.SWFAddressEvent;
 	import inky.utils.CloningUtil;
 	import flash.events.Event;
-	import inky.routing.request.IRequest;
-	import inky.routing.request.Request;
-	import inky.routing.request.IRequestFormatter;
+	import inky.routing.request.StandardRequest;
 
 	
 	/**
@@ -35,9 +33,9 @@ package inky.routing.router
 		/**
 		 *	
 		 */
-		public function AddressRoute(addressPattern:String, trigger:String, defaults:Object = null, requirements:Object = null, requestFormatter:IRequestFormatter = null)
+		public function AddressRoute(addressPattern:String, trigger:String, defaults:Object = null, requirements:Object = null, requestWrapper:Object = null)
 		{
-			super(trigger, defaults, requirements, requestFormatter);
+			super(trigger, defaults, requirements, requestWrapper);
 			
 			if (addressPattern == null || trigger == null)
 				throw new ArgumentError("AddressRoute requires an address and an event type. (A null value was provided)")
@@ -209,15 +207,15 @@ package inky.routing.router
 		/**
 		 *	@inheritDoc
 		 */
-		override public function formatRequest(event:Event):IRequest
+		override public function createRequest(event:Event):Object
 		{
-			var request:IRequest;
+			var request:Object;
 			if (event is SWFAddressEvent && event.type == SWFAddressEvent.CHANGE)
 				request = this._matchAddress("#" + SWFAddressEvent(event).value);
 			else if (this.trigger == event.type)
-				request = super.formatRequest(event);
+				request = event;
 
-			return request;
+			return this.wrapRequest(request);
 		}
 
 
@@ -324,25 +322,25 @@ package inky.routing.router
 		/**
 		 * @inheritDoc
 		 */
-		private function _matchAddress(url:String):IRequest
+		private function _matchAddress(url:String):Object
 		{
-			var request:IRequest; 
+			var request:Object; 
 			var o:Array = url.match(this._regExp);
 
 			if (o)
 			{
-				request = new Request();
+				request = new StandardRequest({});
 				// add the default options to compensate for a
 				// route that has no dynamic segments, but could have
 				// implied options (as in the case of an overrideURL.)
 				for (var p:String in this.defaults)
 				{
-					request.params[p] = this.defaults[p];
+					request[p] = this.defaults[p];
 				}
 				for (var i:uint = 0; i < o.length - 1; i++)
 				{
 					var optionName:String = this._dynamicSegmentNames[i];
-					request.params[optionName] = o[i + 1] != null ? o[i + 1] : this.defaults[optionName];
+					request[optionName] = o[i + 1] != null ? o[i + 1] : this.defaults[optionName];
 				}
 			}
 

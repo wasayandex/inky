@@ -1,14 +1,11 @@
 package inky.routing.router 
 {
-	import inky.utils.PropertyChain;
 	import inky.utils.Requirement;
-	import flash.utils.describeType;
-	import inky.routing.request.IRequest;
-	import inky.routing.request.IRequestFormatter;
 	import flash.events.Event;
-	import inky.routing.request.StandardRequestFormatter;
-	import inky.serialization.ShortNameRegistry;
+	import inky.routing.request.StandardRequest;
 	import inky.app.inky;
+	import inky.utils.getClass;
+	import inky.routing.request.IRequestWrapper;
 
 	
 	/**
@@ -25,7 +22,7 @@ package inky.routing.router
 	public class Route implements IRoute
 	{
 		private var _defaults:Object;
-		private var _requestFormatter:IRequestFormatter;
+		private var _requestWrapper:Object;
 		private var _requirements:Object;
 		private var _requirementTester:Requirement;
 		private var _trigger:String;
@@ -33,7 +30,7 @@ package inky.routing.router
 		/**
 		 * 
 		 */
-		public function Route(trigger:String, defaults:Object = null, requirements:Object = null, requestFormatter:IRequestFormatter = null)
+		public function Route(trigger:String, defaults:Object = null, requirements:Object = null, requestWrapper:Object = null)
 		{
 			// Create the requirements object.
 			var requirements:Object = {};
@@ -51,7 +48,7 @@ package inky.routing.router
 			}
 			
 			this._trigger = trigger;
-			this._requestFormatter = requestFormatter;
+			this._requestWrapper = requestWrapper;
 			this._requirements = requirements;
 			this._requirementTester = new Requirement(requirements);
 			this._defaults = defaults || {};
@@ -77,12 +74,12 @@ package inky.routing.router
 		/**
 		 *	
 		 */
-		public function get requestFormatter():IRequestFormatter
+		public function get requestWrapper():Object
 		{
-			if (!this._requestFormatter)
-				this._requestFormatter = new StandardRequestFormatter();
+			if (!this._requestWrapper)
+				this._requestWrapper = StandardRequest;
 
-			return this._requestFormatter;
+			return this._requestWrapper;
 		}
 
 
@@ -114,22 +111,40 @@ package inky.routing.router
 		/**
 		 *	@inheritDoc
 		 */
-		public function formatRequest(event:Event):IRequest
+		public function createRequest(event:Event):Object
 		{
-			var request:IRequest;
+			var request:Object;
 			if (this._trigger != event.type)
-			{
 				request = null;
-			}
 			else
-			{
-				request = this.requestFormatter.format(event, this.defaults);
+				request = this.wrapRequest(event);
 
-				// Make sure the params meet the requirements.
-				if (this._requirements && !this._requirementTester.test(request.params))
-					request = null;
-			}
-				
+			return request;
+		}
+		
+		
+		/**
+		 * 
+		 */
+		protected function wrapRequest(wrappee:Object):Object
+		{
+			var wrapper:Class = getClass(this.requestWrapper);
+			if (!wrapper)
+			 	throw new Error(this.requestWrapper + " not found!");
+
+			var request:Object = new wrapper(wrappee);
+			
+			if (!(request is IRequestWrapper))
+				throw new Error(this.requestWrapper + " does not implement IRequestWrapper");
+
+			for (var p:String in this.defaults)
+				if (request[p] == null)
+					request[p] = this.defaults[p];
+
+			// Make sure the params meet the requirements.
+			if (this._requirements && !this._requirementTester.test(request))
+				request = null;
+		
 			return request;
 		}
 

@@ -1,6 +1,5 @@
 package inky.routing.router 
 {
-	import inky.routing.request.IRequest;
 	import flash.events.Event;
 
 
@@ -20,7 +19,7 @@ package inky.routing.router
 		/**
 		 *	Converts the event into a request object. If the event does not match this route, null is returned.
 		 */
-		function formatRequest(event:Event):IRequest;
+		function createRequest(event:Event):Object;
 
 
 		/**

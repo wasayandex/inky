@@ -57,7 +57,7 @@ package inky.routing
 		 */
 		private function _requestRoutedHandler(event:RoutingEvent):void
 		{
-			var params:Object = event.request.params;
+			var request:Object = event.request;
 			var triggerEvent:Event = event.triggerEvent;
 			var route:IRoute = event.route;
 
@@ -71,9 +71,9 @@ package inky.routing
 			if (!(triggerEvent is SWFAddressEvent && triggerEvent.type == SWFAddressEvent.CHANGE) && route is AddressRoute)
 			{
 				// Update the address.
-				var address:String = AddressRoute(route).generateAddress(params).replace(/.*#/, "");
+				var address:String = AddressRoute(route).generateAddress(request).replace(/.*#/, "");
 
-				// Remember the params so we can prevent interpreting the same request twice.
+				// Remember the address so we can prevent interpreting the same request twice.
 				this._lastAddress = address;
 
 				SWFAddress.setValue(address);

@@ -1,12 +1,10 @@
 package inky.routing.router 
 {
-	import inky.routing.router.Route;
 	import inky.routing.events.RouterEvent;
 	import flash.events.EventDispatcher;
 	import flash.events.Event;
 	import inky.routing.router.IRoute;
 	import inky.routing.router.IRouter;
-	import inky.routing.request.IRequest;
 
 
 	/**
@@ -57,10 +55,10 @@ package inky.routing.router
 			if (!this._routes.length)
 				throw new Error("Could not route event " + event + ". No routes have been added.");
 			
-			var request:IRequest;
+			var request:Object;
 			for each (var route:IRoute in this._routes)
 			{
-				if ((request = route.formatRequest(event)))
+				if ((request = route.createRequest(event)))
 				{
 // FIXME: I don't like returning this object. Is there any way we could just return the request? (The sticking point in that AddressFC needs the route to generate the URL)
 					return {route: route, request: request};
