@@ -3,6 +3,8 @@ package inky.app.controller
 	import inky.app.controller.IApplicationController;
 	import flash.display.Sprite;
 	import inky.utils.describeObject;
+	import inky.app.requestHandlers.IRequestHandler;
+	import inky.app.requestHandlers.RequestHandlerList;
 	
 	/**
 	 *
@@ -17,13 +19,31 @@ package inky.app.controller
 	 */
 	public class StandardApplicationController extends Sprite implements IApplicationController
 	{
-		
+		protected var requestHandlers:RequestHandlerList;
+
+
+		/**
+		 *
+		 */
+		public function StandardApplicationController()
+		{
+			this.requestHandlers = new RequestHandlerList();
+		}
+
+
+
+
+		//
+		// public methods
+		//
+
+
 		/**
 		 * @inheritDoc
 		 */
 		public function handleRequest(request:Object):void
 		{
-trace(describeObject(request, true));
+			this.requestHandlers.handleRequest(request);
 		}
 
 

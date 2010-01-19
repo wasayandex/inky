@@ -23,7 +23,7 @@ package inky.commands
 		 * 
 		 */
 		function execute(params:Object = null):void;
-		
+// FIXME: Get rid of params?
 
 		
 	}

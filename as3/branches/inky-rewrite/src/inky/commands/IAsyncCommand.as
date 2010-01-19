@@ -26,7 +26,7 @@ package inky.commands
 		 * 
 		 */
 		function execute(params:Object = null):IAsyncToken;
-		
+// FIXME: Get rid of params?
 
 		
 	}
