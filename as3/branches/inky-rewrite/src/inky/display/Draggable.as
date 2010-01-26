@@ -53,6 +53,12 @@ package inky.display
 		public function set lockCenter(value:Boolean):void { this._lockCenter = value; }
 
 
+		/**
+		 *
+		 */
+		public function get draggedObject():InteractiveObject { return this._sprite; }
+
+
 
 
 		//
