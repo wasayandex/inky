@@ -1,9 +1,9 @@
-package inky.display 
+package inky.dragAndDrop 
 {
 	import flash.display.InteractiveObject;
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
-	import inky.display.events.DragEvent;
+	import inky.dragAndDrop.events.DragEvent;
 	import flash.events.EventDispatcher;
 	import flash.geom.Rectangle;
 

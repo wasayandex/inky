@@ -1,4 +1,4 @@
-package inky.display.events
+package inky.dragAndDrop.events
 {
 	import flash.events.Event;
 	import flash.events.MouseEvent;
