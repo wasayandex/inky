@@ -44,7 +44,7 @@ package inky.commands
 		public function execute(params:Object = null):IAsyncToken
 		{
 // FIXME: Repeated calls to execute should all use different timers, right?
-			var token:IAsyncTokenken = new AsyncToken();
+			var token:IAsyncToken = new AsyncToken();
 
 			this._timer.addEventListener
 			(
