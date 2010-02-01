@@ -3,6 +3,8 @@ package inky.commands
 	import inky.commands.IAsyncCommand;
 	import inky.commands.tokens.IAsyncToken;
 	import flash.events.Event;
+	import inky.commands.tokens.AsyncToken;
+	import flash.display.FrameLabel;
 	
 	/**
 	 *
@@ -18,8 +20,9 @@ package inky.commands
 	 */
 	public class PlayFrameLabelCommand implements IAsyncCommand
 	{
+		private var _firstFrame:int;
+		private var _lastFrame:int;
 		private var _labelName:String;
-		private var _labelMap:Object;
 		private var _target:Object;
 		private var _token:IAsyncToken;
 		
@@ -72,7 +75,7 @@ package inky.commands
 		public function set target(value:Object):void
 		{
 			this._target = value;
-			this._createLabelMap();
+			this._init();
 		}
 		
 		
@@ -106,20 +109,19 @@ package inky.commands
 		/**
 		 * 
 		 */
-		private function _createLabelMap():void
+		private function _init():void
 		{
 			if (!this.target) return;
 
-			// Create a hashmap that contains information about the labels.
-			this._labelMap = {};
-			for (var i:uint = 0; i < this.target.currentLabels.length; i++)
+			var max:int = this.target.currentLabels.length;
+			for (var i:uint = 0; i < max; i++)
 			{
 				var label:FrameLabel = this.target.currentLabels[i];
-				var nextLabel:FrameLabel = this.target.currentLabels[i + 1];
-				this._labelMap[label.name] = {
-					firstFrame: label.frame,
-					lastFrame: nextLabel ? nextLabel.frame - 1 : this.target.totalFrames
-				};
+				if (label.name == this.labelName)
+				{
+					this._firstFrame = label.frame;
+					this._lastFrame = i + 1 < max ? this.target.currentLabels[i + 1].frame - 1 : this.target.totalFrames;
+				}
 			}
 		}
 		
@@ -129,12 +131,8 @@ package inky.commands
 		 */
 		private function _detectEndHandler(event:Event):void
 		{
-			var lastFrame:uint = this._labelMap[this.labelName].lastFrame;
-			if (this.target.currentFrame == lastFrame)
-			{
+			if (this.target.currentFrame == this._lastFrame)
 				this._stop();
-				this._token.callResponders();
-			}
 		}
 		
 		
@@ -145,6 +143,7 @@ package inky.commands
 		{
 			this.target.stop();
 			this.target.removeEventListener(Event.ENTER_FRAME, this._detectEndHandler);
+			this._token.callResponders();
 		}
 		
 		
