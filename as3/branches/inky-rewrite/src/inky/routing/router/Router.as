@@ -38,7 +38,7 @@ package inky.routing.router
 
 
 		/**
-		 *	
+		 * @inheritDoc
 		 */
 		public function addRoute(route:IRoute):void
 		{
@@ -48,7 +48,17 @@ package inky.routing.router
 
 
 		/**
-		 *	
+		 * @inheritDoc
+		 */
+		public function addRoutes(routes:Array):void
+		{
+			for each (var route:IRoute in routes)
+				this.addRoute(route);
+		}
+
+
+		/**
+		 * @inheritDoc
 		 */
 		public function route(event:Event):Object
 		{

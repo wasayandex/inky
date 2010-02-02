@@ -42,8 +42,6 @@ package inky.app.bootstrapper
 		//
 
 
-
-
 		/**
 		 *
 		 */
@@ -52,6 +50,14 @@ package inky.app.bootstrapper
 			 if (!this._applicationControllerClass)
 				this._applicationControllerClass = this._appName + "Controller";
 			return this._applicationControllerClass; 
+		}
+		/**
+		 * @private
+		 */
+		public function set applicationControllerClass(value:String):void
+		{
+// FIXME: This should not be allowed to be changed after the confix is frozen!
+			this._applicationControllerClass = value;
 		}
 
 

@@ -1,5 +1,7 @@
 package inky.app.controller 
 {
+	import inky.app.model.IApplicationModel;
+	import flash.display.DisplayObjectContainer;
 	
 	/**
 	 *
@@ -19,7 +21,12 @@ package inky.app.controller
 		 */
 		function handleRequest(request:Object):void;
 
-		
+
+		/**
+		 * 
+		 */
+		function initialize(model:IApplicationModel, view:DisplayObjectContainer):void;
+
 	}
 	
 }

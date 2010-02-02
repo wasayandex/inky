@@ -25,6 +25,12 @@ package inky.routing.router
 
 
 		/**
+		 * 
+		 */
+		function addRoutes(routes:Array):void;
+
+
+		/**
 		 *	
 		 */
 		function route(event:Event):Object;

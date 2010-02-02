@@ -1,4 +1,4 @@
-package inky.app.requests 
+package inky.app.controller.requests 
 {
 	
 	/**
@@ -12,13 +12,13 @@ package inky.app.requests
 	 *	@since  2010.01.19
 	 *
 	 */
-	public class TransitionTo
+	public class TransitionToCommonAncestor
 	{
 		
 		/**
 		 *
 		 */
-		public function TransitionTo(section:Object)
+		public function TransitionToCommonAncestor(section:Object)
 		{
 		}
 

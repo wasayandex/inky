@@ -1,4 +1,4 @@
-package inky.app.requests 
+package inky.app.controller.requests 
 {
 	
 	/**

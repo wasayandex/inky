@@ -1,10 +1,8 @@
-package inky.app.commands 
+package inky.app.controller.requestHandlers 
 {
-	import inky.commands.ChainableCommand;
 	import inky.app.controller.IApplicationController;
 	import flash.display.DisplayObjectContainer;
 	import flash.utils.getDefinitionByName;
-	import inky.commands.collections.CommandQueue;
 	import inky.commands.FunctionCommand;
 	import inky.commands.tokens.IAsyncToken;
 	import inky.app.SPath;
@@ -15,6 +13,9 @@ package inky.app.commands
 	import inky.commands.tokens.AsyncToken;
 	import inky.app.model.IApplicationModel;
 	import inky.components.transitioningObject.events.TransitionEvent;
+	import inky.app.controller.requests.CancelQueuedCommands;
+	import inky.app.controller.requests.QueueCommand;
+	import inky.app.controller.requestHandlers.IRequestHandler;
 	
 	/**
 	 *
@@ -27,22 +28,20 @@ package inky.app.commands
 	 *	@since  2010.01.06
 	 *
 	 */
-	public class UpdateViewStack extends ChainableCommand
+	public class ViewStackManager implements IRequestHandler
 	{
 		private var _applicationController:IApplicationController;
 		private var _applicationModel:IApplicationModel;
-		private var _queue:CommandQueue;
 		private var _stack:Array;
 
 		
 		/**
 		 *
 		 */
-		public function UpdateViewStack(applicationController:IApplicationController, view:Object, applicationModel:IApplicationModel)
+		public function ViewStackManager(applicationController:IApplicationController, view:Object, applicationModel:IApplicationModel)
 		{
 			this._applicationController = applicationController;
 			this._applicationModel = applicationModel;
-			this._queue = new CommandQueue();
 			this._stack = [view];
 		}
 		
@@ -57,9 +56,9 @@ package inky.app.commands
 		/**
 		 * @inheritDoc
 		 */
-		override public function execute(params:Object = null):Boolean
+		public function handleRequest(request:Object):Object
 		{
-			if (params.hasOwnProperty("action"))
+			/*if (params.hasOwnProperty("action"))
 			{
 				var action:String = params.action;
 				var sPath:SPath = SPath.parse(params.hasOwnProperty("sPath") ? params.sPath : "/");
@@ -81,9 +80,9 @@ package inky.app.commands
 						break;
 					}
 				}
-			}
+			}*/
 
-			return true;
+			return request;
 		}
 		
 		
@@ -143,7 +142,7 @@ package inky.app.commands
 		 */
 		private function _cancelQueuedCommands():void
 		{
-			this._queue.removeAll();
+			this._applicationController.handleRequest(new CancelQueuedCommands());
 		}
 		
 		
@@ -202,9 +201,7 @@ package inky.app.commands
 			}
 			
 			while (sPathsToAdd.length)
-				this._queue.addItem(new FunctionCommand(this._add, [sPathsToAdd.pop()]));
-
-			this._queue.start();
+				this._queueCommand(new FunctionCommand(this._add, [sPathsToAdd.pop()]));
 		}
 
 		
@@ -226,11 +223,11 @@ package inky.app.commands
 					if (object.parent)
 					{
 						// Add command to remove the object.
-						this._queue.addItem(new FunctionCommand(this._remove, [object]));
+							this._queueCommand(new FunctionCommand(this._remove, [object]));
 
 						// Add a command to destroy the object.
 						if (object is IDestroyable)
-							this._queue.addItem(new FunctionCommand(IDestroyable(object).destroy));
+							this._queueCommand(new FunctionCommand(IDestroyable(object).destroy));
 					}
 				}
 				else
@@ -238,11 +235,18 @@ package inky.app.commands
 					break;
 				}
 			}
-			this._queue.start();
 		}
 		
 
 
+
+		/**
+		 * 
+		 */
+		private function _queueCommand(command:Object):void
+		{
+			this._applicationController.handleRequest(new QueueCommand(command));
+		}
 
 	}
 	

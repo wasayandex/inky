@@ -1,8 +1,8 @@
-package inky.app.requestHandlers
+package inky.app.controller. requestHandlers
 {
 	import inky.collections.IIterator;
 	import inky.collections.ArrayList;
-	import inky.app.requestHandlers.IRequestHandler;
+	import inky.app.controller. requestHandlers.IRequestHandler;
 	
 	/**
 	 *
@@ -17,6 +17,15 @@ package inky.app.requestHandlers
 	 */
 	public class RequestHandlerList extends ArrayList implements IRequestHandler
 	{
+		/**
+		 *
+		 */
+		public function RequestHandlerList(array:Array = null)
+		{
+			super(array);
+		}
+
+
 		/**
 		 * @inheritDoc
 		 */

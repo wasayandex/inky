@@ -1,6 +1,6 @@
-package inky.app.requests 
+package inky.app.controller.requests 
 {
-import inky.routing.request.IRequestWrapper;
+	import inky.routing.request.IRequestWrapper;
 
 
 	/**

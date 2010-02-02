@@ -12,6 +12,8 @@ package inky.app.bootstrapper
 	import flash.utils.getDefinitionByName;
 	import inky.routing.router.IRouter;
 	import inky.app.controller.IApplicationController;
+	import inky.app.bootstrapper.events.BootstrapperEvent;
+	import inky.app.model.IApplicationModel;
 
 	
 	/**
@@ -28,7 +30,7 @@ package inky.app.bootstrapper
 	public class LightBootstrapper extends Sprite
 	{
 		private var _applicationController:IApplicationController;
-		private var _applicationModel:Object;
+		private var _applicationModel:IApplicationModel;
 		private var _applicationData:String;
 		private var _config:Object;
 		private var _frontController:IFrontController;
@@ -78,7 +80,7 @@ package inky.app.bootstrapper
 		/**
 		 *
 		 */
-		public function get applicationModel():Object
+		public function get applicationModel():IApplicationModel
 		{
 			return this._applicationModel || (this._applicationModel = this.createApplicationModel(this._applicationData));
 		}
@@ -199,9 +201,13 @@ package inky.app.bootstrapper
 				throw new Error("Application has not been created!");
 
 			// Register the routes from the application model.
-			for each (var route:* in applicationModel.routes)
+			for each (var route:* in this.applicationModel.routes)
 				this.frontController.router.addRoute(route);
 
+			if (this.dispatchEvent(new BootstrapperEvent(BootstrapperEvent.STARTUP, true)))
+				this.onStartup();
+
+			this.applicationController.initialize(this.applicationModel, this.stage);
 			this.frontController.initialize();
 		}
 
@@ -231,12 +237,20 @@ package inky.app.bootstrapper
 		{
 			// Create the application controller.
 			var applicationControllerClass:Class;
+			var className:String = this._config.applicationControllerClass;
 			
-			try
+			if (className)
 			{
-				applicationControllerClass = getDefinitionByName(this._config.applicationControllerClass) as Class;
+				try
+				{
+					applicationControllerClass = getDefinitionByName(className) as Class;
+				}
+				catch (error:Error)
+				{
+					throw new Error("Could not find application controller class " + className);
+				}
 			}
-			catch (error:Error)
+			else
 			{
 				try
 				{
@@ -244,7 +258,7 @@ package inky.app.bootstrapper
 				}
 				catch (error:Error)
 				{
-					throw new Error("Could not find application controller!");
+					throw new Error("Could not find StandardApplicationController and no custom application controller was set!");
 				}
 			}
 
@@ -256,11 +270,13 @@ package inky.app.bootstrapper
 		/**
 		 * 
 		 */
-		protected function createApplicationModel(data:Object):Object
+		protected function createApplicationModel(data:Object):IApplicationModel
 		{
 			var applicationModelClass:Class = getDefinitionByName("inky.app.model.ApplicationModel") as Class;
 			var applicationModel:Object = new applicationModelClass(new XML(data as String));
-			return applicationModel;
+			if (!(applicationModel is IApplicationModel))
+				throw new Error();
+			return applicationModel as IApplicationModel;
 		}
 
 
@@ -279,6 +295,15 @@ package inky.app.bootstrapper
 			var frontController:IFrontController = new addressFCClass(new fcClass(this.stage, router, this._handleRequest));
 
 			return frontController;
+		}
+
+
+		/**
+		 * 
+		 */
+		protected function onStartup():void
+		{
+			
 		}
 
 

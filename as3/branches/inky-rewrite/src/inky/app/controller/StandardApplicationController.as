@@ -2,9 +2,13 @@ package inky.app.controller
 {
 	import inky.app.controller.IApplicationController;
 	import flash.display.Sprite;
-	import inky.utils.describeObject;
-	import inky.app.requestHandlers.IRequestHandler;
-	import inky.app.requestHandlers.RequestHandlerList;
+	import inky.app.controller. requestHandlers.RequestHandlerList;
+	import inky.app.controller.requestHandlers.GotoSectionHandler;
+	import inky.app.controller.requestHandlers.QueueManager;
+	import inky.app.controller.requestHandlers.ViewStackManager;
+	import inky.app.model.IApplicationModel;
+	import inky.collections.ArrayList;
+	import flash.display.DisplayObjectContainer;
 	
 	/**
 	 *
@@ -20,6 +24,8 @@ package inky.app.controller
 	public class StandardApplicationController extends Sprite implements IApplicationController
 	{
 		protected var requestHandlers:RequestHandlerList;
+		protected var model:IApplicationModel;
+		protected var view:DisplayObjectContainer;
 
 
 		/**
@@ -47,6 +53,20 @@ package inky.app.controller
 		}
 
 
+		/**
+		 * @inheritDoc
+		 */
+		public function initialize(model:IApplicationModel, view:DisplayObjectContainer):void
+		{
+			this.model = model;
+			this.view = view;
+
+			this.requestHandlers.addItems(new ArrayList([
+				new GotoSectionHandler(this),
+				new ViewStackManager(this, null, null),
+				new QueueManager()
+			]));
+		}
 
 
 	}

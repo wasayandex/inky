@@ -1,11 +1,11 @@
-package inky.app.requestHandlers 
+package inky.app.controller. requestHandlers 
 {
 	import inky.app.controller.IApplicationController;
-	import inky.app.requestHandlers.IRequestHandler;
-	import inky.app.requests.GotoSection;
-	import inky.app.requests.CancelQueuedCommands;
-	import inky.app.requests.TransitionToCommonAncestor;
-	import inky.app.requests.TransitionTo;
+	import inky.app.controller. requestHandlers.IRequestHandler;
+	import inky.app.controller.requests.GotoSection;
+	import inky.app.controller.requests.CancelQueuedCommands;
+	import inky.app.controller.requests.TransitionToCommonAncestor;
+	import inky.app.controller.requests.TransitionTo;
 	import inky.utils.describeObject;
 	
 	/**
@@ -13,6 +13,7 @@ package inky.app.requestHandlers
 	 *  ..
 	 *	
 	 * 	@langversion ActionScript 3
+	 * 
 	 *	@playerversion Flash 9.0.0
 	 *
 	 *	@author Eric Eldredge
@@ -47,8 +48,6 @@ package inky.app.requestHandlers
 		{
 			if (request is GotoSection)
 			{
-trace("GotoSectionHandler:");
-trace("\t" + describeObject(request).replace(/\n/g, "\n\t"));
 				var requests:Array = [
 					new CancelQueuedCommands(),
 					new TransitionToCommonAncestor(request.section),
@@ -57,11 +56,6 @@ trace("\t" + describeObject(request).replace(/\n/g, "\n\t"));
 				for each (var r:Object in requests)
 					this._applicationController.handleRequest(r);
 			}
-else
-{
-	trace("GotoSectionHandler (ignored):");
-	trace("\t" + describeObject(request).replace(/\n/g, "\n\t"));
-}
 			return request;
 		}
 
