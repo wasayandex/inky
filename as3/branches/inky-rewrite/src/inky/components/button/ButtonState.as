@@ -1,4 +1,4 @@
-package inky.components.buttons 
+package inky.components.button 
 {
 	
 	/**

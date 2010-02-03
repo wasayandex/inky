@@ -1,4 +1,4 @@
-package inky.components.buttons 
+package inky.components.button 
 {
 	import inky.utils.IDisplayObject;
 	
@@ -10,7 +10,7 @@ package inky.components.buttons
 	 *	@playerversion Flash 9.0.0
 	 *
 	 *	@author Eric Eldredge
-	 *	@since  2010.02.01
+	 *	@since  2010.02.02
 	 *
 	 */
 	public interface IButton extends IDisplayObject
@@ -49,6 +49,7 @@ package inky.components.buttons
 		
 
 		
+
 	}
 	
 }
