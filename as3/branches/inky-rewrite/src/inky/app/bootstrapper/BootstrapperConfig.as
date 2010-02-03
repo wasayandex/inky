@@ -20,7 +20,7 @@ package inky.app.bootstrapper
 	{
 		private var _appName:String;
 		private var _applicationControllerClass:String;
-		private var _applicationModelDataSource:String;
+		private var _applicationDataSource:String;
 		private var _bootstrapperDependencies:Array;
 		private var _loaderInfo:LoaderInfo;
 		
@@ -64,11 +64,11 @@ package inky.app.bootstrapper
 		/**
 		 * 
 		 */
-		public function get applicationModelDataSource():String
+		public function get applicationDataSource():String
 		{
-			if (!this._applicationModelDataSource)
-				this._applicationModelDataSource = this._appName + ".inky.xml";
-			return this._applicationModelDataSource;
+			if (!this._applicationDataSource)
+				this._applicationDataSource = this._appName + ".inky.xml";
+			return this._applicationDataSource;
 		}
 
 

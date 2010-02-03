@@ -11,11 +11,13 @@ package inky.app.controller.requestHandlers
 	import inky.components.transitioningObject.ITransitioningObject;
 	import inky.utils.IDestroyable;
 	import inky.commands.tokens.AsyncToken;
-	import inky.app.model.IApplicationModel;
+	import inky.app.data.IApplicationData;
 	import inky.components.transitioningObject.events.TransitionEvent;
 	import inky.app.controller.requests.CancelQueuedCommands;
 	import inky.app.controller.requests.QueueCommand;
 	import inky.app.controller.requestHandlers.IRequestHandler;
+	import inky.app.controller.requests.TransitionToCommonAncestor;
+	import inky.app.controller.requests.TransitionTo;
 	
 	/**
 	 *
@@ -31,17 +33,24 @@ package inky.app.controller.requestHandlers
 	public class ViewStackManager implements IRequestHandler
 	{
 		private var _applicationController:IApplicationController;
-		private var _applicationModel:IApplicationModel;
+		private var _applicationData:IApplicationData;
 		private var _stack:Array;
 
 		
 		/**
 		 *
 		 */
-		public function ViewStackManager(applicationController:IApplicationController, view:Object, applicationModel:IApplicationModel)
+		public function ViewStackManager(applicationController:IApplicationController, view:Object, applicationData:IApplicationData)
 		{
+			if (!applicationController)
+				throw new ArgumentError("The first argument must be non-null.");
+			else if (!view)
+				throw new ArgumentError("The second argument must be non-null.");
+			else if (!applicationData)
+				throw new ArgumentError("The third argument must be non-null.");
+				
 			this._applicationController = applicationController;
-			this._applicationModel = applicationModel;
+			this._applicationData = applicationData;
 			this._stack = [view];
 		}
 		
@@ -58,29 +67,10 @@ package inky.app.controller.requestHandlers
 		 */
 		public function handleRequest(request:Object):Object
 		{
-			/*if (params.hasOwnProperty("action"))
-			{
-				var action:String = params.action;
-				var sPath:SPath = SPath.parse(params.hasOwnProperty("sPath") ? params.sPath : "/");
-				switch (action)
-				{
-					case "transitionToCommonAncestor":
-					{
-						this._transitionToCommonAncestor(sPath);
-						break;
-					}
-					case "transitionTo":
-					{
-						this._transitionTo(sPath);
-						break;
-					}
-					case "cancelQueuedCommands":
-					{
-						this._cancelQueuedCommands();
-						break;
-					}
-				}
-			}*/
+			if (request is TransitionToCommonAncestor)
+				this._transitionToCommonAncestor(this._toSPath(request.section));
+			else if (request is TransitionTo)
+				this._transitionTo(this._toSPath(request.section));
 
 			return request;
 		}
@@ -98,7 +88,9 @@ package inky.app.controller.requestHandlers
 		 */
 		private function _add(sPath:SPath):IAsyncToken
 		{
-			var sectionClassName:String = this._applicationModel.getSectionClassName(sPath);
+			var sectionClassName:String = this._applicationData.viewData[sPath.toString()];
+			if (!sectionClassName)
+				throw new Error("There is no view data for " + sPath.toString());
 			var sectionClass:Class = getDefinitionByName(sectionClassName) as Class;
 			if (!sectionClass)
 			{
@@ -154,6 +146,15 @@ package inky.app.controller.requestHandlers
 			return SPath.parse("/" + this._stack.map(function(o:Object, i:int, a:Array) { return o.name; }).splice(1).join("/"));	
 		}
 		
+
+		/**
+		 * 
+		 */
+		private function _queueCommand(command:Object):void
+		{
+			this._applicationController.handleRequest(new QueueCommand(command));
+		}
+
 		
 		/**
 		 * 
@@ -184,6 +185,22 @@ package inky.app.controller.requestHandlers
 		}
 		
 		
+		/**
+		 * 
+		 */
+		private function _toSPath(section:Object):SPath
+		{
+			var sPath:SPath;
+			if (section is SPath)
+				sPath = section as SPath;
+			else if (section is String)
+				sPath = SPath.parse(section as String);
+			else
+				throw new Error();
+			return sPath;
+		}
+
+
 		/**
 		 * 
 		 */
@@ -235,17 +252,6 @@ package inky.app.controller.requestHandlers
 					break;
 				}
 			}
-		}
-		
-
-
-
-		/**
-		 * 
-		 */
-		private function _queueCommand(command:Object):void
-		{
-			this._applicationController.handleRequest(new QueueCommand(command));
 		}
 
 	}

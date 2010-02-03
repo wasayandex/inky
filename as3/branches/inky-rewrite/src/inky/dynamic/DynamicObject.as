@@ -2,7 +2,9 @@ package inky.dynamic
 {
 	import flash.utils.Proxy;
 	import flash.utils.flash_proxy;
+	import inky.utils.SimpleMap;
 
+	use namespace flash_proxy;
 	
 	/**
 	 *
@@ -15,11 +17,9 @@ package inky.dynamic
 	 *	@since  2009.12.15
 	 *
 	 */
-	public class DynamicObject extends Proxy
+	public class DynamicObject extends SimpleMap
 	{
 		private var _frozen:Boolean;
-		private var _item:Object;
-		private var _propertyList:Array;
 
 
 		/**
@@ -27,7 +27,7 @@ package inky.dynamic
 		 */	
 	    public function DynamicObject(obj:Object = null)
 	    {
-			this._item = obj || {};
+			super(obj);
 	    }
 
 
@@ -36,15 +36,6 @@ package inky.dynamic
 		//
 		// flash_proxy methods
 		//
-		
-
-		/**
-		 * @private
-		 */
-	    override flash_proxy function callProperty(methodName:*, ... args):*
-	    {
-			return this[methodName].apply(this, args);
-	    }
 
 
 		/**
@@ -52,22 +43,12 @@ package inky.dynamic
 		 */
 	    override flash_proxy function deleteProperty(name:*):Boolean
 		{
-			if (name in this._item)
-			{
-				delete this._item[name];
-				return true;
-			}
-			return false;
+// TODO: Better error message.
+			if (!this._frozen)
+				throw new Error("You can't delete properties from a frozen DynamicObject.");
+			
+			return super.flash_proxy::deleteProperty(name);
 		} 
-
-
-		/**
-		 * @private
-		 */
-	    override flash_proxy function getDescendants(name:*):*
-	    {
-	    	throw new TypeError('Error #1016: Descendants operator (..) not supported on type ModelData.');
-	    }
 
 
 		/**
@@ -77,51 +58,7 @@ package inky.dynamic
 	    {
 			if (this._frozen && !this.hasOwnProperty(name))
 				throw new Error('Property "' + name + '" not found on ' + this);
-			return this._item[name];
-	    }
-
-
-		/**
-		 * @private
-		 */
-	    override flash_proxy function hasProperty(name:*):Boolean
-	    {
-	        return name in this._item;
-	    }
-
-
-		/**
-		 * @private
-		 */
-		override flash_proxy function nextName(index:int):String
-		{
-			return this._propertyList[index - 1];
-		}
-
-
-		/**
-		 * @private
-		 */
-	    override flash_proxy function nextNameIndex(index:int):int
-		{
-			// initial call
-			if (index == 0)
-				this._setupPropertyList();
-	     
-			return index < this._propertyList.length ? index + 1 : 0;
-		}
-
-
-		/**
-		 * @private
-		 */
-	    override flash_proxy function nextValue(index:int):*
-	    {
-			// initial call
-			if (index == 0)
-				this._setupPropertyList();
-
-			return this._item[this._propertyList[index - 1]];
+			return super.flash_proxy::getProperty(name);
 	    }
 
 
@@ -132,30 +69,8 @@ package inky.dynamic
 	    {
 			if (this._frozen && !this.hasOwnProperty(name))
 				throw new Error('Property "' + name + '" cannot be created on ' + this.toString());
-			this._item[name] = value;
+			super.flash_proxy::setProperty(name, value);
 	    }
-
-
-
-
-		//
-		// private methods
-		//
-		
-
-		/**
-		 *
-		 *
-		 *
-		 */
-		private function _setupPropertyList():void
-		{
-			this._propertyList = [];
-			for (var x:* in this._item)
-			{
-				this._propertyList.push(x);
-			}
-		}		 		 		 		
 
 
 
@@ -176,21 +91,14 @@ package inky.dynamic
 
 
 		/**
-		 * @copy Object#toString()
-		 */
-		public function toString():String 
-		{
-			return this._item.toString.call(this);
-		}
-
-
-		/**
 		 * 
 		 */
 		public function unfreeze():void
 		{
 			this._frozen = false;
 		}
+
+
 
 		
 	}

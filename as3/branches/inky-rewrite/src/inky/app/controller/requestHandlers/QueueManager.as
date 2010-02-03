@@ -62,7 +62,7 @@ package inky.app.controller.requestHandlers
 		 */
 		private function _cancelQueuedCommands():void
 		{
-trace(".................cancel");	
+// TODO: Cancel the queued commands.
 		}
 
 
@@ -71,7 +71,7 @@ trace(".................cancel");
 		 */
 		private function _queueCommand(command:Object):void
 		{
-trace(".................queue " + command);
+			this._queue.addItem(command);
 			this._queue.start();
 		}
 

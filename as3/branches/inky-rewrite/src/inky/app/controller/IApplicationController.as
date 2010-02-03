@@ -1,6 +1,6 @@
 package inky.app.controller 
 {
-	import inky.app.model.IApplicationModel;
+	import inky.app.data.IApplicationData;
 	import flash.display.DisplayObjectContainer;
 	
 	/**
@@ -25,7 +25,7 @@ package inky.app.controller
 		/**
 		 * 
 		 */
-		function initialize(model:IApplicationModel, view:DisplayObjectContainer):void;
+		function initialize(data:IApplicationData, view:DisplayObjectContainer):void;
 
 	}
 	

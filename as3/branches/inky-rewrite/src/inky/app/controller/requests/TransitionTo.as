@@ -14,12 +14,14 @@ package inky.app.controller.requests
 	 */
 	public class TransitionTo
 	{
+		public var section:Object;
 		
 		/**
 		 *
 		 */
 		public function TransitionTo(section:Object)
 		{
+			this.section = section;
 		}
 
 		

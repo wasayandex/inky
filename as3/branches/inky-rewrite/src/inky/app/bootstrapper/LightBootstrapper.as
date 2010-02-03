@@ -13,7 +13,7 @@ package inky.app.bootstrapper
 	import inky.routing.router.IRouter;
 	import inky.app.controller.IApplicationController;
 	import inky.app.bootstrapper.events.BootstrapperEvent;
-	import inky.app.model.IApplicationModel;
+	import inky.app.data.IApplicationData;
 
 	
 	/**
@@ -30,8 +30,8 @@ package inky.app.bootstrapper
 	public class LightBootstrapper extends Sprite
 	{
 		private var _applicationController:IApplicationController;
-		private var _applicationModel:IApplicationModel;
-		private var _applicationData:String;
+		private var _applicationData:IApplicationData;
+		private var _rawApplicationData:String;
 		private var _config:Object;
 		private var _frontController:IFrontController;
 		private var _loadQueue:LoadQueue;
@@ -80,9 +80,9 @@ package inky.app.bootstrapper
 		/**
 		 *
 		 */
-		public function get applicationModel():IApplicationModel
+		public function get applicationData():IApplicationData
 		{
-			return this._applicationModel || (this._applicationModel = this.createApplicationModel(this._applicationData));
+			return this._applicationData || (this._applicationData = this.createApplicationData(this._rawApplicationData));
 		}
 
 
@@ -127,20 +127,20 @@ package inky.app.bootstrapper
 			// Prevent modifications to the config object.
 			this.config.freeze();
 
-			var appModelDataSource:String = this.config.applicationModelDataSource;
+			var appDataSource:String = this.config.applicationDataSource;
 			var dependencies:Array = this.config.bootstrapperDependencies;
 
-			if ((appModelDataSource != null) || dependencies)
+			if ((appDataSource != null) || dependencies)
 			{
 				// Create the load queue.
 				var lq:LoadQueue =
 				this._loadQueue = new LoadQueue();
 				lq.addEventListener(Event.COMPLETE, this._initNow);
 
-				// Add the model data loader to the load queue.
-				var modelDataLoader:URLLoader = new URLLoader();
-				modelDataLoader.addEventListener(Event.COMPLETE, this._appModelDataReadyHandler);
-				lq.addItem(modelDataLoader, new URLRequest(appModelDataSource));				
+				// Add the data loader to the load queue.
+				var dataLoader:URLLoader = new URLLoader();
+				dataLoader.addEventListener(Event.COMPLETE, this._appDataReadyHandler);
+				lq.addItem(dataLoader, new URLRequest(appDataSource));				
 
 				// Add the dependencies to the load queue.
 				for each (var source:String in dependencies)
@@ -169,10 +169,10 @@ package inky.app.bootstrapper
 		/**
 		 *	
 		 */
-		private function _appModelDataReadyHandler(event:Event):void
+		private function _appDataReadyHandler(event:Event):void
 		{
-			// Save the loaded data for use by the model.
-			this._applicationData = event.currentTarget.data;
+			// Save the loaded data.
+			this._rawApplicationData = event.currentTarget.data;
 
 			// Clean up.
 			event.currentTarget.removeEventListener(event.type, arguments.callee);
@@ -199,15 +199,15 @@ package inky.app.bootstrapper
 			// Make sure the application controller is created.
 			if (!this.applicationController)
 				throw new Error("Application has not been created!");
-
-			// Register the routes from the application model.
-			for each (var route:* in this.applicationModel.routes)
+/*
+			// Register the routes from the application data.
+			for each (var route:* in this.applicationData.routes)
 				this.frontController.router.addRoute(route);
-
+*/
 			if (this.dispatchEvent(new BootstrapperEvent(BootstrapperEvent.STARTUP, true)))
 				this.onStartup();
 
-			this.applicationController.initialize(this.applicationModel, this.stage);
+			this.applicationController.initialize(this.applicationData, this.stage);
 			this.frontController.initialize();
 		}
 
@@ -270,13 +270,13 @@ package inky.app.bootstrapper
 		/**
 		 * 
 		 */
-		protected function createApplicationModel(data:Object):IApplicationModel
+		protected function createApplicationData(data:Object):IApplicationData
 		{
-			var applicationModelClass:Class = getDefinitionByName("inky.app.model.ApplicationModel") as Class;
-			var applicationModel:Object = new applicationModelClass(new XML(data as String));
-			if (!(applicationModel is IApplicationModel))
+			var applicationDataClass:Class = getDefinitionByName("inky.app.data.ApplicationData") as Class;
+			var applicationData:Object = new applicationDataClass(new XML(data as String));
+			if (!(applicationData is IApplicationData))
 				throw new Error();
-			return applicationModel as IApplicationModel;
+			return applicationData as IApplicationData;
 		}
 
 

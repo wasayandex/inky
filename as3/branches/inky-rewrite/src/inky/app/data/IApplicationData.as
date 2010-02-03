@@ -1,6 +1,7 @@
-package inky.app.model 
+package inky.app.data 
 {
 	import inky.app.SPath;
+	import inky.app.data.IViewDataMap;
 	
 	/**
 	 *
@@ -13,18 +14,13 @@ package inky.app.model
 	 *	@since  2009.12.19
 	 *
 	 */
-	public interface IApplicationModel
+	public interface IApplicationData
 	{
 		/**
 		 * 
 		 */
-		function get routes():Array;
+		function get viewData():IViewDataMap;
 
-		
-		/**
-		 * 
-		 */
-		function getSectionClassName(sPath:SPath):String;
 	}
 	
 }

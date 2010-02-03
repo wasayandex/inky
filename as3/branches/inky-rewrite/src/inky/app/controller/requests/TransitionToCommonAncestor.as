@@ -14,12 +14,14 @@ package inky.app.controller.requests
 	 */
 	public class TransitionToCommonAncestor
 	{
+		public var section:Object;
 		
 		/**
 		 *
 		 */
 		public function TransitionToCommonAncestor(section:Object)
 		{
+			this.section = section;
 		}
 
 		
