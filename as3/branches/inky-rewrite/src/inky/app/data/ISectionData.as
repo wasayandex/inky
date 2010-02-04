@@ -1,5 +1,6 @@
 package inky.app.data 
 {
+	import inky.collections.IIterable;
 	
 	/**
 	 *
@@ -14,12 +15,10 @@ package inky.app.data
 	 */
 	public interface ISectionData
 	{
-		
-
 		/**
 		 * 
 		 */
-		function get name():String;
+		function get id():String;
 
 
 		/**
@@ -28,7 +27,16 @@ package inky.app.data
 		function get owner():ISectionData;
 
 
+		/**
+		 * 
+		 */
+		function get subsections():IIterable;
+		
 
+		/**
+		 * 
+		 */
+		function get viewClassStack():Array;
 		
 	}
 	

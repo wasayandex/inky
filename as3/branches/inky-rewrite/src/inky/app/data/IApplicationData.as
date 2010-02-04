@@ -1,7 +1,6 @@
 package inky.app.data 
 {
-	import inky.app.SPath;
-	import inky.app.data.IViewDataMap;
+	import inky.app.data.SectionDataCollection;
 	
 	/**
 	 *
@@ -19,7 +18,7 @@ package inky.app.data
 		/**
 		 * 
 		 */
-		function get viewData():IViewDataMap;
+		function get sections():SectionDataCollection;
 
 	}
 	

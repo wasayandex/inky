@@ -5,8 +5,6 @@ package inky.app.controller.requestHandlers
 	import flash.utils.getDefinitionByName;
 	import inky.commands.FunctionCommand;
 	import inky.commands.tokens.IAsyncToken;
-	import inky.app.SPath;
-	import inky.collections.IIterator;
 	import flash.display.DisplayObject;
 	import inky.components.transitioningObject.ITransitioningObject;
 	import inky.utils.IDestroyable;
@@ -18,6 +16,7 @@ package inky.app.controller.requestHandlers
 	import inky.app.controller.requestHandlers.IRequestHandler;
 	import inky.app.controller.requests.TransitionToCommonAncestor;
 	import inky.app.controller.requests.TransitionTo;
+	import inky.app.data.ISectionData;
 	
 	/**
 	 *
@@ -34,6 +33,8 @@ package inky.app.controller.requestHandlers
 	{
 		private var _applicationController:IApplicationController;
 		private var _applicationData:IApplicationData;
+		
+		private var _classStack:Array;
 		private var _stack:Array;
 
 		
@@ -51,6 +52,8 @@ package inky.app.controller.requestHandlers
 				
 			this._applicationController = applicationController;
 			this._applicationData = applicationData;
+			
+			this._classStack = [];
 			this._stack = [view];
 		}
 		
@@ -67,16 +70,17 @@ package inky.app.controller.requestHandlers
 		 */
 		public function handleRequest(request:Object):Object
 		{
+			var sectionData:ISectionData;
 			if (request is TransitionToCommonAncestor)
-				this._transitionToCommonAncestor(this._toSPath(request.section));
+				this._transitionOutToCommonAncestor(this._getSectionData(request).viewClassStack);
 			else if (request is TransitionTo)
-				this._transitionTo(this._toSPath(request.section));
+				this._transitionTo(this._getSectionData(request).viewClassStack);
 
 			return request;
 		}
-		
-		
-		
+
+
+
 
 		//
 		// private methods
@@ -86,21 +90,16 @@ package inky.app.controller.requestHandlers
 		/**
 		 * 
 		 */
-		private function _add(sPath:SPath):IAsyncToken
+		private function _add(viewClassName:String):IAsyncToken
 		{
-			var sectionClassName:String = this._applicationData.viewData[sPath.toString()];
-			if (!sectionClassName)
-				throw new Error("There is no view data for " + sPath.toString());
-			var sectionClass:Class = getDefinitionByName(sectionClassName) as Class;
+			var sectionClass:Class = getDefinitionByName(viewClassName) as Class;
 			if (!sectionClass)
 			{
-				throw new ArgumentError("Cannot find class for " + sPath + ".");
+				throw new ArgumentError("Cannot find class " + viewClassName + ".");
 			}
 			else
 			{
 				var section:* = new sectionClass();
-				section.name = sPath.toArray().pop().toString();
-				
 				var parent:DisplayObjectContainer = this._stack[this._stack.length - 1] as DisplayObjectContainer;
 				var token:IAsyncToken = new AsyncToken();
 				
@@ -141,11 +140,14 @@ package inky.app.controller.requestHandlers
 		/**
 		 * 
 		 */
-		private function _getCurrentSPath():SPath
+		private function _getSectionData(request:Object):ISectionData
 		{
-			return SPath.parse("/" + this._stack.map(function(o:Object, i:int, a:Array) { return o.name; }).splice(1).join("/"));	
+			var sectionData:ISectionData = this._applicationData.sections[request.section];
+			if (!sectionData)
+				throw new Error('Couldn\'t find section "' + request.section + '"');
+			return sectionData;
 		}
-		
+
 
 		/**
 		 * 
@@ -183,69 +185,50 @@ package inky.app.controller.requestHandlers
 			
 			return token;
 		}
-		
-		
+
+
 		/**
 		 * 
 		 */
-		private function _toSPath(section:Object):SPath
+		private function _transitionInTo(classStack:Array):void
 		{
-			var sPath:SPath;
-			if (section is SPath)
-				sPath = section as SPath;
-			else if (section is String)
-				sPath = SPath.parse(section as String);
-			else
-				throw new Error();
-			return sPath;
+// TODO: Throw an error if classStack doesn't start with currentClassStack.
+			var currentClassStack:Array = this._classStack;
+			var classesToAdd:Array = classStack.slice(currentClassStack.length);
+			while (classesToAdd.length)
+				this._queueCommand(new FunctionCommand(this._add, [classesToAdd.shift()]));
 		}
 
 
 		/**
 		 * 
 		 */
-		private function _transitionTo(sPath:SPath):void
+		private function _transitionTo(classStack:Array):void
 		{
-			var currentSPath:SPath = this._getCurrentSPath();
-			var relativizedSPath:SPath = currentSPath.relativize(sPath);
-			var newSPath:SPath = relativizedSPath.resolve(currentSPath);
-			var sPathsToAdd:Array = [];
-			
-			while (newSPath.length > currentSPath.length)
-			{
-				sPathsToAdd.push(newSPath.clone())
-				newSPath.removeItemAt(newSPath.length - 1);
-			}
-			
-			while (sPathsToAdd.length)
-				this._queueCommand(new FunctionCommand(this._add, [sPathsToAdd.pop()]));
+			this._transitionOutToCommonAncestor(classStack);
+			this._transitionInTo(classStack);
 		}
 
 		
 		/**
 		 * 
 		 */
-		private function _transitionToCommonAncestor(sPath:SPath):void
+		private function _transitionOutToCommonAncestor(classStack:Array):void
 		{
-			var relativizedPath:SPath = this._getCurrentSPath().relativize(sPath);
-			var stack:Array = this._stack.slice();
-			var segment:String;
-			
-			for (var i:IIterator = relativizedPath.iterator(); i.hasNext(); )
+// TODO: Throw an error if there is no common ancestor.
+			var currentClassStack:Array = this._classStack;
+			var numViewsToRemove:int = currentClassStack.length - classStack.length;
+			for (var i:int = 0; i < numViewsToRemove; i++)
 			{
-				segment = String(i.next());
-				if (segment == ".." && stack.length > 1)
+				var object:DisplayObjectContainer = this._stack.pop() as DisplayObjectContainer;
+				if (object.parent)
 				{
-					var object:DisplayObjectContainer = stack.pop() as DisplayObjectContainer;
-					if (object.parent)
-					{
-						// Add command to remove the object.
-							this._queueCommand(new FunctionCommand(this._remove, [object]));
+					// Add command to remove the object.
+					this._queueCommand(new FunctionCommand(this._remove, [object]));
 
-						// Add a command to destroy the object.
-						if (object is IDestroyable)
-							this._queueCommand(new FunctionCommand(IDestroyable(object).destroy));
-					}
+					// Add a command to destroy the object.
+					if (object is IDestroyable)
+						this._queueCommand(new FunctionCommand(IDestroyable(object).destroy));
 				}
 				else
 				{
@@ -253,6 +236,9 @@ package inky.app.controller.requestHandlers
 				}
 			}
 		}
+
+
+
 
 	}
 	

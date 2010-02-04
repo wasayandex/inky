@@ -199,11 +199,7 @@ package inky.app.bootstrapper
 			// Make sure the application controller is created.
 			if (!this.applicationController)
 				throw new Error("Application has not been created!");
-/*
-			// Register the routes from the application data.
-			for each (var route:* in this.applicationData.routes)
-				this.frontController.router.addRoute(route);
-*/
+
 			if (this.dispatchEvent(new BootstrapperEvent(BootstrapperEvent.STARTUP, true)))
 				this.onStartup();
 

@@ -5,7 +5,8 @@
 	import inky.collections.IIterator;
 	import inky.collections.ArrayList;
 	import inky.collections.ArrayIterator;
-	import flash.events.EventDispatcher;
+	import flash.events.IEventDispatcher;
+	import flash.events.Event;
 	
 	/**
 	 *	Class description.
@@ -19,10 +20,10 @@
 	 *	@author Matthew Tretter
 	 *	@since  30.07.2008
 	 */
-	public class Set extends EventDispatcher implements ISet
+	public class Set implements IEventDispatcher, ISet
 	{
 		private var _set:ArrayList;
-			
+
 		/**
 		 *	@Constructor
 		 */
@@ -30,43 +31,50 @@
 		{
 			this._set = new ArrayList();
 		}
+
+
+
 		
 		//
 		// accessors
 		//
-		
+
+
 		/**
-		*	@inheritDoc	
-		*/
+		 *	@inheritDoc	
+		 */
 		public function get length():uint
 		{
 			return this._set.length;
 		}
-		
-		
+
+
+
+
 		//
 		// public methods
 		//
-		
+
+
 		/**
-		*	@inheritDoc	
-		*/
+		 *	@inheritDoc	
+		 */
 		public function addItem(item:Object):void
 		{
 			this._set.addItem(item);
 		}
 		
 		/**
-		*	@inheritDoc	
-		*/
+		 *	@inheritDoc	
+		 */
 		public function addItems(collection:ICollection):void
 		{
 			this._set.addItems(collection);
 		}
 		
 		/**
-		*	@inheritDoc	
-		*/
+		 *	@inheritDoc	
+		 */
 		public function containsItem(item:Object):Boolean
 		{
 			return this._set.containsItem(item);
@@ -82,67 +90,120 @@
 		
 		
 		/**
-		*	@inheritDoc
-		*/
+		 *	@inheritDoc
+		 */
 		public function containsItems(collection:ICollection):Boolean
 		{
 			return this._set.containsItems(collection);
 		}
 		
 		/**
-		*	@inheritDoc	
-		*/
+		 *	@inheritDoc	
+		 */
 		public function equals(o:Object):Boolean
 		{
 			return this._set.equals(o);
 		}
 		
 		/**
-		*	@inheritDoc	
-		*/
+		 *	@inheritDoc	
+		 */
 		public function get isEmpty():Boolean
 		{
 			return this._set.isEmpty;
 		}
 		
 		/**
-		*	@inheritDoc	
-		*/
+		 *	@inheritDoc	
+		 */
 		public function removeAll():void
 		{
 			this._set.removeAll();
 		}
 		
 		/**
-		*	@inheritDoc	
-		*/
+		 *	@inheritDoc	
+		 */
 		public function removeItem(item:Object):Object
 		{
 			return this._set.removeItem(item);
 		}
 		
 		/**
-		*	@inheritDoc
-		*/
+		 *	@inheritDoc
+		 */
 		public function removeItems(collection:ICollection):void
 		{
 			this._set.removeItems(collection);			
 		}
 		
 		/**
-		*	@inheritDoc	
-		*/
+		 *	@inheritDoc	
+		 */
 		public function retainItems(collection:ICollection):void
 		{
 			this._set.retainItems(collection);
 		}
 		
 		/**
-		*	@inheritDoc
-		*/
+		 *	@inheritDoc
+		 */
 		public function toArray():Array
 		{
 			return this._set.toArray();
 		}
+
+
+
+		//
+		// event dispatcher methods
+		//
+
+
+		/**
+		 * @inheritDoc
+		 */
+		public function addEventListener(type:String, listener:Function, useCapture:Boolean = false, priority:int = 0, useWeakReference:Boolean = false):void
+		{
+			this._set.addEventListener(type, listener, useCapture, priority, useWeakReference);
+		}
+
+
+		/**
+		 * @inheritDoc
+		 */
+		public function dispatchEvent(event:Event):Boolean
+		{
+			return this._set.dispatchEvent(event);
+		}
+
+
+		/**
+		 * @inheritDoc
+		 */
+		public function hasEventListener(type:String):Boolean 
+		{
+			return this._set.hasEventListener(type);
+		}
+
+
+		/**
+		 * @inheritDoc
+		 */
+		public function removeEventListener(type:String, listener:Function, useCapture:Boolean = false):void 
+		{
+			return this._set.removeEventListener(type, listener, useCapture);
+		}
+
+
+		/**
+		 * @inheritDoc
+		 */
+		public function willTrigger(type:String):Boolean 
+		{
+			return this._set.willTrigger(type);
+		}
+
+
 	}	
 }
