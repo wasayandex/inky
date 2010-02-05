@@ -10,6 +10,7 @@ package inky.orm
 	import flash.utils.flash_proxy;
 	import inky.orm.IDataMapper;
 	import inky.orm.DATA_MAPPER_CONFIG;
+	import inky.orm.relationships.RelationshipFactory;
 
 	use namespace flash_proxy;
 
@@ -27,8 +28,10 @@ package inky.orm
 	public class DomainModel extends ObjectProxy
 	{
 		private var _className:String;
-		private static var _properties2Relationships:Object;
 		private static var _dynamicProperties:Object;
+		private static var _relationships:Object;
+		private static var _relationshipOptions:Object;
+		private static var _relationshipFactory:RelationshipFactory = RelationshipFactory.getInstance();
 
 
 		/**
@@ -43,7 +46,7 @@ package inky.orm
 		/**
 		 *	
 		 */
-		protected static function addProperty(theClass:Class, property:String, options:Object = null):void
+		protected static function defineRelationship(theClass:Class, property:String, options:Object = null):void
 		{
 			if (!property)
 				throw new ArgumentError("Property name must be a non-empty, non-null String.");
@@ -58,43 +61,39 @@ package inky.orm
 			else
 				throw new ArgumentError('Property "' + property + '" already defined on ' + theClass);
 
-			var relationshipClass:Class = (options && options.relationship) as Class;
-			if (!relationshipClass)
-			{
-				// If the relationship type wasn't explicitly specified, infer it from the property name.			
-// TODO: More advanced lexical analysis.
-				var relationshipType:String;
-				if (options)
-				 	relationshipType = options.relationshipType;
-				else
-					relationshipType = property.substr(-1) == "s" ? RelationshipType.HAS_MANY : RelationshipType.HAS_ONE;
+			// Save the relationship options.
+			_relationshipOptions = _relationshipOptions || {};
+			_relationshipOptions[className] = _relationshipOptions[className] || {};
+			_relationshipOptions[className][property] = options || {};
 
-				switch (relationshipType)
+// FIXME: How can we avoid creating the relationship here?			
+if (_getRelationship(className, property) is OneToOne)
+	_dynamicProperties[className].push(property + "Id");
+		}
+
+
+		/**
+		 *	
+		 */
+		private static function _getRelationship(className:String, property:String):IRelationship
+		{
+			var relationship:IRelationship = (_relationships && _relationships[className] && _relationships[className][property]) as IRelationship;
+			if (!relationship)
+			{
+				var options:Object = _relationshipOptions && _relationshipOptions[className] && _relationshipOptions[className][property];
+				if (options)
 				{
-					case RelationshipType.HAS_ONE:
-					{
-						relationshipClass = OneToOne;
-						break;
-					}
-					case RelationshipType.HAS_MANY:
-					{
-						relationshipClass = OneToMany;
-						break;
-					}
-					default:
-					{
-						throw new ArgumentError("Invalid relationship type: \"" + relationshipType + "\".");
-						break;
-					}
+					_relationships = _relationships || {};
+					_relationships[className] = _relationships[className] || {};
+					_relationships[className][property] =
+					relationship = _relationshipFactory.createRelationship(className, property, options);
 				}
 			}
-// TODO: Defer creation of relationship until when you access it.
-			// Create the relationship and add it to the map.
-			var relationship:IRelationship = new relationshipClass();
-			_properties2Relationships = _properties2Relationships || {};
-			var relationshipMap:Object = _properties2Relationships[className] || (_properties2Relationships[className] = {});
-			relationshipMap[property] = relationship;
+
+			return relationship;
 		}
+			
+	
 
 
 		/**
@@ -102,18 +101,15 @@ package inky.orm
 		 */
 	    override flash_proxy function getProperty(name:*):*
 	    {
+			var value:*;
+		
 			// Look up the relationship.
-			var relationship:IRelationship = (_properties2Relationships && _properties2Relationships[this._className] && _properties2Relationships[this._className][name]) as IRelationship;
+			var relationship:IRelationship = _getRelationship(this._className, name);
 			if (relationship)
-			{
-				trace(name + ":\t" + relationship);
-return relationship;
-			}
-			
-/*var o:Object = _properties2Relationships[this._class];
-var r:Object = o ? o[name] : null;
-trace("getting\t" + name + "\t" + r);*/
-			return super.flash_proxy::getProperty(name);
+				value = relationship.evaluate(this);
+			else
+				value = super.flash_proxy::getProperty(name);
+			return value;
 	    }
 
 
@@ -170,14 +166,13 @@ trace("getting\t" + name + "\t" + r);*/
 			// Add the dynamic properties that were added using instance.propName = value.
 			var propertyList:Array = super._getPropertyList();
 
-			// Add the dynamic properties that were added using addProperty.
+			// Add the dynamic properties that were added using defineRelationship.
 			if (_dynamicProperties && _dynamicProperties[this._className])
 // TODO: Would splice be faster?
 				propertyList = propertyList.concat.apply(null, _dynamicProperties[this._className]);
 
 			return propertyList;
 		}
-
 
 
 

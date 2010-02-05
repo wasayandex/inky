@@ -14,8 +14,16 @@ package inky.orm.relationships
 	 */
 	public interface IRelationship
 	{
+		/**
+		 * Gets the associated value for the specified model.
+		 */
+		function evaluate(model:Object):*;
 		
-
+		
+		/**
+		 * 
+		 */
+		function setup(className:String, property:String, options:Object):void;
 		
 	}
 	

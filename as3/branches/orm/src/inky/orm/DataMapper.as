@@ -7,8 +7,6 @@ package inky.orm
 	import inky.collections.IList;
 	import inky.collections.IIterator;
 	import inky.utils.Conditions;
-	import inky.orm.DATA_MAPPER_CONFIG;
-	import inky.orm.DomainModel;
 	import inky.utils.describeObject;
 
 	
@@ -65,7 +63,7 @@ package inky.orm
 		/**
 		 *	@inheritDoc
 		 */
-		public function load(model:DomainModel, c:Object):Object
+		public function load(model:Object, c:Object):Object
 		{
 // TODO: Optimize for case when c only contains primary key. Should be a simple lookup. Actually, should be like that for any unique key.
 
@@ -118,8 +116,8 @@ package inky.orm
 				}
 			}
 			
-			if (!foundMatch)
-				throw new Error("Could not find object in database!");
+			/*if (!foundMatch)
+				throw new Error("Could not find object in database!\n\ttype:\t" + model + "\n\tconditions:\n\t\t" + describeObject(c).replace(/\n/g, "\n\t\t"));*/
 
 			return model;
 		}
@@ -128,7 +126,7 @@ package inky.orm
 		/**
 		 *	@inheritDoc
 		 */
-		public function remove(obj:DomainModel, cascade:Boolean = true):void
+		public function remove(obj:Object, cascade:Boolean = true):void
 		{
 		}
 
@@ -136,7 +134,7 @@ package inky.orm
 		/**
 		 *	
 		 */
-		public function save(obj:DomainModel, cascade:Boolean = false):void
+		public function save(obj:Object, cascade:Boolean = false):void
 		{
 			if (!obj)
 				throw new ArgumentError();
@@ -172,7 +170,7 @@ return dto[name];
 		 *  from scratch. The default implementation is to put all of the
 		 *  business object's properties of primitive type onto the DTO.
 		 */
-		protected function getDTO(obj:DomainModel):Object
+		protected function getDTO(obj:Object):Object
 		{
 			var dto:Object = {};
 
@@ -208,7 +206,7 @@ return dto[name];
 		 *	Given a business object, this function returns the name of the table
 		 *  in which this object's data should be stored.
 		 */
-		protected function getTableName(obj:DomainModel):String
+		protected function getTableName(obj:Object):String
 		{
 			var className:String = getQualifiedClassName(obj).split("::").pop();
 			return className.substr(0, 1).toLowerCase() + className.substr(1);
