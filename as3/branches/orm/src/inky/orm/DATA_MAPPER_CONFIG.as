@@ -19,6 +19,7 @@ package inky.orm
 
 import flash.utils.getQualifiedClassName;
 import inky.orm.IDataMapper;
+
 class DataMapperConfig
 {
 	private var _dataMappers:Object;

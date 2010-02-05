@@ -83,21 +83,38 @@ package inky.orm
 					var value:* = this.deserializeProperty(dto, prop);
 					obj[prop] = value;
 				}
-// TODO: Clear model properties first?
+
 				if (conditions.test(obj))
 				{
 					foundMatch = true;
+					var addedProperties:Object = {};
 					
 					// Put the already deserialized properties on the domain model
 					for (prop in obj)
+					{
+						addedProperties[prop] = true;
 						model[prop] = obj[prop];
-//!
-/*
+					}
+
 					// Deserialize the remaining properties.
-					for each (prop in _getConfigFor(model))
-						if (!obj.hasOwnProperty(prop))
+					for (prop in model)
+					{
+						if (!obj.hasOwnProperty(prop) && !addedProperties[prop])
+						{
 							model[prop] = this.deserializeProperty(dto, prop);
-*/
+							addedProperties[prop] = true;
+						}
+					}
+
+					var typeDescription:XML = describeType(model);
+					for each (prop in (typeDescription.accessor.((@access == "writeonly") || (@access == "readwrite")) + typeDescription.variable).@name)
+					{
+						if (!obj.hasOwnProperty(prop) && !addedProperties[prop])
+						{
+							model[prop] = this.deserializeProperty(dto, prop);
+							addedProperties[prop] = true;
+						}
+					}
 				}
 			}
 			
@@ -105,18 +122,6 @@ package inky.orm
 				throw new Error("Could not find object in database!");
 
 			return model;
-		}
-
-
-		/**
-		 *	@inheritDoc
-		 */
-		private static function _getConfigFor(model:DomainModel):void
-		{
-			var className:String = getQualifiedClassName(model).replace(/::/, ".");
-			var config:Object = DATA_MAPPER_CONFIG[className];
-			if (!config || !config.properties)
-				throw new Error(className + " is not configured.");
 		}
 
 
