@@ -1,7 +1,8 @@
 package inky.orm 
 {
+	import inky.collections.IIterable;
 
-	
+
 	/**
 	 *
 	 *  ..
@@ -15,7 +16,18 @@ package inky.orm
 	 */
 	public interface IDatabase
 	{
-		
+		/**
+		 *	
+		 */
+		function getItems(tableName:String):IIterable;
+
+
+		/**
+		 *	
+		 */
+		function findFirst(conditions:Object):Object;
+
+
 		/**
 		 *	
 		 */

@@ -5,6 +5,11 @@ package inky.orm
 	import inky.orm.IDatabase;
 	import inky.orm.IDataMapper;
 	import inky.collections.IList;
+	import inky.collections.IIterator;
+	import inky.utils.Conditions;
+	import inky.orm.DATA_MAPPER_CONFIG;
+	import inky.orm.DomainModel;
+	import inky.utils.describeObject;
 
 	
 	/**
@@ -60,9 +65,58 @@ package inky.orm
 		/**
 		 *	@inheritDoc
 		 */
-		public function load(obj:DomainModel, conditions:Object):Object
+		public function load(model:DomainModel, c:Object):Object
 		{
-			return null;
+// TODO: Optimize for case when c only contains primary key. Should be a simple lookup.
+
+			var foundMatch:Boolean = false;
+			var conditions:Conditions = c is Conditions ? c as Conditions : new Conditions(c);
+			for (var i:IIterator = this._db.getItems(this.getTableName(model)).iterator(); i.hasNext(); )
+			{
+				var dto:Object = i.next();
+				var obj:Object = {};
+				var prop:String;
+
+				// Convert only the properties needed to test the conditions.
+				for (prop in conditions)
+				{
+					var value:* = this.deserializeProperty(dto, prop);
+					obj[prop] = value;
+				}
+// TODO: Clear model properties first?
+				if (conditions.test(obj))
+				{
+					foundMatch = true;
+					
+					// Put the already deserialized properties on the domain model
+					for (prop in obj)
+						model[prop] = obj[prop];
+//!
+/*
+					// Deserialize the remaining properties.
+					for each (prop in _getConfigFor(model))
+						if (!obj.hasOwnProperty(prop))
+							model[prop] = this.deserializeProperty(dto, prop);
+*/
+				}
+			}
+			
+			if (!foundMatch)
+				throw new Error("Could not find object in database!");
+
+			return model;
+		}
+
+
+		/**
+		 *	@inheritDoc
+		 */
+		private static function _getConfigFor(model:DomainModel):void
+		{
+			var className:String = getQualifiedClassName(model).replace(/::/, ".");
+			var config:Object = DATA_MAPPER_CONFIG[className];
+			if (!config || !config.properties)
+				throw new Error(className + " is not configured.");
 		}
 
 
@@ -93,6 +147,15 @@ package inky.orm
 		//
 		// protected methods
 		//
+
+
+		/**
+		 *	@inheritDoc
+		 */
+		protected function deserializeProperty(dto:Object, name:String):*
+		{
+return dto[name];
+		}
 
 
 		/**

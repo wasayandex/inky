@@ -1,6 +1,8 @@
 package inky.orm 
 {
 	import inky.orm.IDatabase;
+	import inky.collections.IIterable;
+	import inky.collections.ArrayList;
 
 	
 	/**
@@ -24,6 +26,49 @@ package inky.orm
 		public function XMLDatabase(data:XML = null)
 		{
 			this._data = data || <db />;
+		}
+
+
+
+
+		//
+		// accessors
+		//
+
+
+		/**
+		 *	
+		 */
+		public function getItems(tableName:String):IIterable
+		{
+// FIXME: WE DON'T ACTUALLY WANT TO MAKE ALL THESE!!! THE ITERABLE THAT IS RETURNED SHOULD ONLY CREATE THE OBJECT WHEN REQUESTED!
+// Pass lookup function (defined in this class) to IIterable implementation. It calls lookup on every iteration, passing index.
+var items:Array = [];
+for each (var xml:XML in this._data.child(tableName))
+{
+	var dto:Object = {};
+	for each (var prop:XML in xml.children() + xml.attributes())
+		dto[prop.localName().toString()] = prop.toString();
+	items.push(dto);
+}
+
+return new ArrayList(items);
+		}
+
+
+
+
+		//
+		// public methods
+		//
+
+
+		/**
+		 *	@inheritDoc
+		 */
+		public function findFirst(conditions:Object):Object
+		{
+throw new Error("Not yet implemented");
 		}
 
 
@@ -60,8 +105,6 @@ package inky.orm
 				row = queryResult[0];
 				this._updateRow(row, dto);
 			}
-
-
 		}
 
 
