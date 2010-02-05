@@ -1,7 +1,6 @@
 package inky.orm 
 {
-	import inky.async.AsyncToken;
-	import inky.orm.IRepository;
+	import inky.orm.IDatabase;
 
 	
 	/**
@@ -15,14 +14,14 @@ package inky.orm
 	 *	@since  2009.09.28
 	 *
 	 */
-	public class Repository implements IRepository
+	public class XMLDatabase implements IDatabase
 	{
 		private var _data:XML;
 		
 		/**
 		 *
 		 */
-		public function Repository(data:XML = null)
+		public function XMLDatabase(data:XML = null)
 		{
 			this._data = data || <db />;
 		}
@@ -31,7 +30,7 @@ package inky.orm
 		/**
 		 *	@inheritDoc
 		 */
-		public function insert(tableName:String, dto:Object, updateOnDuplicateKey:Boolean = false):AsyncToken
+		public function insert(tableName:String, dto:Object, updateOnDuplicateKey:Boolean = false):void
 		{
 			var primaryKey:String = this._getPrimaryKey(tableName);
 			var primaryKeyValue:String = dto[primaryKey];
@@ -62,7 +61,7 @@ package inky.orm
 				this._updateRow(row, dto);
 			}
 
-return null;
+
 		}
 
 

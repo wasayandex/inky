@@ -2,8 +2,7 @@ package inky.orm
 {
 	import flash.utils.getQualifiedClassName;
 	import flash.utils.describeType;
-	import inky.async.AsyncToken;
-	import inky.orm.IRepository;
+	import inky.orm.IDatabase;
 	import inky.orm.IDataMapper;
 	import inky.collections.IList;
 
@@ -21,13 +20,13 @@ package inky.orm
 	 */
 	public class DataMapper implements IDataMapper
 	{
-		private var _db:IRepository;
+		private var _db:IDatabase;
 
 
 		/**
 		 *
 		 */
-		public function DataMapper(db:IRepository)
+		public function DataMapper(db:IDatabase)
 		{
 			this._db = db;
 		}
@@ -52,7 +51,7 @@ package inky.orm
 		/**
 		 *	
 		 */
-		public function findFirst(conditions:Object):AsyncToken
+		public function findFirst(conditions:Object):Object
 		{
 			return null;
 		}
@@ -61,7 +60,7 @@ package inky.orm
 		/**
 		 *	@inheritDoc
 		 */
-		public function load(obj:DomainModel, conditions:Object):AsyncToken
+		public function load(obj:DomainModel, conditions:Object):Object
 		{
 			return null;
 		}
@@ -70,20 +69,19 @@ package inky.orm
 		/**
 		 *	@inheritDoc
 		 */
-		public function remove(obj:DomainModel, cascade:Boolean = true):AsyncToken
+		public function remove(obj:DomainModel, cascade:Boolean = true):void
 		{
-			return null;
 		}
 
 
 		/**
 		 *	
 		 */
-		public function save(obj:DomainModel, cascade:Boolean = false):AsyncToken
+		public function save(obj:DomainModel, cascade:Boolean = false):void
 		{
 			if (!obj)
 				throw new ArgumentError();
-			
+// TODO: Add support for cascading save.
 			var tableName:String = this.getTableName(obj);
 			var dto:Object = this.getDTO(obj);
 			return this._db.insert(tableName, dto, true);
