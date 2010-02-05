@@ -142,7 +142,7 @@ package inky.components.button
 					case ButtonState.UP:
 					{
 						// Start the button at the last frame of the up animation.
-						lastUpFrame = i + 1 < numLabels ? this.currentLabels[i + 1] - 1 : this.totalFrames;
+						lastUpFrame = i + 1 < numLabels ? this.currentLabels[i + 1].frame - 1 : this.totalFrames;
 						map[label.name] = new PlayFrameLabelCommand(label.name, this);
 
 						// If there is no over command defined yet, do the reverse of the up command.
@@ -196,7 +196,7 @@ package inky.components.button
 			// Map the commands to the strings on the command button behavior.
 			for (var state:String in map)
 				this._proxy.mapStateToCommand(state, map[state]);
-			
+
 			// Move the playhead to the initial frame.
 			if (lastUpFrame)
 				this.gotoAndStop(lastUpFrame);
