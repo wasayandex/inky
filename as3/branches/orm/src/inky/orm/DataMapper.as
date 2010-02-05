@@ -67,7 +67,7 @@ package inky.orm
 		 */
 		public function load(model:DomainModel, c:Object):Object
 		{
-// TODO: Optimize for case when c only contains primary key. Should be a simple lookup.
+// TODO: Optimize for case when c only contains primary key. Should be a simple lookup. Actually, should be like that for any unique key.
 
 			var foundMatch:Boolean = false;
 			var conditions:Conditions = c is Conditions ? c as Conditions : new Conditions(c);
@@ -77,7 +77,7 @@ package inky.orm
 				var obj:Object = {};
 				var prop:String;
 
-				// Convert only the properties needed to test the conditions.
+				// Deserialize only the properties needed to test the conditions.
 				for (prop in conditions)
 				{
 					var value:* = this.deserializeProperty(dto, prop);

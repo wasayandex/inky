@@ -79,7 +79,7 @@ package inky.orm
 					}
 				}
 			}
-
+// TODO: Defer creation of relationship until when you access it.
 			// Create the relationship and add it to the map.
 			var relationship:IRelationship = new relationshipClass();
 			var relationshipMap:Object = _properties2Relationships[theClass] || (_properties2Relationships[theClass] = {});
@@ -104,7 +104,7 @@ trace("getting\t" + name + "\t" + r);*/
 		 */
 		public function load(conditions:Object):void
 		{
-			this._getDataMapper().load(this, conditions);
+			DATA_MAPPER_CONFIG.getDataMapper(this._className).load(this, conditions);
 		}
 
 
@@ -113,24 +113,10 @@ trace("getting\t" + name + "\t" + r);*/
 		 */
 		public function save():void
 		{
-			this._getDataMapper().save(this, true);
+			DATA_MAPPER_CONFIG.getDataMapper(this._className).save(this, true);
 		}
-		
-		
-		
-		/**
-		 *	
-		 */
-		private function _getDataMapper():IDataMapper
-		{
-			var config:Object = DATA_MAPPER_CONFIG[this._className];
-			if (!config)
-				throw new Error(this._className + " has not been configured.");
-			var dataMapper:IDataMapper = config.dataMapper;
-			if (!dataMapper)
-				throw new Error("No data mapper set for " + this._className);
-			return dataMapper;
-		}
+
+
 
 
 	}
