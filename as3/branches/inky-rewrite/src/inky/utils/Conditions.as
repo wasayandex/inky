@@ -1,6 +1,5 @@
 ﻿package inky.utils 
 {
-	import inky.utils.ObjectProxy;
 
 
 	/**
@@ -14,24 +13,22 @@
 	 *	@since  2009.06.30
 	 *
 	 */
-	dynamic public class Filter extends ObjectProxy
+	dynamic public class Conditions
 	{
 // TODO: Rename this?
-trace("Warning: inky.utils.Filter has been deprecated in favor of inky.utils.Requirement. SWITCH.");
+
 		/**
 		 *
 		 */
-		public function Filter(obj:Object = null)
+		public function Conditions(obj:Object = null)
 		{
-			this.update(obj, false);
+			this._update(obj, false);
 		}
 
 
 
 
 		/**
-		 *	
-		 *	
 		 *	
 		 */
 		public function test(testObject:Object):Boolean
@@ -56,8 +53,10 @@ trace("Warning: inky.utils.Filter has been deprecated in favor of inky.utils.Req
 		}
 
 
-
-		public function update(obj:Object, clear:Boolean = false):void
+		/**
+		 *	
+		 */
+		private function _update(obj:Object, clear:Boolean = false):void
 		{
 			var prop:String;
 			
@@ -71,9 +70,7 @@ trace("Warning: inky.utils.Filter has been deprecated in favor of inky.utils.Req
 			}
 			
 			for (prop in obj)
-			{
 				this[prop] = obj[prop];
-			}
 		}
 
 
