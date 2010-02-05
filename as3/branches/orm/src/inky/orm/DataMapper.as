@@ -119,7 +119,7 @@ package inky.orm
 			/*if (!foundMatch)
 				throw new Error("Could not find object in database!\n\ttype:\t" + model + "\n\tconditions:\n\t\t" + describeObject(c).replace(/\n/g, "\n\t\t"));*/
 
-			return model;
+			return foundMatch ? model : null;
 		}
 
 

@@ -4,6 +4,7 @@ package inky.orm.relationships
 	import inky.orm.IDataMapper;
 	import inky.orm.DATA_MAPPER_CONFIG;
 	import inky.utils.getClass;
+	import inky.utils.describeObject;
 
 	/**
 	 *
@@ -28,15 +29,22 @@ package inky.orm.relationships
 		 */
 		public function evaluate(model:Object):*
 		{
+			var relatedObject:Object;
 			var relatedClass:String = this._getRelatedClass();
 			var key:String = this._getKey();
-			var dataMapper:IDataMapper = DATA_MAPPER_CONFIG.getDataMapper(relatedClass);
-			var relatedClassConstructor:Class = getClass(relatedClass);
-			var relatedObject:Object = new relatedClassConstructor();
-			var relatedKey:String = this._getRelatedKey();
-			var query:Object = {};
-			query[relatedKey] = model[key];
-			dataMapper.load(relatedObject, query);
+			var relatedKeyValue:String = model[key];
+
+			if (relatedKeyValue)
+			{
+				var dataMapper:IDataMapper = DATA_MAPPER_CONFIG.getDataMapper(relatedClass);
+				var relatedClassConstructor:Class = getClass(relatedClass);
+				relatedObject = new relatedClassConstructor();
+				var relatedKey:String = this._getRelatedKey();
+				var query:Object = {};
+				query[relatedKey] = relatedKeyValue;
+				relatedObject = dataMapper.load(relatedObject, query);
+			}
+
 			return relatedObject;
 		}
 
@@ -54,8 +62,7 @@ package inky.orm.relationships
 
 		private function _getKey():String
 		{
-			var key:String = this._options.key || this._property + "Id";
-			return key;
+			return this._options.key || this._property + "Id";
 		}
 		
 		private function _getRelatedKey():String
