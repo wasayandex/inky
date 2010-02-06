@@ -80,14 +80,16 @@ package inky.orm
 			if (!this.hasOwnProperty(name))
 				throw new ReferenceError("Property " + name + " not found on " + this._className + ". Add an accessor or variable to your class definition.");
 
-			var value:*;
+			var value:* = super.flash_proxy::getProperty(name);
 		
-			// Look up the relationship.
-			var relationship:IRelationship = _getRelationship(this._className, name);
-			if (relationship)
-				value = relationship.evaluate(this);
-			else
-				value = super.flash_proxy::getProperty(name);
+			if (!value)
+			{
+				// Look up the relationship.
+				var relationship:IRelationship = _getRelationship(this._className, name);
+				if (relationship)
+					value = relationship.evaluate(this);
+			}
+
 			return value;
 	    }
 
