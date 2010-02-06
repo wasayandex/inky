@@ -23,6 +23,7 @@ import inky.orm.IDataMapper;
 class DataMapperConfig
 {
 	private var _dataMappers:Object;
+	private var _primaryKeys:Object;
 
 
 	/**
@@ -31,6 +32,7 @@ class DataMapperConfig
 	public function DataMapperConfig()
 	{
 		this._dataMappers = {};
+		this._primaryKeys = {};
 	}
 
 
@@ -46,10 +48,28 @@ class DataMapperConfig
 	/**
 	 * 
 	 */
+	public function getPrimaryKey(classOrClassName:Object):String
+	{
+		return this._primaryKeys[_getClassName(classOrClassName)] || null;
+	}
+	
+	
+	/**
+	 * 
+	 */
 	public function setDataMapper(classOrClassName:Object, dataMapper:IDataMapper):void
 	{
 		var className:String = _getClassName(classOrClassName);
 		this._dataMappers[className] = dataMapper;
+	}
+
+
+	/**
+	 * 
+	 */
+	public function setPrimaryKey(classOrClassName:Object, key:String):void
+	{
+		this._primaryKeys[_getClassName(classOrClassName)] = key;
 	}
 
 

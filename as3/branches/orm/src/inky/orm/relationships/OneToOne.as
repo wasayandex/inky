@@ -24,22 +24,29 @@ package inky.orm.relationships
 		private var _options:Object;
 
 
+
+
+		//
+		// public methods
+		//
+
+
 		/**
 		 * @inheritDoc
 		 */
 		public function evaluate(model:Object):*
 		{
 			var relatedObject:Object;
-			var relatedClass:String = this._getRelatedClass();
 			var key:String = this._getKey();
 			var relatedKeyValue:String = model[key];
 
 			if (relatedKeyValue)
 			{
+				var relatedClass:String = this._getRelatedClass();
 				var dataMapper:IDataMapper = DATA_MAPPER_CONFIG.getDataMapper(relatedClass);
 				var relatedClassConstructor:Class = getClass(relatedClass);
 				relatedObject = new relatedClassConstructor();
-				var relatedKey:String = this._getRelatedKey();
+				var relatedKey:String = this._getRelatedKey(relatedClass);
 				var query:Object = {};
 				query[relatedKey] = relatedKeyValue;
 				relatedObject = dataMapper.load(relatedObject, query);
@@ -60,17 +67,34 @@ package inky.orm.relationships
 		}
 
 
+
+
+		//
+		// private methods
+		//
+
+
+		/**
+		 * 
+		 */
+		private function _formatAsClass(str:String):String
+		{
+			return str.substr(0, 1).toUpperCase() + str.substr(1);
+		}
+		
+		
+		/**
+		 * 
+		 */
 		private function _getKey():String
 		{
 			return this._options.key || this._property + "Id";
 		}
-		
-		private function _getRelatedKey():String
-		{
-// FIXME: This needs to look up the actual key.
-return "id";
-		}
 
+
+		/**
+		 * 
+		 */
 		private function _getRelatedClass():String
 		{
 			var relatedClass:String = this._options.relatedClass;
@@ -88,9 +112,9 @@ return "id";
 		/**
 		 * 
 		 */
-		private function _formatAsClass(str:String):String
+		private function _getRelatedKey(relatedClass:String):String
 		{
-			return str.substr(0, 1).toUpperCase() + str.substr(1);
+			return DATA_MAPPER_CONFIG.getPrimaryKey(relatedClass) || "id";
 		}
 
 

@@ -2,15 +2,12 @@ package inky.orm
 {
 	import inky.utils.ObjectProxy;
 	import flash.utils.getQualifiedClassName;
-	import inky.orm.relationships.RelationshipType;
 	import inky.orm.relationships.OneToOne;
-	import inky.orm.relationships.OneToMany;
 	import inky.orm.relationships.IRelationship;
-	import flash.utils.Dictionary;
 	import flash.utils.flash_proxy;
-	import inky.orm.IDataMapper;
 	import inky.orm.DATA_MAPPER_CONFIG;
 	import inky.orm.relationships.RelationshipFactory;
+	import flash.display.Sprite;
 
 	use namespace flash_proxy;
 
@@ -43,16 +40,90 @@ package inky.orm
 		}
 
 
+
+
+		//
+		// public methods
+		//
+
+
 		/**
-		 *	
+		 *	@inheritDoc
 		 */
-		protected static function defineRelationship(theClass:Class, property:String, options:Object = null):void
+		public function load(conditions:Object):void
 		{
-			if (!property)
-				throw new ArgumentError("Property name must be a non-empty, non-null String.");
+			DATA_MAPPER_CONFIG.getDataMapper(this._className).load(this, conditions);
+		}
 
-			var className:String = _getClassName(theClass);
 
+		/**
+		 *	@inheritDoc
+		 */
+		public function save():void
+		{
+			DATA_MAPPER_CONFIG.getDataMapper(this._className).save(this, true);
+		}
+
+
+
+
+		//
+		// flash_proxy methods
+		//
+
+
+		/**
+		 * @private
+		 */
+	    override flash_proxy function getProperty(name:*):*
+	    {
+			if (!this.hasOwnProperty(name))
+				throw new ReferenceError("Property " + name + " not found on " + this._className + ". Add an accessor or variable to your class definition.");
+
+			var value:*;
+		
+			// Look up the relationship.
+			var relationship:IRelationship = _getRelationship(this._className, name);
+			if (relationship)
+				value = relationship.evaluate(this);
+			else
+				value = super.flash_proxy::getProperty(name);
+			return value;
+	    }
+
+
+		/**
+		 * @private
+		 */
+	    override flash_proxy function hasProperty(name:*):Boolean
+	    {
+	        return super.flash_proxy::hasProperty(name) || (_dynamicProperties && _dynamicProperties[this._className] && (_dynamicProperties[this._className].indexOf(name) != -1));
+	    }
+
+
+		/**
+		 * @inheritDoc
+		 */
+	    override flash_proxy function setProperty(name:*, value:*):void
+		{
+			if (!this.hasOwnProperty(name))
+				throw new ReferenceError("Property " + name + " not found on " + this._className + ". Add an accessor or variable to your class definition.");
+			super.flash_proxy::setProperty(name, value);
+		}
+
+
+
+
+		//
+		// private methods
+		//
+
+
+		/**
+		 * 
+		 */
+		private static function _addDynamicProperty(theClass, className:String, property:String):void
+		{
 			// Add the property to the list of properties.
 			_dynamicProperties = _dynamicProperties || {};
 			_dynamicProperties[className] = _dynamicProperties[className] || [];
@@ -60,15 +131,20 @@ package inky.orm
 				_dynamicProperties[className].push(property);
 			else
 				throw new ArgumentError('Property "' + property + '" already defined on ' + theClass);
+		}
 
-			// Save the relationship options.
-			_relationshipOptions = _relationshipOptions || {};
-			_relationshipOptions[className] = _relationshipOptions[className] || {};
-			_relationshipOptions[className][property] = options || {};
 
-// FIXME: How can we avoid creating the relationship here?			
-if (_getRelationship(className, property) is OneToOne)
-	_dynamicProperties[className].push(property + "Id");
+		/**
+		 * 
+		 */
+		private static function _getClassName(classOrClassName:Object):String
+		{
+			if (classOrClassName is Class)
+				return getQualifiedClassName(classOrClassName as Class).replace(/::/, ".");
+			else if (classOrClassName is String)
+				return classOrClassName as String;
+			
+			throw new ArgumentError();
 		}
 
 
@@ -92,75 +168,42 @@ if (_getRelationship(className, property) is OneToOne)
 
 			return relationship;
 		}
-			
-	
-
-
-		/**
-		 * @private
-		 */
-	    override flash_proxy function getProperty(name:*):*
-	    {
-			var value:*;
-		
-			// Look up the relationship.
-			var relationship:IRelationship = _getRelationship(this._className, name);
-			if (relationship)
-				value = relationship.evaluate(this);
-			else
-				value = super.flash_proxy::getProperty(name);
-			return value;
-	    }
-
-
-		/**
-		 *	@inheritDoc
-		 */
-		public function load(conditions:Object):void
-		{
-			DATA_MAPPER_CONFIG.getDataMapper(this._className).load(this, conditions);
-		}
-
-
-		/**
-		 *	@inheritDoc
-		 */
-		public function save():void
-		{
-			DATA_MAPPER_CONFIG.getDataMapper(this._className).save(this, true);
-		}
-
-
-
-		private static function _getClassName(classOrClassName:Object):String
-		{
-			if (classOrClassName is Class)
-				return getQualifiedClassName(classOrClassName as Class).replace(/::/, ".");
-			else if (classOrClassName is String)
-				return classOrClassName as String;
-			
-			throw new ArgumentError();
-		}
-
-
 
 
 
 
 		//
-		// flash_proxy methods
+		// protected methods
 		//
+
+
+		/**
+		 *	
+		 */
+		protected static function defineRelationship(theClass:Class, property:String, options:Object = null):void
+		{
+			if (!property)
+				throw new ArgumentError("Property name must be a non-empty, non-null String.");
+
+			var className:String = _getClassName(theClass);
+
+			// 
+			_addDynamicProperty(theClass, className, property);
+
+			// Save the relationship options.
+			_relationshipOptions = _relationshipOptions || {};
+			_relationshipOptions[className] = _relationshipOptions[className] || {};
+			_relationshipOptions[className][property] = options || {};
+
+// FIXME: How can we avoid creating the relationship here?			
+if (_getRelationship(className, property) is OneToOne)
+	_dynamicProperties[className].push(property + "Id");
+		}
 
 
 		/**
 		 * @private
 		 */
-	    override flash_proxy function hasProperty(name:*):Boolean
-	    {
-	        return super.flash_proxy::hasProperty(name) || (_dynamicProperties && _dynamicProperties[this._className] && (_dynamicProperties[this._className].indexOf(name) != -1));
-	    }
-
-
 		override protected function _getPropertyList():Array
 		{
 			// Add the dynamic properties that were added using instance.propName = value.
@@ -173,7 +216,6 @@ if (_getRelationship(className, property) is OneToOne)
 
 			return propertyList;
 		}
-
 
 
 
