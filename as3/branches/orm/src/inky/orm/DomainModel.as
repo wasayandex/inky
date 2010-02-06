@@ -196,10 +196,6 @@ package inky.orm
 			_relationshipOptions = _relationshipOptions || {};
 			_relationshipOptions[className] = _relationshipOptions[className] || {};
 			_relationshipOptions[className][property] = options || {};
-
-// FIXME: How can we avoid creating the relationship here?			
-if (_getRelationship(className, property) is OneToOne)
-	_dynamicProperties[className].push(property + "Id");
 		}
 
 
