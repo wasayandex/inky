@@ -147,9 +147,7 @@ package inky.utils
 		{
 			this._propertyList = [];
 			for (var x:* in this._item)
-			{
 				this._propertyList.push(x);
-			}
 		}		 		 		 		
 
 

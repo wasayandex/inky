@@ -25,13 +25,11 @@ package inky.injection
 		 * 		The type of event the injection adapter will handle.
 		 * @param adapter
 		 * 		The IInjectionAdapter instance.
-		 * @param filter
-		 * 		A method that is consulted before initializing the adapter. This method is useful for making sure injection isn't triggered unintentionally.
 		 * 
 		 * @see inky.injection.IInjectionAdapter
 		 * 
 		 */
-		function map(eventType:String, adapter:IInjectionAdapter, filter:Function):void;
+		function map(eventType:String, adapter:IInjectionAdapter, conditions:Object):void;
 		
 
 		

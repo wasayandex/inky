@@ -48,7 +48,7 @@ package inky.app.bootstrapper
 		public function get applicationControllerClass():String
 		{
 			 if (!this._applicationControllerClass)
-				this._applicationControllerClass = this._appName + "Controller";
+				this._applicationControllerClass = "inky.app.controller.StandardApplicationController";
 			return this._applicationControllerClass; 
 		}
 		/**
@@ -56,7 +56,7 @@ package inky.app.bootstrapper
 		 */
 		public function set applicationControllerClass(value:String):void
 		{
-// FIXME: This should not be allowed to be changed after the confix is frozen!
+// FIXME: This should not be allowed to be changed after the config is frozen!
 			this._applicationControllerClass = value;
 		}
 

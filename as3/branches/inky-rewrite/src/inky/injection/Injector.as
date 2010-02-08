@@ -4,6 +4,8 @@ package inky.injection
 	import inky.injection.IInjector;
 	import flash.events.IEventDispatcher;
 	import flash.events.Event;
+	import inky.utils.Conditions;
+	import inky.utils.describeObject;
 	
 	/**
 	 *
@@ -44,10 +46,10 @@ package inky.injection
 		/**
 		 * @inheritDoc	
 		 */
-		public function map(eventType:String, adapter:IInjectionAdapter, filter:Function):void
+		public function map(eventType:String, adapter:IInjectionAdapter, conditions:Object):void
 		{
 			var eventFilters:Array = this._events2Filters[eventType] || (this._events2Filters[eventType] = []);
-			eventFilters.push({filter: filter, adapter: adapter});
+			eventFilters.push({conditions: conditions, adapter: adapter});
 			this._dispatcher.addEventListener(eventType, this._filterEvent, false, 0, true);
 		}
 		
@@ -67,8 +69,18 @@ package inky.injection
 			var eventFilters:Array = this._events2Filters[event.type];
 			for each (var filterInfo:Object in eventFilters)
 			{
-				if (filterInfo.filter.apply(null, [event]))
-					filterInfo.adapter.inject(event.target);
+				var conditions:Object = filterInfo.conditions;
+				var adapter:IInjectionAdapter = filterInfo.adapter;
+				if (conditions is Function)
+				{
+					if (conditions.apply(null, [event]))
+						adapter.inject(event.target);
+				}
+				else
+				{
+					if (new Conditions(conditions).test(event.target))
+						adapter.inject(event.target);
+				}
 			}
 		}
 

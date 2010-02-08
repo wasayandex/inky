@@ -22,7 +22,8 @@ package inky.injection
 
 		
 		/**
-		 *
+		 * @param	source	 The object that the value will be retrieved from.
+		 * @param	propertyMap	 A map consisting of key -> value pairs in which the keys are properties of the injection target and the values are binding chains to be evaluated relative to the source argument.
 		 */
 		public function PropertyInjectionAdapter(source:Object, propertyMap:Object)
 		{
