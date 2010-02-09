@@ -12,7 +12,7 @@ package inky.utils
 	 *	@since  2010.02.09
 	 *
 	 */
-	public function indent(str:String, indentLevel:int = 1, indentChar:String = "\t"):String
+	public function indent(str:String, indentLevel:uint = 1, indentChar:String = "\t"):String
 	{
 		var indentString:String = "";
 		for (var i:int = 0; i < indentLevel; i++)
