@@ -5,6 +5,7 @@ package inky.components.button
 	import inky.binding.utils.BindingUtil;
 	import inky.binding.utils.IChangeWatcher;
 	import inky.components.button.ButtonState;
+	import inky.commands.IAsyncCommand;
 	
 	/**
 	 *
@@ -110,6 +111,15 @@ package inky.components.button
 			this._map[state] = command;
 		}
 		
+		
+		/**
+		 * @param state
+		 * 	The button state that is associated with a command.
+		 */
+		public function returnCommandByState(state:String):IAsyncCommand
+		{
+			return this._map[state];
+		}
 		
 		
 
