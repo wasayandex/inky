@@ -214,8 +214,7 @@ package inky.routing.router
 				request = this._matchAddress("#" + SWFAddressEvent(event).value);
 			else if (this.trigger == event.type)
 				request = event;
-
-			return this.wrapRequest(request);
+			return request ? this.wrapRequest(request) : null;
 		}
 
 

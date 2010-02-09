@@ -17,7 +17,7 @@ package inky.routing.router
 	public interface IRoute
 	{
 		/**
-		 *	Converts the event into a request object. If the event does not match this route, null is returned.
+		 *	Converts the event into a request object. If the event does not match this route, this method MUST return null.
 		 */
 		function createRequest(event:Event):Object;
 

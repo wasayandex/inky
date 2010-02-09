@@ -133,7 +133,7 @@ package inky.routing.router
 			 	throw new Error(this.requestWrapper + " not found!");
 
 			var request:Object = new wrapper(wrappee);
-			
+
 			if (!(request is IRequestWrapper))
 				throw new Error(this.requestWrapper + " does not implement IRequestWrapper");
 
