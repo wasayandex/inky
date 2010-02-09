@@ -33,7 +33,7 @@ package inky.routing.router
 		/**
 		 *	
 		 */
-		function route(event:Event):Object;
+		function route(request:Object):Object;
 
 
 		/**

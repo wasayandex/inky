@@ -1,11 +1,12 @@
 package inky.routing.router 
 {
-	import inky.utils.Requirement;
+	import inky.utils.Conditions;
 	import flash.events.Event;
 	import inky.routing.request.StandardRequest;
 	import inky.app.inky;
 	import inky.utils.getClass;
 	import inky.routing.request.IRequestWrapper;
+	import inky.routing.router.IEventRoute;
 
 	
 	/**
@@ -19,21 +20,20 @@ package inky.routing.router
 	 *	@since  2009.09.24
 	 *
 	 */
-	public class Route implements IRoute
+	public class EventRoute implements IEventRoute
 	{
 		private var _defaults:Object;
 		private var _requestWrapper:Object;
-		private var _requirements:Object;
-		private var _requirementTester:Requirement;
-		private var _trigger:String;
+		private var _requirements:Conditions;
+		private var _triggers:Array;
 		
 		/**
 		 * 
 		 */
-		public function Route(trigger:String, defaults:Object = null, requirements:Object = null, requestWrapper:Object = null)
+		public function EventRoute(triggers:Object, requestWrapper:Object = null, defaults:Object = null, requirements:Object = null)
 		{
 			// Create the requirements object.
-			var requirements:Object = {};
+			var requirements:Object = requirements || {};
 			for (var requirementName:String in requirements)
 			{
 				var r:Object = requirements[requirementName];
@@ -47,10 +47,15 @@ package inky.routing.router
 				requirements[requirementName] = requirement;
 			}
 			
-			this._trigger = trigger;
+			if (triggers is Array)
+				this._triggers = triggers as Array;
+			else if (triggers is String)
+				this._triggers = [triggers];
+			else
+				throw new ArgumentError("The first argument of the EventRoute constructor must be either a String or Array of Strings.");
+
 			this._requestWrapper = requestWrapper;
-			this._requirements = requirements;
-			this._requirementTester = new Requirement(requirements);
+			this._requirements = new Conditions(requirements);
 			this._defaults = defaults || {};
 		}
 
@@ -63,7 +68,7 @@ package inky.routing.router
 
 
 		/**
-		 *
+		 * @inheritDoc
 		 */
 		public function get defaults():Object
 		{ 
@@ -72,19 +77,16 @@ package inky.routing.router
 
 
 		/**
-		 *	
+		 * @inheritDoc
 		 */
 		public function get requestWrapper():Object
 		{
-			if (!this._requestWrapper)
-				this._requestWrapper = StandardRequest;
-
 			return this._requestWrapper;
 		}
 
 
 		/**
-		 *
+		 * @inheritDoc
 		 */
 		public function get requirements():Object
 		{ 
@@ -93,11 +95,11 @@ package inky.routing.router
 
 
 		/**
-		 *	
+		 * @inheritDoc
 		 */
-		public function get trigger():String
+		public function get triggers():Array
 		{
-			return this._trigger;
+			return this._triggers;
 		}
 
 
@@ -111,14 +113,13 @@ package inky.routing.router
 		/**
 		 *	@inheritDoc
 		 */
-		public function createRequest(event:Event):Object
+		public function formatRequest(oldRequest:Object):Object
 		{
 			var request:Object;
-			if (this._trigger != event.type)
-				request = null;
+			if (oldRequest is Event && this._triggers.indexOf(oldRequest.type) != -1)
+				request = this.wrapRequest(oldRequest);
 			else
-				request = this.wrapRequest(event);
-
+				request = null;
 			return request;
 		}
 		
@@ -128,21 +129,28 @@ package inky.routing.router
 		 */
 		protected function wrapRequest(wrappee:Object):Object
 		{
-			var wrapper:Class = getClass(this.requestWrapper);
-			if (!wrapper)
-			 	throw new Error(this.requestWrapper + " not found!");
+			var request:Object;
+			
+			if (this.requestWrapper)
+			{
+				var wrapper:Class = getClass(this.requestWrapper);
+				if (!wrapper)
+			 		throw new Error(this.requestWrapper + " not found!");
 
-			var request:Object = new wrapper(wrappee);
+				request = new wrapper(wrappee);
 
-			if (!(request is IRequestWrapper))
-				throw new Error(this.requestWrapper + " does not implement IRequestWrapper");
+				if (!(request is IRequestWrapper))
+					throw new Error(this.requestWrapper + " does not implement IRequestWrapper");
+			}
+			else
+				request = wrappee;
 
 			for (var p:String in this.defaults)
 				if (request[p] == null)
 					request[p] = this.defaults[p];
 
 			// Make sure the params meet the requirements.
-			if (this._requirements && !this._requirementTester.test(request))
+			if (this._requirements && !this._requirements.test(request))
 				request = null;
 		
 			return request;

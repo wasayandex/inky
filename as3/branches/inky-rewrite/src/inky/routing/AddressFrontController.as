@@ -117,7 +117,7 @@ package inky.routing
 		/**
 		 * @inheritDoc
 		 */
-		public function initialize():void { SWFAddress.addEventListener(SWFAddressEvent.CHANGE, this.routeEvent); }
+		public function initialize():void { SWFAddress.addEventListener(SWFAddressEvent.CHANGE, this.handleRequest); }
 
 
 		/**
@@ -133,7 +133,7 @@ package inky.routing
 		/**
 		 *	@inheritDoc
 		 */
-		public function routeEvent(event:Event):void { this._frontController.routeEvent(event); }
+		public function handleRequest(request:Object):void { this._frontController.handleRequest(request); }
 
 
 

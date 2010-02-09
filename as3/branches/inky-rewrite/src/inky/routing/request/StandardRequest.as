@@ -23,7 +23,7 @@ package inky.routing.request
 		/**
 		 *
 		 */
-		public function StandardRequest(request:Object)
+		public function StandardRequest(request:Object = null)
 		{
 			this._wrap(request);
 		}
@@ -35,13 +35,19 @@ package inky.routing.request
 		 */
 		private function _wrap(request:Object):void
 		{
+			if (!request)
+				return;
+
 			// Perform the mapping.
+
+			var propName:String;
+			
 // FIXME: Yikes, this is some costly stuff. How to improve?
 			var typeDescription:XML = describeType(request);
 			var properties:XMLList = typeDescription.variable + typeDescription.accessor;
 			for each (var prop:XML in properties.(@type == "String" || @type == "Number" || @type == "Boolean" || @type == "uint" || @type == "int"))
 			{
-				var propName:String = prop.@name;
+				propName = prop.@name;
 				switch (propName)
 				{
 					case "eventPhase":
@@ -60,6 +66,10 @@ package inky.routing.request
 					}
 				}
 			}
+			
+			// Also map the enumerable properties.
+			for (propName in request)
+				this[propName] = request[propName];
 		}
 
 

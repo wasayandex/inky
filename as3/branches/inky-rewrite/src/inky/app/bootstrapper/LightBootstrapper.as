@@ -299,7 +299,6 @@ package inky.app.bootstrapper
 		 */
 		protected function onStartup():void
 		{
-			
 		}
 
 

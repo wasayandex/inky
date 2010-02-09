@@ -8,6 +8,7 @@ package inky.routing
 	import inky.routing.IFrontController;
 	import inky.routing.router.IRoute;
 	import inky.routing.router.IRouter;
+	import inky.routing.router.IEventRoute;
 
 
 	/**
@@ -71,17 +72,12 @@ package inky.routing
 				var dispatcher:IEventDispatcher;
 				if (this._router)
 				{
-// FIXME: what if dispatcher has changed?
-					for each (route in this._router.getRoutes())
-						for each (dispatcher in this._dispatchers)
-							dispatcher.removeEventListener(route.trigger, this.routeEvent);
-					this._router.removeEventListener(RouterEvent.ROUTE_ADDED, this._routeAddedHandler);
+throw new Error("You can't unset a router yet.");
 				}
 				if (value)
 				{
 					for each (route in value.getRoutes())
-						for each (dispatcher in this._dispatchers)
-							dispatcher.addEventListener(route.trigger, this.routeEvent, false, 0, true);
+						this.initializeRoute(route);
 					value.addEventListener(RouterEvent.ROUTE_ADDED, this._routeAddedHandler, false, 0, true);
 				}
 
@@ -106,21 +102,35 @@ throw new Error("Not yet implemented!");
 		}
 
 
+private var _count:int = 0;
+
 		/**
 		 *	@inheritDoc
 		 */
-		public function routeEvent(event:Event):void
+		public function handleRequest(unformattedRequest:Object):void
 		{
-			// Map the event to a request object.
-			var match:Object = this.router.route(event);
+this._count++;
+var count:int = this._count;
+			// Format the request object.
+			var match:Object = this.router.route(unformattedRequest);
 			if (match)
 			{
 				var route:IRoute = match.route;
 				var request:Object = match.request;
-
-				if (this.dispatchEvent(new RoutingEvent(RoutingEvent.REQUEST_ROUTED, event, route, request)))
-					this._callback(request);
+				this._callback(request);
 			}
+			else
+			{
+				this._callback(unformattedRequest);
+			}
+
+if (count == this._count)
+{
+	this._count = 0;
+	/*trace("last!>>>>>>>>>>>>>>>>>>>>>>");
+	import inky.utils.*;
+	trace(describeObject(unformattedRequest));*/
+}
 		}
 
 
@@ -136,11 +146,23 @@ throw new Error("Not yet implemented!");
 		 */
 		private function _routeAddedHandler(event:RouterEvent):void
 		{
-			for each (var dispatcher:IEventDispatcher in this._dispatchers)
-				dispatcher.addEventListener(event.route.trigger, this.routeEvent, false, 0, true);
+			this.initializeRoute(event.route);
 		}
 
 
+
+		/**
+		 * 
+		 */
+		protected function initializeRoute(route:IRoute):void
+		{
+			if (route is IEventRoute)
+			{
+				for each (var dispatcher:Object in this._dispatchers)
+					for each (var trigger:String in IEventRoute(route).triggers)
+						dispatcher.addEventListener(trigger, this.handleRequest);
+			}
+		}
 
 
 	}

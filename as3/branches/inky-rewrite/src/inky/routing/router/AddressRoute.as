@@ -4,6 +4,8 @@ package inky.routing.router
 	import inky.utils.CloningUtil;
 	import flash.events.Event;
 	import inky.routing.request.StandardRequest;
+	import inky.routing.router.EventRoute;
+	import inky.utils.Conditions;
 
 	
 	/**
@@ -17,7 +19,7 @@ package inky.routing.router
 	 *	@since  2009.09.28
 	 *
 	 */
-	public class AddressRoute extends Route
+	public class AddressRoute extends EventRoute
 	{
 		private var _dynamicSegmentNames:Array;
 		private var _pattern:String;
@@ -33,12 +35,12 @@ package inky.routing.router
 		/**
 		 *	
 		 */
-		public function AddressRoute(addressPattern:String, trigger:String, defaults:Object = null, requirements:Object = null, requestWrapper:Object = null)
+		public function AddressRoute(addressPattern:String, requestWrapper:Object = null, defaults:Object = null, requirements:Object = null)
 		{
-			super(trigger, defaults, requirements, requestWrapper);
-			
-			if (addressPattern == null || trigger == null)
-				throw new ArgumentError("AddressRoute requires an address and an event type. (A null value was provided)")
+			super("change", requestWrapper, defaults, requirements);
+
+			if (addressPattern == null)
+				throw new ArgumentError("AddressRoute requires an address. (A null value was provided)")
 			
 			this._patternSource = addressPattern;
 			this._createRegExp();
@@ -207,13 +209,13 @@ package inky.routing.router
 		/**
 		 *	@inheritDoc
 		 */
-		override public function createRequest(event:Event):Object
+		override public function formatRequest(oldRequest:Object):Object
 		{
 			var request:Object;
-			if (event is SWFAddressEvent && event.type == SWFAddressEvent.CHANGE)
-				request = this._matchAddress("#" + SWFAddressEvent(event).value);
-			else if (this.trigger == event.type)
-				request = event;
+			if (oldRequest is SWFAddressEvent && oldRequest.type == SWFAddressEvent.CHANGE)
+				request = this._matchAddress("#" + SWFAddressEvent(oldRequest).value);
+			else if (!this.requirements ||this.requirements.test(oldRequest))
+				request = oldRequest;
 			return request ? this.wrapRequest(request) : null;
 		}
 
@@ -328,7 +330,7 @@ package inky.routing.router
 
 			if (o)
 			{
-				request = new StandardRequest({});
+				request = new StandardRequest();
 				// add the default options to compensate for a
 				// route that has no dynamic segments, but could have
 				// implied options (as in the case of an overrideURL.)

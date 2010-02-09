@@ -19,7 +19,7 @@ package inky.routing.router
 		/**
 		 *	Converts the event into a request object. If the event does not match this route, this method MUST return null.
 		 */
-		function createRequest(event:Event):Object;
+		function formatRequest(oldRequest:Object):Object;
 
 
 		/**
@@ -33,11 +33,6 @@ package inky.routing.router
 		 */
 		function get requirements():Object;
 
-
-		/**
-		 *	
-		 */
-		function get trigger():String;
 
 		
 	}

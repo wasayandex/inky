@@ -35,7 +35,7 @@ package inky.routing
 		/**
 		 *	
 		 */
-		function routeEvent(event:Event):void;
+		function handleRequest(request:Object):void;
 
 
 		

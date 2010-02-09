@@ -1,6 +1,6 @@
-﻿package inky.utils 
+package inky.utils 
 {
-
+	import inky.utils.EqualityUtil;
 
 	/**
 	 *
@@ -15,7 +15,6 @@
 	 */
 	dynamic public class Conditions
 	{
-// TODO: Rename this?
 
 		/**
 		 *
@@ -30,20 +29,31 @@
 
 		/**
 		 *	
+		 *	
+		 *	
 		 */
-		public function test(testObject:Object):Boolean
+		public function test(testee:Object):Boolean
 		{
 			var matches:Boolean = true;
 
 			for (var prop:String in this)
 			{
-				var testValue:Object = this[prop];
-				if (testValue is Function)
-					matches = testValue(testObject[prop]);
-				else if (testValue is RegExp && testObject[prop] is String)
-					matches = testValue.test(testObject[prop]);
+				if (!testee.hasOwnProperty(prop))
+				{
+					matches = false;
+				}
 				else
-					matches = EqualityUtil.objectsAreEqual(testValue, testObject[prop]);
+				{
+					var tester:Object = this[prop];
+					if (tester is Conditions)
+						matches = tester.test(testee[prop]);
+					else if (tester is Function)
+						matches = tester(testee[prop]);
+					else if (tester is RegExp && testee[prop] is String)
+						matches = tester.test(testee[prop]);
+					else
+						matches = EqualityUtil.objectsAreEqual(tester, testee[prop]);
+				}
 				
 				if (!matches)
 					break;
@@ -53,9 +63,7 @@
 		}
 
 
-		/**
-		 *	
-		 */
+
 		private function _update(obj:Object, clear:Boolean = false):void
 		{
 			var prop:String;
@@ -70,7 +78,9 @@
 			}
 			
 			for (prop in obj)
+			{
 				this[prop] = obj[prop];
+			}
 		}
 
 
