@@ -1,6 +1,7 @@
-package inky.utils 
+package inky.conditions 
 {
 	import inky.utils.EqualityUtil;
+	import inky.conditions.ICondition;
 
 	/**
 	 *
@@ -13,13 +14,13 @@ package inky.utils
 	 *	@since  2009.06.30
 	 *
 	 */
-	dynamic public class Conditions
+	dynamic public class PropertyConditions implements ICondition
 	{
 
 		/**
 		 *
 		 */
-		public function Conditions(obj:Object = null)
+		public function PropertyConditions(obj:Object = null)
 		{
 			this._update(obj, false);
 		}
@@ -45,7 +46,7 @@ package inky.utils
 				else
 				{
 					var tester:Object = this[prop];
-					if (tester is Conditions)
+					if (tester is ICondition)
 						matches = tester.test(testee[prop]);
 					else if (tester is Function)
 						matches = tester(testee[prop]);

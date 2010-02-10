@@ -16,7 +16,6 @@ package inky.routing.events
 	 */
 	public class RoutingEvent extends Event
 	{
-		public var triggerEvent:Event;
 		public var route:IRoute;
 		public var request:Object;
 
@@ -52,10 +51,9 @@ package inky.routing.events
 		 *      The event type; indicates the action that caused the event.
 		 *
 		 */
-		public function RoutingEvent(type:String, triggerEvent:Event, route:IRoute, request:Object)
+		public function RoutingEvent(type:String, route:IRoute, request:Object)
 		{
 			super(type, false, true);
-			this.triggerEvent = triggerEvent;
 			this.route = route;
 			this.request = request;
 		}
@@ -73,7 +71,7 @@ package inky.routing.events
 		 */
 		override public function clone():Event
 		{
-			return new RoutingEvent(this.type, this.triggerEvent, this.route, this.request);
+			return new RoutingEvent(this.type, this.route, this.request);
 		}
 
 
@@ -82,7 +80,7 @@ package inky.routing.events
 		 */
 		public override function toString():String
 		{
-			return this.formatToString("RoutingEvent", "type", "triggerEvent", "route", "request");
+			return this.formatToString("RoutingEvent", "type", "route", "request");
 		}
 
 

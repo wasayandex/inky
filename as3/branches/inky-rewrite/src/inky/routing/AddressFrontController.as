@@ -1,16 +1,10 @@
 package inky.routing 
 {
-	import com.asual.swfaddress.SWFAddress;
-	import com.asual.swfaddress.SWFAddressEvent;
-	import flash.events.Event;
-	import inky.routing.router.AddressRoute;
-	import inky.utils.CloningUtil;
-	import inky.utils.EqualityUtil;
-	import flash.events.EventDispatcher;
 	import inky.routing.events.RoutingEvent;
-	import inky.routing.router.Router;
-	import inky.routing.router.IRoute;
 	import inky.routing.router.IRouter;
+	import inky.routing.FrontController;
+	import inky.routing.router.IAddressRoute;
+	import com.asual.swfaddress.SWFAddress;
 	
 	/**
 	 *
@@ -23,120 +17,56 @@ package inky.routing
 	 *	@since  2009.09.28
 	 *
 	 */
-	public class AddressFrontController extends EventDispatcher implements IFrontController
+	public class AddressFrontController extends FrontController
 	{
-		private var _frontController:IFrontController;
-		private var _lastAddress:String;
+		private var _addressRequest:Object;
+		private var _addressRoute:IAddressRoute;
+		private var _count:int = 0;
+		
+
+		public function AddressFrontController(dispatchers:Object, router:IRouter, callback:Function)
+		{
+			super(dispatchers, router, callback);
+			this.addEventListener(RoutingEvent.REQUEST_ROUTED, this._requestRoutedHandler);
+		}
 
 
 		/**
-		 *
+		 *	@inheritDoc
 		 */
-		public function AddressFrontController(frontController:IFrontController)
+		override public function handleRequest(request:Object):void
 		{
-			this._frontController = frontController;
-			
-			// Interrupt the normal flow to add browser address manipulation.
-			frontController.addEventListener(RoutingEvent.REQUEST_ROUTED, this._requestRoutedHandler);
+			// Maintain a recursion count. This way we only set the address once per stack.
+			this._count++;
+			var count:int = this._count;
 
-			// Relay all of the events from the decorated front controller.
-			this._setupEventRelaying([RoutingEvent.REQUEST_ROUTED]);
+			super.handleRequest(request);
+
+			// Set the address.
+			if (count == this._count)
+			{
+				this._count = 0;
+				if (this._addressRoute)
+				{
+					var address:String = this._addressRoute.generateAddress(this._addressRequest);
+trace(">>>>>>>>>>" + address);
+//					SWFAddress.setValue(address);
+					this._addressRequest =
+					this._addressRoute = null;
+				}
+			}
 		}
 
 
 
-
-		//
-		// private methods
-		//
-
-
-		/**
-		 *	This is the guts of the AddressFrontController. It interrupts the normal flow
-		 *  of the routing in order to change the address.
-		 */
 		private function _requestRoutedHandler(event:RoutingEvent):void
 		{
-			var request:Object = event.request;
-			var triggerEvent:Event = event.triggerEvent;
-			var route:IRoute = event.route;
-
-			// Prevent responding to the same request twice. (Routed events will trigger address changes which will trigger this to fire again.)
-			if (triggerEvent is SWFAddressEvent && triggerEvent.type == SWFAddressEvent.CHANGE && (this._lastAddress == SWFAddressEvent(triggerEvent).value))
+			if (event.route is IAddressRoute)
 			{
-				event.preventDefault();
-				return;
-			}
-
-			if (!(triggerEvent is SWFAddressEvent && triggerEvent.type == SWFAddressEvent.CHANGE) && route is AddressRoute)
-			{
-				// Update the address.
-				var address:String = AddressRoute(route).generateAddress(request).replace(/.*#/, "");
-
-				// Remember the address so we can prevent interpreting the same request twice.
-				this._lastAddress = address;
-
-				SWFAddress.setValue(address);
+				this._addressRoute = event.route as IAddressRoute;
+				this._addressRequest = event.request;
 			}
 		}
-
-
-
-
-		//
-		// event relaying
-		//
-
-
-		/**
-		 *	
-		 */
-		private function _relayEvent(event:Event):void
-		{
-			this.dispatchEvent(event.clone() as Event);
-		}
-
-
-		/**
-		 *	
-		 */
-		private function _setupEventRelaying(types:Array):void
-		{
-			for each (var type:String in types)
-				this._frontController.addEventListener(type, this._relayEvent);
-		}
-
-
-
-
-		//
-		// proxied to the decorated front controller
-		//
-
-
-		/**
-		 * @inheritDoc
-		 */
-		public function initialize():void { SWFAddress.addEventListener(SWFAddressEvent.CHANGE, this.handleRequest); }
-
-
-		/**
-		 *	@inheritDoc
-		 */
-		public function get router():IRouter { return this._frontController.router; }
-		/**
-		 *	@private
-		 */
-		public function set router(value:IRouter):void { this._frontController.router = value; }
-
-
-		/**
-		 *	@inheritDoc
-		 */
-		public function handleRequest(request:Object):void { this._frontController.handleRequest(request); }
-
-
-
 
 	}
 }

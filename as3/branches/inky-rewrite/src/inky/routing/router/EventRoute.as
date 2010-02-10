@@ -1,12 +1,11 @@
 package inky.routing.router 
 {
-	import inky.utils.Conditions;
 	import flash.events.Event;
-	import inky.routing.request.StandardRequest;
 	import inky.app.inky;
 	import inky.utils.getClass;
 	import inky.routing.request.IRequestWrapper;
 	import inky.routing.router.IEventRoute;
+	import inky.conditions.PropertyConditions;
 
 	
 	/**
@@ -24,7 +23,7 @@ package inky.routing.router
 	{
 		private var _defaults:Object;
 		private var _requestWrapper:Object;
-		private var _requirements:Conditions;
+		private var _requirements:PropertyConditions;
 		private var _triggers:Array;
 		
 		/**
@@ -55,7 +54,7 @@ package inky.routing.router
 				throw new ArgumentError("The first argument of the EventRoute constructor must be either a String or Array of Strings.");
 
 			this._requestWrapper = requestWrapper;
-			this._requirements = new Conditions(requirements);
+			this._requirements = new PropertyConditions(requirements);
 			this._defaults = defaults || {};
 		}
 

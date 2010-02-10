@@ -4,8 +4,8 @@ package inky.injection
 	import inky.injection.IInjector;
 	import flash.events.IEventDispatcher;
 	import flash.events.Event;
-	import inky.utils.Conditions;
-	import inky.utils.describeObject;
+	import inky.conditions.ICondition;
+	import inky.conditions.PropertyConditions;
 	
 	/**
 	 *
@@ -71,16 +71,24 @@ package inky.injection
 			{
 				var conditions:Object = filterInfo.conditions;
 				var adapter:IInjectionAdapter = filterInfo.adapter;
+				var meetsConditions:Boolean = false;
 				if (conditions is Function)
 				{
 					if (conditions.apply(null, [event]))
-						adapter.inject(event.target);
+						meetsConditions = true;
 				}
-				else
+				else if (conditions is ICondition)
 				{
-					if (new Conditions(conditions).test(event.target))
-						adapter.inject(event.target);
+					if (conditions.test(event.target))
+						meetsConditions = true;
 				}
+				else if (new PropertyConditions(conditions).test(event.target))
+				{
+						meetsConditions = true;
+				}
+				
+				if (meetsConditions)
+					adapter.inject(event.target);
 			}
 		}
 

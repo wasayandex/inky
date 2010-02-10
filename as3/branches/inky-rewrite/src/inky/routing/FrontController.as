@@ -2,7 +2,6 @@ package inky.routing
 {
 	import flash.events.IEventDispatcher;
 	import inky.routing.events.RouterEvent;
-	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import inky.routing.events.RoutingEvent;
 	import inky.routing.IFrontController;
@@ -24,9 +23,10 @@ package inky.routing
 	 */
 	public class FrontController extends EventDispatcher implements IFrontController
 	{
-		private var _callback:Function;
+		protected var _callback:Function;
 		private var _dispatchers:Array
 		private var _router:IRouter;
+		private static const MAX_ROUTE_RECURSION:uint = 100;
 
 
 		/**
@@ -102,35 +102,31 @@ throw new Error("Not yet implemented!");
 		}
 
 
-private var _count:int = 0;
-
 		/**
 		 *	@inheritDoc
 		 */
-		public function handleRequest(unformattedRequest:Object):void
+		public function handleRequest(request:Object):void
 		{
-this._count++;
-var count:int = this._count;
-			// Format the request object.
-			var match:Object = this.router.route(unformattedRequest);
-			if (match)
+			var recursionLevel:uint = 0;
+			var match:Object;
+			var routedRequest:Object = request;
+			var routes:Array = [];
+			while (match = this.router.route(routedRequest))
 			{
-				var route:IRoute = match.route;
-				var request:Object = match.request;
-				this._callback(request);
-			}
-			else
-			{
-				this._callback(unformattedRequest);
-			}
+				this.dispatchEvent(new RoutingEvent(RoutingEvent.REQUEST_ROUTED, match.route, match.request));
 
-if (count == this._count)
-{
-	this._count = 0;
-	/*trace("last!>>>>>>>>>>>>>>>>>>>>>>");
-	import inky.utils.*;
-	trace(describeObject(unformattedRequest));*/
-}
+				// If a route matches--but doesn't reformat--the request, stop looking for matches. (It would just cause an infinite loop.)
+				if (match.request == routedRequest)
+					break;
+
+				routedRequest = match.request;
+				routes.push(match.route);
+				if (recursionLevel > MAX_ROUTE_RECURSION)
+					throw new Error("Too much recursion. The request " + request + " is being routed circuitously through the following routes:\n\t" + routes.join("\n\t"));
+				recursionLevel++;
+			}
+			
+			this._callback(routedRequest);
 		}
 
 
@@ -148,7 +144,6 @@ if (count == this._count)
 		{
 			this.initializeRoute(event.route);
 		}
-
 
 
 		/**

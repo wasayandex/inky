@@ -2,10 +2,11 @@ package inky.routing.router
 {
 	import com.asual.swfaddress.SWFAddressEvent;
 	import inky.utils.CloningUtil;
-	import flash.events.Event;
 	import inky.routing.request.StandardRequest;
 	import inky.routing.router.EventRoute;
-	import inky.utils.Conditions;
+	import inky.conditions.ICondition;
+	import inky.conditions.Conditions;
+	import inky.routing.router.IAddressRoute;
 
 	
 	/**
@@ -19,13 +20,14 @@ package inky.routing.router
 	 *	@since  2009.09.28
 	 *
 	 */
-	public class AddressRoute extends EventRoute
+	public class AddressRoute extends EventRoute implements IAddressRoute
 	{
 		private var _dynamicSegmentNames:Array;
 		private var _pattern:String;
 		private var _patternSource:String;
 		private var _tokenizedPattern:Array;
 		private var _regExp:RegExp;
+		private var _requestCondition:ICondition;
 		
 		// Token types.
 		private static const TEXT:String = "text";
@@ -35,7 +37,7 @@ package inky.routing.router
 		/**
 		 *	
 		 */
-		public function AddressRoute(addressPattern:String, requestWrapper:Object = null, defaults:Object = null, requirements:Object = null)
+		public function AddressRoute(conditions:Object, addressPattern:String, requestWrapper:Object = null, defaults:Object = null, requirements:Object = null)
 		{
 			super("change", requestWrapper, defaults, requirements);
 
@@ -44,6 +46,7 @@ package inky.routing.router
 			
 			this._patternSource = addressPattern;
 			this._createRegExp();
+			this._requestCondition = conditions is ICondition ? conditions as ICondition : new Conditions(conditions);
 		}
 
 
@@ -97,9 +100,7 @@ package inky.routing.router
 
 
 		/**
-		 * Generates a url for this route using the provided options Object.
-		 * Returns the url associated with this Route, with the dynamic parts
-		 * replaced with the values in the options object.	
+		 * @inheritDoc
 		 */
 		public function generateAddress(options:Object = null):String
 		{
@@ -213,10 +214,16 @@ package inky.routing.router
 		{
 			var request:Object;
 			if (oldRequest is SWFAddressEvent && oldRequest.type == SWFAddressEvent.CHANGE)
+			{
 				request = this._matchAddress("#" + SWFAddressEvent(oldRequest).value);
-			else if (!this.requirements ||this.requirements.test(oldRequest))
+				if (request)
+					request = this.wrapRequest(request);
+			}
+			else if (this._requestCondition.test(oldRequest))
+			{
 				request = oldRequest;
-			return request ? this.wrapRequest(request) : null;
+			}
+			return request;
 		}
 
 
