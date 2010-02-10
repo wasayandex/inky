@@ -56,34 +56,9 @@ package inky.routing
 		/**
 		 * @inheritDoc
 		 */
-		public function get router():IRouter
-		{ 
-			return this._router; 
-		}
-		/**
-		 * @private
-		 */
-		public function set router(value:IRouter):void
-		{
-			if (value != this._router)
-			{
-				var trigger:String;
-				var route:IRoute;
-				var dispatcher:IEventDispatcher;
-				if (this._router)
-				{
-throw new Error("You can't unset a router yet.");
-				}
-				if (value)
-				{
-					for each (route in value.getRoutes())
-						this.initializeRoute(route);
-					value.addEventListener(RouterEvent.ROUTE_ADDED, this._routeAddedHandler, false, 0, true);
-				}
-
-				this._router = value;
-			}
-		}
+		public function get router():IRouter { return this._router; }
+		/** @private */
+		public function set router(value:IRouter):void { this._router = value; }
 
 
 
@@ -98,7 +73,11 @@ throw new Error("You can't unset a router yet.");
 		 */
 		public function initialize():void
 		{
-throw new Error("Not yet implemented!");
+			if (!this.router)
+				throw new Error("You must set a router before initializing the front controller.");
+
+			for each (var route:IRoute in this.router.getRoutes())
+				this.initializeRoute(route);
 		}
 
 

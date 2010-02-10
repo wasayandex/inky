@@ -4,8 +4,6 @@ package inky.routing.router
 	import inky.utils.CloningUtil;
 	import inky.routing.request.StandardRequest;
 	import inky.routing.router.EventRoute;
-	import inky.conditions.ICondition;
-	import inky.conditions.Conditions;
 	import inky.routing.router.IAddressRoute;
 
 	
@@ -27,7 +25,6 @@ package inky.routing.router
 		private var _patternSource:String;
 		private var _tokenizedPattern:Array;
 		private var _regExp:RegExp;
-		private var _requestCondition:ICondition;
 		
 		// Token types.
 		private static const TEXT:String = "text";
@@ -37,7 +34,7 @@ package inky.routing.router
 		/**
 		 *	
 		 */
-		public function AddressRoute(conditions:Object, addressPattern:String, requestWrapper:Object = null, defaults:Object = null, requirements:Object = null)
+		public function AddressRoute(addressPattern:String, requestWrapper:Object = null, defaults:Object = null, requirements:Object = null)
 		{
 			super("change", requestWrapper, defaults, requirements);
 
@@ -46,7 +43,6 @@ package inky.routing.router
 			
 			this._patternSource = addressPattern;
 			this._createRegExp();
-			this._requestCondition = conditions is ICondition ? conditions as ICondition : new Conditions(conditions);
 		}
 
 
@@ -218,10 +214,6 @@ package inky.routing.router
 				request = this._matchAddress("#" + SWFAddressEvent(oldRequest).value);
 				if (request)
 					request = this.wrapRequest(request);
-			}
-			else if (this._requestCondition.test(oldRequest))
-			{
-				request = oldRequest;
 			}
 			return request;
 		}
