@@ -16,13 +16,6 @@ package inky.routing.router
 	 */
 	public interface IRoute
 	{
-		/**
-		 *	Formats the request object. If the provided request doesn't match
-		 *  the route, this function returns null. If the request is already
-		 *  correctly formatted, the provided request is returned as is.
-		 */
-		function formatRequest(oldRequest:Object):Object;
-
 
 		/**
 		 *
@@ -36,7 +29,11 @@ package inky.routing.router
 		function get requirements():Object;
 
 
-		
+		/**
+		 *	Formats the request object. If the provided request doesn't match
+		 *  the route, this function returns null.
+		 */
+		function routeRequest(oldRequest:Object):Object;		
 	}
 	
 }

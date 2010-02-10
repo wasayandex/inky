@@ -68,7 +68,7 @@ package inky.routing.router
 			var request:Object;
 			for each (var route:IRoute in this._routes)
 			{
-				if ((request = route.formatRequest(oldRequest)))
+				if ((request = route.routeRequest(oldRequest)))
 // FIXME: I don't like returning this object. Is there any way we could just return the request? (The sticking point in that AddressFC needs the route to generate the URL)
 					return {route: route, request: request};
 			}

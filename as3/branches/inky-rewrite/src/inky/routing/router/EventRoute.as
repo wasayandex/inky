@@ -112,13 +112,11 @@ package inky.routing.router
 		/**
 		 *	@inheritDoc
 		 */
-		public function formatRequest(oldRequest:Object):Object
+		public function routeRequest(oldRequest:Object):Object
 		{
 			var request:Object;
 			if (oldRequest is Event && this._triggers.indexOf(oldRequest.type) != -1)
 				request = this.wrapRequest(oldRequest);
-			else
-				request = null;
 			return request;
 		}
 		

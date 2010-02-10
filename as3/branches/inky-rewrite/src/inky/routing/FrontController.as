@@ -94,10 +94,6 @@ package inky.routing
 			{
 				this.dispatchEvent(new RoutingEvent(RoutingEvent.REQUEST_ROUTED, match.route, match.request));
 
-				// If a route matches--but doesn't reformat--the request, stop looking for matches. (It would just cause an infinite loop.)
-				if (match.request == routedRequest)
-					break;
-
 				routedRequest = match.request;
 				routes.push(match.route);
 				if (recursionLevel > MAX_ROUTE_RECURSION)

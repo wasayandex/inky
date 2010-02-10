@@ -206,7 +206,7 @@ package inky.routing.router
 		/**
 		 *	@inheritDoc
 		 */
-		override public function formatRequest(oldRequest:Object):Object
+		override public function routeRequest(oldRequest:Object):Object
 		{
 			var request:Object;
 			if (oldRequest is SWFAddressEvent && oldRequest.type == SWFAddressEvent.CHANGE)
