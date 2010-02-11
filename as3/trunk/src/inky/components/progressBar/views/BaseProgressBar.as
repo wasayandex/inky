@@ -285,7 +285,7 @@ package inky.components.progressBar.views
 			// If the source is changed while the event is bubbling, you may
 			// get extra COMPLETE events, so check the source against
 			// the event's currentTarget.
-			if (e.currentTarget != this.source) return;
+			if (e && e.currentTarget != this.source) return;
 
 			this.dispatchEvent(new Event(Event.COMPLETE));
 		}
@@ -355,8 +355,11 @@ package inky.components.progressBar.views
 				case ProgressBarMode.MANUAL:
 					break;
 				case ProgressBarMode.POLLED:
-					this._timer.stop();
-					this._timer.removeEventListener(TimerEvent.TIMER, this._timerHandler);
+					if (this._timer)
+					{
+						this._timer.stop();
+						this._timer.removeEventListener(TimerEvent.TIMER, this._timerHandler);
+					}
 					break;
 			}
 		}
