@@ -86,22 +86,13 @@ package inky.routing
 		 */
 		public function handleRequest(request:Object):void
 		{
-			var recursionLevel:uint = 0;
-			var match:Object;
-			var routedRequest:Object = request;
-			var routes:Array = [];
-			while (match = this.router.route(routedRequest))
+			var match:Object = this.router.route(request);
+			if (match)
 			{
-				this.dispatchEvent(new RoutingEvent(RoutingEvent.REQUEST_ROUTED, match.route, match.request));
-
-				routedRequest = match.request;
-				routes.push(match.route);
-				if (recursionLevel > MAX_ROUTE_RECURSION)
-					throw new Error("Too much recursion. The request " + request + " is being routed circuitously through the following routes:\n\t" + routes.join("\n\t"));
-				recursionLevel++;
+				var event:RoutingEvent = new RoutingEvent(RoutingEvent.REQUEST_ROUTED, match.route, match.request);
+				if (this.dispatchEvent(event))
+					this._callback(match.request);
 			}
-			
-			this._callback(routedRequest);
 		}
 
 
