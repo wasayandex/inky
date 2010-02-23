@@ -1,15 +1,14 @@
-package inky.components.mapView.views 
+package inky.components.map.views 
 {
 	import flash.display.DisplayObject;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
-	import flash.geom.Rectangle;
 	import inky.collections.IList;
 	import inky.components.IButton;
-	import inky.components.mapView.views.IMapView;
-	import inky.components.mapView.views.IScrollableMapView;
+	import inky.components.map.views.IMapView;
+	import inky.components.map.views.IScrollableMapView;
 	import inky.components.scrollPane.views.IScrollPane;
 	
 	/**
@@ -37,32 +36,13 @@ package inky.components.mapView.views
 		
 		public function ScrollableMapView()
 		{
-			this.mapView = this.getChildByName("_mapView") as IMapView || this._checkForObject(IMapView) as IMapView;
-			this.scrollPane = this.getChildByName("_scrollPane") as IScrollPane || this._checkForObject(IScrollPane) as IScrollPane;
-			this.zoomInButton = this.getChildByName('_zoomInButton') as DisplayObject || null;			
-			this.zoomOutButton = this.getChildByName('_zoomOutButton') as DisplayObject || null;
-			
-			this.maximumZoom = 2;
-			this.minimumZoom = 1;
-			this._zoomInterval = .02;			
+			this._init();
 		}
 		
 		//
 		// accessors
 		//
-		
-		/**
-		 * @inheritDoc
-		 */
-		public function set mapView(value:IMapView):void
-		{
-			this.__mapView = value;
-		}
-		public function get mapView():IMapView
-		{
-			return this.__mapView;
-		}
-		
+			
 		/**
 		 * @inheritDoc
 		 */
@@ -110,19 +90,17 @@ package inky.components.mapView.views
 		{
 			this.__mapView.pointViewClass = value;
 		}
-
+		
 		/**
-		 * @inheritDoc
-		 */
-		public function set scrollPane(value:IScrollPane):void
+		*	@inheritDoc	
+		*/
+		public function get source():DisplayObject
 		{
-			this.__scrollPane = value;
-			this.__scrollPane.source = this.mapView;
-			this.__scrollPane.draggable = true;
+			return this.__mapView.source;
 		}
-		public function get scrollPane():IScrollPane
+		public function set source(value:DisplayObject):void
 		{
-			return this.__scrollPane;
+			this.__mapView.source = value;
 		}
 		
 		/**
@@ -163,28 +141,45 @@ package inky.components.mapView.views
 		// public functions
 		//
 		
-/**
-*	Shows the point on the map based on the model object passed as the parameter.
-*	
-*	@param value
-*		The model object of the point to show.
-*/
-public function showPointByModel(value:Object):void
-{
-	var point:DisplayObject = this.mapView.getPointByModel(value);	
-	if (point)
-	{
-		var p:Point = this.globalToLocal(new Point(point.x, point.y));
-		this.scrollPane.horizontalScrollPosition = p.x - 20;
-		this.scrollPane.verticalScrollPosition = p.y - 20;
-	}
+		/**
+		*	Shows the point on the map based on the model object passed as the parameter.
+		*	
+		*	@param value
+		*		The model object of the point to show.
+		*/
+		public function showPointByModel(value:Object):void
+		{
+			var point:DisplayObject = this.__mapView.getPointByModel(value);	
+			if (point)
+			{
+				var p:Point = this.globalToLocal(new Point(point.x, point.y));
+				this.__scrollPane.horizontalScrollPosition = p.x - 20;
+				this.__scrollPane.verticalScrollPosition = p.y - 20;
+			}
 	
-	this.mapView.showPointByModel(value);
-}
+			this.__mapView.showPointByModel(value);
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function getPointByModel(value:Object):DisplayObject
+		{
+			return this.__mapView.getPointByModel(value);
+		}
 		
 		//
 		// protected functions
 		//
+		
+		protected function getMapView():IMapView
+		{
+			return this.__mapView;
+		}
+		protected function getScrollPane():IScrollPane
+		{
+			return this.__scrollPane;
+		}
 		
 		/**
 		*	Scales the mapView based on the values of the two parameters. This is useful
@@ -195,15 +190,15 @@ public function showPointByModel(value:Object):void
 		*/
 		protected function scaleContent(scaleX:Number, scaleY:Number):void
 		{
-			this.mapView.scaleX = scaleX;
-			this.mapView.scaleY = scaleY;
-			this.scrollPane.update();
+			this.__mapView.scaleX = scaleX;
+			this.__mapView.scaleY = scaleY;
+			this.__scrollPane.update();
 		}
 				
 		//
 		// private functions
 		//
-		
+				
 		/**
 		*	Checks for an that is already on the stage based on it's DateType.
 		*	It returns either the object of that dataType or null.
@@ -224,6 +219,25 @@ public function showPointByModel(value:Object):void
 				}
 			}
 			return object;
+		}
+		
+		/**
+		*	Initialize tons of stuff for fun.	
+		*/
+		private function _init():void
+		{
+			this.__mapView = this.getChildByName("_mapView") as IMapView || this._checkForObject(IMapView) as IMapView;
+			
+			this.__scrollPane = this.getChildByName("_scrollPane") as IScrollPane || this._checkForObject(IScrollPane) as IScrollPane;
+			this.__scrollPane.source = this.__mapView;
+			this.__scrollPane.draggable = true;
+			
+			this.zoomInButton = this.getChildByName('_zoomInButton') as DisplayObject || null;			
+			this.zoomOutButton = this.getChildByName('_zoomOutButton') as DisplayObject || null;
+			
+			this.maximumZoom = 2;
+			this.minimumZoom = 1;
+			this._zoomInterval = .02;
 		}
 		
 		/**
@@ -249,20 +263,20 @@ public function showPointByModel(value:Object):void
 
 		private function _zoomHandler(event:Event):void
 		{	
-			var scaleX:Number = this.mapView.scaleX;
-			var scaleY:Number = this.mapView.scaleY;
+			var scaleX:Number = this.__mapView.scaleX;
+			var scaleY:Number = this.__mapView.scaleY;
 			
 			if (this._zoomState == "zoomIn")
 			{
 				scaleX += this._zoomInterval;
 				scaleY += this._zoomInterval;
-				this.scaleContent(scaleX >= this.maximumZoom ? this.mapView.scaleX : scaleX, scaleY >= this.maximumZoom ? this.mapView.scaleY : scaleY);
+				this.scaleContent(scaleX >= this.maximumZoom ? this.__mapView.scaleX : scaleX, scaleY >= this.maximumZoom ? this.__mapView.scaleY : scaleY);
 			}
 			else
 			{
 				scaleX -= this._zoomInterval;
 				scaleY -= this._zoomInterval;
-				this.scaleContent(scaleX <= this.minimumZoom ? this.mapView.scaleX : scaleX, scaleY <= this.minimumZoom ? this.mapView.scaleY : scaleY);
+				this.scaleContent(scaleX <= this.minimumZoom ? this.__mapView.scaleX : scaleX, scaleY <= this.minimumZoom ? this.__mapView.scaleY : scaleY);
 			}			
 		}				
 	}

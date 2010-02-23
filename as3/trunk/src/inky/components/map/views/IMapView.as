@@ -1,4 +1,4 @@
-package inky.components.mapView.views
+package inky.components.map.views
 {
 	import flash.display.DisplayObject;
 	import flash.geom.Point;
@@ -40,7 +40,7 @@ package inky.components.mapView.views
 		function get pointViewClass():Class;
 						
 		/**
-		*	Gets and Sets the source for the MapPane. This is the background of the map 
+		*	Gets and Sets the source for the MapView. This is the background of the map 
 		*	that is dragged and zoomed in and out. This only supports DisplayObjects.
 		*	
 		*	@param source

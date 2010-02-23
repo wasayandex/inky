@@ -165,10 +165,10 @@
 			}
 		}
 
-public function showItemAt(index:int):void
-{
-	
-}
+		public function showItemAt(index:int):void
+		{
+			this.selectedIndex = index;
+		}
 		
 		//
 		// protected methods

@@ -1,10 +1,11 @@
-package inky.components.mapView.views 
+package inky.components.map.views 
 {
 	import flash.display.DisplayObject;
 	import inky.collections.IList;
-	import inky.components.mapView.views.IMapView;
+	import inky.components.map.views.IMapView;
 	import inky.components.scrollPane.views.IScrollPane;
 	import inky.utils.IDisplayObject;
+	import inky.components.map.views.IMapView;
 
 	/**
 	 *
@@ -17,16 +18,8 @@ package inky.components.mapView.views
 	 *	@author Matthew Tretter
 	 *	
 	 */
-	public interface IScrollableMapView extends IDisplayObject
+	public interface IScrollableMapView extends IMapView
 	{
-
-		/**
-		*	Gets and Sets the mapview for the ScrollMapView.
-		*	
-		*	@param mapview
-		*/
-		function set mapView(value:IMapView):void;
-		function get mapView():IMapView;
 				
 		/**
 		*	Gets and Sets the maximum amount the MapView will be zoomed into. This correlates
@@ -47,31 +40,7 @@ package inky.components.mapView.views
 		*/
 		function set minimumZoom(value:Number):void;
 		function get minimumZoom():Number;
-				
-		/**	
-		*	Gets and Sets the model for the MapView. This model must be a MapModel.
-		*	
-		*	@param model
-		*/
-		function set model(value:IList):void;
-		function get model():IList;
-		
-		/**
-		*	Gets and Sets the PointViewClass for each point on the map.
-		*	
-		*	@param pointViewClass
-		*/
-		function get pointViewClass():Class;
-		function set pointViewClass(value:Class):void;
-		
-		/**
-		*	Gets and Sets the scrollpane.
-		*	
-		*	@param scrolPane
-		*/
-		function set scrollPane(value:IScrollPane):void;
-		function get scrollPane():IScrollPane;
-		
+								
 		/**
 		*	Gets and Sets the zoomInButton that can be any type of DisplayObject. 
 		*	This can also be an IButton. If it is then it's enabled property is automatically

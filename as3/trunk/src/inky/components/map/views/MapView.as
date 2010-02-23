@@ -1,4 +1,4 @@
-﻿package inky.components.mapView.views
+﻿package inky.components.map.views
 {
 	import flash.display.DisplayObject;
 	import flash.display.InteractiveObject;
@@ -7,7 +7,7 @@
 	import flash.events.MouseEvent;
 	import inky.collections.IList;
 	import inky.components.tooltip.ITooltip;
-	import inky.components.mapView.views.IMapView;
+	import inky.components.map.views.IMapView;
 	
 	/**
 	 *
@@ -63,7 +63,7 @@
 		}
 		public function set model(value:IList):void
 		{
-			this._model = value;
+			this._model = value;			
 			this._setContent();
 		}
 		
