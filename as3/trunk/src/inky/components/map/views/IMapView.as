@@ -23,8 +23,14 @@ package inky.components.map.views
 		// accessors
 		//
 		
+		/**
+		*	
+		*/
+		function get latLonBox():Object;
+		function set latLonBox(value:Object):void;
+		
 		/**	
-		*	Gets and Sets the model for the MapView. This model must be a MapModel.
+		*	Gets and Sets the model for the MapView. This model must be an IList.
 		*	
 		*	@param model
 		*/

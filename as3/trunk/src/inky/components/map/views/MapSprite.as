@@ -97,7 +97,9 @@ package inky.components.map.views
 			}
 			
 			this.categoryMode = documentModel.categories.length > 0;
+			this._mapView.latLonBox = documentModel.groundOverlay.latLonBox;
 			this._mapView.model = documentModel.placemarks;
+				
 			this.selectedDocumentChange();
 		}
 		

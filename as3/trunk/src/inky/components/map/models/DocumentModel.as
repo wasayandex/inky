@@ -22,7 +22,6 @@ package inky.components.map.models
 	dynamic public class DocumentModel extends EventDispatcher
 	{
 		private var _categories:ArrayList;
-		private var _groundOverlays:ArrayList;
 		private var _placemarks:ArrayList;
 		private var _selected:Boolean;
 		private var _selectedPlacemark:Object;
@@ -33,7 +32,6 @@ package inky.components.map.models
 		public function DocumentModel()
 		{
 			this._categories = new ArrayList();
-			this._groundOverlays = new ArrayList();
 			this._placemarks = new ArrayList();
 			this._placemarks.addEventListener(CollectionEvent.COLLECTION_CHANGE, this._collectionChangeHandler);
 		}
@@ -46,12 +44,6 @@ package inky.components.map.models
 		{
 			return this._categories;
 		}
-		
-		public function get groundOverlays():ArrayList
-		{
-			return this._groundOverlays;
-		}
-		
 		public function get placemarks():ArrayList
 		{
 			return this._placemarks;

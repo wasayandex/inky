@@ -179,7 +179,7 @@
 		*/
 		protected function moveItem(item:IAccordionItemView, position:Number):void
 		{
-			Tweener.addTween(item, {y: position, time: .5, transition: 'easeInOutQuad'});			
+			Tweener.addTween(item, {y: position, time: .5, transition: 'easeOutQuad'});			
 		}	
 			
 		//

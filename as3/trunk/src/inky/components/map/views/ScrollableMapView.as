@@ -42,6 +42,18 @@ package inky.components.map.views
 		//
 		// accessors
 		//
+		
+		/**
+		*	@inheritDoc
+		*/	
+		public function get latLonBox():Object
+		{
+			return this.__mapView.latLonBox;
+		}
+		public function set latLonBox(value:Object):void
+		{
+			this.__mapView.latLonBox = value;
+		}
 			
 		/**
 		 * @inheritDoc

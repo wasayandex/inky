@@ -24,7 +24,7 @@ package inky.components.map.parsers
 		
 		
 		public function parse(xml:XML):KMLModel
-		{		
+		{
 			var prop:Object;
 			var kmlModel:KMLModel = new KMLModel();
 			for each (var documentXML:XML in xml.Document)
@@ -40,8 +40,10 @@ package inky.components.map.parsers
 						groundOverlayModel[String(prop.localName())] = prop == "false" ? false : prop == "true" ? true : prop;
 					
 					var latLonBox:XML = groundOverlayXML.LatLonBox[0];
-					groundOverlayModel.latLonBox = {east: latLonBox.east, west: latLonBox.west, north: latLonBox.north, south: latLonBox.south};
-					documentModel.groundOverlays.addItem(groundOverlayModel);
+					if (latLonBox)
+						groundOverlayModel.latLonBox = {east: latLonBox.east, west: latLonBox.west, north: latLonBox.north, south: latLonBox.south};
+												
+					documentModel.groundOverlay = groundOverlayModel;
 				}
 			
 				var categoriesXML:XML = documentXML.categories[0];			
@@ -54,8 +56,7 @@ package inky.components.map.parsers
 
 					documentModel.categories.addItem(categoryModel);
 				}	
-			
-			
+	
 				for each (var placemarksXML:XML in documentXML.Placemark)
 				{
 					var placemarkModel:PlacemarkModel = new PlacemarkModel();
@@ -75,23 +76,23 @@ package inky.components.map.parsers
 								break;
 							case pointXML:
 								var splits:Array = pointXML.coordinates.toString().split(",");
-								placemarkModel.point = {x: Number(splits[0]), y: Number(splits[1])};
+								placemarkModel.coordinates = {long: Number(splits[0]), lat: Number(splits[1])};
 								break;
 							default:
 								placemarkModel[String(prop.localName())] = prop;
 								break;
 						}
 					}
+	
+	// Not really sure if this is best. Need to find a better way to handle this.
+	// Doing this because each CategoryModel needs a reference of what placemarks are associated with it.
+	categoryModel.placemarks.addItem(placemarkModel);
 					
-					// Not really sure if this is best. Need to find a better way to handle this.
-					// Doing this because each CategoryModel needs a reference of what placemarks are associated with it.
-					categoryModel.placemarks.addItem(placemarkModel);
 					documentModel.placemarks.addItem(placemarkModel);
 				}
-							
 				kmlModel.documents.addItem(documentModel);
 			}
-
+			
 			return kmlModel;
 		}
 

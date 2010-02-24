@@ -24,14 +24,15 @@
 	{
 		private var __tooltip:ITooltip;
 		private var _autoAdjustChildren:Boolean;
-		private var _bottomLeftPoint:Point;
-		private var _bottomRightPoint:Point;
+		private var _south:Point;
+		private var _east:Point;
 		private var _container:Sprite;
+		private var _latLonBox:Object;
 		private var _model:IList
 		private var _mouseEventType:String;
 		private var _pointViewClass:Class;
-		private var _topLeftPoint:Point;
-		private var _topRightPoint:Point;
+		private var _north:Point;
+		private var _west:Point;
 		private var _source:DisplayObject;
 		
 		public function MapView()
@@ -52,6 +53,18 @@
 		public function set autoAdjustChildren(value:Boolean):void
 		{
 			this._autoAdjustChildren = value;
+		}
+		
+		/**
+		*	@inheritDoc
+		*/	
+		public function get latLonBox():Object
+		{
+			return this._latLonBox;
+		}
+		public function set latLonBox(value:Object):void
+		{
+			this._latLonBox = value;
 		}
 		
 		/**
@@ -89,50 +102,26 @@
 		}
 
 		/**
-		*	
+		*	@inheritDoc	
 		*/
-		public function set bottomLeftPoint(value:Point):void
+		override public function set scaleX(value:Number):void
 		{
-			this._bottomLeftPoint = value;
+			if (this._autoAdjustChildren)
+			{
+				var scaleDifference:Number = (this.scaleX - value);
+				this._adjustScale("scaleX", scaleDifference);
+			}
+			super.scaleX = value;
 		}
-		public function get bottomLeftPoint():Point
+		override public function set scaleY(value:Number):void
 		{
-			return this._bottomLeftPoint = this._bottomLeftPoint || new Point(0, this._source.height);
+			if (this._autoAdjustChildren)
+			{
+				var scaleDifference:Number = (this.scaleY - value);
+				this._adjustScale("scaleY", scaleDifference);
+			}
+			super.scaleY = value;
 		}
-		
-		/**
-		*	
-		*/
-		public function set bottomRightPoint(value:Point):void
-		{
-			this._bottomRightPoint = value;
-		}
-		public function get bottomRightPoint():Point
-		{
-			return this._bottomRightPoint = this._bottomRightPoint || new Point(this._source.width, this._source.height);
-		}
-
-/**
-*	@inheritDoc	
-*/
-override public function set scaleX(value:Number):void
-{
-	if (this._autoAdjustChildren)
-	{
-		var scaleDifference:Number = (this.scaleX - value);
-		this._adjustScale("scaleX", scaleDifference);
-	}
-	super.scaleX = value;
-}
-override public function set scaleY(value:Number):void
-{
-	if (this._autoAdjustChildren)
-	{
-		var scaleDifference:Number = (this.scaleY - value);
-		this._adjustScale("scaleY", scaleDifference);
-	}
-	super.scaleY = value;
-}
 		
 		/**
 		*	@inheritDoc
@@ -149,31 +138,7 @@ override public function set scaleY(value:Number):void
 		{
 			return this._source;
 		}		
-		
-		/**
-		*	
-		*/
-		public function set topLeftPoint(value:Point):void
-		{
-			this._topLeftPoint = value;
-		}
-		public function get topLeftPoint():Point
-		{
-			return this._topLeftPoint = this._topLeftPoint || new Point(0, 0);
-		}
-		
-		/**
-		*	
-		*/
-		public function set topRightPoint(value:Point):void
-		{
-			this._topRightPoint = value;
-		}
-		public function get topRightPoint():Point
-		{
-			return this._topRightPoint = this._topRightPoint || new Point(this._source.width, 0);
-		}
-		
+				
 		//
 		// public functions
 		//
@@ -274,39 +239,20 @@ override public function set scaleY(value:Number):void
 			if (!this._pointViewClass) throw new Error("A PointViewClass is not set!");
 			if (!this._source) throw new Error("A source for MapView is not set!");
 			
-			var longitudeDifference:Number = Math.abs(this.topLeftPoint.x - this.topRightPoint.x);
-			var lattitudeDifference:Number = Math.abs(this.bottomLeftPoint.y - this.topLeftPoint.y);
+			var pointView;
+			var model:Object;
+			var longitudeDifference:Number = Math.abs(this.latLonBox.west) - Math.abs(this.latLonBox.east);
+			var lattitudeDifference:Number = Math.abs(this.latLonBox.north) - Math.abs(this.latLonBox.south);
 			
 			var length:int = this.model.length;
 			for (var i:int = 0; i < length; i++)
 			{
-				var pointView = new this._pointViewClass();
-				var model:Object = this.model.getItemAt(i);
-
-				if (model.hasOwnProperty("x"))
-				{
-					if (this.topLeftPoint.x == 0)
-					{
-				 		pointView.x = Number(model.x);
-					}
-					else
-					{
-						pointView.x = Math.abs((Number(model.x) - this.topLeftPoint.x) / longitudeDifference) * this._source.width;
-					}
-				}
+				pointView = new this._pointViewClass();
+				model = this.model.getItemAt(i);
+			
+				pointView.x = ((Math.abs(this.latLonBox.west) - Math.abs(model.coordinates.long)) / longitudeDifference) * this._source.width;
+				pointView.y = ((Math.abs(this.latLonBox.north) - Math.abs(model.coordinates.lat)) / lattitudeDifference) * this._source.height;
 				
-				if (model.hasOwnProperty("y")) 
-				{
-					if (this.topLeftPoint.y == 0)
-					{
-						pointView.y = Number(model.y);
-					}
-					else
-					{
-						pointView.y = Math.abs((Number(model.y) - this.topLeftPoint.y) / lattitudeDifference) * this._source.height;
-					}
-				}
-
 				if (pointView.hasOwnProperty("model"))
 					pointView.model = model;
 				
