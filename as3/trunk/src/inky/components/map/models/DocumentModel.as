@@ -11,7 +11,7 @@ package inky.components.map.models
 	/**
 	 *
 	 *  ..
-	 *	
+	 *
 	 * 	@langversion ActionScript 3
 	 *	@playerversion Flash 9.0.0
 	 *
@@ -35,11 +35,11 @@ package inky.components.map.models
 			this._placemarks = new ArrayList();
 			this._placemarks.addEventListener(CollectionEvent.COLLECTION_CHANGE, this._collectionChangeHandler);
 		}
-		
+
 		//
 		// accessors
 		//
-		
+
 		public function get categories():ArrayList
 		{
 			return this._categories;
@@ -48,13 +48,13 @@ package inky.components.map.models
 		{
 			return this._placemarks;
 		}
-		
+
 		/**
 		 *
 		 */
 		public function get selected():Boolean
-		{ 
-			return this._selected; 
+		{
+			return this._selected;
 		}
 		/**
 		 * @private
@@ -65,14 +65,14 @@ package inky.components.map.models
 			if (value != this._selected)
 			{
 				this._selected = value;
-				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "selected", oldValue, value));	
+				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "selected", oldValue, value));
 			}
 		}
-		
+
 		//
 		// private functions
 		//
-		
+
 		private function _collectionChangeHandler(event:CollectionEvent):void
 		{
 			var placemark:Object;
@@ -92,7 +92,7 @@ package inky.components.map.models
 				}
 			}
 		}
-		
+
 		/**
 		 *
 		 */
@@ -103,11 +103,11 @@ package inky.components.map.models
 				if (this._selectedPlacemark) this._selectedPlacemark.selected = false;
 				this._selectedPlacemark = event.currentTarget;
 				this._selectedPlacemark.selected = true;
-				
+
 				var id:Object = this.placemarks.getItemIndex(this._selectedPlacemark);
 				this.dispatchEvent(new MapEvent(MapEvent.SELECTED_PLACEMARK_CHANGE, false, true, id));
 			}
 		}
-		
+
 	}
 }

@@ -6,7 +6,7 @@ package inky.components.map.models
 	/**
 	 *
 	 *  ..
-	 *	
+	 *
 	 * 	@langversion ActionScript 3
 	 *	@playerversion Flash 9.0.0
 	 *
@@ -26,13 +26,13 @@ package inky.components.map.models
 		public function PlacemarkModel()
 		{
 		}
-		
+
 		/**
 		 *
 		 */
 		public function get selected():Boolean
-		{ 
-			return this._selected; 
+		{
+			return this._selected;
 		}
 		public function set selected(value:Boolean):void
 		{
@@ -40,22 +40,13 @@ package inky.components.map.models
 			if (value != this._selected)
 			{
 				this._selected = value;
-				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "selected", oldValue, value));	
+				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "selected", oldValue, value));
 			}
-		}
-		
-		public function get snippet():Object
-		{
-			return this._snippet;
-		}
-		public function set snippet(value:Object):void
-		{
-			this._snippet = value;
 		}
 
 		/**
 		*	Gets/Sets the point of where the Placemark should be position. Currently, supports (x, y) coordinantes.
-		*	
+		*
 		*/
 		public function get point():Object
 		{
@@ -67,4 +58,3 @@ package inky.components.map.models
 		}
 	}
 }
-
