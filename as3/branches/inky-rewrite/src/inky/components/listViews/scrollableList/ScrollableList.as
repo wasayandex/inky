@@ -11,6 +11,7 @@
 	import flash.display.DisplayObjectContainer;
 	import flash.events.Event;
 	import flash.utils.Dictionary;
+	import inky.components.scrollBar.views.IScrollBar;
 
 
 	/**
@@ -31,25 +32,24 @@
 		
 		private var __contentContainer:DisplayObjectContainer;
 		private var _firstVisibleItemIndex:int;
-		private var _itemViewClass:Class;
+		private var _rendererClass:Class;
 		private var _indexes2Items:Object;
 		private var _initializedForModel:Boolean;
 		private var _items2Indexes:Dictionary;
-		private var _model:IList;
+		private var _dataProvider:IList;
 		private var _numItemsFinallyVisible:uint;  // The number of items visible at max scroll position.
 		private var _orientation:String;
 		private var _positionCache:Array;
 		private var _unusedItems:Object;
-		private var _recycleItemViews:Boolean;
+		private var _recycleRenderers:Boolean;
 		private var _sizeCache:Array;
 		private var _spacing:Number;
 		private var _widthOrHeight:String;
 		private var _xOrY:String;
-// FIXME: When recycleItemViews == true, you can see model being reset on first item.  The class does this in order to calculate the total size, but it shouldn't use items that are on stage.
+// FIXME: When recycleRenderers == true, you can see dataProvider being reset on first item.  The class does this in order to calculate the total size, but it shouldn't use items that are on stage.
 // TODO: allow option that says the item views won't change size.  this way, you can calculate the container size using simple multiplication.
 
 		/**
-		 *
 		 *	
 		 */
 		public function ScrollableList()
@@ -57,45 +57,25 @@
 			this._init();
 		}
 
-
-
-
-		//
-		// accessors
-		//
-
+		//---------------------------------------
+		// ACCESSORS
+		//---------------------------------------
 
 		/**
 		 * @inheritDoc
 		 */
-		public function get itemViewClass():Class
+		public function get dataProvider():IList
 		{
-			return this._itemViewClass;
+			return this._dataProvider;
 		}
 		/**
 		 * @private
 		 */
-		public function set itemViewClass(itemViewClass:Class):void
+		public function set dataProvider(dataProvider:IList):void
 		{
-			this._itemViewClass = itemViewClass;
-		}
-
-
-		/**
-		 * @inheritDoc
-		 */
-		public function get model():IList
-		{
-			return this._model;
-		}
-		/**
-		 * @private
-		 */
-		public function set model(model:IList):void
-		{
-			if (!EqualityUtil.objectsAreEqual(model, this._model))
+			if (!EqualityUtil.objectsAreEqual(dataProvider, this._dataProvider))
 			{
-				this._model = model;
+				this._dataProvider = dataProvider;
 				this._firstVisibleItemIndex = -1;
 				this._unusedItems = {};
 				this._sizeCache = [];
@@ -107,9 +87,7 @@
 			}
 		}
 
-
 		/**
-		 *
 		 *	
 		 */
 		public function get orientation():String
@@ -147,20 +125,32 @@
 		/**
 		 *
 		 */
-		public function get recycleItemViews():Boolean
+		public function get recycleRenderers():Boolean
 		{ 
-			return this._recycleItemViews; 
+			return this._recycleRenderers; 
 		}
-		public function set recycleItemViews(value:Boolean):void
+		public function set recycleRenderers(value:Boolean):void
 		{
-			this._recycleItemViews = value;
+			this._recycleRenderers = value;
 		}
-
 
 		/**
-		 *
+		 * @inheritDoc
+		 */
+		public function get rendererClass():Class
+		{
+			return this._rendererClass;
+		}
+		/**
+		 * @private
+		 */
+		public function set rendererClass(rendererClass:Class):void
+		{
+			this._rendererClass = rendererClass;
+		}
+
+		/**
 		 * The number of pixels between each item.
-		 *
 		 */
 		public function get spacing():Number
 		{
@@ -175,38 +165,28 @@
 			this._invalidateAllPositions();
 		}
 
-
-
-
-		//
-		// public methods
-		//
-
+		//---------------------------------------
+		// PUBLIC METHODS
+		//---------------------------------------
 
 		/**
 		 *
-		 *	
 		 */
 		public function getItemPosition(index:int):Number
 		{
 			return this._getItemPosition(index);
 		}
 
-
 		/**
 		 *
-		 *	
 		 */
 		public function getItemSize(index:int):Number
 		{
 			return this._getItemSize(index);
 		}
 
-
 		/**
-		 *
 		 *	Invalidates the component, marking it for redrawing before the next frame.
-		 *	
 		 */
 		public function invalidate():void
 		{
@@ -220,24 +200,17 @@
 			}
 		}
 
-
 		/**
-		 *
 		 * Updates the contents of the container based on its position.
-		 *		
 		 */
 		public function redraw():void
 		{
-// TODO: redraw when the model is null.
+// TODO: redraw when the dataProvider is null.
 			if (!this.orientation)
-			{
 				throw new Error("You must set the orientation on your ScrollableList");
-			}
 
 			if (!this._initializedForModel)
-			{
 				this._initializeForModel();
-			}
 			
 			var firstVisibleItemIndex:int = this._firstVisibleItemIndex;
 			
@@ -255,7 +228,7 @@
 
 				if (this._getItemPosition(firstVisibleItemIndex) + this._getItemSize(firstVisibleItemIndex) + containerPosition < maskPosition)
 				{
-					while ((firstVisibleItemIndex< this.model.length) && (this._getItemPosition(firstVisibleItemIndex) + this._getItemSize(firstVisibleItemIndex) + containerPosition < maskPosition))
+					while ((firstVisibleItemIndex< this.dataProvider.length) && (this._getItemPosition(firstVisibleItemIndex) + this._getItemSize(firstVisibleItemIndex) + containerPosition < maskPosition))
 					{
 						firstVisibleItemIndex++;
 					}
@@ -273,24 +246,19 @@
 			this._redrawFrom(firstVisibleItemIndex);
 		}
 
-
 		/**
 		 * @inheritDoc
 		 */
 		public function showItemAt(index:int):void
 		{
 // TODO: is this the right way to handle this situation?
-if (!this.model) return;
+if (!this.dataProvider) return;
 
 			if (!this.orientation)
-			{
 				throw new Error("You must set the orientation on your ScrollableList");
-			}
 
-			if ((index < 0) || (index >= this.model.length))
-			{
+			if ((index < 0) || (index >= this.dataProvider.length))
 				throw new RangeError("The supplied index " + index + " is out of bounds.");
-			}
 
 			this._setScrollPosition(index);
 			var newPos:Object = {x: this.__contentContainer.x, y: this.__contentContainer.y};
@@ -298,15 +266,15 @@ if (!this.model) return;
 
 			if (!isNaN(index))
 			{
-				if (this.model != null)
+				if (this.dataProvider != null)
 				{
 					var target:Number = -this._getItemPosition(index);
 
 					// Make sure we don't scroll "past" the content.
-					if (index >= this.model.length - this._numItemsFinallyVisible)
+					if (index >= this.dataProvider.length - this._numItemsFinallyVisible)
 					{
 // FIXME: 
-						target = Math.max(target, mask[this._widthOrHeight] - this._getItemPosition(this.model.length - 1) - this._getItemSize(this.model.length - 1));
+						target = Math.max(target, mask[this._widthOrHeight] - this._getItemPosition(this.dataProvider.length - 1) - this._getItemSize(this.dataProvider.length - 1));
 					}
 					newPos[this._xOrY] = Math.min(0, target);
 				}
@@ -316,7 +284,6 @@ if (!this.model) return;
 			this.invalidate();
 		}
 
-
 		/**
 		 * @inheritDoc
 		 */	
@@ -324,13 +291,9 @@ if (!this.model) return;
 		{
 		}
 
-
-
-
-		//
-		// protected methods
-		//
-
+		//---------------------------------------
+		// PROTECTED METHODS
+		//---------------------------------------
 
 		/**
 		 *
@@ -342,18 +305,12 @@ if (!this.model) return;
 if (!this.orientation) return;
 			var index:Number = Math.round(this._getScrollPosition());
 			if (!isNaN(index))
-			{
 				this.showItemAt(index);
-			}
 		}
 
-
-
-
-		//
-		// private methods
-		//
-
+		//---------------------------------------
+		// PRIVATE METHODS
+		//---------------------------------------
 
 		/**
 		 *
@@ -366,22 +323,19 @@ if (!this.orientation) return;
 			}
 		}
 
-
 		/**
-		 *
 		 * Gets an instance of the item view class to be used for the provided
 		 * index.
 		 *	
 		 * @param index
 		 *     the index of the item
 		 * @param markAsUsed
-		 *	
 		 */
-		private function _getItemFor(index:int):Object
+		private function _getRendererFor(index:int):Object
 		{
 			var listItem:Object = this._indexes2Items[index] || this._unusedItems[index];
 
-			if (!listItem && this.recycleItemViews)
+			if (!listItem && this.recycleRenderers)
 			{
 				// Recycle the first unused item.
 				for (var p:String in this._unusedItems)
@@ -396,18 +350,15 @@ if (!this.orientation) return;
 			// If there are no unused items to recycle, create a new one.
 			if (!listItem)
 			{
-				listItem = new this._itemViewClass();
+				listItem = new this._rendererClass();
 				this._unusedItems[index] = listItem;
 			}
 
 			return listItem;
 		}
 
-
 		/**
-		 *
 		 * Gets the position of an item at a particular index.
-		 *	
 		 */
 		private function _getItemPosition(index:int):Number
 		{
@@ -424,7 +375,7 @@ er = 2;
 er = 3;
 					position = this._indexes2Items[index] ? this._indexes2Items[index][this._xOrY] : 0;
 				}
-				else if ((index < this._firstVisibleItemIndex) && (index < this.model.length))
+				else if ((index < this._firstVisibleItemIndex) && (index < this.dataProvider.length))
 				{
 er = 4;
 					position = this._getItemPosition(index + 1) - this._getItemSize(index) - this._spacing;
@@ -442,33 +393,35 @@ er = 6;
 er = 7;
 				this._positionCache[index] = position;
 			}
-}catch(f){trace("TELL MATTHEW YOU SAW THIS ERROR NUMBER: " +er)}
+}catch(f){trace("TELL MATTHEW YOU SAW THIS ERROR NUMBER: " + er)}
 			return position;
 		}
 
-
 		/**
-		 *
 		 * Gets the size of an item at a particular index.
-		 *	
 		 */
 		private function _getItemSize(index:int):Number
 		{
 			var size:Number = this._sizeCache[index];
 			if (isNaN(size))
 			{
-				var item:Object = this._getItemFor(index);
-				if (!EqualityUtil.objectsAreEqual(item.model, this.model.getItemAt(index)))
-				{
-					item.model = this.model.getItemAt(index);
-				}
-				size = item[this._widthOrHeight];
+				var renderer:Object = this._getRendererFor(index);
+				if (!EqualityUtil.objectsAreEqual(renderer.model, this.dataProvider.getItemAt(index)))
+					renderer.model = this.dataProvider.getItemAt(index);
+				size = renderer[this._widthOrHeight];
 				this._sizeCache[index] = size;
 			}
 
 			return size;
 		}
 
+		/**
+		 *
+		 */
+		private function _getScrollBar():IScrollBar
+		{
+			return this[this._orientation + "ScrollBar"];
+		}
 
 		/**
 		 *
@@ -478,15 +431,12 @@ er = 7;
 			return this[this._orientation + "ScrollPosition"];
 		}
 
-
 		/**
-		 *
 		 *	Called by the constructor.
-		 *	
 		 */
 		private function _init():void
 		{
-			this._recycleItemViews = true;
+			this._recycleRenderers = true;
 			this._spacing = 0;
 			
 			if (this.horizontalScrollBar && this.verticalScrollBar)
@@ -496,22 +446,20 @@ er = 7;
 			}
 
 			if (this.horizontalScrollBar)
-			{
 				this.orientation = HORIZONTAL;
-			}
 			else if (this.verticalScrollBar)
-			{
 				this.orientation = VERTICAL;
-			}
 
 			this.__contentContainer = this.getContentContainer();
 			this.__contentContainer.addEventListener(LayoutEvent.INVALIDATE, this._itemInvalidatedHandler);
 		}
 
-
+		/**
+		 * 
+		 */
 		private function _initializeForModel():void
 		{
-			if (!this.model) 
+			if (!this.dataProvider) 
 				return;
 			
 			this._updateLayout();
@@ -519,17 +467,14 @@ er = 7;
 			this._initializedForModel = true;
 		}
 
-
 		/**
 		 *
-		 *	
 		 */
 		private function _invalidate(e:Event = null):void
 		{
 			this.stage.addEventListener(Event.RENDER, this._redraw, false, 0, true);
 			this.stage.invalidate();
 		}
-
 
 		/**
 		 *
@@ -540,10 +485,8 @@ er = 7;
 			this.invalidate();
 		}
 
-
 		/**
 		 *
-		 *	
 		 */
 		private function _itemInvalidatedHandler(e:LayoutEvent):void
 		{
@@ -556,10 +499,8 @@ er = 7;
 			}
 		}
 
-
 		/**
 		 *
-		 *	
 		 */
 		private function _invalidateItemSize(item:Object):void
 		{
@@ -571,10 +512,8 @@ er = 7;
 			}
 		}
 
-
 		/**
 		 *
-		 *	
 		 */
 		private function _invalidateItemSizeAt(item:Object, index:int):void
 		{
@@ -599,9 +538,7 @@ er = 7;
 			this.invalidate();
 		}
 
-
 		/**
-		 *
 		 *	
 		 */
 		private function _markItemUnused(item:Object, index:int):void
@@ -611,7 +548,6 @@ er = 7;
 			this._unusedItems[index] = item;
 		}
 
-
 		/**
 		 *
 		 */
@@ -620,15 +556,12 @@ er = 7;
 			if (e)
 				e.currentTarget.removeEventListener(e.type, arguments.callee);
 
-			if (this.model || this._initializedForModel)
+			if (this.dataProvider || this._initializedForModel)
 				this.redraw()
 		}
 
-
 		/**
-		 *
 		 *	A helper method for redraw(). Do not call this method directly.
-		 *	
 		 */
 		private function _redrawFrom(startIndex:int):void
 		{
@@ -652,20 +585,16 @@ er = 7;
 			}
 
 			// Add and position items as needed.
-			while (index < this.model.length)
+			while (index < this.dataProvider.length)
 			{
-				listItem = this._getItemFor(index);
+				listItem = this._getRendererFor(index);
 
-				var model:Object = this.model.getItemAt(index);
+				var model:Object = this.dataProvider.getItemAt(index);
 				if (!EqualityUtil.objectsAreEqual(listItem.model, model))
-				{
 					listItem.model = model;
-				}
 
 				if (listItem.parent != this.__contentContainer)
-				{
 					this.__contentContainer.addChild(listItem as DisplayObject);
-				}
 
 				listItem.visible = true;
 
@@ -684,9 +613,7 @@ er = 7;
 
 				// If we have enough items to fill the entire viewable area (even when the first item is scrolling out), stop.
 				if (pos - this._getItemPosition(startIndex + 1) > maskSize)
-				{
 					break;
-				}
 
 				index++;
 			}
@@ -710,9 +637,7 @@ er = 7;
 			}
 		}
 
-
 		/**
-		 *
 		 *	
 		 */
 		private function _setScrollPosition(index:int):void
@@ -720,7 +645,6 @@ er = 7;
 			var capProp:String = this._orientation == "horizontal" ? "Horizontal" : "Vertical";
 			this[this._orientation + "ScrollPosition"] = Math.min(index, this["max" + capProp + "ScrollPosition"]);
 		}
-
 
 		/**
 		 *	Updates the ScrollPane layout.
@@ -732,7 +656,7 @@ er = 7;
 			var maskSize:Number = mask[this._widthOrHeight];
 			var numItems:int = 0;
 			var combinedSize:Number = 0;
-			var j:int = this.model.length - 1;
+			var j:int = this.dataProvider.length - 1;
 
 			while ((j >= 0) && (combinedSize < maskSize))
 			{
@@ -748,36 +672,30 @@ er = 7;
 			}
 		}
 
-
 		/**
-		 *
 		 * Updates the appearance of the scroll bars based on the combined size
 		 * of the items in the list and the scroll policy.
-		 *	
 		 */
 		private function _updateScrollBar():void
 		{
-			if (model)
+			if (this.dataProvider)
 			{
 				var mask:DisplayObject = this.getScrollMask();
+				var scrollBar:IScrollBar = this._getScrollBar();
 // TODO: Instead use this.maxHorizontalScrollPosition and horizontalPageSize
-				if (this[this._orientation + "ScrollBar"])
+				if (scrollBar)
 				{
-					this[this._orientation + "ScrollBar"].maxScrollPosition = this.model.length - this._numItemsFinallyVisible + 1;
-					this[this._orientation + "ScrollBar"].pageSize = this._numItemsFinallyVisible;
+					scrollBar.maxScrollPosition = this.dataProvider.length - this._numItemsFinallyVisible + 1;
+					scrollBar.pageSize = this._numItemsFinallyVisible;
 				}
-				var contentSize:Number = this._getItemSize(this._model.length - 1) + this._getItemPosition(this._model.length - 1);
+				var contentSize:Number = this._getItemSize(this._dataProvider.length - 1) + this._getItemPosition(this._dataProvider.length - 1);
 			
-				this[this._orientation + "ScrollBar"].enabled = contentSize > mask[this._widthOrHeight];
+				scrollBar.enabled = contentSize > mask[this._widthOrHeight];
 
 				if (this[this._orientation + "ScrollPolicy"] == ScrollPolicy.AUTO)
-				{
-					this[this._orientation + "ScrollBar"].visible = this[this._orientation + "ScrollBar"].enabled;
-				}
+					scrollBar.visible = scrollBar.enabled;
 				else
-				{
-					this[this._orientation + "ScrollBar"].visible = this[this._orientation + "ScrollPolicy"] == ScrollPolicy.ON;
-				}	
+					scrollBar.visible = this[this._orientation + "ScrollPolicy"] == ScrollPolicy.ON;
 			}
 		}
 

@@ -20,20 +20,20 @@
 		/**
 		 *
 		 */
-		function get model():IList;
+		function get dataProvider():IList;
 		/**
 		 * @private
 		 */
-		function set model(model:IList):void;
+		function set dataProvider(value:IList):void;
 		
 		/**
 		 *
 		 */
-		function get itemViewClass():Class;
+		function get rendererClass():Class;
 		/**
 		 * @private
 		 */
-		function set itemViewClass(itemViewClass:Class):void;
+		function set rendererClass(rendererClass:Class):void;
 
 
 		/**

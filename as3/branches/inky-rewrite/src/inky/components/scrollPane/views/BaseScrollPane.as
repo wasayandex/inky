@@ -41,6 +41,7 @@
 	{
 		private var __content:DisplayObject;
 		private var __contentContainer:Sprite;
+		private var _contentContainerProxy:Object;
 		private var _horizontalLineScrollSize:Number;
 		private var _horizontalPageScrollSize:Number;
 		private var _horizontalScrollPosition:Number;
@@ -56,13 +57,8 @@
 		private var _source:Object;
 		private var __verticalScrollBar:IScrollBar;
 		private var _verticalScrollPolicy:String;
-		private var _draggable:Boolean;
-private var _dragPoint:Sprite;
-private var _oldMouseXPosition:Number;
-private var _oldMouseYPosition:Number;
 		
 		/**
-		 *
 		 * Creates a new BaseScrollPane instance. If the symbol attached to this
 		 * class has children named "_horizontalScrollBar" and/or
 		 * "_verticalScrollBar", they will be passed to the scroll bar setters.
@@ -70,20 +66,15 @@ private var _oldMouseYPosition:Number;
 		 * ScrollPane's content. If it has a child named "_mask", it will be
 		 * used as the mask; otherwise the Shape object of the highest index in
 		 * the display list will be used.		 		 		 		 		 
-		 *
 		 */		 		 		 		
 		public function BaseScrollPane()
 		{
 			this._init();
 		}
 
-
-
-
-		//
-		// accessors
-		//
-
+		//---------------------------------------
+		// GETTER / SETTERS
+		//---------------------------------------
 
 		/**
 		 * @inheritDoc
@@ -93,6 +84,20 @@ private var _oldMouseYPosition:Number;
 			return this.__content;
 		}
 
+		/**
+		 * An object that stands in for the content container in the moveContent function. For example, if you set this property to a GTween's proxy, you can get easing pretty easily.
+		 */
+		public function get contentContainerProxy():Object
+		{ 
+			return this._contentContainerProxy; 
+		}
+		/**
+		 * @private
+		 */
+		public function set contentContainerProxy(value:Object):void
+		{
+			this._contentContainerProxy = value;
+		}
 
 		/**
 		 * @inheritDoc
@@ -115,7 +120,6 @@ private var _oldMouseYPosition:Number;
 			}
 		}
 
-
 		/**
 		 * @inheritDoc
 		 */
@@ -137,7 +141,6 @@ private var _oldMouseYPosition:Number;
 			}
 		}
 
-
 		/**
 		 * @inheritDoc
 		 */
@@ -145,7 +148,6 @@ private var _oldMouseYPosition:Number;
 		{
 			return this.__horizontalScrollBar;
 		}
-
 
 		/**
 		 * @inheritDoc
@@ -162,7 +164,6 @@ private var _oldMouseYPosition:Number;
 			this._horizontalScrollPolicy = horizontalScrollPolicy;
 			this.update();
 		}
-
 
 		/**
 		 * @inheritDoc
@@ -186,7 +187,6 @@ private var _oldMouseYPosition:Number;
 			}
 		}
 
-
 		/**
 		 * @inheritDoc
 		 */
@@ -207,7 +207,6 @@ private var _oldMouseYPosition:Number;
 				this.update();
 			}
 		}
-
 
 		/**
 		 * @inheritDoc
@@ -230,7 +229,6 @@ private var _oldMouseYPosition:Number;
 			}
 		}
 		
-
 		/**
 		 * @inheritDoc
 		 */
@@ -282,9 +280,7 @@ private var _oldMouseYPosition:Number;
 			}
 
 			if (content is TextField)
-			{
-				(content as TextField).mouseWheelEnabled = false;
-			}
+				TextField(content).mouseWheelEnabled = false;
 
 			this._source = source;
 			this.__content = content;
@@ -302,7 +298,6 @@ private var _oldMouseYPosition:Number;
 			this.update();
 		}
 		
-		
 		/**
 		 * @inheritDoc
 		 */
@@ -317,25 +312,6 @@ private var _oldMouseYPosition:Number;
 		{
 			this.__contentContainer.cacheAsBitmap = useBitmapScrolling;
 		}
-
-		
-		/**
-		 * @inheritDoc
-		 */
-		public function set draggable(draggable:Boolean):void
-		{
-			this._draggable = draggable;
-			this._dragPoint = new Sprite();
-			
-			if (draggable) this.source.addEventListener(MouseEvent.MOUSE_DOWN, this._draggableMouseHandler);
-			else this.source.removeEventListener(MouseEvent.MOUSE_DOWN, this._draggableMouseHandler);
-			this.update();
-		}
-		public function get draggable():Boolean
-		{
-			return this._draggable;
-		}
-
 
 		/**
 		 * @inheritDoc
@@ -358,7 +334,6 @@ private var _oldMouseYPosition:Number;
 			}
 		}
 		
-		
 		/**
 		 * @inheritDoc
 		 */
@@ -380,7 +355,6 @@ private var _oldMouseYPosition:Number;
 			}
 		}
 		
-		
 		/**
 		 * @inheritDoc
 		 */
@@ -388,7 +362,6 @@ private var _oldMouseYPosition:Number;
 		{
 			return this.__verticalScrollBar;
 		}
-
 
 		/**
 		 * @inheritDoc
@@ -405,7 +378,6 @@ private var _oldMouseYPosition:Number;
 			this._verticalScrollPolicy = verticalScrollPolicy;
 			this.update();
 		}
-
 
 		/**
 		 * @inheritDoc
@@ -428,13 +400,9 @@ private var _oldMouseYPosition:Number;
 			}
 		}
 
-
-
-
-		//
-		// public methods
-		//
-		
+		//---------------------------------------
+		// PUBLIC METHODS
+		//---------------------------------------
 		
 		/**
 		 * @inheritDoc
@@ -444,10 +412,8 @@ private var _oldMouseYPosition:Number;
 			this._loader = this._loader || new Loader();
 
 			if (this._loader.content)
-			{
 				this._loader.unload();
-			}
-			
+
 			this._loader.load(request, context);
 			this._loader.contentLoaderInfo.addEventListener(Event.COMPLETE, this._completeHandler);
 			this._loader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, this._progressHandler);
@@ -463,19 +429,6 @@ private var _oldMouseYPosition:Number;
 			var bounds:Rectangle = this.__contentContainer.getBounds(this.__contentContainer);
 			var contentHeight:Number = bounds.height + bounds.y;
 			var contentWidth:Number = bounds.width + bounds.x;
-			
-			if (this.draggable)
-			{							
-				if (this.verticalScrollBar)
-				{
-					this.maxVerticalScrollPosition = contentHeight - this.__mask.height;
-				}
-				
-				if (this.horizontalScrollBar)
-				{
-					this.maxHorizontalScrollPosition = contentWidth - this.__mask.width;
-				}
-			}
 
 			if (this.verticalScrollBar)
 			{
@@ -483,13 +436,9 @@ private var _oldMouseYPosition:Number;
 				this.maxVerticalScrollPosition = Math.max(contentHeight - this.__mask.height, 0);
 
 				if (this.verticalScrollPolicy == ScrollPolicy.AUTO)
-				{
 					this.verticalScrollBar.visible = this.verticalScrollBar.enabled;
-				}
 				else
-				{
 					this.verticalScrollBar.visible = this.verticalScrollPolicy == ScrollPolicy.ON;
-				}
 			}
 			if (this.horizontalScrollBar)
 			{
@@ -497,85 +446,18 @@ private var _oldMouseYPosition:Number;
 				this.maxHorizontalScrollPosition = Math.max(contentWidth - this.__mask.width, 0);
 
 				if (this.horizontalScrollPolicy == ScrollPolicy.AUTO)
-				{
 					this.horizontalScrollBar.visible = this.horizontalScrollBar.enabled;
-				}
 				else
-				{
 					this.horizontalScrollBar.visible = this.horizontalScrollPolicy == ScrollPolicy.ON;
-				}
 			}
 		}
 
-
-
-
-		//
-		// protected methods
-		//
-
-
-		/**
-		 *
-		 * Provides access to the sprite that holds the ScrollPane's content.
-		 * This method can be used by subclasses that want to provide custom
-		 * scrolling motion.
-		 * 
-		 * @return
-		 *     The Sprite that contains the content of the ScrollPane		 		 		 		 		 
-		 *
-		 */
-		protected function getContentContainer():DisplayObjectContainer
-		{
-			return this.__contentContainer as DisplayObjectContainer;
-		}
-
-
-		/**
-		 * @inheritDoc
-		 */
-		protected function getScrollMask():DisplayObject
-		{
-			return this.__mask;
-		}
-
-
-		/**
-		 *
-		 * Moves the ScrollPane's content. Called as a result of ScrollEvents.
-		 * Subclasses can override this method to provide custom scrolling
-		 * motion.		 		 
-		 * 
-		 * @param x
-		 *     The x coordinate to which the content should be moved
-		 * @param y
-		 *     The y coordinate to which the content should be moved		 		 		 		 		 		 		 
-		 *
-		 */
-		protected function moveContent(x:Number, y:Number):void
-		{
-			var contentContainer:DisplayObjectContainer = this.getContentContainer();
-			if (this.verticalScrollBar || this.draggable)
-			{
-				contentContainer.y = y;
-			}
-			if (this.horizontalScrollBar || this.draggable)
-			{
-				contentContainer.x = x;
-			}
-		}
-
-
-
-
-		//
-		// private methods
-		//
-
+		//---------------------------------------
+		// PRIVATE METHODS
+		//---------------------------------------
 
 		/**
 		 *	Initializes the Scrollpane's values and components
-		 * 	
 		 */
 		private function _init():void
 		{
@@ -616,57 +498,8 @@ private var _oldMouseYPosition:Number;
 			this._initChildren();
 		}
 
-
 		/**
-		 *	This function is called when the user performs a mouse down or mouse up on the content 
-		 *	only if the BaseScrollPane's draggable is set to true.
-		 *	
-		 */
-		private function _draggableMouseHandler(e:MouseEvent):void
-		{									
-			switch (e.type)
-			{
-				case MouseEvent.MOUSE_DOWN:																							
-					var dragBounds:Rectangle = new Rectangle();
-					var containerBounds:Rectangle = this.getContentContainer().getBounds(this);
-					var maskBounds:Rectangle = this.getScrollMask().getBounds(this);
-
-					dragBounds.width = containerBounds.width - maskBounds.width;
-					dragBounds.height = containerBounds.height - maskBounds.height;
-					dragBounds.x = -dragBounds.width;
-					dragBounds.y = -dragBounds.height;
-
-					this._dragPoint.x = containerBounds.x;
-					this._dragPoint.y = containerBounds.y;
-					this._dragPoint.startDrag(false, dragBounds);
-			
-					this._oldMouseXPosition = this.stage.mouseX;
-					this._oldMouseYPosition = this.stage.mouseY;
-			
-					this.stage.addEventListener(MouseEvent.MOUSE_MOVE, this._mouseMoveHandler);
-					this.stage.addEventListener(MouseEvent.MOUSE_UP, this._draggableMouseHandler);
-					break;
-				case MouseEvent.MOUSE_UP:
-					this._dragPoint.stopDrag();
-									
-					this.stage.removeEventListener(MouseEvent.MOUSE_MOVE, this._mouseMoveHandler);
-					this.stage.removeEventListener(MouseEvent.MOUSE_UP, this._draggableMouseHandler);
-					break;
-			}
-		}
-
-		/**
-		 *		
-		 */
-		private function _mouseMoveHandler(e:MouseEvent):void
-		{
-			this.dragHandler();
-		}
-
-		/**
-		 *
 		 * Initializes the ScrollPane onces its source has completed loading.
-		 *
 		 */
 		private function _completeHandler(e:Event):void
 		{
@@ -675,12 +508,9 @@ private var _oldMouseYPosition:Number;
 			this.dispatchEvent(e);
 		}
 
-
 		/**
-		 *
 		 * Initializes the horizontal scrollbar, vertical scrollbar, and content
 		 * of the ScrollPane, if they are on stage and have the correct names.		 
-		 *
 		 */
 		private function _initChildren():void
 		{
@@ -724,16 +554,11 @@ private var _oldMouseYPosition:Number;
 			// If the ScrollPane has a _content clip, use it as the source.
 			var tmp:DisplayObject;
 			if ((tmp = this.getChildByName('_content')))
-			{
 				this.source = tmp;
-			}
 		}	
 
-
 		/**
-		 *
 		 * Handles the mouse wheel events.
-		 *
 		 */
 		private function _mouseWheelHandler(e:MouseEvent):void
 		{			
@@ -746,23 +571,17 @@ private var _oldMouseYPosition:Number;
 				this.horizontalScrollPosition -= e.delta / 3 * (this.horizontalLineScrollSize || this.horizontalPageScrollSize || this.horizontalScrollBar.pageSize);
 			}
 		}
-		
-		
+
 		/**
-		 *
 		 * Relays progress events.
-		 *
 		 */
 		private function _progressHandler(e:ProgressEvent):void
 		{
 			this.dispatchEvent(e);
 		}
 
-
 		/**
-		 *
 		 * Moves the content when the scroll event is dispatched.
-		 *
 		 */
 		private function _scrollHandler(e:ScrollEvent):void
 		{
@@ -770,36 +589,59 @@ private var _oldMouseYPosition:Number;
 			this.dispatchEvent(e);
 		}
 
+		//---------------------------------------
+		// PROTECTED METHODS
+		//---------------------------------------
 
-//!TODO: Need to add support for when there are no scrollbars
-protected function dragHandler():void
-{									
-	this.horizontalScrollPosition -= (this.stage.mouseX - this._oldMouseXPosition);			
-	this.verticalScrollPosition -= (this.stage.mouseY - this._oldMouseYPosition);
-	
-	this._oldMouseXPosition = this.stage.mouseX;
-	this._oldMouseYPosition = this.stage.mouseY;
-	
-	if (this.horizontalScrollBar || this.horizontalScrollBar)
-		this._scrollAndDragHandler();
-	else
-		this.moveContent(this._dragPoint.x, this._dragPoint.y);
-}
-		
-		private function _scrollAndDragHandler():void
+		/**
+		 * 
+		 */
+		protected function scrollHandler(e:ScrollEvent):void
 		{
 			var x:Number = this.horizontalScrollBar ? -this.horizontalScrollPosition : this.__contentContainer.x;
 			var y:Number = this.verticalScrollBar ? -this.verticalScrollPosition : this.__contentContainer.y;
 			this.moveContent(x, y);
 		}
 
-
-
-		protected function scrollHandler(e:ScrollEvent):void
+		/**
+		 * Provides access to the sprite that holds the ScrollPane's content.
+		 * This method can be used by subclasses that want to provide custom
+		 * scrolling motion.
+		 * 
+		 * @return
+		 *     The Sprite that contains the content of the ScrollPane		 		 		 		 		 
+		 */
+		protected function getContentContainer():DisplayObjectContainer
 		{
-			this._scrollAndDragHandler();
+			return this.__contentContainer as DisplayObjectContainer;
 		}
 
+		/**
+		 * @inheritDoc
+		 */
+		protected function getScrollMask():DisplayObject
+		{
+			return this.__mask;
+		}
+
+		/**
+		 * Moves the ScrollPane's content. Called as a result of ScrollEvents.
+		 * Subclasses can override this method to provide custom scrolling
+		 * motion.		 		 
+		 * 
+		 * @param x
+		 *     The x coordinate to which the content should be moved
+		 * @param y
+		 *     The y coordinate to which the content should be moved		 		 		 		 		 		 		 
+		 */
+		protected function moveContent(x:Number, y:Number):void
+		{
+			var obj:Object = this.contentContainerProxy || this.getContentContainer();
+			if (this.verticalScrollBar)
+				obj.y = y;
+			if (this.horizontalScrollBar)
+				obj.x = x;
+		}
 
 
 
