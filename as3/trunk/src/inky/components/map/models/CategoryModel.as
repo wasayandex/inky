@@ -54,18 +54,6 @@ package inky.components.map.models
 			}
 		}
 		
-		/**
-		*	Can be any type of object. Usually used to hold any miscellaneous information.	
-		*/
-		public function get snippet():Object
-		{
-			return this._snippet;
-		}
-		public function set snippet(value:Object):void
-		{
-			this._snippet = value;
-		}
-		
 	}
 }
 

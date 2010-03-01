@@ -771,11 +771,10 @@ er = 7;
 					var contentSize:Number = this._getItemSize(this._model.length - 1) + this._getItemPosition(this._model.length - 1);
 
 					scrollBar.enabled = contentSize > mask[this._widthOrHeight];
-
-					if (scrollBar == ScrollPolicy.AUTO)
+					if (this[this._orientation + "ScrollPolicy"] == ScrollPolicy.AUTO)
 						scrollBar.visible = scrollBar.enabled;
 					else
-						scrollBar.visible = scrollBar == ScrollPolicy.ON;
+						scrollBar.visible = this[this._orientation + "ScrollPolicy"] == ScrollPolicy.ON;
 				}
 			}
 		}
