@@ -1,7 +1,7 @@
-package inky.components.scrollPane.views
+package inky.components.scrollPane
 {
 	import inky.utils.IDisplayObject;
-	import inky.components.scrollBar.views.IScrollBar;
+	import inky.components.scrollBar.IScrollBar;
 	import flash.display.DisplayObject;
 	import flash.net.URLRequest;
 	import flash.system.LoaderContext;

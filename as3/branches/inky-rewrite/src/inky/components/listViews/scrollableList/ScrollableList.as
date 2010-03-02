@@ -1,7 +1,7 @@
 ﻿package inky.components.listViews.scrollableList
 {
 	import inky.collections.*;
-	import inky.components.scrollPane.views.BaseScrollPane;
+	import inky.components.scrollPane.BaseScrollPane;
 	import inky.components.scrollBar.ScrollPolicy;
 	import inky.components.listViews.IListView;
 	import inky.components.scrollBar.events.ScrollEvent;
@@ -11,7 +11,7 @@
 	import flash.display.DisplayObjectContainer;
 	import flash.events.Event;
 	import flash.utils.Dictionary;
-	import inky.components.scrollBar.views.IScrollBar;
+	import inky.components.scrollBar.IScrollBar;
 
 
 	/**

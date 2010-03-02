@@ -1,8 +1,8 @@
-﻿package inky.components.scrollBar.views
+﻿package inky.components.scrollBar
 {
 	import inky.binding.events.PropertyChangeEvent;
 	import inky.binding.utils.BindingUtil;
-	import inky.components.scrollBar.views.IScrollBar;
+	import inky.components.scrollBar.IScrollBar;
 	import inky.components.scrollBar.ScrollBarDirection;
 	import inky.components.scrollBar.events.ScrollEvent;
 	import inky.utils.DragUtil;

@@ -1,4 +1,4 @@
-﻿package inky.components.scrollBar.views
+﻿package inky.components.scrollBar
 {
 	import inky.utils.IDisplayObject;
 

@@ -1,9 +1,9 @@
-﻿package inky.components.scrollPane.views
+﻿package inky.components.scrollPane
 {
 	import inky.binding.utils.BindingUtil;
 	import inky.binding.events.PropertyChangeEvent;
-	import inky.components.scrollPane.views.IScrollPane;
-	import inky.components.scrollBar.views.IScrollBar;
+	import inky.components.scrollPane.IScrollPane;
+	import inky.components.scrollBar.IScrollBar;
 	import inky.components.scrollBar.ScrollBarDirection;
 	import inky.components.scrollBar.ScrollPolicy;
 	import inky.components.scrollBar.events.ScrollEvent;
