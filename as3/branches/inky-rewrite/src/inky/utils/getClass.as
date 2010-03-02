@@ -25,6 +25,10 @@ package inky.utils
 			{
 			}
 		}
+		else
+		{
+			throw new ArgumentError("Argument must be of type String or Class");
+		}
 
 		return cls;
 	}
