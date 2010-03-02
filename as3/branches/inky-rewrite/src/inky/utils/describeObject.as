@@ -8,7 +8,7 @@ package inky.utils
 	 */
 	public function describeObject(object:Object, deep:Boolean = false):String
 	{
-		return DescribeObjectUtil.getObjectDescription(object, deep);
+		return DescribeObjectHelper.getObjectDescription(object, deep);
 	}
 
 
@@ -19,18 +19,31 @@ package inky.utils
 
 import flash.utils.describeType;
 import flash.utils.getQualifiedClassName;
+import inky.utils.UIDUtil;
 
-class DescribeObjectUtil
+class DescribeObjectHelper
 {
 
 
 	/**
 	 * 
 	 */
-	public static function getObjectDescription(object:Object, deep:Boolean = false, nestLevel:int = 0):String
+	public static function getObjectDescription(object:Object, deep:Boolean = false, nestLevel:int = 0, describedObjects:Object = null):String
 	{
 		if (_objIsPrimitive(object))
 			return String(object);
+
+		var uid:String = UIDUtil.getUID(object);
+		var uidString:String = "(uid:" + uid + ")";
+		
+		if (describedObjects && describedObjects[uid])
+			return "<Reference to object with uid " + uid + ">";
+
+		if (deep)
+		{
+			describedObjects = describedObjects || {};
+			describedObjects[uid] = true;
+		}
 
 		var propertyDescriptions:Array = [];
 		
@@ -43,7 +56,7 @@ class DescribeObjectUtil
 		{
 			var propName:String = prop.@name;
 			if (!readProperties[propName] && !prop.@access.length() || (prop.@access.toString().indexOf("read") != -1))
-				propertyDescriptions.push(_getPropertyDescription(object, prop.@name, deep, nestLevel + 1));
+				propertyDescriptions.push(_getPropertyDescription(object, prop.@name, deep, nestLevel + 1, describedObjects));
 			readProperties[propName] = true;
 		}
 
@@ -51,12 +64,12 @@ class DescribeObjectUtil
 		for (var p:String in object)
 		{
 			if (!readProperties[p])
-				propertyDescriptions.push(_getPropertyDescription(object, p, deep, nestLevel + 1));
+				propertyDescriptions.push(_getPropertyDescription(object, p, deep, nestLevel + 1, describedObjects));
 			readProperties[p] = true;
 		}
 		
 		var output:String;
-		var className:String = getQualifiedClassName(object);
+		var className:String = getQualifiedClassName(object) +  " " + uidString;
 		
 		if (propertyDescriptions.length)
 		{
@@ -84,14 +97,14 @@ class DescribeObjectUtil
 	/**
 	 * 
 	 */
-	private static function _getPropertyDescription(object:Object, propName:String, deep:Boolean, nestLevel:int):String
+	private static function _getPropertyDescription(object:Object, propName:String, deep:Boolean, nestLevel:int, describedObjects:Object):String
 	{
 		var propValue:* = object[propName];
 		var valueDescription:String;
 		if (!deep || _objIsPrimitive(propValue))
 			valueDescription = String(propValue);
 		else
-			valueDescription = getObjectDescription(object[propName], deep, nestLevel);
+			valueDescription = getObjectDescription(object[propName], deep, nestLevel, describedObjects);
 		return _getIndentation(nestLevel) + propName + ":\t" + valueDescription;
 	}
 
