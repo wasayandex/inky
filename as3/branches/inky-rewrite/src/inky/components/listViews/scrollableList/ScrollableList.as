@@ -83,6 +83,7 @@
 				this._items2Indexes = new Dictionary(true);
 				this._positionCache = [];
 				this._initializedForModel = false;
+				this._setScrollPosition(0);
 				this.invalidate();	
 			}
 		}
