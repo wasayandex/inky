@@ -76,13 +76,12 @@ package inky.components.map.parsers
 								break;
 							case pointXML:
 								var splits:Array = pointXML.coordinates.toString().split(",");
-								placemarkModel.coordinates = {long: Number(splits[0]), lat: Number(splits[1])};
-
-								/*if (pointXML.hasOwnProperty("offset"))
-								{
-									var offSetSplits:Array = pointXML.offSet.toString().split(",");
-									placemarkModel.offSet = {x: Number(offSetSplits[0]), y: Number(offSetSplits[1])};
-								}*/
+								if (splits.length > 1)
+									placemarkModel.coordinates = {long: Number(splits[0]), lat: Number(splits[1])};
+								else 	
+									placemarkModel.coordinates = {long: 0, lat: 0};
+									
+								placemarkModel.offSet = {x: parseInt(pointXML.coordinates.@x || "0"), y: parseInt(pointXML.coordinates.@y || "0")};
 								break;
 							default:
 								placemarkModel[String(prop.localName())] = prop;

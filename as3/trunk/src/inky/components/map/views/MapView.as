@@ -259,14 +259,17 @@
 				pointView = new this._pointViewClass();
 				model = this.model.getItemAt(i);
 
-				pointView.x = ((Math.abs(this.latLonBox.west) - Math.abs(model.coordinates.long)) / longitudeDifference) * this._source.width;
-				pointView.y = ((Math.abs(this.latLonBox.north) - Math.abs(model.coordinates.lat)) / lattitudeDifference) * this._source.height;
+				if (model.coordinates.long != 0)
+					pointView.x = ((Math.abs(this.latLonBox.west) - Math.abs(model.coordinates.long)) / longitudeDifference) * this._source.width;
+					
+				if (model.coordinates.lat != 0)
+					pointView.y = ((Math.abs(this.latLonBox.north) - Math.abs(model.coordinates.lat)) / lattitudeDifference) * this._source.height;
 
-				/*if (model.hasOwnProperty("offSet"))
+				if (model.hasOwnProperty("offSet"))
 				{
 					pointView.x += model.offSet.x;
 					pointView.y += model.offSet.y;
-				}*/
+				}
 
 				if (pointView.hasOwnProperty("model"))
 					pointView.model = model;
