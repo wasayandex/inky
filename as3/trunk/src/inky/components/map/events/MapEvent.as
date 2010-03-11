@@ -17,8 +17,6 @@ package inky.components.map.events
 	{
 		public static const SELECTED_DOCUMENT_CHANGE:String = "selectedDocumentChange";
 		public static const SELECTED_PLACEMARK_CHANGE:String = "selectedPlacemarkChange";
-
-		public var id:Object;
 		
 		/**
 		 *  Constructor.
@@ -31,9 +29,8 @@ package inky.components.map.events
 		 *      Specifies whether the behavior associated with the event can be prevented.
 		 *
 		 */
-		public function MapEvent(type:String, bubbles:Boolean = false, cancelable:Boolean = true, id:Object = null)
+		public function MapEvent(type:String, bubbles:Boolean = false, cancelable:Boolean = true)
 		{
-			this.id = id;
 			super(type, bubbles, cancelable);		
 		}
 
@@ -50,7 +47,7 @@ package inky.components.map.events
 		 */
 		override public function clone():Event
 		{
-			return new MapEvent(this.type, this.bubbles, this.cancelable, this.id);
+			return new MapEvent(this.type, this.bubbles, this.cancelable);
 		}
 
 
@@ -59,7 +56,7 @@ package inky.components.map.events
 		 */
 		public override function toString():String
 		{
-			return this.formatToString("MapEvent", "type", "bubbles", "cancelable", this.id);
+			return this.formatToString("MapEvent", "type", "bubbles", "cancelable");
 		}
 
 

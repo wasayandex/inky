@@ -1,13 +1,12 @@
 package inky.components.map.views
 {
 	import flash.display.Sprite;
-	import inky.components.listViews.IListView;
 	import inky.components.map.models.KMLModel;
 	import inky.components.map.models.DocumentModel;
-	import inky.components.map.views.IMapView;
-	import inky.components.map.events.MapEvent;
-	import inky.components.accordion.views.IAccordionItemView;
-	import inky.utils.IDisplayObject;
+	import inky.components.map.models.PlacemarkModel;
+	import inky.binding.utils.BindingUtil;
+	import inky.binding.events.PropertyChangeEvent;
+	import inky.utils.EqualityUtil;
 	
 	/**
 	 *
@@ -22,9 +21,6 @@ package inky.components.map.views
 	 */
 	public class MapSprite extends Sprite
 	{
-		private var _categoryMode:Boolean;
-		private var _listView:IListView;
-		private var _mapView:IMapView;
 		private var _model:KMLModel;
 		
 		/**
@@ -32,32 +28,14 @@ package inky.components.map.views
 		 */
 		public function MapSprite()
 		{
-			for (var i:int = 0; i < this.numChildren; i++)
-			{
-				var child:Object = this.getChildAt(i) as Object;
-				if (child is IMapView)
-					this._mapView = child as IMapView;
-								
-				if (child is IListView)
-					this._listView = child as IListView;
-					
-				if (this._listView && this._mapView)
-					break;
-			}
+			BindingUtil.bindSetter(this._selectedDocumentChangeHandler, this, ["model", "selectedDocumentModel"]);
+			BindingUtil.bindSetter(this._placemarkChangeHandler, this, ["model", "selectedPlacemarkModel"]);
 		}
 
 		//
 		// accessors
 		//
-		
-		/**
-		*	Sets the categoryMode for the MapSprite. By default this is set to true
-		*/
-		public function set categoryMode(value:Boolean):void
-		{
-			this._categoryMode = value;
-		}
-		
+				
 		/**
 		*	Get/Set the model for the MapSprite. By default this must be a KMLModel object.
 		*/
@@ -67,8 +45,12 @@ package inky.components.map.views
 		}
 		public function set model(value:KMLModel):void
 		{
-			this._model = value;			
-			this.model.addEventListener(MapEvent.SELECTED_DOCUMENT_CHANGE, this._selectedDocumentChangeHandler);					
+			var oldModel:KMLModel = this._model;
+			if (!EqualityUtil.objectsAreEqual(oldModel, value))
+			{
+				this._model = value;			
+				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, 'model', oldModel, value));
+			}
 		}
 		
 		//
@@ -87,34 +69,13 @@ package inky.components.map.views
 		// private functions
 		//
 		
-		private function _selectedDocumentChangeHandler(event:MapEvent):void
-		{
-			var documentModel:DocumentModel = this.model.selectedDocument;
-			if (this._listView)
-			{
-				documentModel.addEventListener(MapEvent.SELECTED_PLACEMARK_CHANGE, this._placemarkChangeHandler);						
-				this._listView.model = documentModel.categories;
-			}
-			
-			this.categoryMode = documentModel.categories.length > 0;
-			this._mapView.latLonBox = documentModel.groundOverlay.latLonBox;
-			this._mapView.model = documentModel.placemarks;
-				
+		private function _selectedDocumentChangeHandler(value:DocumentModel):void
+		{			
 			this.selectedDocumentChange();
 		}
 		
-		private function _placemarkChangeHandler(event:MapEvent):void
+		private function _placemarkChangeHandler(value:PlacemarkModel):void
 		{
-			var id:int = int(event.id);
-			var placemark:Object = this.model.selectedDocument.placemarks.getItemAt(id);
-
-			if (this._categoryMode)
-			{
-				id = int(placemark.id);
-				this._listView.showItemAt(id);
-			}
-
-			this._mapView.showPointByModel(placemark);
 			this.selectedPlacemarkChange();
 		}		
 	}
