@@ -50,11 +50,6 @@
 		// accessors
 		//
 
-		public function set autoAdjustChildren(value:Boolean):void
-		{
-			this._autoAdjustChildren = value;
-		}
-
 		/**
 		*	@inheritDoc
 		*/
@@ -100,29 +95,7 @@
 		{
 			this._pointViewClass = value;
 		}
-
-		/**
-		*	@inheritDoc
-		*/
-		override public function set scaleX(value:Number):void
-		{
-			if (this._autoAdjustChildren)
-			{
-				var scaleDifference:Number = (this.scaleX - value);
-				this._adjustScale("scaleX", scaleDifference);
-			}
-			super.scaleX = value;
-		}
-		override public function set scaleY(value:Number):void
-		{
-			if (this._autoAdjustChildren)
-			{
-				var scaleDifference:Number = (this.scaleY - value);
-				this._adjustScale("scaleY", scaleDifference);
-			}
-			super.scaleY = value;
-		}
-
+		
 		/**
 		*	@inheritDoc
 		*/
@@ -142,6 +115,27 @@
 		//
 		// public functions
 		//
+
+		/**
+		*	Adjusts the scale of the children according to the current scale of the MapView	
+		*	
+		*	@param value
+		*		[scaleX, scaleY]
+		*/
+		public function adjustChildren(value:Array):void
+		{
+			var scaleDifference:Number;
+						
+			//Adjust the scaleX
+			scaleDifference = (this.scaleX - value[0]);
+			this._adjustScale("scaleX", scaleDifference);
+
+			scaleDifference = (this.scaleY - value[1]);
+			this._adjustScale("scaleY", scaleDifference);
+			
+			this.scaleX = value[0];
+			this.scaleY = value[1];
+		}
 
 		/**
 		*	@inheritDoc
@@ -211,10 +205,11 @@
 					child[property] = scale;
 				}
 			}
+			
 			if (this.__tooltip)
 			{
 				scale = this.__tooltip[property] + scaleDifference;
-				if (scale < .5) scale = .5;
+				if (scale < .35) scale = .35;
 				else if (scale > 1) scale = 1;
 
 				this.__tooltip[property] = scale;

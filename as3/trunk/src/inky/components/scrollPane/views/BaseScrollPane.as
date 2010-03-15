@@ -322,14 +322,28 @@ private var _oldMouseYPosition:Number;
 		/**
 		 * @inheritDoc
 		 */
-		public function set draggable(draggable:Boolean):void
+		public function set draggable(value:Boolean):void
 		{
-			this._draggable = draggable;
-			this._dragPoint = new Sprite();
-			
-			if (draggable) this.source.addEventListener(MouseEvent.MOUSE_DOWN, this._draggableMouseHandler);
-			else this.source.removeEventListener(MouseEvent.MOUSE_DOWN, this._draggableMouseHandler);
-			this.update();
+			var oldValue:Boolean = this._draggable;
+			if (value != oldValue)
+			{
+				this._draggable = value;
+				if (this._draggable)
+				{
+					this._dragPoint = new Sprite();
+					this.__contentContainer.addEventListener(MouseEvent.MOUSE_DOWN, this._draggableMouseHandler);
+					this.__contentContainer.addEventListener(MouseEvent.MOUSE_UP, this._draggableMouseHandler);
+				}
+				else
+				{
+					this._dragPoint = null;
+				 	this.__contentContainer.removeEventListener(MouseEvent.MOUSE_DOWN, this._draggableMouseHandler);
+					this.__contentContainer.removeEventListener(MouseEvent.MOUSE_UP, this._draggableMouseHandler);
+				}
+				
+				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "draggable", oldValue, value));
+				this.update();
+			}
 		}
 		public function get draggable():Boolean
 		{
@@ -459,28 +473,11 @@ private var _oldMouseYPosition:Number;
 		 * @inheritDoc
 		 */	
 		public function update():void
-		{
-			var bounds:Rectangle = this.__contentContainer.getBounds(this.__contentContainer);
-			var contentHeight:Number = bounds.height + bounds.y;
-			var contentWidth:Number = bounds.width + bounds.x;
-			
-			if (this.draggable)
-			{							
-				if (this.verticalScrollBar)
-				{
-					this.maxVerticalScrollPosition = contentHeight - this.__mask.height;
-				}
-				
-				if (this.horizontalScrollBar)
-				{
-					this.maxHorizontalScrollPosition = contentWidth - this.__mask.width;
-				}
-			}
-
+		{			
 			if (this.verticalScrollBar)
 			{
 				this.verticalScrollBar.enabled = this.__contentContainer.height > this.__mask.height;
-				this.maxVerticalScrollPosition = Math.max(contentHeight - this.__mask.height, 0);
+				this.maxVerticalScrollPosition = Math.max(this.__contentContainer.height - this.__mask.height, 0);
 
 				if (this.verticalScrollPolicy == ScrollPolicy.AUTO)
 				{
@@ -494,7 +491,7 @@ private var _oldMouseYPosition:Number;
 			if (this.horizontalScrollBar)
 			{
 				this.horizontalScrollBar.enabled = this.__contentContainer.width > this.__mask.width;
-				this.maxHorizontalScrollPosition = Math.max(contentWidth - this.__mask.width, 0);
+				this.maxHorizontalScrollPosition = Math.max(this.__contentContainer.width - this.__mask.width, 0);
 
 				if (this.horizontalScrollPolicy == ScrollPolicy.AUTO)
 				{
@@ -628,7 +625,7 @@ private var _oldMouseYPosition:Number;
 			{
 				case MouseEvent.MOUSE_DOWN:																							
 					var dragBounds:Rectangle = new Rectangle();
-					var containerBounds:Rectangle = this.getContentContainer().getBounds(this);
+					var containerBounds:Sprite = this.__contentContainer as Sprite;
 					var maskBounds:Rectangle = this.getScrollMask().getBounds(this);
 
 					dragBounds.width = containerBounds.width - maskBounds.width;
@@ -644,13 +641,11 @@ private var _oldMouseYPosition:Number;
 					this._oldMouseYPosition = this.stage.mouseY;
 			
 					this.stage.addEventListener(MouseEvent.MOUSE_MOVE, this._mouseMoveHandler);
-					this.stage.addEventListener(MouseEvent.MOUSE_UP, this._draggableMouseHandler);
 					break;
 				case MouseEvent.MOUSE_UP:
 					this._dragPoint.stopDrag();
 									
 					this.stage.removeEventListener(MouseEvent.MOUSE_MOVE, this._mouseMoveHandler);
-					this.stage.removeEventListener(MouseEvent.MOUSE_UP, this._draggableMouseHandler);
 					break;
 			}
 		}

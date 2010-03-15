@@ -5,11 +5,14 @@ package inky.components.map.views
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
+	import flash.geom.Rectangle;
+	import flash.utils.setTimeout;
 	import inky.collections.IList;
 	import inky.components.IButton;
 	import inky.components.map.views.IMapView;
 	import inky.components.map.views.IScrollableMapView;
 	import inky.components.scrollPane.views.IScrollPane;
+	import inky.display.utils.scale;
 	
 	/**
 	 *
@@ -164,9 +167,15 @@ package inky.components.map.views
 			var point:DisplayObject = this.__mapView.getPointByModel(value);	
 			if (point)
 			{
-				var p:Point = this.globalToLocal(new Point(point.x, point.y));
-				this.__scrollPane.horizontalScrollPosition = p.x - 20;
-				this.__scrollPane.verticalScrollPosition = p.y - 20;
+				var contentContainer:DisplayObject = this.getScrollPaneContentContainer();	
+				var containerMask:DisplayObject = contentContainer.mask;
+				var percentX:Number = point.x / point.parent.width;
+				var percentY:Number = point.y / point.parent.height;
+				var x:int = (contentContainer.width * percentX) - (containerMask.width * .5);
+				var y:int = (contentContainer.height * percentY) - (containerMask.height * .5);
+		
+				this.__scrollPane.horizontalScrollPosition = x;
+				this.__scrollPane.verticalScrollPosition = y;
 			}
 	
 			this.__mapView.showPointByModel(value);
@@ -188,59 +197,72 @@ package inky.components.map.views
 		{
 			return this.__mapView;
 		}
+		protected function getScrollPaneContentContainer():DisplayObject
+		{
+			return this.__scrollPane.source.parent as DisplayObject;
+		}
 		protected function getScrollPane():IScrollPane
 		{
 			return this.__scrollPane;
 		}
 		
 		/**
-		*	Scales the mapView based on the values of the two parameters. This is useful
-		*	to add tweening.
+		*	Scales the mapView container based on the values of the scaleX and scaleY parameters.
 		*	
 		*	@param scaleX
 		*	@param scaleY	
 		*/
 		protected function scaleContent(scaleX:Number, scaleY:Number):void
 		{
-			this.__mapView.scaleX = scaleX;
-			this.__mapView.scaleY = scaleY;
-			this.__scrollPane.update();
+			var contentContainer:DisplayObject = this.getScrollPaneContentContainer();			
+			
+			//Scale the container for the MapView according to the center of the View Port (scrollpane)
+			var percentX:Number = (-contentContainer.x + contentContainer.mask.width * .5) / contentContainer.width;
+			var percentY:Number = (-contentContainer.x + contentContainer.mask.height * .5) / contentContainer.height;
+			var point:Point = new Point(int(contentContainer.width * percentX), int(contentContainer.height * percentY));
+
+			var oldXPos:Number = contentContainer.x;
+			var oldYPos:Number = contentContainer.y;
+			
+			scale(contentContainer, [scaleX, scaleY], point);
+
+			//Scale MapView along with it's children to keep everything in proportion
+			var mapView:Object = this.__mapView as Object;
+			mapView.adjustChildren([scaleX, scaleY]);
+
+			this.__scrollPane.horizontalScrollPosition = Math.abs(int(contentContainer.x));
+			this.__scrollPane.verticalScrollPosition = Math.abs(int(contentContainer.y));
 		}
-				
+
 		//
 		// private functions
 		//
-				
-		/**
-		*	Checks for an that is already on the stage based on it's DateType.
-		*	It returns either the object of that dataType or null.
-		*	
-		*	@param dataType	
-		*	@return
-		*/
-		private function _checkForObject(value:Class):Object
-		{
-			var object:Object;
-			for (var i:int = 0; i < this.numChildren; i++)
-			{
-				var child:Object = this.getChildAt(i) as value;
-				if (child)
-				{
-					object = child;
-					break;
-				}
-			}
-			return object;
-		}
-		
+
 		/**
 		*	Initialize tons of stuff for fun.	
 		*/
 		private function _init():void
 		{
-			this.__mapView = this.getChildByName("_mapView") as IMapView || this._checkForObject(IMapView) as IMapView;
+			this.__mapView = this.getChildByName("_mapView") as IMapView;
+			this.__scrollPane = this.getChildByName("_scrollPane") as IScrollPane;
 			
-			this.__scrollPane = this.getChildByName("_scrollPane") as IScrollPane || this._checkForObject(IScrollPane) as IScrollPane;
+			var length:int = this.numChildren;
+			for (var i:int = 0; i < length; i++)
+			{
+				var child:DisplayObject = this.getChildAt(i);
+				var mapView:IMapView = child as IMapView;
+				var scrollPane:IScrollPane = child as IScrollPane;
+				
+				if (mapView)
+					this.__mapView = mapView;
+					
+				if (scrollPane)
+					this.__scrollPane = scrollPane;
+					
+				if (this.__scrollPane && this.__mapView)
+					break;
+			}
+						
 			this.__scrollPane.source = this.__mapView;
 			this.__scrollPane.draggable = true;
 			
@@ -275,20 +297,21 @@ package inky.components.map.views
 
 		private function _zoomHandler(event:Event):void
 		{	
-			var scaleX:Number = this.__mapView.scaleX;
-			var scaleY:Number = this.__mapView.scaleY;
+			var contentContainer:DisplayObject = this.getScrollPaneContentContainer();			
+			var scaleX:Number = contentContainer.scaleX;
+			var scaleY:Number = contentContainer.scaleY;
 			
 			if (this._zoomState == "zoomIn")
 			{
 				scaleX += this._zoomInterval;
 				scaleY += this._zoomInterval;
-				this.scaleContent(scaleX >= this.maximumZoom ? this.__mapView.scaleX : scaleX, scaleY >= this.maximumZoom ? this.__mapView.scaleY : scaleY);
+				this.scaleContent(scaleX >= this.maximumZoom ? contentContainer.scaleX : scaleX, scaleY >= this.maximumZoom ? contentContainer.scaleY : scaleY);
 			}
 			else
 			{
 				scaleX -= this._zoomInterval;
 				scaleY -= this._zoomInterval;
-				this.scaleContent(scaleX <= this.minimumZoom ? this.__mapView.scaleX : scaleX, scaleY <= this.minimumZoom ? this.__mapView.scaleY : scaleY);
+				this.scaleContent(scaleX <= this.minimumZoom ? contentContainer.scaleX : scaleX, scaleY <= this.minimumZoom ? contentContainer.scaleY : scaleY);
 			}			
 		}				
 	}
