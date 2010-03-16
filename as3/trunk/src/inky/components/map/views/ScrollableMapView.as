@@ -218,7 +218,7 @@ package inky.components.map.views
 			
 			//Scale the container for the MapView according to the center of the View Port (scrollpane)
 			var percentX:Number = (-contentContainer.x + contentContainer.mask.width * .5) / contentContainer.width;
-			var percentY:Number = (-contentContainer.x + contentContainer.mask.height * .5) / contentContainer.height;
+			var percentY:Number = (-contentContainer.y + contentContainer.mask.height * .5) / contentContainer.height;
 			var point:Point = new Point(int(contentContainer.width * percentX), int(contentContainer.height * percentY));
 			
 			scale(contentContainer, [scaleX, scaleY], point);
@@ -227,6 +227,7 @@ package inky.components.map.views
 			var mapView:Object = this.__mapView as Object;
 			mapView.adjustChildren([scaleX, scaleY]);
 
+			this.__scrollPane.update();
 			this.__scrollPane.horizontalScrollPosition = Math.abs(int(contentContainer.x));
 			this.__scrollPane.verticalScrollPosition = Math.abs(int(contentContainer.y));
 		}
