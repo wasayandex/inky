@@ -220,9 +220,6 @@ package inky.components.map.views
 			var percentX:Number = (-contentContainer.x + contentContainer.mask.width * .5) / contentContainer.width;
 			var percentY:Number = (-contentContainer.x + contentContainer.mask.height * .5) / contentContainer.height;
 			var point:Point = new Point(int(contentContainer.width * percentX), int(contentContainer.height * percentY));
-
-			var oldXPos:Number = contentContainer.x;
-			var oldYPos:Number = contentContainer.y;
 			
 			scale(contentContainer, [scaleX, scaleY], point);
 
