@@ -413,23 +413,13 @@
 
 		/**
 		 * Called when a loader finishes loading.
-		 * 
-		 * A little trickery is used here to make sure that the loader's
-		 * complete event is heard by other listeners BEFORE the load queue
-		 * responds to it: by adding a listener while the event is still
-		 * propagating,	we ensure that our response (_processCompleteEvent)
-		 * happens after all listeners that were added before the event was
-		 * dispatched. If we did not do this, listeners waiting for the
-		 * load queue's complete event would fire before those listening for
-		 * listeners waiting for the item's complete event. Of course, this
-		 * will break if somebody decides to stop event propagation.
 		 *
 		 * @param event
 		 *     the event that triggered the handler
 		 */
 		private function _loaderCompleteHandler(event:Event):void
 		{
-			event.currentTarget.addEventListener(event.type, this._processCompleteEvent);
+			this._processCompleteEvent(event);
 		}
 
 
@@ -610,9 +600,9 @@ trace(e['text'] || e);
 				{
 					// Add listeners
 					var dispatcher:IEventDispatcher = this._getDispatcher(item);
-					dispatcher.addEventListener(Event.COMPLETE, this._loaderCompleteHandler, false, int.MAX_VALUE, true);
-					dispatcher.addEventListener(IOErrorEvent.IO_ERROR, this._errorHandler, false, int.MAX_VALUE, true);
-					dispatcher.addEventListener(SecurityErrorEvent.SECURITY_ERROR, this._errorHandler, false, int.MAX_VALUE, true);
+					dispatcher.addEventListener(Event.COMPLETE, this._loaderCompleteHandler, false, 0, true);
+					dispatcher.addEventListener(IOErrorEvent.IO_ERROR, this._errorHandler, false, 0, true);
+					dispatcher.addEventListener(SecurityErrorEvent.SECURITY_ERROR, this._errorHandler, false, 0, true);
 
 					// Load the item.
 					var args:Array = this.getLoadArguments(item) || [];
