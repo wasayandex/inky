@@ -13,10 +13,12 @@ package inky.display.utils
 	 *	@since  2010.03.16
 	 *
 	 */
-	public function removeFromDisplayList(child:DisplayObject):void
+	public function removeFromDisplayList(child:*):void
 	{
-		if (child && child.parent)
-			child.parent.removeChild(child);
+		if (!(child is DisplayObject))
+			throw new ArgumentError(child + " is not a DisplayObject!");
+		else if (child && child.parent)
+			child.parent.removeChild(DisplayObject(child));
 	}
 	
 }
