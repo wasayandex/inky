@@ -216,18 +216,18 @@
 			
 			if (this._transition)
 			{
-				if (this._transition.cancelable)
+				/*if (this._transition.cancelable)
 					this._transition.cancel();
-				else
+				else*/
 					throw new Error('You cannot start a transition while an uncancelable transition is already playing. ' + this._transition);
 			}
-
+			
 			this._transition = transition;
 
 			if (transition)
 			{
 				this._state = this._transition == this.intro ? TransitioningObjectState.PLAYING_INTRO : this._transition == this.outro ? TransitioningObjectState.PLAYING_OUTRO : null;
-				token = transition.startAction();
+				token = transition.execute();
 				token.addResponder(this._actionFinishHandler);
 				this._dispatchStartEvent(transition);
 			}

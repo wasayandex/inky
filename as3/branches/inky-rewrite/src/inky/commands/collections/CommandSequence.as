@@ -25,7 +25,7 @@ package inky.commands.collections
 		public function CommandSequence(...rest:Array)
 		{
 			for each (var command:Object in rest)
-				this.addItem(action);
+				this.addItem(command);
 		}
 		
 		
