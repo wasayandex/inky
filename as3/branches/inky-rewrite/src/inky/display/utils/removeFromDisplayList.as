@@ -15,10 +15,13 @@ package inky.display.utils
 	 */
 	public function removeFromDisplayList(child:*):void
 	{
-		if (!(child is DisplayObject))
-			throw new ArgumentError(child + " is not a DisplayObject!");
-		else if (child && child.parent)
-			child.parent.removeChild(DisplayObject(child));
+		if (child)
+		{
+			if (!(child is DisplayObject))
+				throw new ArgumentError(child + " is not a DisplayObject!");
+			else if (child.parent)
+				child.parent.removeChild(DisplayObject(child));
+		}
 	}
 	
 }
