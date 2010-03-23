@@ -136,6 +136,18 @@ package inky.components.map.views
 		}
 		
 		/**
+		*	Gets/Sets the zoom interval for the ScrollableMap. By default this is set to .02;	
+		*/
+		public function get zoomInterval():Number
+		{
+			return this._zoomInterval;
+		}
+		public function set zoomInterval(value:Number):void
+		{
+			this._zoomInterval = value;
+		}
+		
+		/**
 		 * @inheritDoc
 		 */
 		public function set zoomOutButton(value:DisplayObject):void
@@ -199,7 +211,7 @@ package inky.components.map.views
 		}
 		protected function getScrollPaneContentContainer():DisplayObject
 		{
-			return this.__scrollPane.source.parent as DisplayObject;
+			return this.__scrollPane.content.parent as DisplayObject;
 		}
 		protected function getScrollPane():IScrollPane
 		{
@@ -214,22 +226,19 @@ package inky.components.map.views
 		*/
 		protected function scaleContent(scaleX:Number, scaleY:Number):void
 		{
-			var contentContainer:DisplayObject = this.getScrollPaneContentContainer();			
 			
-			//Scale the container for the MapView according to the center of the View Port (scrollpane)
-			var percentX:Number = (-contentContainer.x + contentContainer.mask.width * .5) / contentContainer.width;
-			var percentY:Number = (-contentContainer.y + contentContainer.mask.height * .5) / contentContainer.height;
-			var point:Point = new Point(int(contentContainer.width * percentX), int(contentContainer.height * percentY));
-			
-			scale(contentContainer, [scaleX, scaleY], point);
+			var contentContainer:Sprite = this.getScrollPaneContentContainer() as Sprite;
+			var containerMask:Sprite = contentContainer.mask as Sprite;
 
+			var point:Point = contentContainer.globalToLocal(this.localToGlobal(new Point(containerMask.width * .5, containerMask.height * .5)));
+			scale(contentContainer, [scaleX, scaleY], point);
+			
 			//Scale MapView along with it's children to keep everything in proportion
 			var mapView:Object = this.__mapView as Object;
 			mapView.adjustChildren([scaleX, scaleY]);
-
-			this.__scrollPane.update();
-			this.__scrollPane.horizontalScrollPosition = Math.abs(int(contentContainer.x));
-			this.__scrollPane.verticalScrollPosition = Math.abs(int(contentContainer.y));
+			
+			this.__scrollPane.horizontalScrollPosition = -contentContainer.x;
+			this.__scrollPane.verticalScrollPosition = -contentContainer.y;
 		}
 
 		//

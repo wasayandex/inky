@@ -30,11 +30,12 @@
 		private var _latLonBox:Object;
 		private var _model:IList
 		private var _mouseEventType:String;
+		private var _oldScale:Object;
 		private var _pointViewClass:Class;
 		private var _north:Point;
 		private var _west:Point;
 		private var _source:DisplayObject;
-
+		
 		public function MapView()
 		{
 			this._autoAdjustChildren = true;
@@ -44,6 +45,8 @@
 			this._mouseEventType = MouseEvent.MOUSE_OVER;
 			this.source = this.getChildByName('_mapContainer') as Sprite || null;
 			this.__tooltip = this.getChildByName('_tooltip') as ITooltip || null;
+
+			this._oldScale = {scaleX: this.scaleX, scaleY: this.scaleY};
 		}
 
 		//
@@ -127,14 +130,13 @@
 			var scaleDifference:Number;
 						
 			//Adjust the scaleX
-			scaleDifference = (this.scaleX - value[0]);
+			scaleDifference = (this._oldScale.scaleX - value[0]);
 			this._adjustScale("scaleX", scaleDifference);
 
-			scaleDifference = (this.scaleY - value[1]);
+			scaleDifference = (this._oldScale.scaleY - value[1]);
 			this._adjustScale("scaleY", scaleDifference);
 			
-			this.scaleX = value[0];
-			this.scaleY = value[1];
+			this._oldScale = {scaleX: value[0], scaleY: value[1]};
 		}
 
 		/**
@@ -191,6 +193,7 @@
 		*/
 		private function _adjustScale(property:String, scaleDifference:Number):void
 		{
+			var minScale:Number = .7;
 			var length:Number = this._container.numChildren;
 			var scale:Number;
 			for (var i:Number = 0; i < length; i++)
@@ -199,7 +202,7 @@
 				if (child && child is this._pointViewClass)
 				{
 					scale = child[property] + scaleDifference;
-					if (scale < .5) scale = .5;
+					if (scale < minScale) scale = minScale;
 					else if (scale > 1) scale = 1;
 
 					child[property] = scale;
@@ -209,7 +212,7 @@
 			if (this.__tooltip)
 			{
 				scale = this.__tooltip[property] + scaleDifference;
-				if (scale < .35) scale = .35;
+				if (scale < minScale) scale = minScale;
 				else if (scale > 1) scale = 1;
 
 				this.__tooltip[property] = scale;
