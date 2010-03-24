@@ -131,7 +131,7 @@ package inky.components.progressBar.views
 		{
 			var value:Number = this.value - this.minimum;
 			var maximum:Number = this.maximum - this.minimum;
-			return value && maximum ? value / maximum * 100 : 0;
+			return value && maximum ? Math.max(0, Math.min(1, value / maximum)) * 100 : 0;
 		}
 
 
