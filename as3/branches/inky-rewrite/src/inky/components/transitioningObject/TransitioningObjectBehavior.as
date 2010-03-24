@@ -214,13 +214,13 @@
 		{
 			var token:IAsyncToken;
 			
-			if (this._transition)
+			/*if (this._transition)
 			{
-				/*if (this._transition.cancelable)
+				if (this._transition.cancelable)
 					this._transition.cancel();
-				else*/
+				else
 					throw new Error('You cannot start a transition while an uncancelable transition is already playing. ' + this._transition);
-			}
+			}*/
 			
 			this._transition = transition;
 
