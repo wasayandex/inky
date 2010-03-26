@@ -253,7 +253,7 @@ package inky.components.slider
 			if (value != oldValue)
 			{
 				this._value = value;
-				this._updateThumbPosition(null);
+				this._updateThumbPosition(null, false);
 				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "value", oldValue, value));	
 			}
 		}
@@ -265,7 +265,7 @@ package inky.components.slider
 		// private methods
 		//
 
-		
+// FIXME: This doesn't seem to work.
 		/**
 		 * 
 		 */
@@ -442,7 +442,7 @@ package inky.components.slider
 		/**
 		 * 
 		 */
-		private function _updateThumbPosition(newPosition:Point):void
+		private function _updateThumbPosition(newPosition:Point, updateValue:Boolean = true):void
 		{
 			var dragBounds:Rectangle = this._getDragBounds();
 			var newThumbPos:Point;
@@ -455,8 +455,8 @@ package inky.components.slider
 			else
 			{
 				// Calculate new position from the current slider value.
-				var pct:Number = this.value / (this.maximum - this.minimum);
-				newThumbPos = new Point(dragBounds.x, dragBounds.y);
+				var pct:Number = (this.value - this.minimum) / (this.maximum - this.minimum);
+				newThumbPos = new Point(this.__thumb.x, this.__thumb.y);
 				newThumbPos[this._xOrY] = dragBounds[this._xOrY] +  pct * dragBounds[this._widthOrHeight];
 			}
 			
@@ -468,8 +468,12 @@ package inky.components.slider
 			
 			if (!this._isDragging || this.liveDragging)
 			{
-				this._updateValue();
-				this._dispatchSliderEvent(SliderEvent.CHANGE, SliderEventClickTarget.TRACK, "mouse");
+// FIXME: Probably shouldn't be called "updateValue" because it's really more like "mouseTriggered"
+				if (updateValue)
+				{
+					this._updateValue();
+					this._dispatchSliderEvent(SliderEvent.CHANGE, SliderEventClickTarget.TRACK, "mouse");
+				}
 			}
 		}
 		
@@ -481,7 +485,7 @@ package inky.components.slider
 		{
 			var dragBounds:Rectangle = this._getDragBounds();
 			var pct:Number = (this.__thumb[this._xOrY] - dragBounds[this._xOrY]) / dragBounds[this._widthOrHeight];
-			this.value = pct * (this.maximum - this.minimum);
+			this.value = this.minimum + pct * (this.maximum - this.minimum);
 		}
 
 		
