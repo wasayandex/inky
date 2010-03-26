@@ -107,7 +107,7 @@ package inky.components.slider
 		}
 
 		
-		/**
+		/** 
 		 * @inheritDoc
 		 */
 		public function get enabled():Boolean
@@ -169,7 +169,8 @@ package inky.components.slider
 			if (value != oldValue)
 			{
 				this._maximum = value;
-				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "maximum", oldValue, value));	
+				this._updateThumbPosition(null);
+				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "maximum", oldValue, value));
 			}
 		}
 		
@@ -190,7 +191,8 @@ package inky.components.slider
 			if (value != oldValue)
 			{
 				this._minimum = value;
-				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "minimum", oldValue, value));	
+				this._updateThumbPosition(null);
+				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "minimum", oldValue, value));
 			}
 		}
 
