@@ -79,7 +79,7 @@
 		public function addItem(item:Object):void
 		{
 			this._list.push(item);
-			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.ADD, -1, -1, [item]));
+			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.ADD, this._list.length - 1, -1, [item]));
 		}
 
 		/**
@@ -92,7 +92,7 @@
 				throw new RangeError("The supplied index (" + index + ") is out of bounds.");
 			}
 			this._list.splice(index, 0, item);
-			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.ADD, -1, -1, [item]));
+			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.ADD, index, -1, [item]));
 		}
 
 
@@ -101,13 +101,17 @@
 		 */
 		public function addItemsAt(collection:ICollection, index:uint):void
 		{
+			if (index && (index < 0 || index > this.length))
+			{
+				throw new RangeError("The supplied index (" + index + ") is out of bounds.");
+			}
 			var p:int = index;
 			for (var i:IIterator = collection.iterator(); i.hasNext(); )
 			{
 				this._list.splice(p, i, i.next());
 				p++;
 			}
-			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.ADD, -1, -1, collection.toArray()));
+			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.ADD, index, -1, collection.toArray()));
 		}
 
 
@@ -122,7 +126,7 @@
 			{
 				this._list.push(i.next());
 			}
-			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.ADD, -1, -1, collection.toArray()));
+			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.ADD, this._list.length - collection.length -1, -1, collection.toArray()));
 		}
 
 
@@ -266,6 +270,7 @@
 		public function removeItem(item:Object):Object
 		{
 			var index:int = this.getItemIndex(item);
+			this._list.splice(index, 1);
 			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.REMOVE, -1, index, [item]));
 			return item;
 		}
