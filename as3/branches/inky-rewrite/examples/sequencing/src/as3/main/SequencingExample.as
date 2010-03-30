@@ -6,6 +6,7 @@ package
 	import flash.events.Event;
 	import inky.sequencing.XMLSequence;
 	import inky.sequencing.ISequence;
+	import flash.events.MouseEvent;
 
 	/**
 	 *
@@ -23,10 +24,11 @@ package
 		private var sequenceASource:XML =
 			<sequence>
 				<call closure="#createBall" />
-				<dispatchEvent withType="introComplete" on="#owner" />
+				<wait for={MouseEvent.CLICK} on="#ball" />
 				<wait for="30 frames" />
 				<dispatchEvent withType="introComplete" on="#owner" />
 				<call closure="#trace" />
+				<call closure="#player.previousCommand.execute" />
 			</sequence>
 
 // TODO: How should we set arguments? For example, on trace?
@@ -53,7 +55,6 @@ this.addEventListener("introComplete", trace);
 		 */
 		private function createBall():Ball
 		{
-trace("createBall");
 			var color:uint = Math.random() * 0xffffff;
 			var radius:Number = Math.random() * 30 + 10;
 			var x:Number = Math.random() * this.stage.stageWidth;
@@ -62,6 +63,7 @@ trace("createBall");
 			redBall.x = x;
 			redBall.y = y;
 			this.addChild(redBall);
+this.sequencePlayer.variables.ball = redBall;
 			return redBall;
 		}
 		
