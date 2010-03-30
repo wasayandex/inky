@@ -22,6 +22,7 @@ package inky.sequencing
 	{
 		private var currentSequence:ISequence;
 		private var pointer:int = 0;
+		public var previousCommand:Object;
 		private var _variables:Object;
 // TODO: Allow scope chain in constructor? I.e. it would check those objects for the variables.
 		/**
@@ -29,7 +30,16 @@ package inky.sequencing
 		 */
 		public function SequencePlayer(variables:Object = null)
 		{
-			this._variables = variables || {};
+			this._variables = {};
+			for (var prop:String in variables)
+			{
+				this._variables[prop] = variables[prop];
+			}
+			
+			if (this._variables.player)
+				throw new ArgumentError("You can't set the variable \"player\": it's automatically set to the value of the SequencePlayer.")
+			
+			this._variables.player = this;
 		}
 
 		//---------------------------------------
@@ -74,6 +84,7 @@ package inky.sequencing
 		 */
 		private function command_completeHandler(event:Event):void
 		{
+			event.currentTarget.removeEventListener(event.type, arguments.callee);
 			this.executeNextCommand();
 		}
 		
@@ -101,15 +112,19 @@ package inky.sequencing
 			// Execute the command.
 			if (command is IAsyncCommand)
 			{
-				command.addEventListener(Event.COMPLETE, this.command_completeHandler);
 				command.execute();
-// FIXME: Instead of having the player set variables like this, the property should be set on the player itself and the variables should be searched for in a scope chain that includes the player. That way, if we add more things like this in the future, it won't conflict with variables users have set.
-				this.variables.previousCommand = command;
+				this.previousCommand = command;
+				
+				// Watch out for IAsyncCommands that execute synchronously!
+				if (command.isComplete)
+					this.executeNextCommand();
+				else
+					command.addEventListener(Event.COMPLETE, this.command_completeHandler);
 			}
 			else
 			{
 				command.execute();
-				this.variables.previousCommand = command;
+				this.previousCommand = command;
 				this.executeNextCommand();
 			}
 		}
@@ -127,6 +142,7 @@ package inky.sequencing
 			}
 			else
 			{
+				this.previousCommand = null;
 				// We're at the end of the sequence.
 trace("end");
 			}

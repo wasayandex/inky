@@ -7,6 +7,8 @@ package inky.sequencing
 	import inky.sequencing.parsers.ICommandDataParser;
 	import inky.sequencing.parsers.StandardCommandDataParser;
 	import inky.sequencing.parsers.DispatchEventParser;
+	import inky.sequencing.commands.DelayCommand;
+	import inky.sequencing.parsers.WaitParser;
 	
 	/**
 	 *
@@ -37,6 +39,8 @@ package inky.sequencing
 			this.registerCommand("CallCommand", CallCommand);
 			this.registerCommand("dispatchEvent", null, new DispatchEventParser());
 			this.registerCommand("DispatchEventCommand", DispatchEventCommand);
+			this.registerCommand("DelayCommand", DelayCommand);
+			this.registerCommand("wait", null, new WaitParser());
 		}
 		
 		//---------------------------------------

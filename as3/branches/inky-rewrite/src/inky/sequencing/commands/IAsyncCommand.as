@@ -22,6 +22,14 @@ package inky.sequencing.commands
 	public interface IAsyncCommand extends IEventDispatcher
 	{
 		/**
+		 * Indicates whether the command has completed. This value must be
+		 * reset to false every time execute() is called, and set to true
+		 * when the command completes. This accounds for IAsyncCommands that
+		 * execute synchronously.
+		 */
+		function get isComplete():Boolean;
+		
+		/**
 		 * 
 		 */
 		function execute():void;
