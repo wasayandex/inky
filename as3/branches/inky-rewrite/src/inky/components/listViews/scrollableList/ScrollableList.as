@@ -14,6 +14,7 @@
 	import inky.components.scrollBar.IScrollBar;
 	import inky.collections.events.CollectionEvent;
 	import flash.utils.setTimeout;
+	import inky.utils.ValidationState;
 
 
 	/**
@@ -29,8 +30,12 @@
 	 */
 	public class ScrollableList extends BaseScrollPane implements IListView
 	{
-		private static var HORIZONTAL:String = "horizontal"; // Should be in another class.
-		private static var VERTICAL:String = "vertical";
+		private static const HORIZONTAL:String = "horizontal"; // Should be in another class.
+		private static const VERTICAL:String = "vertical";
+		
+		private static const CONTENT_POSITION:String = "contentPosition";
+		private static const DISPLAY_LIST:String = "displayList";
+		private static const SCROLL_POSITION:String = "scrollPosition";
 		
 		private var __contentContainer:DisplayObjectContainer;
 		private var _firstVisibleItemIndex:int;
@@ -44,8 +49,10 @@
 		private var _positionCache:Array;
 		private var _unusedItems:Object;
 		private var _recycleItemRenderers:Boolean;
+		private var shownItem:int;
 		private var _sizeCache:Array;
 		private var _spacing:Number;
+		private var validationState:ValidationState;
 		private var _widthOrHeight:String;
 		private var _xOrY:String;
 // FIXME: When recycleItemRenderers == true, you can see dataProvider being reset on first item.  The class does this in order to calculate the total size, but it shouldn't use items that are on stage.
@@ -56,7 +63,7 @@
 		 */
 		public function ScrollableList()
 		{
-			this._init();
+			this.init();
 		}
 
 		//---------------------------------------
@@ -164,7 +171,7 @@
 		public function set spacing(value:Number):void
 		{
 			this._spacing = value;
-			this._invalidateAllPositions();
+			this.invalidateAllPositions();
 		}
 
 		//---------------------------------------
@@ -176,7 +183,39 @@
 		 */
 		public function getItemPosition(index:int):Number
 		{
-			return this._getItemPosition(index);
+var er;
+er = 1;
+			var position:Number = this._positionCache[index];
+
+			if (isNaN(position))
+			{
+er = 2;
+				// Determine the position
+				if (index == this._firstVisibleItemIndex)
+				{
+er = 3;
+					position = this._indexes2Items[index] ? this._indexes2Items[index][this._xOrY] : 0;
+				}
+				else if ((index < this._firstVisibleItemIndex) && (index < this.dataProvider.length))
+				{
+er = 4;
+					position = this.getItemPosition(index + 1) - this.getItemSize(index) - this._spacing;
+				}
+				else if ((index > this._firstVisibleItemIndex) && (index > 0))
+				{
+er = 5;
+					position = this.getItemPosition(index - 1) + this.getItemSize(index - 1) + this._spacing;
+				}
+				else
+				{
+er = 6;
+					position = 0;
+				}
+er = 7;
+				this._positionCache[index] = position;
+			}
+
+			return position;
 		}
 
 		/**
@@ -184,7 +223,16 @@
 		 */
 		public function getItemSize(index:int):Number
 		{
-			return this._getItemSize(index);
+			var size:Number = this._sizeCache[index];
+			if (isNaN(size))
+			{
+				var itemItemRenderer:Object = this.getItemRendererFor(index);
+				if (!EqualityUtil.objectsAreEqual(itemItemRenderer.model, this.dataProvider.getItemAt(index)))
+					itemItemRenderer.model = this.dataProvider.getItemAt(index);
+				size = itemItemRenderer[this._widthOrHeight];
+				this._sizeCache[index] = size;
+			}
+			return size;
 		}
 
 		/**
@@ -192,14 +240,12 @@
 		 */
 		public function invalidate():void
 		{
+			this.validationState.markPropertyAsInvalid(DISPLAY_LIST);
+
 			if (this.stage)
-			{
 				this._invalidate()
-			}
 			else
-			{
 				this.addEventListener(Event.ADDED_TO_STAGE, this._invalidate);
-			}
 		}
 
 		/**
@@ -208,19 +254,21 @@
 		public function redraw():void
 		{
 // TODO: redraw when the dataProvider is null.
+			if (!this.dataProvider && !this._initializedForModel)
+				return;
+
 			if (!this.orientation)
 				throw new Error("You must set the orientation on your ScrollableList");
 
 			if (!this._initializedForModel)
-				this._initializeForModel();
+				this.initializeForModel();
 			
 			var firstVisibleItemIndex:int = this._firstVisibleItemIndex;
-			
+
 			if (firstVisibleItemIndex == -1)
-			{
 				firstVisibleItemIndex = 0;
-			}
-			else
+
+			if (this.dataProvider && this.dataProvider.length)
 			{
 				var mask:DisplayObject = this.getScrollMask();
 				var maskSize:Number = mask[this._widthOrHeight];
@@ -228,24 +276,24 @@
 				var container:DisplayObjectContainer = this.getContentContainer();
 				var containerPosition:Number = container[this._xOrY];
 
-				if (this._getItemPosition(firstVisibleItemIndex) + this._getItemSize(firstVisibleItemIndex) + containerPosition < maskPosition)
+				if (this.getItemPosition(firstVisibleItemIndex) + this.getItemSize(firstVisibleItemIndex) + containerPosition < maskPosition)
 				{
-					while ((firstVisibleItemIndex< this.dataProvider.length) && (this._getItemPosition(firstVisibleItemIndex) + this._getItemSize(firstVisibleItemIndex) + containerPosition < maskPosition))
+					while ((firstVisibleItemIndex < this.dataProvider.length) && (this.getItemPosition(firstVisibleItemIndex) + this.getItemSize(firstVisibleItemIndex) + containerPosition < maskPosition))
 					{
 						firstVisibleItemIndex++;
 					}
 				}
 				else
 				{
-					while ((firstVisibleItemIndex > 0) && (this._getItemPosition(firstVisibleItemIndex) + containerPosition > maskPosition))
+					while ((firstVisibleItemIndex > 0) && (this.getItemPosition(firstVisibleItemIndex) + containerPosition > maskPosition))
 					{
 						firstVisibleItemIndex--;
 					}
 				}
 			}
-			
-			this._updateLayout();
-			this._redrawFrom(firstVisibleItemIndex);
+
+			this.updateLayout();
+			this.redrawFrom(firstVisibleItemIndex);
 		}
 
 		/**
@@ -253,37 +301,7 @@
 		 */
 		public function showItemAt(index:int):void
 		{
-// TODO: is this the right way to handle this situation?
-if (!this.dataProvider) return;
-
-			if (!this.orientation)
-				throw new Error("You must set the orientation on your ScrollableList");
-
-			if ((index < 0) || (index >= this.dataProvider.length))
-				throw new RangeError("The supplied index " + index + " is out of bounds.");
-
-			this._setScrollPosition(index);
-			var newPos:Object = {x: this.__contentContainer.x, y: this.__contentContainer.y};
-			var mask:DisplayObject = this.getScrollMask();
-
-			if (!isNaN(index))
-			{
-				if (this.dataProvider != null)
-				{
-					var target:Number = -this._getItemPosition(index);
-
-					// Make sure we don't scroll "past" the content.
-					if (index >= this.dataProvider.length - this._numItemsFinallyVisible)
-					{
-// FIXME: 
-						target = Math.max(target, mask[this._widthOrHeight] - this._getItemPosition(this.dataProvider.length - 1) - this._getItemSize(this.dataProvider.length - 1));
-					}
-					newPos[this._xOrY] = Math.min(0, target);
-				}
-			}
-
-			this.moveContent(newPos.x, newPos.y);
-			this.invalidate();
+			this._showItemAt(index, true);
 		}
 
 		/**
@@ -300,13 +318,13 @@ if (!this.dataProvider) return;
 		/**
 		 *
 		 */
-		override protected function scrollHandler(e:ScrollEvent):void
+		override protected function scrollHandler(event:ScrollEvent):void
 		{
 // TODO: Because the super constructor's bindings access something that calls this, orientation 
 // is null (not yet initialized). Should orientation have a default value?
 if (!this.orientation) return;
-			var index:Number = Math.max(0, Math.min(this.dataProvider.length - 1, Math.round(this._getScrollPosition())));
-			this.showItemAt(index);
+			var index:Number = Math.max(0, Math.min(this.dataProvider.length - 1, Math.round(this.getScrollPosition())));
+			this._showItemAt(index);
 		}
 
 		//---------------------------------------
@@ -316,7 +334,7 @@ if (!this.orientation) return;
 		/**
 		 *
 		 */
-		private function _clearContent():void
+		private function clearContent():void
 		{
 			while (this.__contentContainer.numChildren)
 			{
@@ -340,7 +358,7 @@ if (!this.orientation) return;
 		 *     the index of the item
 		 * @param markAsUsed
 		 */
-		private function _getItemRendererFor(index:int):Object
+		private function getItemRendererFor(index:int):Object
 		{
 			var listItem:Object = this._indexes2Items[index] || this._unusedItems[index];
 
@@ -367,66 +385,9 @@ if (!this.orientation) return;
 		}
 
 		/**
-		 * Gets the position of an item at a particular index.
-		 */
-		private function _getItemPosition(index:int):Number
-		{
-var er;
-er = 1;
-			var position:Number = this._positionCache[index];
-try {
-			if (isNaN(position))
-			{
-er = 2;
-				// Determine the position
-				if (index == this._firstVisibleItemIndex)
-				{
-er = 3;
-					position = this._indexes2Items[index] ? this._indexes2Items[index][this._xOrY] : 0;
-				}
-				else if ((index < this._firstVisibleItemIndex) && (index < this.dataProvider.length))
-				{
-er = 4;
-					position = this._getItemPosition(index + 1) - this._getItemSize(index) - this._spacing;
-				}
-				else if ((index > this._firstVisibleItemIndex) && (index > 0))
-				{
-er = 5;
-					position = this._getItemPosition(index - 1) + this._getItemSize(index - 1) + this._spacing;
-				}
-				else
-				{
-er = 6;
-					position = 0;
-				}
-er = 7;
-				this._positionCache[index] = position;
-			}
-}catch(f){trace("TELL MATTHEW YOU SAW THIS ERROR NUMBER: " + er)}
-			return position;
-		}
-
-		/**
-		 * Gets the size of an item at a particular index.
-		 */
-		private function _getItemSize(index:int):Number
-		{
-			var size:Number = this._sizeCache[index];
-			if (isNaN(size))
-			{
-				var itemItemRenderer:Object = this._getItemRendererFor(index);
-				if (!EqualityUtil.objectsAreEqual(itemItemRenderer.model, this.dataProvider.getItemAt(index)))
-					itemItemRenderer.model = this.dataProvider.getItemAt(index);
-				size = itemItemRenderer[this._widthOrHeight];
-				this._sizeCache[index] = size;
-			}
-			return size;
-		}
-
-		/**
 		 *
 		 */
-		private function _getScrollBar():IScrollBar
+		private function getScrollBar():IScrollBar
 		{
 			return this[this._orientation + "ScrollBar"];
 		}
@@ -434,7 +395,7 @@ er = 7;
 		/**
 		 *
 		 */
-		private function _getScrollPosition():Number
+		private function getScrollPosition():Number
 		{
 			return this[this._orientation + "ScrollPosition"];
 		}
@@ -442,8 +403,9 @@ er = 7;
 		/**
 		 *	Called by the constructor.
 		 */
-		private function _init():void
+		private function init():void
 		{
+			this.validationState = new ValidationState();
 			this._recycleItemRenderers = true;
 			this._spacing = 0;
 			
@@ -459,35 +421,35 @@ er = 7;
 				this.orientation = VERTICAL;
 
 			this.__contentContainer = this.getContentContainer();
-			this.__contentContainer.addEventListener(LayoutEvent.INVALIDATE, this._itemInvalidatedHandler);
+			this.__contentContainer.addEventListener(LayoutEvent.INVALIDATE, this.itemInvalidatedHandler);
 		}
 
 		/**
 		 * 
 		 */
-		private function _initializeForModel():void
+		private function initializeForModel():void
 		{
 			if (!this.dataProvider) 
 				return;
 			
-			this._updateLayout();
-			this._clearContent();
+			this.updateLayout();
+			this.clearContent();
 			this._initializedForModel = true;
 		}
 
 		/**
 		 *
 		 */
-		private function _invalidate(e:Event = null):void
+		private function _invalidate(event:Event = null):void
 		{
-			this.stage.addEventListener(Event.RENDER, this._redraw, false, 0, true);
+			this.stage.addEventListener(Event.RENDER, this.validate, false, 0, true);
 			this.stage.invalidate();
 		}
 
 		/**
 		 *
 		 */
-		private function _invalidateAllPositions():void
+		private function invalidateAllPositions():void
 		{
 			this._positionCache = [];
 			this.invalidate();
@@ -496,13 +458,13 @@ er = 7;
 		/**
 		 *
 		 */
-		private function _itemInvalidatedHandler(e:LayoutEvent):void
+		private function itemInvalidatedHandler(e:LayoutEvent):void
 		{
 			if (e.target.parent == this.__contentContainer)
 			{
 				if (e.property == this._widthOrHeight)
 				{
-					this._invalidateItemSize(e.target);
+					this.invalidateItemSize(e.target);
 				}
 			}
 		}
@@ -510,20 +472,20 @@ er = 7;
 		/**
 		 *
 		 */
-		private function _invalidateItemSize(item:Object):void
+		private function invalidateItemSize(item:Object):void
 		{
 			// Get the item index.
 			var index:Number = this._items2Indexes[item];
 			if (!isNaN(index))
 			{
-				this._invalidateItemSizeAt(item, index);
+				this.invalidateItemSizeAt(item, index);
 			}
 		}
 
 		/**
 		 *
 		 */
-		private function _invalidateItemSizeAt(item:Object, index:int):void
+		private function invalidateItemSizeAt(item:Object, index:int):void
 		{
 			// If the item's size hasn't actually changed, don't redraw.
 			if (this._sizeCache[index] == item[this._widthOrHeight]) return;
@@ -549,7 +511,7 @@ er = 7;
 		/**
 		 *	
 		 */
-		private function _markItemUnused(item:Object, index:int):void
+		private function markItemUnused(item:Object, index:int):void
 		{
 			delete this._items2Indexes[item];
 			delete this._indexes2Items[index];
@@ -557,21 +519,9 @@ er = 7;
 		}
 
 		/**
-		 *
-		 */
-		private function _redraw(e:Event):void
-		{
-			if (e)
-				e.currentTarget.removeEventListener(e.type, arguments.callee);
-
-			if (this.dataProvider || this._initializedForModel)
-				this.redraw()
-		}
-
-		/**
 		 *	A helper method for redraw(). Do not call this method directly.
 		 */
-		private function _redrawFrom(startIndex:int):void
+		private function redrawFrom(startIndex:int):void
 		{
 			var listItem:Object;
 			var index:int = startIndex;
@@ -582,20 +532,20 @@ er = 7;
 			var pos:Number;
 
 			// Mark earlier ones as unused.
-// TODO: Because we don't yet know many list items will fit in the viewport, we don't know if we can reuse items with index > startindex. Figure out how to know. We could use _getItemPosition to figure it out, but then we'd be constantly setting the model on instances that wouldn't be used with the model.
+// TODO: Because we don't yet know many list items will fit in the viewport, we don't know if we can reuse items with index > startindex. Figure out how to know. We could use getItemPosition to figure it out, but then we'd be constantly setting the model on instances that wouldn't be used with the model.
 			for (i = 0; i < startIndex; i++)
 			{
 				listItem = this._indexes2Items[i];
 				if (listItem)
 				{
-					this._markItemUnused(listItem, i);
+					this.markItemUnused(listItem, i);
 				}
 			}
 
 			// Add and position items as needed.
 			while (index < this.dataProvider.length)
 			{
-				listItem = this._getItemRendererFor(index);
+				listItem = this.getItemRendererFor(index);
 
 				var model:Object = this.dataProvider.getItemAt(index);
 				if (!EqualityUtil.objectsAreEqual(listItem.model, model))
@@ -611,7 +561,7 @@ er = 7;
 				this._indexes2Items[index] = listItem;
 				this._items2Indexes[listItem] = index;
 
-				pos = this._getItemPosition(index);
+				pos = this.getItemPosition(index);
 				listItem[this._xOrY] = pos;
 				var otherPositionProperty:String = this._xOrY == "x" ? "y" : "x";
 				listItem[otherPositionProperty] = mask[otherPositionProperty];
@@ -620,7 +570,7 @@ er = 7;
 				this._firstVisibleItemIndex = startIndex;
 
 				// If we have enough items to fill the entire viewable area (even when the first item is scrolling out), stop.
-				if (pos - this._getItemPosition(startIndex + 1) > maskSize)
+				if (pos - this.getItemPosition(startIndex + 1) > maskSize)
 					break;
 
 				index++;
@@ -634,7 +584,7 @@ er = 7;
 				if (i < startIndex || i > endIndex)
 				{
 					listItem = this._indexes2Items[i];
-					this._markItemUnused(listItem, i);
+					this.markItemUnused(listItem, i);
 				}
 			}
 
@@ -650,26 +600,36 @@ er = 7;
 		 */
 		private function reset(resetScrollPosition:Boolean = true):void
 		{
-// FIXME: When resetScrollPosition is false, the position should not be reset. (Except to account for the case where we are at the bottom of the list)
-resetScrollPosition = true;
-			this._firstVisibleItemIndex = -1;
 			this._unusedItems = {};
 			this._sizeCache = [];
 			this._indexes2Items = {};
 			this._items2Indexes = new Dictionary(true);
 			this._positionCache = [];
 			this._initializedForModel = false;
+			this._firstVisibleItemIndex = -1;
 
 			if (resetScrollPosition)
-				this._setScrollPosition(0);
+				this.showItemAt(0);
+			else
+				this._showItemAt(Math.min(this.shownItem, this.dataProvider.length - 1));
+		}
 
+		/**
+		 * 
+		 */
+		private function _showItemAt(index:int, invalidateScrollPosition:Boolean = false):void
+		{
+			this.shownItem = index;
+			this.validationState.markPropertyAsInvalid(CONTENT_POSITION);
+			if (invalidateScrollPosition)
+				this.validationState.markPropertyAsInvalid(SCROLL_POSITION);
 			this.invalidate();
 		}
 
 		/**
 		 *	
 		 */
-		private function _setScrollPosition(index:int):void
+		private function setScrollPosition(index:int):void
 		{
 			var capProp:String = this._orientation == "horizontal" ? "Horizontal" : "Vertical";
 			this[this._orientation + "ScrollPosition"] = Math.min(index, this["max" + capProp + "ScrollPosition"]);
@@ -678,7 +638,7 @@ resetScrollPosition = true;
 		/**
 		 *	Updates the ScrollPane layout.
 		 */
-		private function _updateLayout():void
+		private function updateLayout():void
 		{
 			// Determine the number of items that are visible at max scroll position.
 			var mask:DisplayObject = this.getScrollMask();
@@ -693,7 +653,7 @@ resetScrollPosition = true;
 				while ((j >= 0) && (combinedSize < maskSize))
 				{
 					numItems++;
-					combinedSize += this._getItemSize(j);
+					combinedSize += this.getItemSize(j);
 					j--;
 				}
 			}
@@ -701,7 +661,7 @@ resetScrollPosition = true;
 			if (numItems != this._numItemsFinallyVisible)
 			{
 				this._numItemsFinallyVisible = numItems;
-				this._updateScrollBar();
+				this.updateScrollBar();
 			}
 		}
 
@@ -709,19 +669,19 @@ resetScrollPosition = true;
 		 * Updates the appearance of the scroll bars based on the combined size
 		 * of the items in the list and the scroll policy.
 		 */
-		private function _updateScrollBar():void
+		private function updateScrollBar():void
 		{
 			if (this.dataProvider)
 			{
 				var mask:DisplayObject = this.getScrollMask();
-				var scrollBar:IScrollBar = this._getScrollBar();
+				var scrollBar:IScrollBar = this.getScrollBar();
 // TODO: Instead use this.maxHorizontalScrollPosition and horizontalPageSize
 				if (scrollBar)
 				{
 					scrollBar.maxScrollPosition = this.dataProvider.length - this._numItemsFinallyVisible + 1;
 					scrollBar.pageSize = this._numItemsFinallyVisible;
 				}
-				var contentSize:Number = this._getItemSize(this._dataProvider.length - 1) + this._getItemPosition(this._dataProvider.length - 1);
+				var contentSize:Number = this.getItemSize(this._dataProvider.length - 1) + this.getItemPosition(this._dataProvider.length - 1);
 
 				scrollBar.enabled = contentSize > mask[this._widthOrHeight];
 
@@ -732,8 +692,69 @@ resetScrollPosition = true;
 			}
 		}
 
+		/**
+		 * 
+		 */
+		private function validate(event:Event):void
+		{
+			if (event)
+				event.currentTarget.removeEventListener(event.type, arguments.callee);
+			
+			if (this.validationState.propertyIsInvalid(CONTENT_POSITION))
+				this.validateContentPosition();
+			if (this.validationState.propertyIsInvalid(SCROLL_POSITION))
+				this.validateScrollPosition();
+			if (this.validationState.propertyIsInvalid(DISPLAY_LIST))
+				this.redraw();
 
+			this.validationState.markAllPropertiesAsValid();
+		}
 
+		/**
+		 * 
+		 */
+		private function validateContentPosition():void
+		{
+			var index:int = this.shownItem;
+
+			// TODO: is this the right way to handle this situation?
+			if (!this.dataProvider) return;
+
+			if (!this.orientation)
+				throw new Error("You must set the orientation on your ScrollableList");
+
+			var newPos:Object = {x: this.__contentContainer.x, y: this.__contentContainer.y};
+
+			if (this.dataProvider.length)
+			{
+				var mask:DisplayObject = this.getScrollMask();
+				if (!isNaN(index))
+				{
+					if (this.dataProvider != null)
+					{
+						var target:Number = -this.getItemPosition(index);
+
+						// Make sure we don't scroll "past" the content.
+						var contentSize:Number = this.getItemPosition(this.dataProvider.length - 1) + this.getItemSize(this.dataProvider.length - 1);
+						var maskSize:Number = mask[this._widthOrHeight];
+						var minPosition:Number = Math.min(0, maskSize - contentSize);
+						target = Math.max(minPosition, target);
+						newPos[this._xOrY] = target;
+					}
+				}
+			}
+
+			this.moveContent(newPos.x, newPos.y);
+			this.validationState.markPropertyAsInvalid(DISPLAY_LIST);
+		}
+
+		/**
+		 * 
+		 */
+		private function validateScrollPosition():void
+		{
+			this.setScrollPosition(this.shownItem);
+		}
 
 	}
 }
