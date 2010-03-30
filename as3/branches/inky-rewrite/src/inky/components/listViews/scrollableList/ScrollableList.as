@@ -12,6 +12,8 @@
 	import flash.events.Event;
 	import flash.utils.Dictionary;
 	import inky.components.scrollBar.IScrollBar;
+	import inky.collections.events.CollectionEvent;
+	import flash.utils.setTimeout;
 
 
 	/**
@@ -32,7 +34,7 @@
 		
 		private var __contentContainer:DisplayObjectContainer;
 		private var _firstVisibleItemIndex:int;
-		private var _rendererClass:Class;
+		private var _itemRendererClass:Class;
 		private var _indexes2Items:Object;
 		private var _initializedForModel:Boolean;
 		private var _items2Indexes:Dictionary;
@@ -41,12 +43,12 @@
 		private var _orientation:String;
 		private var _positionCache:Array;
 		private var _unusedItems:Object;
-		private var _recycleRenderers:Boolean;
+		private var _recycleItemRenderers:Boolean;
 		private var _sizeCache:Array;
 		private var _spacing:Number;
 		private var _widthOrHeight:String;
 		private var _xOrY:String;
-// FIXME: When recycleRenderers == true, you can see dataProvider being reset on first item.  The class does this in order to calculate the total size, but it shouldn't use items that are on stage.
+// FIXME: When recycleItemRenderers == true, you can see dataProvider being reset on first item.  The class does this in order to calculate the total size, but it shouldn't use items that are on stage.
 // TODO: allow option that says the item views won't change size.  this way, you can calculate the container size using simple multiplication.
 
 		/**
@@ -71,20 +73,19 @@
 		/**
 		 * @private
 		 */
-		public function set dataProvider(dataProvider:IList):void
+		public function set dataProvider(value:IList):void
 		{
-			if (!EqualityUtil.objectsAreEqual(dataProvider, this._dataProvider))
+			if (!EqualityUtil.objectsAreEqual(value, this._dataProvider))
 			{
-				this._dataProvider = dataProvider;
-				this._firstVisibleItemIndex = -1;
-				this._unusedItems = {};
-				this._sizeCache = [];
-				this._indexes2Items = {};
-				this._items2Indexes = new Dictionary(true);
-				this._positionCache = [];
-				this._initializedForModel = false;
-				this._setScrollPosition(0);
-				this.invalidate();	
+				if (this._dataProvider)
+					this._dataProvider.removeEventListener(CollectionEvent.COLLECTION_CHANGE, this.dataProvider_collectionChangeHandler);
+				if (value)
+					value.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.dataProvider_collectionChangeHandler, false, 0, true);
+				
+				this._dataProvider = value;
+				this.reset();
+				
+				this.dispatchEvent(new Event("dataProviderChanged"));
 			}
 		}
 
@@ -126,28 +127,28 @@
 		/**
 		 *
 		 */
-		public function get recycleRenderers():Boolean
+		public function get recycleItemRenderers():Boolean
 		{ 
-			return this._recycleRenderers; 
+			return this._recycleItemRenderers; 
 		}
-		public function set recycleRenderers(value:Boolean):void
+		public function set recycleItemRenderers(value:Boolean):void
 		{
-			this._recycleRenderers = value;
+			this._recycleItemRenderers = value;
 		}
 
 		/**
 		 * @inheritDoc
 		 */
-		public function get rendererClass():Class
+		public function get itemRendererClass():Class
 		{
-			return this._rendererClass;
+			return this._itemRendererClass;
 		}
 		/**
 		 * @private
 		 */
-		public function set rendererClass(rendererClass:Class):void
+		public function set itemRendererClass(itemRendererClass:Class):void
 		{
-			this._rendererClass = rendererClass;
+			this._itemRendererClass = itemRendererClass;
 		}
 
 		/**
@@ -304,9 +305,8 @@ if (!this.dataProvider) return;
 // TODO: Because the super constructor's bindings access something that calls this, orientation 
 // is null (not yet initialized). Should orientation have a default value?
 if (!this.orientation) return;
-			var index:Number = Math.round(this._getScrollPosition());
-			if (!isNaN(index))
-				this.showItemAt(index);
+			var index:Number = Math.max(0, Math.min(this.dataProvider.length - 1, Math.round(this._getScrollPosition())));
+			this.showItemAt(index);
 		}
 
 		//---------------------------------------
@@ -325,6 +325,14 @@ if (!this.orientation) return;
 		}
 
 		/**
+		 * 
+		 */
+		private function dataProvider_collectionChangeHandler(event:CollectionEvent):void
+		{
+			this.reset(false);
+		}
+
+		/**
 		 * Gets an instance of the item view class to be used for the provided
 		 * index.
 		 *	
@@ -332,11 +340,11 @@ if (!this.orientation) return;
 		 *     the index of the item
 		 * @param markAsUsed
 		 */
-		private function _getRendererFor(index:int):Object
+		private function _getItemRendererFor(index:int):Object
 		{
 			var listItem:Object = this._indexes2Items[index] || this._unusedItems[index];
 
-			if (!listItem && this.recycleRenderers)
+			if (!listItem && this.recycleItemRenderers)
 			{
 				// Recycle the first unused item.
 				for (var p:String in this._unusedItems)
@@ -351,7 +359,7 @@ if (!this.orientation) return;
 			// If there are no unused items to recycle, create a new one.
 			if (!listItem)
 			{
-				listItem = new this._rendererClass();
+				listItem = new this._itemRendererClass();
 				this._unusedItems[index] = listItem;
 			}
 
@@ -406,13 +414,12 @@ er = 7;
 			var size:Number = this._sizeCache[index];
 			if (isNaN(size))
 			{
-				var renderer:Object = this._getRendererFor(index);
-				if (!EqualityUtil.objectsAreEqual(renderer.model, this.dataProvider.getItemAt(index)))
-					renderer.model = this.dataProvider.getItemAt(index);
-				size = renderer[this._widthOrHeight];
+				var itemItemRenderer:Object = this._getItemRendererFor(index);
+				if (!EqualityUtil.objectsAreEqual(itemItemRenderer.model, this.dataProvider.getItemAt(index)))
+					itemItemRenderer.model = this.dataProvider.getItemAt(index);
+				size = itemItemRenderer[this._widthOrHeight];
 				this._sizeCache[index] = size;
 			}
-
 			return size;
 		}
 
@@ -437,7 +444,7 @@ er = 7;
 		 */
 		private function _init():void
 		{
-			this._recycleRenderers = true;
+			this._recycleItemRenderers = true;
 			this._spacing = 0;
 			
 			if (this.horizontalScrollBar && this.verticalScrollBar)
@@ -588,7 +595,7 @@ er = 7;
 			// Add and position items as needed.
 			while (index < this.dataProvider.length)
 			{
-				listItem = this._getRendererFor(index);
+				listItem = this._getItemRendererFor(index);
 
 				var model:Object = this.dataProvider.getItemAt(index);
 				if (!EqualityUtil.objectsAreEqual(listItem.model, model))
@@ -639,6 +646,27 @@ er = 7;
 		}
 
 		/**
+		 * 
+		 */
+		private function reset(resetScrollPosition:Boolean = true):void
+		{
+// FIXME: When resetScrollPosition is false, the position should not be reset. (Except to account for the case where we are at the bottom of the list)
+resetScrollPosition = true;
+			this._firstVisibleItemIndex = -1;
+			this._unusedItems = {};
+			this._sizeCache = [];
+			this._indexes2Items = {};
+			this._items2Indexes = new Dictionary(true);
+			this._positionCache = [];
+			this._initializedForModel = false;
+
+			if (resetScrollPosition)
+				this._setScrollPosition(0);
+
+			this.invalidate();
+		}
+
+		/**
 		 *	
 		 */
 		private function _setScrollPosition(index:int):void
@@ -657,13 +685,17 @@ er = 7;
 			var maskSize:Number = mask[this._widthOrHeight];
 			var numItems:int = 0;
 			var combinedSize:Number = 0;
-			var j:int = this.dataProvider.length - 1;
-
-			while ((j >= 0) && (combinedSize < maskSize))
+			
+			if (this.dataProvider.length > 0)
 			{
-				numItems++;
-				combinedSize += this._getItemSize(j);
-				j--;
+				var j:int = this.dataProvider.length - 1;
+
+				while ((j >= 0) && (combinedSize < maskSize))
+				{
+					numItems++;
+					combinedSize += this._getItemSize(j);
+					j--;
+				}
 			}
 
 			if (numItems != this._numItemsFinallyVisible)
@@ -690,7 +722,7 @@ er = 7;
 					scrollBar.pageSize = this._numItemsFinallyVisible;
 				}
 				var contentSize:Number = this._getItemSize(this._dataProvider.length - 1) + this._getItemPosition(this._dataProvider.length - 1);
-			
+
 				scrollBar.enabled = contentSize > mask[this._widthOrHeight];
 
 				if (this[this._orientation + "ScrollPolicy"] == ScrollPolicy.AUTO)

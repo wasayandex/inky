@@ -29,11 +29,11 @@
 		/**
 		 *
 		 */
-		function get rendererClass():Class;
+		function get itemRendererClass():Class;
 		/**
 		 * @private
 		 */
-		function set rendererClass(rendererClass:Class):void;
+		function set itemRendererClass(value:Class):void;
 
 
 		/**
