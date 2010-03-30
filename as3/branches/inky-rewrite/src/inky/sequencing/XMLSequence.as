@@ -1,10 +1,12 @@
 package inky.sequencing 
 {
-	import inky.utils.getClass;
-	import inky.sequencing.commands.CallFunctionCommand;
-	import inky.sequencing.commands.WaitCommand;
+	import inky.sequencing.commands.CallCommand;
 	import inky.sequencing.ISequence;
 	import inky.sequencing.CommandData;
+	import inky.sequencing.commands.DispatchEventCommand;
+	import inky.sequencing.parsers.ICommandDataParser;
+	import inky.sequencing.parsers.StandardCommandDataParser;
+	import inky.sequencing.parsers.DispatchEventParser;
 	
 	/**
 	 *
@@ -20,8 +22,10 @@ package inky.sequencing
 	public class XMLSequence implements ISequence
 	{
 		private var commandData:Array = [];
+		private var parserRegistry:Object = {};
 		private var commandRegistry:Object = {};
 		private var source:XML;
+		private static var standardParser:ICommandDataParser;
 		
 		/**
 		 *
@@ -29,8 +33,10 @@ package inky.sequencing
 		public function XMLSequence(source:XML)
 		{
 			this.source = source;
-			this.registerCommand("call", CallFunctionCommand);
-			this.registerCommand("wait", WaitCommand);
+			this.registerCommand("call", CallCommand);
+			this.registerCommand("CallCommand", CallCommand);
+			this.registerCommand("dispatchEvent", null, new DispatchEventParser());
+			this.registerCommand("DispatchEventCommand", DispatchEventCommand);
 		}
 		
 		//---------------------------------------
@@ -77,9 +83,12 @@ package inky.sequencing
 		}
 
 		/**
-		 * @inheritDoc
+		 * Registers a command with the sequence. Normal use is to omit the
+		 * third argument, however, if you want to specify a custom parser,
+		 * you may pass <code>null</code> for the second argument (assuming
+		 * your custom parser allows it).
 		 */
-		public function registerCommand(name:Object, type:Class):void
+		public function registerCommand(name:Object, type:Class, parser:ICommandDataParser = null):void
 		{
 			var qName:QName;
 			
@@ -89,6 +98,7 @@ package inky.sequencing
 				qName = new QName("", String(name));
 			else throw new ArgumentError("Name parameter must be either a String or QName");
 
+			this.parserRegistry[name] = parser;
 			this.commandRegistry[name] = type;
 		}
 		
@@ -105,31 +115,28 @@ package inky.sequencing
 			var data:CommandData;
 			var name:QName = xml.name();
 
-			if (!this.commandRegistry[name])
+			if (!this.commandRegistry.hasOwnProperty(name))
 				throw new Error("There is no command registered for the name " + name);
 
-			var commandClass:Class = getClass(this.commandRegistry[name]);
-			if (!commandClass)
-				throw new Error("Could not find the class " + this.commandRegistry[name]);
-
-			var command:Object = new commandClass();
-			var propertyGetters:Object = {};
-
-			for each (var prop:XML in xml.attributes())
+			var parser:ICommandDataParser = this.getParser(xml);
+			return parser.parse(xml, this.commandRegistry[name]);
+		}
+		
+		/**
+		 * 
+		 */
+		private function getParser(xml:XML):ICommandDataParser
+		{
+			var name:QName = xml.name();
+			var parser:ICommandDataParser = this.parserRegistry[name];
+			if (!parser)
 			{
-				var propName:String = prop.name();
-				var value:String = prop.toString();
-
-				if (value.charAt(0) == "#")
-					propertyGetters[propName] = value.substr(1);
-				else
-					command[propName] = value;
+				parser =
+				XMLSequence.standardParser = XMLSequence.standardParser || new StandardCommandDataParser();
 			}
-
-			return new CommandData(command, propertyGetters);
+			return parser;
 		}
 
-		
 	}
 	
 }

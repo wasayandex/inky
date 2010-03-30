@@ -25,7 +25,7 @@ package inky.sequencing.commands
 		 */
 		public function execute():void
 		{
-trace("waiting");
+trace("waiting for " + this.forObject);
 		}
 
 		

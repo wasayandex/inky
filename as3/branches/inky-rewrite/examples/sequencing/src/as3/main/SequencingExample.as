@@ -23,9 +23,13 @@ package
 		private var sequenceASource:XML =
 			<sequence>
 				<call closure="#createBall" />
-				<wait forObject="#previousCommand" to={Event.COMPLETE} />
+				<dispatchEvent withType="introComplete" on="#owner" />
+				<call closure="#trace" />
+<!--				<wait forObject="#previousCommand" to={Event.COMPLETE} />-->
 			</sequence>
-		
+
+// TODO: How should we set arguments? For example, on trace?
+
 		private var sequencePlayer:SequencePlayer;
 		
 		/**
@@ -34,9 +38,8 @@ package
 		public function SequencingExample()
 		{
 			var sequenceA:ISequence = new XMLSequence(this.sequenceASource);
-
-			this.sequencePlayer = new SequencePlayer();
-			this.sequencePlayer.variables.createBall = this.createBall;
+this.addEventListener("introComplete", trace);
+			this.sequencePlayer = new SequencePlayer({owner: this, createBall: this.createBall, trace: trace});
 			this.sequencePlayer.playSequence(sequenceA);
 		}
 		
@@ -49,6 +52,7 @@ package
 		 */
 		private function createBall():Ball
 		{
+trace("createBall");
 			var color:uint = Math.random() * 0xffffff;
 			var radius:Number = Math.random() * 30 + 10;
 			var x:Number = Math.random() * this.stage.stageWidth;
@@ -59,9 +63,6 @@ package
 			this.addChild(redBall);
 			return redBall;
 		}
-
-
-
 		
 	}
 	

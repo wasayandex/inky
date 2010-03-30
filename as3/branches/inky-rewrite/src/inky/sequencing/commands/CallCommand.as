@@ -12,7 +12,7 @@ package inky.sequencing.commands
 	 *	@since  2010.03.29
 	 *
 	 */
-	public class CallFunctionCommand
+	public class CallCommand
 	{
 		public var closure:Function;
 		public var scope:Object;

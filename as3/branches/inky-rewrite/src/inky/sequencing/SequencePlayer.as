@@ -27,9 +27,9 @@ package inky.sequencing
 		/**
 		 *
 		 */
-		public function SequencePlayer()
+		public function SequencePlayer(variables:Object = null)
 		{
-			
+			this._variables = variables || {};
 		}
 
 		//---------------------------------------
@@ -41,7 +41,7 @@ package inky.sequencing
 		 */
 		public function get variables():Object
 		{
-			return this._variables || (this._variables = {});
+			return this._variables;
 		}
 
 		//---------------------------------------
@@ -103,10 +103,13 @@ package inky.sequencing
 			{
 				command.addEventListener(Event.COMPLETE, this.command_completeHandler);
 				command.execute();
+// FIXME: Instead of having the player set variables like this, the property should be set on the player itself and the variables should be searched for in a scope chain that includes the player. That way, if we add more things like this in the future, it won't conflict with variables users have set.
+				this.variables.previousCommand = command;
 			}
 			else
 			{
 				command.execute();
+				this.variables.previousCommand = command;
 				this.executeNextCommand();
 			}
 		}
@@ -139,9 +142,8 @@ trace("end");
 			
 			for (var prop:String in propertyGetters)
 			{
-				var variableName:String = propertyGetters[prop];
-// TODO: Allow getter functions?
-				command[prop] = this.variables[variableName];
+				var getter:Function = propertyGetters[prop];
+				command[prop] = getter(this.variables);
 			}
 		}
 		
