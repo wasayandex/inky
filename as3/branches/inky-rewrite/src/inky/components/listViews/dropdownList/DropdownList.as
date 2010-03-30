@@ -255,14 +255,14 @@ package inky.components.listViews.dropdownList
 		/**
 		 * @inheritDoc
 		 */
-		public function get rendererClass():Class
+		public function get itemRendererClass():Class
 		{
 			return this.itemRenderer;
 		}
 		/**
 		 * @private
 		 */
-		public function set rendererClass(rendererClass:Class):void
+		public function set itemRendererClass(rendererClass:Class):void
 		{
 			this.itemRenderer = rendererClass;
 		}
@@ -509,7 +509,7 @@ package inky.components.listViews.dropdownList
 		 */
 		private function dropDown_clickHandler(event:MouseEvent):void
 		{
-			if (event.target is this.rendererClass)
+			if (event.target is this.itemRendererClass)
 			{
 				var model:Object = event.target.model;
 				if (model && this.dataProvider.getItemIndex(model) != -1)
@@ -534,15 +534,15 @@ package inky.components.listViews.dropdownList
 				this.dropdown = new dropdownClass() as IListView;
 				
 				// TODO: Determine which itemRenderer (rendererClass) takes precedence: the DropdownList's, or the listRenderer's.  Right now, the listRenderer's itemRenderer wins.
-				if (!this.dropdown.rendererClass)
+				if (!this.dropdown.itemRendererClass)
 				{
-					if (!this.rendererClass)
-						throw new Error("No rendererClass defined.");
-					this.dropdown.rendererClass = this.rendererClass;
+					if (!this.itemRendererClass)
+						throw new Error("No itemRendererClass defined.");
+					this.dropdown.itemRendererClass = this.itemRendererClass;
 				}
 				else
 				{
-					this.rendererClass = this.dropdown.rendererClass;
+					this.itemRendererClass = this.dropdown.itemRendererClass;
 				}
 				this.dropdown.dataProvider = this.dataProvider;
 				this.dropdown.x = pos.x;
