@@ -47,7 +47,7 @@ package inky.collections
 		 *     if the index is out of range (index > length).		 		 		 		 		 		 		 
 		 *
 		 */		 		 		
-		function addItemAt(item:Object, index:uint):void
+		function addItemAt(item:Object, index:int):void
 
 
 		/**
@@ -82,7 +82,7 @@ package inky.collections
 		 *     if the index is out of range (index > length).		 		 
 		 *		 
 		 */
-		function addItemsAt(collection:ICollection, index:uint):void;
+		function addItemsAt(collection:ICollection, index:int):void;
 		
 		
 		/**
@@ -97,7 +97,7 @@ package inky.collections
 		 *     if the index is out of range (index >= length).		 		 		 		 		 		 		 		 
 		 *
 		 */
-		function getItemAt(index:uint):Object;
+		function getItemAt(index:int):Object;
 		
 		
 		/**
@@ -163,7 +163,7 @@ package inky.collections
 		 *     fromIndex > toIndex).		 		 		 		 		 		 		 		 		  
 		 *		 
 		 */
-		function getSubList(fromIndex:uint, toIndex:uint):IList
+		function getSubList(fromIndex:int, toIndex:int):IList
 
 		
 		/**
@@ -176,7 +176,7 @@ package inky.collections
 		 *     sequence).		 		 		 
 		 *
 		 */
-		function listIterator(index:uint = 0):IListIterator;
+		function listIterator(index:int = 0):IListIterator;
 		
 		
 		/**
@@ -196,7 +196,7 @@ package inky.collections
 		 *     if the index is out of range (index >= length).		 		 		 		 		 		 		 		 		 		 
 		 *
 		 */
-		function removeItemAt(index:uint):Object;
+		function removeItemAt(index:int):Object;
 		
 		
 		/**
@@ -225,7 +225,7 @@ package inky.collections
 		 *     if the index is out of range (index >= length).		 		 	 		 		 		 
 		 *
 		 */
-		function replaceItemAt(newItem:Object, index:uint):Object;
+		function replaceItemAt(newItem:Object, index:int):Object;
 
 		
 		

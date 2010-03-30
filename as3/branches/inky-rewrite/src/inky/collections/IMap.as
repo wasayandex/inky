@@ -125,7 +125,7 @@ package inky.collections
 		 *
 		 *
 		 */
-		function get length():uint;
+		function get length():int;
 
 
 

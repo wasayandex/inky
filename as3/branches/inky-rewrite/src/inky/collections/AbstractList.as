@@ -60,7 +60,7 @@
 		/**
 		 * @inheritDoc
 		 */
-		public function get length():uint
+		public function get length():int
 		{
 			return this._list.length;
 		}
@@ -85,7 +85,7 @@
 		/**
 		 * @inheritDoc
 		 */
-		public function addItemAt(item:Object, index:uint):void
+		public function addItemAt(item:Object, index:int):void
 		{
 			if (index && (index < 0 || index > this.length))
 			{
@@ -99,7 +99,7 @@
 		/**
 		 * @inheritDoc
 		 */
-		public function addItemsAt(collection:ICollection, index:uint):void
+		public function addItemsAt(collection:ICollection, index:int):void
 		{
 			if (index && (index < 0 || index > this.length))
 			{
@@ -207,7 +207,7 @@
 		/**
 		 * @inheritDoc
 		 */
-		public function getItemAt(index:uint):Object
+		public function getItemAt(index:int):Object
 		{
 			if (index >= this.length)
 			{
@@ -229,7 +229,7 @@
 		/**
 		 * @inheritDoc
 		 */
-		public function getSubList(fromIndex:uint, toIndex:uint):IList
+		public function getSubList(fromIndex:int, toIndex:int):IList
 		{
 			return new RandomAccessSubList(this, fromIndex, toIndex);
 		}
@@ -247,7 +247,7 @@
 		/**
 		 * @inheritDoc
 		 */
-		public function listIterator(index:uint = 0):IListIterator
+		public function listIterator(index:int = 0):IListIterator
 		{
 			return new ListIterator(this, index);
 		}
@@ -279,7 +279,7 @@
 		/**
 		 * @inheritDoc
 		 */
-		public function removeItemAt(index:uint):Object
+		public function removeItemAt(index:int):Object
 		{
 			var item:Object = this._list[index];
 			this._list.splice(index, 1);
@@ -304,7 +304,7 @@
 		/**
 		 * @inheritDoc
 		 */
-		public function replaceItemAt(newItem:Object, index:uint):Object
+		public function replaceItemAt(newItem:Object, index:int):Object
 		{
 			if (index > this.length)
 			{
@@ -418,7 +418,7 @@
 		{
 			var index:int = -1;
 
-			for (var i:uint = 0; i < this._list.length; i++)
+			for (var i:int = 0; i < this._list.length; i++)
 			{
 				if (EqualityUtil.objectsAreEqual(this._list[i], item))
 				{

@@ -43,7 +43,7 @@
 		/**
 		 *	@inheritDoc	
 		 */
-		public function get length():uint
+		public function get length():int
 		{
 			return this._set.length;
 		}
