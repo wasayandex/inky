@@ -19,7 +19,7 @@ package inky.utils
 		/**
 		 *
 		 */
-		public function ValidationUtil()
+		public function ValidationState()
 		{
 			this.propertyIsInvalidMap = {};
 		}
@@ -82,7 +82,7 @@ package inky.utils
 		 */
 		public function propertyIsInvalid(property:String):Boolean
 		{
-			return this.propertyIsInvalid[property] || false;
+			return this.propertyIsInvalidMap[property] || false;
 		}
 		
 	}
