@@ -24,8 +24,9 @@ package
 			<sequence>
 				<call closure="#createBall" />
 				<dispatchEvent withType="introComplete" on="#owner" />
+				<wait for="30 frames" />
+				<dispatchEvent withType="introComplete" on="#owner" />
 				<call closure="#trace" />
-<!--				<wait forObject="#previousCommand" to={Event.COMPLETE} />-->
 			</sequence>
 
 // TODO: How should we set arguments? For example, on trace?
