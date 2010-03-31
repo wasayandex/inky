@@ -25,11 +25,17 @@ package
 			<sequence>
 				<call closure="#createBall" />
 				<set property="ball" on="#player.variables" to="#player.previousCommand.result" />
+				<set property="text" on="#owner.textField" to="waiting for click" />
 				<wait for={MouseEvent.CLICK} on="#ball" />
+				<set property="text" on="#owner.textField" to="gonna tween some" />
 				<tween x.to="50" y.to="200" alpha.to="0" for="1s" on="#ball" />
+				<set property="text" on="#owner.textField" to="gonna wait some" />
 				<wait for="30 frames" />
+				<set property="text" on="#owner.textField" to="gonna tween some more" />
 				<tween tint.to="0x000000ff" x.to="100" alpha.to="1" for="60 frames" on="#ball" />
+				<tween x.to="200" for="1500ms" on="#ball" />
 				<dispatchEvent withType="introComplete" on="#owner" />
+				<set property="text" on="#owner.textField" to="DONE" />
 			</sequence>
 
 		private var sequencePlayer:SequencePlayer;
@@ -44,7 +50,6 @@ package
 			ColorTransformPlugin.install();
 
 			var sequenceA:ISequence = new XMLSequence(this.sequenceASource);
-this.addEventListener("introComplete", trace);
 			this.sequencePlayer = new SequencePlayer({owner: this, createBall: this.createBall, trace: trace});
 			this.sequencePlayer.playSequence(sequenceA);
 		}
