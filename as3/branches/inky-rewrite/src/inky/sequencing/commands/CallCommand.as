@@ -17,6 +17,7 @@ package inky.sequencing.commands
 		public var closure:Function;
 		public var scope:Object;
 		public var arguments:Array;
+		public var result:*;
 		
 		//---------------------------------------
 		// PUBLIC METHODS
@@ -27,7 +28,13 @@ package inky.sequencing.commands
 		 */
 		public function execute():void
 		{
-			this.closure.apply(this.scope, this.arguments);
+			if (this.closure == null)
+			{
+				this.result = undefined;
+				throw new Error("You must specify a method closure.");
+			}
+
+			this.result = this.closure.apply(this.scope, this.arguments);
 		}
 		
 	}

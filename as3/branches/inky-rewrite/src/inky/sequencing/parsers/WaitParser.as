@@ -51,7 +51,7 @@ package inky.sequencing.parsers
 			
 			var command:Object;
 			var commandData:CommandData;
-			
+// FIXME: Variable (getter) not allowed for "for" property.
 			if (unformattedProperties.on || unformattedGetters.on)
 			{
 				command = new EventListenerCommand();

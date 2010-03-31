@@ -33,9 +33,27 @@ package inky.sequencing.parsers
 				var match:Object = value.match(/^#(.*)$/);
 
 				if (match)
+				{
 					propertyGetters[propName] = this.parseGetterString(match[1]);
+				}
+				else if (propName.indexOf(".") != -1)
+				{
+					var target:Object = obj;
+					var parts:Array = propName.split(".");
+					for (var i:int = 0; i < parts.length - 1; i++)
+					{
+						propName = parts[i];
+						target[propName] = target[propName] || {};
+						target = target[propName];
+					}
+
+					propName = parts[parts.length - 1];
+					target[propName] = value;
+				}
 				else
+				{
 					obj[propName] = value;
+				}
 			}
 			
 			return propertyGetters;

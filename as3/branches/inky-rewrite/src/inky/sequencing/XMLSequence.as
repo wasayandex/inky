@@ -9,6 +9,8 @@ package inky.sequencing
 	import inky.sequencing.parsers.DispatchEventParser;
 	import inky.sequencing.commands.DelayCommand;
 	import inky.sequencing.parsers.WaitParser;
+	import inky.sequencing.parsers.GTweenParser;
+	import inky.sequencing.commands.GTweenCommand;
 	
 	/**
 	 *
@@ -39,8 +41,10 @@ package inky.sequencing
 			this.registerCommand("CallCommand", CallCommand);
 			this.registerCommand("dispatchEvent", null, new DispatchEventParser());
 			this.registerCommand("DispatchEventCommand", DispatchEventCommand);
-			this.registerCommand("DelayCommand", DelayCommand);
 			this.registerCommand("wait", null, new WaitParser());
+			this.registerCommand("DelayCommand", DelayCommand);
+			this.registerCommand("tweenProperties", null, new GTweenParser());
+			this.registerCommand("GTweenCommand", GTweenCommand);
 		}
 		
 		//---------------------------------------
