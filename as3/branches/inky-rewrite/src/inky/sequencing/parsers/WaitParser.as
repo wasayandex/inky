@@ -1,10 +1,8 @@
 package inky.sequencing.parsers 
 {
 	import inky.sequencing.parsers.WaitParser;
-	import inky.sequencing.parsers.AlternateSyntaxParser;
 	import inky.sequencing.commands.DelayCommand;
 	import inky.sequencing.parsers.ICommandDataParser;
-	import inky.sequencing.parsers.PropertyParser;
 	import inky.sequencing.CommandData;
 	import inky.sequencing.commands.EventListenerCommand;
 	
@@ -28,8 +26,7 @@ package inky.sequencing.parsers
 	 */
 	public class WaitParser implements ICommandDataParser
 	{
-		private static var propertyParser:PropertyParser;
-		
+		private static var timeParser:TimeParser;
 		private static const propertyMap:Object = {
 			"for": "duration"
 		};
@@ -43,52 +40,39 @@ package inky.sequencing.parsers
 		 */
 		public function parse(xml:XML, cls:Object):CommandData
 		{
-			if (!WaitParser.propertyParser)
-				WaitParser.propertyParser = new PropertyParser();
+			if (!xml["@for"].length())
+				throw new Error("The wait command requires a \"for\" attribute.");
 
-			var unformattedProperties:Object = {};
-			var unformattedGetters:Object = WaitParser.propertyParser.parseProperties(xml, unformattedProperties);
+			xml = xml.copy();
 			
 			var command:Object;
-			var commandData:CommandData;
-// FIXME: Variable (getter) not allowed for "for" property.
-			if (unformattedProperties.on || unformattedGetters.on)
+			var formatters:Object;
+
+			if (xml.@on.length())
 			{
 				command = new EventListenerCommand();
-				this.mapProperty(unformattedProperties, "on", "target");
-				this.mapProperty(unformattedGetters, "on", "target");
-				this.mapProperty(unformattedProperties, "for", "eventType");
-				this.mapProperty(unformattedGetters, "for", "eventType");
-				this.mapProperty(unformattedProperties, "ofClass", "eventClass");
-				this.mapProperty(unformattedGetters, "ofClass", "eventClass");
-				
-				for (var property:String in unformattedProperties)
-				{
-					command[property] = unformattedProperties[property];
-				}
-				
-				commandData = new CommandData(command, unformattedGetters);
-			}
-			else if (!unformattedProperties["for"])
-			{
-				throw new Error("The wait command requires a \"for\" attribute.");
+				xml.@on.setLocalName("target");
+				xml["@for"].setLocalName("eventType");
+
+				if (xml.@withClass.length())
+					xml.@withClass.setLocalName("eventClass");
 			}
 			else
 			{
-				command = new DelayCommand()
-				var rawDuration:String = unformattedProperties["for"];
-				
-				// Parse the duration from the "for" property.
-				var time:ParsedTime = new TimeParser().parse(rawDuration);
-				command.duration = time.time;
-				command.units = time.units;
-				
-				commandData = new CommandData(command, unformattedGetters);
+				command = new DelayCommand();
+				xml["@for"].setLocalName("duration");
+				xml.@units = xml.@duration;
+
+				formatters = {
+					duration: this.formatDuration,
+					units: this.formatUnits
+				};
 			}
-			
-			return commandData;
+
+			var injectors:Array = CommandParserUtil.createInjectors(xml, formatters);
+			return new CommandData(command, injectors);
 		}
-		
+
 		//---------------------------------------
 		// PRIVATE METHODS
 		//---------------------------------------
@@ -96,15 +80,21 @@ package inky.sequencing.parsers
 		/**
 		 * 
 		 */
-		private function mapProperty(host:Object, sourceProperty:String, targetProperty:String):void
+		private function formatDuration(time:String):Number
 		{
-			if (host.hasOwnProperty(sourceProperty))
-			{
-				var value:* = host[sourceProperty];
-				delete host[sourceProperty];
-				host[targetProperty] = value;
-			}
+			var timeParser:TimeParser = WaitParser.timeParser || (WaitParser.timeParser = new TimeParser());
+			var parseResult:ParsedTime = timeParser.parse(time);
+			return parseResult.units == TimeUnit.MILLISECONDS ? parseResult.time / 1000 : parseResult.time;
 		}
+		
+		/**
+		 * 
+		 */
+		private function formatUnits(time:String):String
+		{
+			return timeParser.parse(time).units;
+		}
+
 	}
 	
 }

@@ -1,12 +1,12 @@
 package inky.sequencing.parsers 
 {
-	import inky.sequencing.commands.DispatchEventCommand;
 	import inky.sequencing.parsers.ICommandDataParser;
-	import inky.sequencing.parsers.PropertyParser;
 	import inky.sequencing.commands.GTweenCommand;
-	import inky.sequencing.parsers.TimeUnit;
 	import inky.sequencing.CommandData;
-	import inky.utils.describeObject;
+	import inky.sequencing.parsers.CommandParserUtil;
+	import inky.sequencing.parsers.TimeParser;
+	import inky.sequencing.parsers.TimeUnit;
+	import inky.sequencing.parsers.ParsedTime;
 	
 	/**
 	 *
@@ -21,66 +21,50 @@ package inky.sequencing.parsers
 	 */
 	public class GTweenParser implements ICommandDataParser
 	{
-		private static var propertyParser:PropertyParser;
+		private static const TARGET_VALUE:RegExp = /^(.*)\.to$/;
+		private static var timeParser:TimeParser;
+		private static const propertyMap:Object = {
+			"for": "duration",
+			"on": "target"
+		};
+		
+		//---------------------------------------
+		// PUBLIC METHODS
+		//---------------------------------------
 		
 		/**
 		 *
 		 */
 		public function parse(xml:XML, cls:Object):CommandData
 		{
-			if (!GTweenParser.propertyParser)
-				GTweenParser.propertyParser = new PropertyParser();
-
+			xml = xml.copy();
+			
+			var match:Object;
 			var prop:String;
-			var unformattedProperties:Object = {};
-			var unformattedGetters:Object = GTweenParser.propertyParser.parseProperties(xml, unformattedProperties);
-			
-			var command:GTweenCommand = new GTweenCommand();
+			var value:String;
 
-// FIXME: Variable (getter) not allowed for "for" property.
-			// Parse the duration from the "for" property.
-			var rawDuration:String = unformattedProperties["for"];
-			delete unformattedProperties["for"];
-			var time:ParsedTime = new TimeParser().parse(rawDuration);
-			if (time.units == TimeUnit.FRAMES)
+			for each (var attr:XML in xml.@*)
 			{
-				command.tweenProperties.useFrames = true;
-				command.tweenProperties.duration = time.time;
-			}
-			else
-			{
-				command.tweenProperties.useFrames = false;
-				command.tweenProperties.duration = time.time / 1000;
-			}
-
-			this.mapProperty(unformattedProperties, "on", "target");
-			this.mapProperty(unformattedGetters, "on", "target");
-// FIXME: Variables (getters) not allowed in to.* attributes.
-			for (prop in unformattedProperties.to)
-			{
-				command.targetValues[prop] = unformattedProperties.to[prop];
-			}
-			delete unformattedProperties.to;
-			
-			for (prop in unformattedProperties)
-			{
-				command.tweenProperties[prop] = unformattedProperties[prop];
-			}
-			
-			var formattedGetters:Object = {
-				tweenProperties: function(host:Object):Object
+				if ((match = attr.localName().toString().match(TARGET_VALUE)))
 				{
-					var properties:Object = command.tweenProperties;
-					for (prop in unformattedGetters)
-					{
-						var fn:Function = unformattedGetters[prop];
-						properties[prop] = fn(host);
-					}
-					return properties;
+					// Format the "to" properties.
+					prop = match[1];
+					attr.setLocalName("targetValues." + prop);
 				}
-			};
-			
-			return new CommandData(command, formattedGetters);
+				else
+				{
+					prop = attr.localName();
+					prop = GTweenParser.propertyMap[prop] || prop;
+					attr.setLocalName("tweenProperties." + prop);
+				}
+			}
+
+			if (xml["@tweenProperties.duration"].length())
+				xml["@tweenProperties.useFrames"] = xml["@tweenProperties.duration"];
+
+			var command:Object = new GTweenCommand();
+			var injectors:Array = CommandParserUtil.createInjectors(xml, {"tweenProperties.duration": this.formatDuration, "tweenProperties.useFrames": this.formatUseFrames});
+			return new CommandData(command, injectors);
 		}
 
 		//---------------------------------------
@@ -90,14 +74,20 @@ package inky.sequencing.parsers
 		/**
 		 * 
 		 */
-		private function mapProperty(host:Object, sourceProperty:String, targetProperty:String):void
+		private function formatDuration(time:String):Number
 		{
-			if (host.hasOwnProperty(sourceProperty))
-			{
-				var value:* = host[sourceProperty];
-				delete host[sourceProperty];
-				host[targetProperty] = value;
-			}
+			var timeParser:TimeParser = GTweenParser.timeParser || (GTweenParser.timeParser = new TimeParser());
+			var parseResult:ParsedTime = timeParser.parse(time);
+			return parseResult.units == TimeUnit.MILLISECONDS ? parseResult.time / 1000 : parseResult.time;
+		}
+		
+		/**
+		 * 
+		 */
+		private function formatUseFrames(time:String):Boolean
+		{
+			var timeParser:TimeParser = GTweenParser.timeParser || (GTweenParser.timeParser = new TimeParser());
+			return timeParser.parse(time).units == TimeUnit.FRAMES;
 		}
 
 	}

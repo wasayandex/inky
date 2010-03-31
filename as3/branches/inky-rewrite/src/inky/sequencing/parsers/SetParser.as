@@ -1,8 +1,8 @@
 package inky.sequencing.parsers 
 {
-	import inky.sequencing.commands.DispatchEventCommand;
 	import inky.sequencing.parsers.CommandParserUtil;
 	import inky.sequencing.CommandData;
+	import inky.sequencing.commands.SetCommand;
 	
 	/**
 	 *
@@ -15,7 +15,7 @@ package inky.sequencing.parsers
 	 *	@since  2010.03.29
 	 *
 	 */
-	public class DispatchEventParser implements ICommandDataParser
+	public class SetParser implements ICommandDataParser
 	{
 		
 		//---------------------------------------
@@ -29,18 +29,11 @@ package inky.sequencing.parsers
 		{
 			xml = xml.copy();
 			
-			if (!xml.@on.length())
-				throw new Error("The DispatchEventParser requires an \"on\" attribute.");
-			else if (!xml.@withType.length())
-				throw new Error("The DispatchEventParser requires a \"withType\" attribute.");
-			
-			if (xml.@ofClass.length())
-				xml.@ofClass.setLocalName("eventClass");
 			xml.@on.setLocalName("target");
-			xml.@withType.setLocalName("type");
+			xml.@to.setLocalName("value");
 			
 			return new CommandData(
-				new DispatchEventCommand(),
+				new SetCommand(),
 				CommandParserUtil.createInjectors(xml)
 			);
 		}

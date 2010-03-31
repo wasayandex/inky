@@ -3,7 +3,7 @@ package inky.sequencing.parsers
 	import inky.sequencing.CommandData;
 	import inky.sequencing.parsers.ICommandDataParser;
 	import inky.utils.getClass;
-	import inky.sequencing.parsers.PropertyParser;
+	import inky.sequencing.parsers.CommandParserUtil;
 	
 	/**
 	 *
@@ -18,8 +18,7 @@ package inky.sequencing.parsers
 	 */
 	public class StandardCommandDataParser implements ICommandDataParser
 	{
-		private static var propertyParser:PropertyParser;
-		
+
 		//---------------------------------------
 		// PUBLIC METHODS
 		//---------------------------------------
@@ -34,12 +33,8 @@ package inky.sequencing.parsers
 				throw new Error("Could not find the class " + cls);
 
 			var command:Object = new commandClass();
-			
-			if (!StandardCommandDataParser.propertyParser)
-				StandardCommandDataParser.propertyParser = new PropertyParser();
-			
-			var propertyGetters:Object = StandardCommandDataParser.propertyParser.parseProperties(xml, command);
-			return new CommandData(command, propertyGetters);
+			var injectors:Array = CommandParserUtil.createInjectors(xml);
+			return new CommandData(command, injectors);
 		}
 
 	}

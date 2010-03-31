@@ -9,15 +9,14 @@ package inky.sequencing.commands
 	 *	@playerversion Flash 9.0.0
 	 *
 	 *	@author Matthew Tretter
-	 *	@since  2010.03.29
+	 *	@since  2010.03.31
 	 *
 	 */
-	public class CallCommand
+	public class SetCommand
 	{
-		public var closure:Function;
-		public var scope:Object;
-		public var arguments:Array = [];
-		public var result:*;
+		public var property:String;
+		public var target:Object;
+		public var value:*;
 		
 		//---------------------------------------
 		// PUBLIC METHODS
@@ -28,14 +27,14 @@ package inky.sequencing.commands
 		 */
 		public function execute():void
 		{
-			if (this.closure == null)
-			{
-				this.result = undefined;
-				throw new Error("You must specify a method closure.");
-			}
-
-			this.result = this.closure.apply(this.scope, this.arguments);
+			if (!this.target)
+				throw new Error("SetCommand requires a target.");
+			if (!this.property)
+				throw new Error("SetCommand requires a property.");
+			
+			this.target[this.property] = this.value;
 		}
+
 		
 	}
 	

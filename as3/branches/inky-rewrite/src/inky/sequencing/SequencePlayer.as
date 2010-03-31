@@ -154,12 +154,11 @@ trace("end");
 		private function prepareCommand(commandData:CommandData):void
 		{
 			var command:Object = commandData.command;
-			var propertyGetters:Object = commandData.propertyGetters;
+			var injectors:Array = commandData.injectors;
 			
-			for (var prop:String in propertyGetters)
+			for each (var injector:Function in injectors)
 			{
-				var getter:Function = propertyGetters[prop];
-				command[prop] = getter(this.variables);
+				injector(command, this.variables);
 			}
 		}
 		

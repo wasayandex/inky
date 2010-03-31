@@ -15,15 +15,15 @@ package inky.sequencing
 	public class CommandData
 	{
 		public var command:Object;
-		public var propertyGetters:Object;
+		public var injectors:Array;
 		
 		/**
 		 *
 		 */
-		public function CommandData(command:Object, propertyGetters:Object)
+		public function CommandData(command:Object, injectors:Array)
 		{
 			this.command = command;
-			this.propertyGetters = propertyGetters;
+			this.injectors = injectors;
 		}
 	}
 	
