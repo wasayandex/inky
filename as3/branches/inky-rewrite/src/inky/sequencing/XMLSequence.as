@@ -13,6 +13,7 @@ package inky.sequencing
 	import inky.sequencing.commands.GTweenCommand;
 	import inky.sequencing.parsers.SetParser;
 	import inky.sequencing.commands.SetCommand;
+	import inky.sequencing.parsers.CallParser;
 	
 	/**
 	 *
@@ -39,7 +40,7 @@ package inky.sequencing
 		public function XMLSequence(source:XML)
 		{
 			this.source = source;
-			this.registerCommand("call", CallCommand);
+			this.registerCommand("call", null, new CallParser());
 			this.registerCommand("CallCommand", CallCommand);
 			this.registerCommand("dispatchEvent", null, new DispatchEventParser());
 			this.registerCommand("DispatchEventCommand", DispatchEventCommand);

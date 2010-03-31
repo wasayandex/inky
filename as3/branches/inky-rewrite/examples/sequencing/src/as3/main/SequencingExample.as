@@ -23,7 +23,7 @@ package
 	{
 		private var sequenceASource:XML =
 			<sequence>
-				<call closure="#createBall" />
+				<call function="#createBall" />
 				<set property="ball" on="#player.variables" to="#player.previousCommand.result" />
 				<set property="text" on="#owner.textField" to="waiting for click" />
 				<wait for={MouseEvent.CLICK} on="#ball" />

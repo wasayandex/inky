@@ -14,7 +14,7 @@ package inky.sequencing.commands
 	 */
 	public class CallCommand
 	{
-		public var closure:Function;
+		public var callee:Function;
 		public var scope:Object;
 		public var arguments:Array = [];
 		public var result:*;
@@ -28,13 +28,13 @@ package inky.sequencing.commands
 		 */
 		public function execute():void
 		{
-			if (this.closure == null)
+			if (this.callee == null)
 			{
 				this.result = undefined;
-				throw new Error("You must specify a method closure.");
+				throw new Error("You must specify a callee.");
 			}
 
-			this.result = this.closure.apply(this.scope, this.arguments);
+			this.result = this.callee.apply(this.scope, this.arguments);
 		}
 		
 	}
