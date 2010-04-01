@@ -15,7 +15,7 @@ package inky.display.utils
 	 *	@since  2010.01.28
 	 *
 	 */
-	public function scale(sprite:DisplayObject, scale:Object, registrationPoint:Point = null):void
+	public function scale(sprite:Object, scale:Object, registrationPoint:Point = null):void
 	{
 		var scaleX:Number;
 		var scaleY:Number;
