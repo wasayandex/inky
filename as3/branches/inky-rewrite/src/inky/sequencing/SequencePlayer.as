@@ -1,45 +1,42 @@
 package inky.sequencing 
 {
 	import inky.sequencing.ISequence;
-	import inky.sequencing.ISequencePlayer;
-	import inky.sequencing.commands.IAsyncCommand;
 	import flash.events.Event;
-	import flash.events.EventDispatcher;
-	import inky.sequencing.CommandData;
+	import inky.sequencing.commands.IAsyncCommand;
+	import flash.events.IEventDispatcher;
+	import inky.sequencing.events.SequenceEvent;
+	import inky.utils.describeObject;
 	
 	/**
 	 *
-	 *  ..
+	 *  An object responsible for playing a sequence. This class should not be
+	 *  used directly as users control sequences directly through the sequence.
+	 *  Instead, this class can be used to create new implementations of
+	 *  ISequence without using inheritence.
 	 *	
 	 * 	@langversion ActionScript 3
 	 *	@playerversion Flash 9.0.0
 	 *
 	 *	@author Matthew Tretter
-	 *	@since  2010.03.29
+	 *	@since  2010.04.01
 	 *
 	 */
-	public class SequencePlayer extends EventDispatcher implements ISequencePlayer
+	public class SequencePlayer
 	{
-		private var currentSequence:ISequence;
+		private var eventDispatcher:IEventDispatcher;
 		private var pointer:int = 0;
-		public var previousCommand:Object;
-		private var _variables:Object;
-// TODO: Allow scope chain in constructor? I.e. it would check those objects for the variables.
+		private var _previousCommand:Object;
+		private var sequence:ISequence;
+		private var variables:Object;
+		
 		/**
 		 *
 		 */
-		public function SequencePlayer(variables:Object = null)
+		public function SequencePlayer(sequence:ISequence, variables:Object, eventDispatcher:IEventDispatcher = null)
 		{
-			this._variables = {};
-			for (var prop:String in variables)
-			{
-				this._variables[prop] = variables[prop];
-			}
-			
-			if (this._variables.player)
-				throw new ArgumentError("You can't set the variable \"player\": it's automatically set to the value of the SequencePlayer.")
-			
-			this._variables.player = this;
+			this.eventDispatcher = eventDispatcher || sequence;
+			this.sequence = sequence;
+			this.variables = variables;
 		}
 
 		//---------------------------------------
@@ -47,11 +44,11 @@ package inky.sequencing
 		//---------------------------------------
 		
 		/**
-		 * @inheritDoc
+		 * 
 		 */
-		public function get variables():Object
+		public function get previousCommand():Object
 		{
-			return this._variables;
+			return this._previousCommand;
 		}
 
 		//---------------------------------------
@@ -59,22 +56,21 @@ package inky.sequencing
 		//---------------------------------------
 		
 		/**
-		 * @inheritDoc
+		 * 
 		 */
-		public function playSequence(sequence:ISequence):void
+		public function play():void
 		{
-			this.playSequenceFrom(sequence, 0);
+			this.executeCommandAt(0);
 		}
 		
 		/**
-		 * @inheritDoc
+		 * 
 		 */
-		public function playSequenceFrom(sequence:ISequence, index:int):void
+		public function playFrom(index:int):void
 		{
-			this.currentSequence = sequence;
 			this.executeCommandAt(index);
 		}
-		
+
 		//---------------------------------------
 		// PRIVATE METHODS
 		//---------------------------------------
@@ -93,10 +89,10 @@ package inky.sequencing
 		 */
 		private function executeCommandAt(index:int):void
 		{
-			if (index < 0 || index >= this.currentSequence.length)
+			if (index < 0 || index >= this.sequence.length)
 				throw new RangeError("The index " + index + " is out of bounds");
 
-			var commandData:CommandData = this.currentSequence.getCommandDataAt(index);
+			var commandData:CommandData = this.sequence.getCommandDataAt(index);
 			var command:Object = commandData.command;
 
 			// Make sure it's a command.
@@ -113,7 +109,7 @@ package inky.sequencing
 			if (command is IAsyncCommand)
 			{
 				command.execute();
-				this.previousCommand = command;
+				this._previousCommand = command;
 				
 				// Watch out for IAsyncCommands that execute synchronously!
 				if (command.isComplete)
@@ -124,7 +120,7 @@ package inky.sequencing
 			else
 			{
 				command.execute();
-				this.previousCommand = command;
+				this._previousCommand = command;
 				this.executeNextCommand();
 			}
 		}
@@ -136,15 +132,15 @@ package inky.sequencing
 		{
 			this.pointer++;
 
-			if (this.pointer < this.currentSequence.length)
+			if (this.pointer < this.sequence.length)
 			{
 				this.executeCommandAt(this.pointer);
 			}
 			else
 			{
-				this.previousCommand = null;
 				// We're at the end of the sequence.
-trace("end");
+				this._previousCommand = null;
+				this.eventDispatcher.dispatchEvent(new SequenceEvent(SequenceEvent.COMPLETE));
 			}
 		}
 		

@@ -1,7 +1,7 @@
 package inky.sequencing 
 {
-	import inky.collections.IList;
 	import inky.sequencing.CommandData;
+	import flash.events.IEventDispatcher;
 	
 	/**
 	 *
@@ -14,13 +14,31 @@ package inky.sequencing
 	 *	@since  2010.03.29
 	 *
 	 */
-	public interface ISequence
+	public interface ISequence extends IEventDispatcher
 	{
+		//---------------------------------------
+		// GETTER / SETTERS
+		//---------------------------------------
+		
 		/**
 		 * 
 		 */
 		function get length():int;
 		
+		/**
+		 * 
+		 */
+		function get previousCommand():Object;
+		
+		/**
+		 * 
+		 */
+		function get variables():Object;
+	
+		//---------------------------------------
+		// PUBLIC METHODS
+		//---------------------------------------
+	
 		/**
 		 * 
 		 */
@@ -31,7 +49,15 @@ package inky.sequencing
 		 */
 		function getCommandDataAt(index:int):CommandData;
 
+		/**
+		 * 
+		 */
+		function play():void;
 		
+		/**
+		 * 
+		 */
+		function playFrom(index:int):void;
 	}
 	
 }

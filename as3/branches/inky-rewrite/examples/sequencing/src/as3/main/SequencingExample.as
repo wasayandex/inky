@@ -2,9 +2,7 @@ package
 {
 	import flash.display.Sprite;
 	import Ball;
-	import inky.sequencing.SequencePlayer;
 	import inky.sequencing.XMLSequence;
-	import inky.sequencing.ISequence;
 	import flash.events.MouseEvent;
 	import com.gskinner.motion.plugins.ColorTransformPlugin;
 
@@ -24,7 +22,7 @@ package
 		private var sequenceASource:XML =
 			<sequence>
 				<call function="#createBall" />
-				<set property="ball" on="#player.variables" to="#player.previousCommand.result" />
+				<set property="ball" on="#sequence.variables" to="#sequence.previousCommand.result" />
 				<set property="text" on="#owner.textField" to="waiting for click" />
 				<wait for={MouseEvent.CLICK} on="#ball" />
 				<set property="text" on="#owner.textField" to="gonna tween some" />
@@ -38,7 +36,7 @@ package
 				<set property="text" on="#owner.textField" to="DONE" />
 			</sequence>
 
-		private var sequencePlayer:SequencePlayer;
+		private var sequenceA:XMLSequence;
 
 		// TODO: How should we set arguments? For example, on trace?
 
@@ -49,9 +47,8 @@ package
 		{
 			ColorTransformPlugin.install();
 
-			var sequenceA:ISequence = new XMLSequence(this.sequenceASource);
-			this.sequencePlayer = new SequencePlayer({owner: this, createBall: this.createBall, trace: trace});
-			this.sequencePlayer.playSequence(sequenceA);
+			this.sequenceA = new XMLSequence(this.sequenceASource, {owner: this, createBall: this.createBall, trace: trace});
+			this.sequenceA.play();
 		}
 
 		//---------------------------------------

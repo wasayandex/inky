@@ -14,6 +14,7 @@ package inky.sequencing
 	import inky.sequencing.parsers.SetParser;
 	import inky.sequencing.commands.SetCommand;
 	import inky.sequencing.parsers.CallParser;
+	import inky.sequencing.AbstractSequence;
 	
 	/**
 	 *
@@ -26,7 +27,7 @@ package inky.sequencing
 	 *	@since  2010.03.29
 	 *
 	 */
-	public class XMLSequence implements ISequence
+	public class XMLSequence extends AbstractSequence implements ISequence
 	{
 		private var commandData:Array = [];
 		private var parserRegistry:Object = {};
@@ -37,8 +38,10 @@ package inky.sequencing
 		/**
 		 *
 		 */
-		public function XMLSequence(source:XML)
+		public function XMLSequence(source:XML, variables:Object = null)
 		{
+			super(variables);
+			
 			this.source = source;
 			this.registerCommand("call", null, new CallParser());
 			this.registerCommand("CallCommand", CallCommand);
@@ -59,7 +62,7 @@ package inky.sequencing
 		/**
 		 * @inheritDoc
 		 */
-		public function get length():int
+		override public function get length():int
 		{
 			return this.source.*.length();
 		}
@@ -71,7 +74,7 @@ package inky.sequencing
 		/**
 		 * @inheritDoc
 		 */
-		public function getCommandAt(index:int):Object
+		override public function getCommandAt(index:int):Object
 		{
 			if (index < 0 || index >= this.length)
 				throw new RangeError("The specified index is out of bounds.");
@@ -83,7 +86,7 @@ package inky.sequencing
 		/**
 		 * 
 		 */
-		public function getCommandDataAt(index:int):CommandData
+		override public function getCommandDataAt(index:int):CommandData
 		{
 			var data:CommandData = this.commandData[index];
 			if (!data)

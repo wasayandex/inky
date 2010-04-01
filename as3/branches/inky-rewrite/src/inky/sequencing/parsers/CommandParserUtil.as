@@ -1,6 +1,5 @@
 package inky.sequencing.parsers 
 {
-import inky.binding.utils.BindingUtil;
 	
 	/**
 	 *
@@ -57,16 +56,14 @@ import inky.binding.utils.BindingUtil;
 				{
 					getter = function(host:Object):*
 					{
-/*trace("getting formatted\t\t" + parts + " from " + host);*/
-						return formatter(BindingUtil.evaluateBindingChain(host, parts));
+						return formatter(CommandParserUtil.evaluatePropertyChain(host, parts));
 					}
 				}
 				else
 				{
 					getter = function(host:Object):*
 					{
-/*trace("getting unformatted\t\t" + parts + " from " + host);*/
-						return BindingUtil.evaluateBindingChain(host, parts);
+						return CommandParserUtil.evaluatePropertyChain(host, parts);
 					}
 				}
 			}
@@ -74,7 +71,6 @@ import inky.binding.utils.BindingUtil;
 			{
 				getter = function(host:Object):*
 				{
-/*trace("getting simple formatted\t\t" + formatter(getterString));*/
 					return formatter(getterString);
 				}
 			}
@@ -82,7 +78,6 @@ import inky.binding.utils.BindingUtil;
 			{
 				getter = function(host:Object):*
 				{
-/*trace("getting simple unformatted\t\t" + getterString);*/
 					return getterString;
 				}
 			}
@@ -106,9 +101,30 @@ import inky.binding.utils.BindingUtil;
 				}
 				var propertyToSet:String = hostPath[hostPath.length - 1];
 				var value:* = getter(variables);
-/*trace("setting " + propertyToSet + " to " + value);*/
 				host[propertyToSet] = value;
 			}
+		}
+
+		//---------------------------------------
+		// PRIVATE METHODS
+		//---------------------------------------
+		
+		/**
+		 * 
+		 */
+		private static function evaluatePropertyChain(host:Object, properties:Array):*
+		{
+			var value:* = host;
+			var lastProperty:String;
+			for (var i:int = 0; i < properties.length; i++)
+			{
+				var property:String = properties[i];
+				value = value[property];
+
+				if ((value == null) && (i < properties.length - 1))
+					throw new Error("Could not evaluate property chain " + properties.join(".") + " on " + host + ": " + properties.slice(0, i + 1).join(".") + " is null.");
+			}
+			return value;
 		}
 
 	}
