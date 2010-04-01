@@ -183,35 +183,20 @@
 		 */
 		public function getItemPosition(index:int):Number
 		{
-var er;
-er = 1;
 			var position:Number = this._positionCache[index];
 
 			if (isNaN(position))
 			{
-er = 2;
 				// Determine the position
 				if (index == this._firstVisibleItemIndex)
-				{
-er = 3;
 					position = this._indexes2Items[index] ? this._indexes2Items[index][this._xOrY] : 0;
-				}
 				else if ((index < this._firstVisibleItemIndex) && (index < this.dataProvider.length))
-				{
-er = 4;
 					position = this.getItemPosition(index + 1) - this.getItemSize(index) - this._spacing;
-				}
 				else if ((index > this._firstVisibleItemIndex) && (index > 0))
-				{
-er = 5;
 					position = this.getItemPosition(index - 1) + this.getItemSize(index - 1) + this._spacing;
-				}
 				else
-				{
-er = 6;
 					position = 0;
-				}
-er = 7;
+
 				this._positionCache[index] = position;
 			}
 
@@ -438,11 +423,13 @@ if (!this.orientation) return;
 		}
 
 		/**
-		 *
+		 * Schedule validation. Since the RENDER event can be unreliable, we
+		 * use ENTER_FRAME as a backup.
 		 */
 		private function _invalidate(event:Event = null):void
 		{
 			this.stage.addEventListener(Event.RENDER, this.validate, false, 0, true);
+			this.addEventListener(Event.ENTER_FRAME, this.validate, false, 0, true);
 			this.stage.invalidate();
 		}
 
@@ -697,17 +684,26 @@ if (!this.orientation) return;
 		 */
 		private function validate(event:Event):void
 		{
-			if (event)
-				event.currentTarget.removeEventListener(event.type, arguments.callee);
-			
-			if (this.validationState.propertyIsInvalid(CONTENT_POSITION))
+			this.stage.removeEventListener(Event.RENDER, this.validate);
+			this.removeEventListener(Event.ENTER_FRAME, this.validate);
+
+			if (!this.validationState.hasInvalidProperty)
+				return;
+
+			var contentPositionIsInvalid:Boolean = this.validationState.propertyIsInvalid(CONTENT_POSITION);
+			var scrollPositionIsInvalid:Boolean = this.validationState.propertyIsInvalid(SCROLL_POSITION);
+			var displayListIsInvalid:Boolean = this.validationState.propertyIsInvalid(DISPLAY_LIST);
+			this.validationState.markAllPropertiesAsValid();
+
+			if (contentPositionIsInvalid)
 				this.validateContentPosition();
-			if (this.validationState.propertyIsInvalid(SCROLL_POSITION))
+			if (scrollPositionIsInvalid)
 				this.validateScrollPosition();
-			if (this.validationState.propertyIsInvalid(DISPLAY_LIST))
+			if (displayListIsInvalid)
 				this.redraw();
 
-			this.validationState.markAllPropertiesAsValid();
+			// If a property has become invalid during validation, revalidate.
+			this.validate(null);
 		}
 
 		/**

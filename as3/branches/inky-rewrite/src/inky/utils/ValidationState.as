@@ -23,6 +23,24 @@ package inky.utils
 		{
 			this.propertyIsInvalidMap = {};
 		}
+
+		//---------------------------------------
+		// ACCESSORS
+		//---------------------------------------
+		
+		/**
+		 * 
+		 */
+		public function get hasInvalidProperty():Boolean
+		{
+			var hasInvalidProperty:Boolean = false;
+			for (var p:String in this.propertyIsInvalidMap)
+			{
+				hasInvalidProperty = true;
+				break;
+			}
+			return hasInvalidProperty;
+		}
 		
 		//---------------------------------------
 		// PUBLIC METHODS
@@ -37,20 +55,6 @@ package inky.utils
 			for (var property:String in this.propertyIsInvalidMap)
 				list.push(property);
 			return list;
-		}
-		
-		/**
-		 * 
-		 */
-		public function hasInvalidProperty():Boolean
-		{
-			var hasInvalidProperty:Boolean = false;
-			for (var p:String in this.propertyIsInvalid)
-			{
-				hasInvalidProperty = true;
-				break;
-			}
-			return hasInvalidProperty;
 		}
 
 		/**
