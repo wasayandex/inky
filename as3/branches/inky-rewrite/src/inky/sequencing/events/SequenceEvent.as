@@ -49,7 +49,7 @@ package inky.sequencing.events
 		 *      Specifies whether the behavior associated with the event can be prevented.
 		 *
 		 */
-		public function SequenceEvent(type:String, bubbles:Boolean = false, cancelable:Boolean = false)
+		public function SequenceEvent(type:String, bubbles:Boolean = true, cancelable:Boolean = false)
 		{
 			super(type, bubbles, cancelable);		
 		}

@@ -18,7 +18,7 @@ package inky.sequencing.commands
 	 */
 	public class DispatchEventCommand
 	{
-		public var bubbles:Boolean = false;
+		public var bubbles:Boolean = true;
 		public var cancelable:Boolean = false;
 		public var event:Event;
 		public var eventClass:Object = SequenceEvent;

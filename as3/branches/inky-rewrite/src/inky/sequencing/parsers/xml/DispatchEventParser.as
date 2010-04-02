@@ -37,6 +37,7 @@ package inky.sequencing.parsers.xml
 			
 			if (xml.@withClass.length())
 				xml.@withClass.setLocalName("eventClass");
+
 			xml.@on.setLocalName("target");
 			xml.@withType.setLocalName("type");
 			
