@@ -34,8 +34,8 @@ package inky.sequencing.parsers
 			else if (!xml.@withType.length())
 				throw new Error("The DispatchEventParser requires a \"withType\" attribute.");
 			
-			if (xml.@ofClass.length())
-				xml.@ofClass.setLocalName("eventClass");
+			if (xml.@withClass.length())
+				xml.@withClass.setLocalName("eventClass");
 			xml.@on.setLocalName("target");
 			xml.@withType.setLocalName("type");
 			
