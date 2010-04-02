@@ -1,8 +1,9 @@
-package inky.sequencing.parsers 
+package inky.sequencing.parsers.xml
 {
 	import inky.sequencing.parsers.CommandParserUtil;
 	import inky.sequencing.CommandData;
-	import inky.sequencing.commands.CallCommand;
+	import inky.sequencing.commands.SetCommand;
+	import inky.sequencing.parsers.xml.ICommandDataParser;
 	
 	/**
 	 *
@@ -15,7 +16,7 @@ package inky.sequencing.parsers
 	 *	@since  2010.03.29
 	 *
 	 */
-	public class CallParser implements ICommandDataParser
+	public class SetParser implements ICommandDataParser
 	{
 		
 		//---------------------------------------
@@ -28,10 +29,12 @@ package inky.sequencing.parsers
 		public function parse(xml:XML, cls:Object):CommandData
 		{
 			xml = xml.copy();
-			xml["@function"].setLocalName("callee");
+			
+			xml.@on.setLocalName("target");
+			xml.@to.setLocalName("value");
 			
 			return new CommandData(
-				new CallCommand(),
+				new SetCommand(),
 				CommandParserUtil.createInjectors(xml)
 			);
 		}

@@ -4,16 +4,16 @@ package inky.sequencing
 	import inky.sequencing.ISequence;
 	import inky.sequencing.CommandData;
 	import inky.sequencing.commands.DispatchEventCommand;
-	import inky.sequencing.parsers.ICommandDataParser;
-	import inky.sequencing.parsers.StandardCommandDataParser;
-	import inky.sequencing.parsers.DispatchEventParser;
+	import inky.sequencing.parsers.xml.ICommandDataParser;
+	import inky.sequencing.parsers.xml.StandardCommandDataParser;
+	import inky.sequencing.parsers.xml.DispatchEventParser;
 	import inky.sequencing.commands.DelayCommand;
-	import inky.sequencing.parsers.WaitParser;
-	import inky.sequencing.parsers.GTweenParser;
+	import inky.sequencing.parsers.xml.WaitParser;
+	import inky.sequencing.parsers.xml.GTweenParser;
 	import inky.sequencing.commands.GTweenCommand;
-	import inky.sequencing.parsers.SetParser;
+	import inky.sequencing.parsers.xml.SetParser;
 	import inky.sequencing.commands.SetCommand;
-	import inky.sequencing.parsers.CallParser;
+	import inky.sequencing.parsers.xml.CallParser;
 	import inky.sequencing.AbstractSequence;
 	
 	/**

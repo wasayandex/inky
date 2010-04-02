@@ -1,10 +1,13 @@
-package inky.sequencing.parsers 
+package inky.sequencing.parsers.xml
 {
-	import inky.sequencing.parsers.WaitParser;
 	import inky.sequencing.commands.DelayCommand;
-	import inky.sequencing.parsers.ICommandDataParser;
 	import inky.sequencing.CommandData;
 	import inky.sequencing.commands.EventListenerCommand;
+	import inky.sequencing.parsers.TimeParser;
+	import inky.sequencing.parsers.CommandParserUtil;
+	import inky.sequencing.parsers.ParsedTime;
+	import inky.sequencing.parsers.TimeUnit;
+	import inky.sequencing.parsers.xml.ICommandDataParser;
 	
 	/**
 	 *

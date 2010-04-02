@@ -46,7 +46,10 @@ package inky.sequencing.commands
 		public function execute():void
 		{
 			this._isComplete = false;
-			this.tween = new GTween();
+
+			if (!this.tween)
+				this.tween = new GTween();
+
 			var prop:String;
 			for (prop in this.tweenProperties)
 			{

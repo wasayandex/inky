@@ -5,7 +5,6 @@ package inky.sequencing
 	import inky.sequencing.commands.IAsyncCommand;
 	import flash.events.IEventDispatcher;
 	import inky.sequencing.events.SequenceEvent;
-	import inky.utils.describeObject;
 	
 	/**
 	 *

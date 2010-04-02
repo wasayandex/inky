@@ -1,7 +1,7 @@
-package inky.sequencing.parsers 
+package inky.sequencing.parsers.xml
 {
 	import inky.sequencing.CommandData;
-	import inky.sequencing.parsers.ICommandDataParser;
+	import inky.sequencing.parsers.xml.ICommandDataParser;
 	import inky.utils.getClass;
 	import inky.sequencing.parsers.CommandParserUtil;
 	

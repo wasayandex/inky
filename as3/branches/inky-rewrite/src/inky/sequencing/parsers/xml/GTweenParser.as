@@ -1,12 +1,12 @@
-package inky.sequencing.parsers 
+package inky.sequencing.parsers.xml
 {
-	import inky.sequencing.parsers.ICommandDataParser;
 	import inky.sequencing.commands.GTweenCommand;
 	import inky.sequencing.CommandData;
 	import inky.sequencing.parsers.CommandParserUtil;
 	import inky.sequencing.parsers.TimeParser;
 	import inky.sequencing.parsers.TimeUnit;
 	import inky.sequencing.parsers.ParsedTime;
+	import inky.sequencing.parsers.xml.ICommandDataParser;
 	
 	/**
 	 *
@@ -50,6 +50,10 @@ package inky.sequencing.parsers
 					// Format the "to" properties.
 					prop = match[1];
 					attr.setLocalName("targetValues." + prop);
+				}
+				else if (attr.localName() == "withTween")
+				{
+					attr.setLocalName("tween");
 				}
 				else
 				{

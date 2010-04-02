@@ -1,8 +1,9 @@
-package inky.sequencing.parsers 
+package inky.sequencing.parsers.xml
 {
 	import inky.sequencing.commands.DispatchEventCommand;
 	import inky.sequencing.parsers.CommandParserUtil;
 	import inky.sequencing.CommandData;
+	import inky.sequencing.parsers.xml.ICommandDataParser;
 	
 	/**
 	 *

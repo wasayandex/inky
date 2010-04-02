@@ -1,4 +1,4 @@
-package inky.sequencing.parsers 
+package inky.sequencing.parsers.xml
 {
 	import inky.sequencing.CommandData;
 	
