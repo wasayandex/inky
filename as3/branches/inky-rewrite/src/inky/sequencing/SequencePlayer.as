@@ -5,6 +5,7 @@ package inky.sequencing
 	import inky.sequencing.commands.IAsyncCommand;
 	import flash.events.IEventDispatcher;
 	import inky.sequencing.events.SequenceEvent;
+	import inky.sequencing.commands.ISequenceCommand;
 	
 	/**
 	 *
@@ -23,6 +24,8 @@ package inky.sequencing
 	public class SequencePlayer
 	{
 		private var eventDispatcher:IEventDispatcher;
+		private var interjectedSequences:Array;
+		private var isPlaying:Boolean = false;
 		private var pointer:int = 0;
 		private var _previousCommand:Object;
 		private var sequence:ISequence;
@@ -53,6 +56,26 @@ package inky.sequencing
 		//---------------------------------------
 		// PUBLIC METHODS
 		//---------------------------------------
+		
+		/**
+		 * 
+		 */
+		public function interject(obj:Object):void
+		{
+			if (!this.isPlaying)
+				throw new Error("You can only interject when the sequence is playing.");
+			
+			if (!obj)
+				throw new ArgumentError("Null values not allowed!");
+			
+			if (!(obj is ISequence))
+				throw new Error("I haven't written interject to accept anything other than an ISequence yet. Maybe commands soon? Am I missing something?");
+			
+			if (!this.interjectedSequences)
+				this.interjectedSequences = [];
+			
+			this.interjectedSequences.push(obj);
+		}
 		
 		/**
 		 * 
@@ -91,12 +114,17 @@ package inky.sequencing
 			if (index < 0 || index >= this.sequence.length)
 				throw new RangeError("The index " + index + " is out of bounds");
 
+			this.isPlaying = true;
+
 			var commandData:CommandData = this.sequence.getCommandDataAt(index);
 			var command:Object = commandData.command;
 
 			// Make sure it's a command.
 			if (!command.hasOwnProperty("execute") || !(command.execute is Function))
 				throw new Error("The command " + command + " does not have an execute function!");
+				
+			if (command is ISequenceCommand)
+				command.sequence = this.sequence;
 
 			// Update the pointer.
 			this.pointer = index;
@@ -129,17 +157,44 @@ package inky.sequencing
 		 */
 		private function executeNextCommand():void
 		{
-			this.pointer++;
-
-			if (this.pointer < this.sequence.length)
+			if (this.interjectedSequences && this.interjectedSequences.length)
+			{
+				var sequence:ISequence = ISequence(this.interjectedSequences.shift());
+				sequence.addEventListener(SequenceEvent.COMPLETE, this.interjectedSequence_completeHandler);
+				sequence.play();
+			}
+			else if (++this.pointer < this.sequence.length)
 			{
 				this.executeCommandAt(this.pointer);
 			}
 			else
 			{
+				this.pointer = -1;
+				this.onComplete();
+			}
+		}
+
+		/**
+		 * 
+		 */
+		private function interjectedSequence_completeHandler(event:SequenceEvent):void
+		{
+			event.currentTarget.removeEventListener(event.type, arguments.callee);
+			this.executeNextCommand();
+		}
+
+		/**
+		 * 
+		 */
+		private function onComplete():void
+		{
+			if (this.isPlaying)
+			{
+				this.isPlaying = false;
+				
 				// We're at the end of the sequence.
 				this._previousCommand = null;
-				this.eventDispatcher.dispatchEvent(new SequenceEvent(SequenceEvent.COMPLETE));
+				this.eventDispatcher.dispatchEvent(new SequenceEvent(this.sequence, SequenceEvent.COMPLETE));
 			}
 		}
 		

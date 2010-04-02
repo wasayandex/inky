@@ -1,6 +1,7 @@
 package inky.sequencing.events
 {
 	import flash.events.Event;
+	import inky.sequencing.ISequence;
 
 	/**
 	 *
@@ -15,6 +16,8 @@ package inky.sequencing.events
 	 */
 	public class SequenceEvent extends Event
 	{
+		public var sequence:ISequence;
+		
 		/**
 		 *  The <code>SequenceEvent.COMPLETE</code> constant defines the value of the 
 		 *  <code>type</code> property of the event object for a <code>complete</code> event.
@@ -49,8 +52,9 @@ package inky.sequencing.events
 		 *      Specifies whether the behavior associated with the event can be prevented.
 		 *
 		 */
-		public function SequenceEvent(type:String, bubbles:Boolean = true, cancelable:Boolean = false)
+		public function SequenceEvent(sequence:ISequence, type:String, bubbles:Boolean = true, cancelable:Boolean = false)
 		{
+			this.sequence = sequence;
 			super(type, bubbles, cancelable);		
 		}
 
@@ -67,7 +71,7 @@ package inky.sequencing.events
 		 */
 		override public function clone():Event
 		{
-			return new SequenceEvent(this.type, this.bubbles, this.cancelable);
+			return new SequenceEvent(this.sequence, this.type, this.bubbles, this.cancelable);
 		}
 
 
@@ -84,4 +88,3 @@ package inky.sequencing.events
 
 	}
 }
-

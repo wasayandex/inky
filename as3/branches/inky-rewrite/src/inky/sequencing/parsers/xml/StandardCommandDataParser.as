@@ -1,7 +1,7 @@
 package inky.sequencing.parsers.xml
 {
 	import inky.sequencing.CommandData;
-	import inky.sequencing.parsers.xml.ICommandDataParser;
+	import inky.sequencing.parsers.xml.IXMLCommandDataParser;
 	import inky.utils.getClass;
 	import inky.sequencing.parsers.CommandParserUtil;
 	
@@ -16,7 +16,7 @@ package inky.sequencing.parsers.xml
 	 *	@since  2010.03.29
 	 *
 	 */
-	public class StandardCommandDataParser implements ICommandDataParser
+	public class StandardCommandDataParser implements IXMLCommandDataParser
 	{
 
 		//---------------------------------------

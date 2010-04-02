@@ -13,7 +13,7 @@ package inky.sequencing.parsers.xml
 	 *	@since  2010.03.29
 	 *
 	 */
-	public interface ICommandDataParser
+	public interface IXMLCommandDataParser
 	{
 		
 		/**

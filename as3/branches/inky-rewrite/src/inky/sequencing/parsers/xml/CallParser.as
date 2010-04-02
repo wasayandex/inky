@@ -15,7 +15,7 @@ package inky.sequencing.parsers.xml
 	 *	@since  2010.03.29
 	 *
 	 */
-	public class CallParser implements ICommandDataParser
+	public class CallParser implements IXMLCommandDataParser
 	{
 		
 		//---------------------------------------

@@ -6,7 +6,7 @@ package inky.sequencing.parsers.xml
 	import inky.sequencing.parsers.TimeParser;
 	import inky.sequencing.parsers.TimeUnit;
 	import inky.sequencing.parsers.ParsedTime;
-	import inky.sequencing.parsers.xml.ICommandDataParser;
+	import inky.sequencing.parsers.xml.IXMLCommandDataParser;
 	
 	/**
 	 *
@@ -19,7 +19,7 @@ package inky.sequencing.parsers.xml
 	 *	@since  2010.03.29
 	 *
 	 */
-	public class GTweenParser implements ICommandDataParser
+	public class GTweenParser implements IXMLCommandDataParser
 	{
 		private static const TARGET_VALUE:RegExp = /^(.*)\.to$/;
 		private static var timeParser:TimeParser;

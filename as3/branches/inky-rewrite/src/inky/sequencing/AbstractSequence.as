@@ -85,6 +85,14 @@ package inky.sequencing
 		/**
 		 * @inheritDoc
 		 */
+		public function interject(obj:Object):void
+		{
+			this.getSequencePlayer().interject(obj);
+		}
+
+		/**
+		 * @inheritDoc
+		 */
 		public function play():void
 		{
 			this.getSequencePlayer().play();

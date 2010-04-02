@@ -3,7 +3,7 @@ package inky.sequencing.parsers.xml
 	import inky.sequencing.commands.DispatchEventCommand;
 	import inky.sequencing.parsers.CommandParserUtil;
 	import inky.sequencing.CommandData;
-	import inky.sequencing.parsers.xml.ICommandDataParser;
+	import inky.sequencing.parsers.xml.IXMLCommandDataParser;
 	
 	/**
 	 *
@@ -16,7 +16,7 @@ package inky.sequencing.parsers.xml
 	 *	@since  2010.03.29
 	 *
 	 */
-	public class DispatchEventParser implements ICommandDataParser
+	public class DispatchEventParser implements IXMLCommandDataParser
 	{
 		
 		//---------------------------------------

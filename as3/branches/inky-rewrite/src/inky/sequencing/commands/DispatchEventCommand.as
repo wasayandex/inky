@@ -4,6 +4,8 @@ package inky.sequencing.commands
 	import inky.sequencing.events.SequenceEvent;
 	import flash.events.IEventDispatcher;
 	import flash.events.Event;
+	import inky.sequencing.ISequence;
+	import inky.sequencing.commands.ISequenceCommand;
 	
 	/**
 	 *
@@ -16,14 +18,34 @@ package inky.sequencing.commands
 	 *	@since  2010.03.29
 	 *
 	 */
-	public class DispatchEventCommand
+	public class DispatchEventCommand implements ISequenceCommand
 	{
 		public var bubbles:Boolean = true;
 		public var cancelable:Boolean = false;
 		public var event:Event;
 		public var eventClass:Object = SequenceEvent;
+		private var _sequence:ISequence;
 		public var target:IEventDispatcher;
 		public var type:String;
+
+		//---------------------------------------
+		// ACCESSORS
+		//---------------------------------------
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function get sequence():ISequence
+		{ 
+			return this._sequence; 
+		}
+		/**
+		 * @private
+		 */
+		public function set sequence(value:ISequence):void
+		{
+			this._sequence = value;
+		}
 
 		//---------------------------------------
 		// PUBLIC METHODS
@@ -54,13 +76,20 @@ package inky.sequencing.commands
 				throw new Error("Invalid eventClass value: " + this.eventClass);
 			}
 			
-			try
+			if (cls == SequenceEvent)
 			{
-				this.event = new cls(this.type, bubbles, cancelable);
+				this.event = new cls(this.sequence, this.type, this.bubbles, this.cancelable);
 			}
-			catch (error:Error)
+			else
 			{
-				throw new Error("The following error was thrown while attempting to create the event:\n" + error.toString());
+				try
+				{
+					this.event = new cls(this.type, bubbles, cancelable);
+				}
+				catch (error:Error)
+				{
+					throw new Error("The following error was thrown while attempting to create the event:\n" + error.toString());
+				}
 			}
 
 			this.target.dispatchEvent(this.event);

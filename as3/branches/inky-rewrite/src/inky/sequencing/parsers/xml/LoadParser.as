@@ -2,8 +2,7 @@ package inky.sequencing.parsers.xml
 {
 	import inky.sequencing.parsers.CommandParserUtil;
 	import inky.sequencing.CommandData;
-	import inky.sequencing.commands.SetCommand;
-	import inky.sequencing.parsers.xml.IXMLCommandDataParser;
+	import inky.sequencing.commands.LoadCommand;
 	
 	/**
 	 *
@@ -16,7 +15,7 @@ package inky.sequencing.parsers.xml
 	 *	@since  2010.03.29
 	 *
 	 */
-	public class SetParser implements IXMLCommandDataParser
+	public class LoadParser implements IXMLCommandDataParser
 	{
 		
 		//---------------------------------------
@@ -29,12 +28,11 @@ package inky.sequencing.parsers.xml
 		public function parse(xml:XML, cls:Object):CommandData
 		{
 			xml = xml.copy();
-			
-			xml.@on.setLocalName("target");
-			xml.@to.setLocalName("value");
+			if (xml["@as"].length())
+				xml["@as"].setLocalName("contentType");
 			
 			return new CommandData(
-				new SetCommand(),
+				new LoadCommand(),
 				CommandParserUtil.createInjectors(xml)
 			);
 		}

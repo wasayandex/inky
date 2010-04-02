@@ -7,7 +7,7 @@ package inky.sequencing.parsers.xml
 	import inky.sequencing.parsers.CommandParserUtil;
 	import inky.sequencing.parsers.ParsedTime;
 	import inky.sequencing.parsers.TimeUnit;
-	import inky.sequencing.parsers.xml.ICommandDataParser;
+	import inky.sequencing.parsers.xml.IXMLCommandDataParser;
 	
 	/**
 	 *
@@ -27,7 +27,7 @@ package inky.sequencing.parsers.xml
 	 *	@since  2010.03.30
 	 *
 	 */
-	public class WaitParser implements ICommandDataParser
+	public class WaitParser implements IXMLCommandDataParser
 	{
 		private static var timeParser:TimeParser;
 		private static const propertyMap:Object = {

@@ -4,7 +4,7 @@ package inky.sequencing
 	import inky.sequencing.ISequence;
 	import inky.sequencing.CommandData;
 	import inky.sequencing.commands.DispatchEventCommand;
-	import inky.sequencing.parsers.xml.ICommandDataParser;
+	import inky.sequencing.parsers.xml.IXMLCommandDataParser;
 	import inky.sequencing.parsers.xml.StandardCommandDataParser;
 	import inky.sequencing.parsers.xml.DispatchEventParser;
 	import inky.sequencing.commands.DelayCommand;
@@ -15,6 +15,8 @@ package inky.sequencing
 	import inky.sequencing.commands.SetCommand;
 	import inky.sequencing.parsers.xml.CallParser;
 	import inky.sequencing.AbstractSequence;
+	import inky.sequencing.commands.LoadCommand;
+	import inky.sequencing.parsers.xml.LoadParser;
 	
 	/**
 	 *
@@ -33,7 +35,7 @@ package inky.sequencing
 		private var parserRegistry:Object = {};
 		private var commandRegistry:Object = {};
 		private var source:XML;
-		private static var standardParser:ICommandDataParser;
+		private static var standardParser:IXMLCommandDataParser;
 		
 		/**
 		 *
@@ -43,6 +45,7 @@ package inky.sequencing
 			super(variables);
 			
 			this.source = source;
+// TODO: Don't create all these parsers up front for each instance! Create lazily and reuse!
 			this.registerCommand("call", null, new CallParser());
 			this.registerCommand("CallCommand", CallCommand);
 			this.registerCommand("dispatchEvent", null, new DispatchEventParser());
@@ -53,6 +56,8 @@ package inky.sequencing
 			this.registerCommand("GTweenCommand", GTweenCommand);
 			this.registerCommand("set", null, new SetParser());
 			this.registerCommand("SetCommand", SetCommand);
+			this.registerCommand("load", null, new LoadParser());
+			this.registerCommand("LoadCommand", LoadCommand);
 		}
 		
 		//---------------------------------------
@@ -104,7 +109,7 @@ package inky.sequencing
 		 * you may pass <code>null</code> for the second argument (assuming
 		 * your custom parser allows it).
 		 */
-		public function registerCommand(name:Object, type:Class, parser:ICommandDataParser = null):void
+		public function registerCommand(name:Object, type:Class, parser:IXMLCommandDataParser = null):void
 		{
 			var qName:QName;
 			
@@ -127,24 +132,23 @@ package inky.sequencing
 		 */
 		private function parseCommandData(xml:XML):CommandData
 		{
-// TODO: Allow custom parser objects. (Third arg of registerCommand?)
 			var data:CommandData;
 			var name:QName = xml.name();
 
 			if (!this.commandRegistry.hasOwnProperty(name))
 				throw new Error("There is no command registered for the name " + name);
 
-			var parser:ICommandDataParser = this.getParser(xml);
+			var parser:IXMLCommandDataParser = this.getParser(xml);
 			return parser.parse(xml, this.commandRegistry[name]);
 		}
 		
 		/**
 		 * 
 		 */
-		private function getParser(xml:XML):ICommandDataParser
+		private function getParser(xml:XML):IXMLCommandDataParser
 		{
 			var name:QName = xml.name();
-			var parser:ICommandDataParser = this.parserRegistry[name];
+			var parser:IXMLCommandDataParser = this.parserRegistry[name];
 			if (!parser)
 			{
 				parser =
