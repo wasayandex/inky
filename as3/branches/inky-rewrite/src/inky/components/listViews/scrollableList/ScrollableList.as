@@ -44,7 +44,6 @@
 		private var _initializedForModel:Boolean;
 		private var _items2Indexes:Dictionary;
 		private var _dataProvider:IList;
-		private var _numItemsFinallyVisible:uint;  // The number of items visible at max scroll position.
 		private var _orientation:String;
 		private var _positionCache:Array;
 		private var _unusedItems:Object;
@@ -277,7 +276,6 @@
 				}
 			}
 
-			this.updateLayout();
 			this.redrawFrom(firstVisibleItemIndex);
 		}
 
@@ -308,7 +306,7 @@
 // TODO: Because the super constructor's bindings access something that calls this, orientation 
 // is null (not yet initialized). Should orientation have a default value?
 if (!this.orientation) return;
-			var index:Number = Math.max(0, Math.min(this.dataProvider.length - 1, Math.round(this.getScrollPosition())));
+			var index:Number = this.dataProvider ? Math.max(0, Math.min(this.dataProvider.length - 1, Math.round(this.getScrollPosition()))) : 0;
 			this._showItemAt(index);
 		}
 
@@ -417,7 +415,7 @@ if (!this.orientation) return;
 			if (!this.dataProvider) 
 				return;
 			
-			this.updateLayout();
+			this.updateScrollBar();
 			this.clearContent();
 			this._initializedForModel = true;
 		}
@@ -599,6 +597,8 @@ if (!this.orientation) return;
 				this.showItemAt(0);
 			else
 				this._showItemAt(Math.min(this.shownItem, this.dataProvider.length - 1));
+// This should happen as part of validation process.
+			this.updateScrollBar();
 		}
 
 		/**
@@ -623,54 +623,48 @@ if (!this.orientation) return;
 		}
 
 		/**
-		 *	Updates the ScrollPane layout.
-		 */
-		private function updateLayout():void
-		{
-			// Determine the number of items that are visible at max scroll position.
-			var mask:DisplayObject = this.getScrollMask();
-			var maskSize:Number = mask[this._widthOrHeight];
-			var numItems:int = 0;
-			var combinedSize:Number = 0;
-			
-			if (this.dataProvider.length > 0)
-			{
-				var j:int = this.dataProvider.length - 1;
-
-				while ((j >= 0) && (combinedSize < maskSize))
-				{
-					numItems++;
-					combinedSize += this.getItemSize(j);
-					j--;
-				}
-			}
-
-			if (numItems != this._numItemsFinallyVisible)
-			{
-				this._numItemsFinallyVisible = numItems;
-				this.updateScrollBar();
-			}
-		}
-
-		/**
 		 * Updates the appearance of the scroll bars based on the combined size
 		 * of the items in the list and the scroll policy.
 		 */
 		private function updateScrollBar():void
 		{
-			if (this.dataProvider)
-			{
-				var mask:DisplayObject = this.getScrollMask();
-				var scrollBar:IScrollBar = this.getScrollBar();
+			var mask:DisplayObject = this.getScrollMask();
+			var scrollBar:IScrollBar = this.getScrollBar();
 // TODO: Instead use this.maxHorizontalScrollPosition and horizontalPageSize
-				if (scrollBar)
+			if (scrollBar)
+			{
+				var scrollBarEnabled:Boolean;
+				
+				if (this.dataProvider)
 				{
-					scrollBar.maxScrollPosition = this.dataProvider.length - this._numItemsFinallyVisible + 1;
-					scrollBar.pageSize = this._numItemsFinallyVisible;
-				}
-				var contentSize:Number = this.getItemSize(this._dataProvider.length - 1) + this.getItemPosition(this._dataProvider.length - 1);
+					// Determine the "selected index" when the last item is visible.
+					var size:Number = 0;
+					var i:int = this.dataProvider.length - 1;
+					var maskSize:Number = mask[this._widthOrHeight];
+					var spacing:Number = 0;
 
-				scrollBar.enabled = contentSize > mask[this._widthOrHeight];
+					do
+					{
+						size += this.getItemSize(i) + spacing;
+						spacing = this.spacing;
+						if (size + this.getItemSize(i) + spacing < maskSize)
+							i--;
+						else
+							break;
+					}
+					while (i >= 0);
+					scrollBar.maxScrollPosition = Math.max(i, 0);
+					scrollBar.pageSize = 1;
+
+					var contentSize:Number = this.getItemSize(this._dataProvider.length - 1) + this.getItemPosition(this._dataProvider.length - 1);
+					scrollBarEnabled = contentSize > mask[this._widthOrHeight];
+				}
+				else
+				{
+					scrollBarEnabled = false;
+				}
+
+				scrollBar.enabled = scrollBarEnabled;
 
 				if (this[this._orientation + "ScrollPolicy"] == ScrollPolicy.AUTO)
 					scrollBar.visible = scrollBar.enabled;
