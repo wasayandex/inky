@@ -2,7 +2,7 @@ package inky.sequencing.parsers.xml
 {
 	import inky.sequencing.parsers.CommandParserUtil;
 	import inky.sequencing.CommandData;
-	import inky.sequencing.commands.SetCommand;
+	import inky.sequencing.commands.SetPropertiesCommand;
 	import inky.sequencing.parsers.xml.IXMLCommandDataParser;
 	
 	/**
@@ -48,7 +48,7 @@ package inky.sequencing.parsers.xml
 			}
 			
 			return new CommandData(
-				new SetCommand(),
+				new SetPropertiesCommand(),
 				CommandParserUtil.createInjectors(xml)
 			);
 		}

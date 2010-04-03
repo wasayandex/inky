@@ -12,7 +12,7 @@ package inky.sequencing
 	import inky.sequencing.parsers.xml.GTweenParser;
 	import inky.sequencing.commands.GTweenCommand;
 	import inky.sequencing.parsers.xml.SetParser;
-	import inky.sequencing.commands.SetCommand;
+	import inky.sequencing.commands.SetPropertiesCommand;
 	import inky.sequencing.parsers.xml.CallParser;
 	import inky.sequencing.AbstractSequence;
 	import inky.sequencing.commands.LoadCommand;
@@ -55,7 +55,7 @@ package inky.sequencing
 			this.registerCommand("tween", null, new GTweenParser());
 			this.registerCommand("GTweenCommand", GTweenCommand);
 			this.registerCommand("set", null, new SetParser());
-			this.registerCommand("SetCommand", SetCommand);
+			this.registerCommand("SetPropertiesCommand", SetPropertiesCommand);
 			this.registerCommand("load", null, new LoadParser());
 			this.registerCommand("LoadCommand", LoadCommand);
 		}
