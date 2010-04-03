@@ -22,18 +22,18 @@ package
 		private var sequenceASource:XML =
 			<sequence>
 				<call function="#createBall" />
-				<set property="ball" on="#sequence.variables" to="#sequence.previousCommand.result" />
-				<set property="text" on="#owner.textField" to="waiting for click" />
+				<set ball.to="#sequence.previousCommand.result" on="#sequence.variables" />
+				<set text.to="waiting for click" on="#owner.textField" />
 				<wait for={MouseEvent.CLICK} on="#ball" />
-				<set property="text" on="#owner.textField" to="gonna tween some" />
+				<set text.to="gonna tween some" on="#owner.textField" />
 				<tween x.to="50" y.to="200" alpha.to="0" for="1s" on="#ball" />
-				<set property="text" on="#owner.textField" to="gonna wait some" />
+				<set text.to="gonna wait some" on="#owner.textField" />
 				<wait for="30 frames" />
-				<set property="text" on="#owner.textField" to="gonna tween some more" />
+				<set text.to="gonna tween some more" on="#owner.textField" />
 				<tween tint.to="0x000000ff" x.to="100" alpha.to="1" for="60 frames" on="#ball" />
 				<tween x.to="200" for="1500ms" on="#ball" />
 				<dispatchEvent withType="introComplete" on="#owner" />
-				<set property="text" on="#owner.textField" to="DONE" />
+				<set text.to="DONE" on="#owner.textField" />
 			</sequence>
 
 		private var sequenceA:XMLSequence;

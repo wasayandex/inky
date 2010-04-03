@@ -23,10 +23,8 @@ package
 		private static const INTRO_SOURCE:XML =
 			<sequence>
 				<call function="#createBackground" />
-				<set property="background" on="#sequence.variables" to="#sequence.previousCommand.result" />
-				<set property="alpha" on="#background" to="0" />
-				<set property="scaleX" on="#background" to="0" />
-				<set property="scaleY" on="#background" to="0" />
+				<set background.to="#sequence.previousCommand.result" on="#sequence.variables" />
+				<set alpha.to="0" scaleX.to="0" scaleY.to="0" on="#background" />
 				<tween alpha.to="1" scaleX.to="1" scaleY.to="1" on="#background" for="2s" />
 				<dispatchEvent withType="beforeImageIntro" on="#owner" />
 				<call function="#prepareImage" />

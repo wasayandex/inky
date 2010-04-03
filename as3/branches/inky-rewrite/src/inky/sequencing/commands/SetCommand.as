@@ -14,9 +14,8 @@ package inky.sequencing.commands
 	 */
 	public class SetCommand
 	{
-		public var property:String;
+		public var propertyValues:Object = {};
 		public var target:Object;
-		public var value:*;
 		
 		//---------------------------------------
 		// PUBLIC METHODS
@@ -29,10 +28,11 @@ package inky.sequencing.commands
 		{
 			if (!this.target)
 				throw new Error("SetCommand requires a target.");
-			if (!this.property)
-				throw new Error("SetCommand requires a property.");
+			if (!this.propertyValues)
+				throw new Error("SetCommand requires propertyValues.");
 			
-			this.target[this.property] = this.value;
+			for (var property:String in this.propertyValues)
+				this.target[property] = this.propertyValues[property];
 		}
 
 		

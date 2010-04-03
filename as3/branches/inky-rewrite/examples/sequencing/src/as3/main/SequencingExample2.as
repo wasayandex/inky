@@ -22,7 +22,7 @@ package
 		private static const LOAD_IMAGE:XML =
 			<sequence>
 				<load url="unicorn.jpg" />
-				<set property="image" on="#imagePopup" to="#sequence.previousCommand.content" />
+				<set image.to="#sequence.previousCommand.content" on="#imagePopup" />
 			</sequence>
 		
 		private var imagePopup:ImagePopup;

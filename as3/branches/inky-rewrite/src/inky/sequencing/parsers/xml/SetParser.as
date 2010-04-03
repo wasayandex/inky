@@ -18,6 +18,7 @@ package inky.sequencing.parsers.xml
 	 */
 	public class SetParser implements IXMLCommandDataParser
 	{
+		private static const TARGET_VALUE:RegExp = /^(.*)\.to$/;
 		
 		//---------------------------------------
 		// PUBLIC METHODS
@@ -30,8 +31,21 @@ package inky.sequencing.parsers.xml
 		{
 			xml = xml.copy();
 			
+			if (!xml.@on.length())
+				throw new Error("The \"set\" command requires an \"on\" attribute.");
 			xml.@on.setLocalName("target");
-			xml.@to.setLocalName("value");
+
+			var match:Object;
+			var prop:String;
+			for each (var attr:XML in xml.@*)
+			{
+				if ((match = attr.localName().toString().match(TARGET_VALUE)))
+				{
+					// Format the "to" properties.
+					prop = match[1];
+					attr.setLocalName("propertyValues." + prop);
+				}
+			}
 			
 			return new CommandData(
 				new SetCommand(),
