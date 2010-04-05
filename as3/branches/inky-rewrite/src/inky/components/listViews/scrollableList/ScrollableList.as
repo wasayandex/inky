@@ -36,6 +36,7 @@
 		private static const CONTENT_POSITION:String = "contentPosition";
 		private static const DISPLAY_LIST:String = "displayList";
 		private static const SCROLL_POSITION:String = "scrollPosition";
+		private static const SCROLL_PROPERTIES:String = "scrollProperties";
 		
 		private var __contentContainer:DisplayObjectContainer;
 		private var _firstVisibleItemIndex:int;
@@ -597,8 +598,8 @@ if (!this.orientation) return;
 				this.showItemAt(0);
 			else
 				this._showItemAt(Math.min(this.shownItem, this.dataProvider.length - 1));
-// This should happen as part of validation process.
-			this.updateScrollBar();
+			
+			this.validationState.markPropertyAsInvalid(SCROLL_PROPERTIES);
 		}
 
 		/**
@@ -686,9 +687,12 @@ if (!this.orientation) return;
 
 			var contentPositionIsInvalid:Boolean = this.validationState.propertyIsInvalid(CONTENT_POSITION);
 			var scrollPositionIsInvalid:Boolean = this.validationState.propertyIsInvalid(SCROLL_POSITION);
+			var scrollPropertiesAreInvalid:Boolean = this.validationState.propertyIsInvalid(SCROLL_PROPERTIES);
 			var displayListIsInvalid:Boolean = this.validationState.propertyIsInvalid(DISPLAY_LIST);
 			this.validationState.markAllPropertiesAsValid();
 
+			if (scrollPropertiesAreInvalid)
+				this.updateScrollBar();
 			if (contentPositionIsInvalid)
 				this.validateContentPosition();
 			if (scrollPositionIsInvalid)
