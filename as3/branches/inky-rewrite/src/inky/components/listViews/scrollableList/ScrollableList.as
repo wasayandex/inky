@@ -15,6 +15,7 @@
 	import inky.collections.events.CollectionEvent;
 	import flash.utils.setTimeout;
 	import inky.utils.ValidationState;
+	import inky.utils.describeObject;
 
 
 	/**
@@ -643,12 +644,12 @@ if (!this.orientation) return;
 					var i:int = this.dataProvider.length - 1;
 					var maskSize:Number = mask[this._widthOrHeight];
 					var spacing:Number = 0;
-
+					
 					do
 					{
 						size += this.getItemSize(i) + spacing;
 						spacing = this.spacing;
-						if (size + this.getItemSize(i) + spacing < maskSize)
+						if (i > 0 && size + this.getItemSize(i - 1) + spacing < maskSize)
 							i--;
 						else
 							break;
