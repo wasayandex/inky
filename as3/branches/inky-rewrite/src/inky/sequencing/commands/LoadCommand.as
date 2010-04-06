@@ -28,6 +28,7 @@ package inky.sequencing.commands
 		public var content:*;
 		public var contentType:Object;
 		private var _isComplete:Boolean;
+		private var formattedContentType:String;
 		public var loader:Object;
 		public var url:Object;
 		
@@ -62,6 +63,17 @@ package inky.sequencing.commands
 				throw new Error("The url property must be either a String or URLRequest.");
 				
 			var url:String = request.url;
+			
+			if (this.contentType)
+			{
+				if (!(this.contentType is String) && !(this.contentType is Class))
+					throw new Error("Content type must be either a String or Class");
+				this.formattedContentType = (this.contentType is String ? String(this.contentType) : getQualifiedClassName(this.contentType)).replace(/::/, ".");
+			}
+			else
+			{
+				this.formattedContentType = null;
+			}
 
 			if (!this.loader)
 			{
@@ -71,16 +83,16 @@ package inky.sequencing.commands
 				}
 				else
 				{
-throw new Error("I haven't written this code yet.");
-					if (!(this.contentType is String) && !(this.contentType is Class))
-						throw new Error("Content type must be either a String or Class");
-
-					var contentTypeString:String = (this.contentType is String ? String(this.contentType) : getQualifiedClassName(this.contentType)).replace(/::/, ".");
-					switch (this.contentType)
+					switch (this.formattedContentType)
 					{
 						case "flash.display.Bitmap":
+						{
+							this.loader = new Loader();
+							break;
+						}
 						case "XML":
 						{
+							this.loader = new URLLoader();
 							break;
 						}
 						default:
@@ -108,6 +120,37 @@ throw new Error("I haven't written this code yet.");
 		/**
 		 * 
 		 */
+		private function formatContent(content:*):*
+		{
+			switch (this.formattedContentType)
+			{
+				case "flash.display.Bitmap":
+				{
+					if (!(content is Bitmap))
+						throw new Error("Could not convert format of content with type " + getQualifiedClassName(content) + " to flash.display.Bitmap");
+					break;
+				}
+				case "XML":
+				{
+					content = new XML(content);
+					break;
+				}
+				case null:
+				{
+					break;
+				}
+				default:
+				{
+					throw new Error(this.formattedContentType + " is not supported.");
+				}
+			}
+			
+			return content;
+		}
+
+		/**
+		 * 
+		 */
 		private function onComplete():void
 		{
 			this._isComplete = true;
@@ -121,7 +164,7 @@ throw new Error("I haven't written this code yet.");
 		{
 			event.currentTarget.removeEventListener(event.type, arguments.callee);
 // TODO: Obey contentType (i.e. format as xml)
-			this.content = event.currentTarget.data;
+			this.content = this.formatContent(event.currentTarget.data);
 			this.onComplete();
 		}
 
@@ -131,7 +174,7 @@ throw new Error("I haven't written this code yet.");
 		private function loader_completeHandler(event:Event):void
 		{
 			event.currentTarget.removeEventListener(event.type, arguments.callee);
-			this.content = event.currentTarget.loader.content;
+			this.content = this.formatContent(event.currentTarget.loader.content);
 			this.onComplete();
 		}
 
