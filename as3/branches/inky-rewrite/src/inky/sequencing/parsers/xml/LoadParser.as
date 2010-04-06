@@ -31,6 +31,9 @@ package inky.sequencing.parsers.xml
 			if (xml["@as"].length())
 				xml["@as"].setLocalName("contentType");
 			
+			if (xml.@withLoader.length())
+				xml.@withLoader.setLocalName("loader");
+			
 			return new CommandData(
 				new LoadCommand(),
 				CommandParserUtil.createInjectors(xml)
