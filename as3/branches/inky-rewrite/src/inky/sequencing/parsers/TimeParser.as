@@ -17,9 +17,9 @@ package inky.sequencing.parsers
 	public class TimeParser
 	{
 // TODO: Extract this into part of a parsing library.
-		private static const TIME_IN_MS:RegExp = /^(\d+)\s*ms$|^(\d+)\s*milliseconds$/;
-		private static const TIME_IN_SECS:RegExp = /^(\d+(\.\d+)?)\s*s$|^(\d+(\.\d+)?)\s*seconds$|^(\d+(\.\d+)?)$/;
-		private static const TIME_IN_FRAMES:RegExp = /^(\d+)\s*frames$/;
+		private static const TIME_IN_MS:RegExp = /^(\d+)\s*ms$|^(\d+)\s*milliseconds?$/;
+		private static const TIME_IN_SECS:RegExp = /^(\d+(\.\d+)?)\s*s$|^(\d+(\.\d+)?)\s*seconds?$|^(\d+(\.\d+)?)$/;
+		private static const TIME_IN_FRAMES:RegExp = /^(\d+)\s*frames?$/;
 
 		/**
 		 * 
