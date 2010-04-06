@@ -3,6 +3,7 @@ package inky.components
 	import flash.display.Sprite;
 	import inky.components.IComponent;
 	import inky.components.ComponentBehavior;
+	import flash.display.MovieClip;
 	
 	/**
 	 *
@@ -15,7 +16,7 @@ package inky.components
 	 *	@since  2009.10.25
 	 *
 	 */
-	public class Component extends Sprite implements IComponent
+	public class Component extends MovieClip implements IComponent
 	{
 		private var _explicitHeight:Number;
 		private var _explicitWidth:Number;
