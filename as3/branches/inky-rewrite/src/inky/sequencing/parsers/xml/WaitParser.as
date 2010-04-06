@@ -87,7 +87,7 @@ package inky.sequencing.parsers.xml
 		{
 			var timeParser:TimeParser = WaitParser.timeParser || (WaitParser.timeParser = new TimeParser());
 			var parseResult:ParsedTime = timeParser.parse(time);
-			return parseResult.units == TimeUnit.MILLISECONDS ? parseResult.time / 1000 : parseResult.time;
+			return parseResult.time;
 		}
 		
 		/**
