@@ -39,6 +39,14 @@ package inky.sequencing.commands
 		//---------------------------------------
 		
 		/**
+		 * @inheritDoc
+		 */
+		public function get async():Boolean
+		{
+			return true;
+		}
+		
+		/**
 		 *
 		 */
 		public function get isComplete():Boolean

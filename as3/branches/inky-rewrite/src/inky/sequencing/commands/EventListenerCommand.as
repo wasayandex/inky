@@ -35,6 +35,14 @@ package inky.sequencing.commands
 		/**
 		 * @inheritDoc
 		 */
+		public function get async():Boolean
+		{
+			return true;
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
 		public function get isComplete():Boolean
 		{
 			return this._isComplete;

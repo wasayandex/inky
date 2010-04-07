@@ -25,6 +25,7 @@ package inky.sequencing.commands
 	{
 		private static const GRAPHIC_EXTENSION:RegExp = /\.(swf|gif|png|jpg|jpeg)(\?.*)?$/i
 
+		private var _async:Boolean = true;
 		public var content:*;
 		public var contentType:Object;
 		private var _isComplete:Boolean;
@@ -35,6 +36,21 @@ package inky.sequencing.commands
 		//---------------------------------------
 		// ACCESSORS
 		//---------------------------------------
+		
+		/**
+		 *
+		 */
+		public function get async():Boolean
+		{ 
+			return this._async; 
+		}
+		/**
+		 * @private
+		 */
+		public function set async(value:Boolean):void
+		{
+			this._async = value;
+		}
 		
 		/**
 		 *

@@ -19,6 +19,7 @@ package inky.sequencing.commands
 	 */
 	public class GTweenCommand extends EventDispatcher implements IAsyncCommand
 	{
+		private var _async:Boolean = false;
 		private var _isComplete:Boolean;
 		public var tween:GTween;
 		public var tweenProperties:Object = {};
@@ -27,6 +28,21 @@ package inky.sequencing.commands
 		//---------------------------------------
 		// ACCESSORS
 		//---------------------------------------
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function get async():Boolean
+		{ 
+			return this._async; 
+		}
+		/**
+		 * @private
+		 */
+		public function set async(value:Boolean):void
+		{
+			this._async = value;
+		}
 		
 		/**
 		 * @inheritDoc
