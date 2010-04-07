@@ -51,7 +51,7 @@ package inky.sequencing.parsers.xml
 					prop = match[1];
 					attr.setLocalName("targetValues." + prop);
 				}
-				else if (attr.localName() == "withTween")
+				else if (attr.localName() == "using")
 				{
 					attr.setLocalName("tween");
 				}

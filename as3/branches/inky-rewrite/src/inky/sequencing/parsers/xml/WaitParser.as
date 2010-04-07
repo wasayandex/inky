@@ -57,8 +57,8 @@ package inky.sequencing.parsers.xml
 				xml.@on.setLocalName("target");
 				xml["@for"].setLocalName("eventType");
 
-				if (xml.@withClass.length())
-					xml.@withClass.setLocalName("eventClass");
+				if (xml["@with.class"].length())
+					xml["@with.class"].setLocalName("eventClass");
 			}
 			else
 			{

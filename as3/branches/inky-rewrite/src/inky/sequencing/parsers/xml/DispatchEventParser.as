@@ -32,14 +32,14 @@ package inky.sequencing.parsers.xml
 			
 			if (!xml.@on.length())
 				throw new Error("The DispatchEventParser requires an \"on\" attribute.");
-			else if (!xml.@withType.length())
-				throw new Error("The DispatchEventParser requires a \"withType\" attribute.");
+			else if (!xml["@with.type"].length())
+				throw new Error("The DispatchEventParser requires a \"with.type\" attribute.");
 			
-			if (xml.@withClass.length())
-				xml.@withClass.setLocalName("eventClass");
+			if (xml["@with.class"].length())
+				xml["@with.class"].setLocalName("eventClass");
 
 			xml.@on.setLocalName("target");
-			xml.@withType.setLocalName("type");
+			xml["@with.type"].setLocalName("type");
 			
 			return new CommandData(
 				new DispatchEventCommand(),
