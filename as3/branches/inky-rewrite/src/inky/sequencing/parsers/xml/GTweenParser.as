@@ -22,10 +22,12 @@ package inky.sequencing.parsers.xml
 	public class GTweenParser implements IXMLCommandDataParser
 	{
 		private static const TARGET_VALUE:RegExp = /^(.*)\.to$/;
+		private static const TWEEN_VALUE:RegExp = /^with\.(.*)$/;
 		private static var timeParser:TimeParser;
 		private static const propertyMap:Object = {
-			"for": "duration",
-			"on": "target"
+			"for": "tweenProperties.duration",
+			"on": "tweenProperties.target",
+			using: "tween"
 		};
 		
 		//---------------------------------------
@@ -42,24 +44,28 @@ package inky.sequencing.parsers.xml
 			var match:Object;
 			var prop:String;
 			var value:String;
+			var formattedProp:String;
 
 			for each (var attr:XML in xml.@*)
 			{
-				if ((match = attr.localName().toString().match(TARGET_VALUE)))
+				if ((formattedProp = GTweenParser.propertyMap[String(attr.localName())]))
+				{
+					attr.setLocalName(formattedProp);
+				}
+				else if ((match = attr.localName().toString().match(TARGET_VALUE)))
 				{
 					// Format the "to" properties.
 					prop = match[1];
 					attr.setLocalName("targetValues." + prop);
 				}
-				else if (attr.localName() == "using")
+				else if ((match = attr.localName().toString().match(TWEEN_VALUE)))
 				{
-					attr.setLocalName("tween");
+					prop = match[1];
+					attr.setLocalName("tweenProperties." + prop);
 				}
 				else
 				{
-					prop = attr.localName();
-					prop = GTweenParser.propertyMap[prop] || prop;
-					attr.setLocalName("tweenProperties." + prop);
+					throw new Error("The attribute \"" + attr + "\" is not supported.");
 				}
 			}
 
