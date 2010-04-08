@@ -42,7 +42,6 @@ package inky.validation
 		// accessors
 		//
 
-
 		/**
 		 * @inheritDoc
 		 */
@@ -93,8 +92,6 @@ package inky.validation
 
 		/**
 		 *
-		 *
-		 *
 		 */
 		public function get evaluator():Function
 		{
@@ -123,17 +120,17 @@ package inky.validation
 		{
 			var errors:Array = [];
 			var value:Object = BindingUtil.evaluateBindingChain(this.source, this.property);
-			
-			if (value != null)
+
+			if (this.required && ([null, ""].indexOf(value) != -1))
+			{
+				errors.push(new ValidationError('Field is required.'));
+			}
+			else if (this.evaluator != null)
 			{
 				if (!this.evaluator.apply(null, [value]))
 					errors.push(new ValidationError('The evaluation failed.'));
 			}
-			else if (this.required)
-			{
-				errors.push(new ValidationError('Field is required.'));
-			}
-			
+
 			var result:ValidationResult = new ValidationResult(errors.length > 0, '', errors);
 			
 			// Create the ValidationResultEvent
