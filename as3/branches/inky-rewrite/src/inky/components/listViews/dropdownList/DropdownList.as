@@ -329,8 +329,21 @@ package inky.components.listViews.dropdownList
 			return this.itemToLabel(this.selectedItem);
 		}
 		
-
-
+		/**
+		 * 
+		 */
+		public function get value():String
+		{
+			var value:String = null;
+			if (this.selectedItem)
+			{
+				if (this.selectedItem.data == null)
+					value = this.selectedItem.label;
+				else
+					value = this.selectedItem.data;
+			}
+			return value;
+		}
 
 		//---------------------------------------
 		// PUBLIC METHODS
@@ -528,11 +541,14 @@ package inky.components.listViews.dropdownList
 			{
 				if (!this.listRenderer)
 					throw new Error("No listRenderer defined.");
-				
-				var pos:Point = this.localToGlobal(new Point(0, 0));
+
+				var pos:Point = this.localToGlobal(new Point(0, this.height));
 				var dropdownClass:Class = this.listRenderer;
 				this.dropdown = new dropdownClass() as IListView;
 				
+				if (!this.dropdown)
+					throw new Error("Your listRenderer does not implement IListView.");
+
 				// TODO: Determine which itemRenderer (rendererClass) takes precedence: the DropdownList's, or the listRenderer's.  Right now, the listRenderer's itemRenderer wins.
 				if (!this.dropdown.itemRendererClass)
 				{
@@ -544,6 +560,7 @@ package inky.components.listViews.dropdownList
 				{
 					this.itemRendererClass = this.dropdown.itemRendererClass;
 				}
+
 				this.dropdown.dataProvider = this.dataProvider;
 				this.dropdown.x = pos.x;
 				this.dropdown.y = pos.y;
@@ -627,8 +644,9 @@ package inky.components.listViews.dropdownList
 			this._selectedIndex = this.dataProvider.getItemIndex(value);
 			this.invalidate();
 			this.dispatchEvent(new Event(Event.CHANGE));
-			this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "selectedIndex", oldSelectedIndex, this._selectedIndex));	
-			this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "selectedItem", oldSelectedItem, this._selectedItem));	
+			this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "selectedIndex", oldSelectedIndex, this._selectedIndex));
+			this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "selectedItem", oldSelectedItem, this._selectedItem));
+			this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "value", oldSelectedItem, this._selectedItem));
 		}
 		
 
