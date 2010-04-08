@@ -18,20 +18,22 @@ package inky.sequencing
 	 */
 	public class AbstractSequence extends EventDispatcher implements ISequence
 	{
+		private var id:String;
 		private var sequencePlayer:SequencePlayer;
 		private var _variables:Object;
 
 		/**
 		 *
 		 */
-		public function AbstractSequence(variables:Object = null)
+		public function AbstractSequence(variables:Object = null, id:String = "sequence")
 		{
+			this.id = id;
 			this._variables = variables || {};
 
-			if (this._variables.sequence)
-				throw new ArgumentError("You can't set the variable \"sequence\": it's automatically set to the value of the sequence.")
+			if (this._variables[id] && (this._variables[id] != this))
+				throw new ArgumentError("The id \"" + id + "\" is already being used on the provided variables for another sequence.")
 			
-			this._variables.sequence = this;
+			this._variables[id] = this;
 		}
 
 		//---------------------------------------

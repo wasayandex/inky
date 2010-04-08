@@ -48,37 +48,21 @@ package inky.sequencing.parsers
 		{
 			var match:Object;
 			var getter:Function;
+			formatter = formatter || CommandParserUtil.formatValue;
 			
 			if ((match = getterString.match(VARIABLE_REFERENCE)))
 			{
 				var parts:Array = match[1].split(".");
-				if (formatter != null)
-				{
-					getter = function(host:Object):*
-					{
-						return formatter(CommandParserUtil.evaluatePropertyChain(host, parts));
-					}
-				}
-				else
-				{
-					getter = function(host:Object):*
-					{
-						return CommandParserUtil.evaluatePropertyChain(host, parts);
-					}
-				}
-			}
-			else if (formatter != null)
-			{
 				getter = function(host:Object):*
 				{
-					return formatter(getterString);
+					return formatter(CommandParserUtil.evaluatePropertyChain(host, parts));
 				}
 			}
 			else
 			{
 				getter = function(host:Object):*
 				{
-					return getterString;
+					return formatter(getterString);
 				}
 			}
 			
@@ -103,6 +87,19 @@ package inky.sequencing.parsers
 				var value:* = getter(variables);
 				host[propertyToSet] = value;
 			}
+		}
+		
+		/**
+		 * 
+		 */
+		public static function formatValue(value:*):*
+		{
+			if (value == "true")
+				value = true;
+			else if (value == "false")
+				value = false;
+			
+			return value;
 		}
 
 		//---------------------------------------

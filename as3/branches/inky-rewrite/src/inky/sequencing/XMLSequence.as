@@ -40,9 +40,9 @@ package inky.sequencing
 		/**
 		 *
 		 */
-		public function XMLSequence(source:XML, variables:Object = null)
+		public function XMLSequence(source:XML, variables:Object = null, id:String = "sequence")
 		{
-			super(variables);
+			super(variables, id);
 			
 			this.source = source;
 // TODO: Don't create all these parsers up front for each instance! Create lazily and reuse!
