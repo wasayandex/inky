@@ -4,6 +4,7 @@ package inky.sequencing
 	import flash.events.EventDispatcher;
 	import inky.sequencing.CommandData;
 	import inky.sequencing.SequencePlayer;
+	import inky.sequencing.events.SequenceEvent;
 	
 	/**
 	 *
@@ -18,27 +19,35 @@ package inky.sequencing
 	 */
 	public class AbstractSequence extends EventDispatcher implements ISequence
 	{
-		private var id:String;
 		private var sequencePlayer:SequencePlayer;
-		private var _variables:Object;
 
 		/**
 		 *
 		 */
-		public function AbstractSequence(variables:Object = null, id:String = "sequence")
+		public function AbstractSequence()
 		{
-			this.id = id;
-			this._variables = variables || {};
-
-			if (this._variables[id] && (this._variables[id] != this))
-				throw new ArgumentError("The id \"" + id + "\" is already being used on the provided variables for another sequence.")
-			
-			this._variables[id] = this;
+			this.addEventListener(SequenceEvent.BEFORE_COMMAND_EXECUTE, this.beforeCommandExecuteHandler);
 		}
 
 		//---------------------------------------
 		// ACCESSORS
 		//---------------------------------------
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function get currentCommand():Object
+		{ 
+			return this.sequencePlayer ? this.sequencePlayer.currentCommand : null; 
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function get currentIndex():int
+		{ 
+			return this.sequencePlayer ? this.sequencePlayer.currentIndex : -1; 
+		}
 		
 		/**
 		 * @inheritDoc
@@ -55,14 +64,6 @@ package inky.sequencing
 		{
 			return this.sequencePlayer ? this.sequencePlayer.previousCommand : null;
 		}
-		
-		/**
-		 * @inheritDoc
-		 */
-		public function get variables():Object
-		{
-			return this._variables;
-		}
 
 		//---------------------------------------
 		// PUBLIC METHODS
@@ -72,14 +73,6 @@ package inky.sequencing
 		 * @inheritDoc
 		 */
 		public function getCommandAt(index:int):Object
-		{
-			throw new Error("You must override this method.");
-		}
-		
-		/**
-		 * @inheritDoc
-		 */
-		public function getCommandDataAt(index:int):CommandData
 		{
 			throw new Error("You must override this method.");
 		}
@@ -115,11 +108,31 @@ package inky.sequencing
 		/**
 		 * 
 		 */
-		private function getSequencePlayer():SequencePlayer
+		private function beforeCommandExecuteHandler(event:SequenceEvent):void
 		{
-			return this.sequencePlayer || (this.sequencePlayer = new SequencePlayer(this, this.variables));
+			this.onBeforeCommandExecute();
 		}
 
+		/**
+		 * 
+		 */
+		private function getSequencePlayer():SequencePlayer
+		{
+			if (!this.sequencePlayer)
+				this.sequencePlayer = new SequencePlayer(this);
+			return this.sequencePlayer;
+		}
+
+		//---------------------------------------
+		// PROTECTED METHODS
+		//---------------------------------------
+		
+		/**
+		 * 
+		 */
+		protected function onBeforeCommandExecute():void
+		{
+		}
 		
 	}
 	

@@ -34,15 +34,23 @@ package inky.sequencing
 		private var commandData:Array = [];
 		private var parserRegistry:Object = {};
 		private var commandRegistry:Object = {};
+		private var id:String;
 		private var source:XML;
 		private static var standardParser:IXMLCommandDataParser;
+		private var _variables:Object;
 		
 		/**
 		 *
 		 */
 		public function XMLSequence(source:XML, variables:Object = null, id:String = "sequence")
 		{
-			super(variables, id);
+			this.id = id;
+			this._variables = variables || {};
+
+			if (this._variables[id] && (this._variables[id] != this))
+				throw new ArgumentError("The id \"" + id + "\" is already being used on the provided variables for another sequence.")
+			
+			this._variables[id] = this;
 			
 			this.source = source;
 // TODO: Don't create all these parsers up front for each instance! Create lazily and reuse!
@@ -72,6 +80,14 @@ package inky.sequencing
 			return this.source.*.length();
 		}
 		
+		/**
+		 * @inheritDoc
+		 */
+		public function get variables():Object
+		{
+			return this._variables;
+		}
+		
 		//---------------------------------------
 		// PUBLIC METHODS
 		//---------------------------------------
@@ -86,21 +102,6 @@ package inky.sequencing
 
 			var data:Object = this.getCommandDataAt(index);
 			return data.command;
-		}
-
-		/**
-		 * 
-		 */
-		override public function getCommandDataAt(index:int):CommandData
-		{
-			var data:CommandData = this.commandData[index];
-			if (!data)
-			{
-				var xml:XML = this.source.*[index];
-				data =
-				this.commandData[index] = this.parseCommandData(xml);
-			}
-			return data;
 		}
 
 		/**
@@ -130,6 +131,21 @@ package inky.sequencing
 		/**
 		 * 
 		 */
+		private function getCommandDataAt(index:int):CommandData
+		{
+			var data:CommandData = this.commandData[index];
+			if (!data)
+			{
+				var xml:XML = this.source.*[index];
+				data =
+				this.commandData[index] = this.parseCommandData(xml);
+			}
+			return data;
+		}
+
+		/**
+		 * 
+		 */
 		private function parseCommandData(xml:XML):CommandData
 		{
 			var data:CommandData;
@@ -155,6 +171,24 @@ package inky.sequencing
 				XMLSequence.standardParser = XMLSequence.standardParser || new StandardCommandDataParser();
 			}
 			return parser;
+		}
+
+		//---------------------------------------
+		// PROTECTED METHODS
+		//---------------------------------------
+
+		/**
+		 * Prepares the command for execution.
+		 */
+		override protected function onBeforeCommandExecute():void
+		{
+			var command:Object = this.currentCommand;
+			var injectors:Array = this.commandData[this.currentIndex].injectors;
+			
+			for each (var injector:Function in injectors)
+			{
+				injector(command, this.variables);
+			}
 		}
 
 	}

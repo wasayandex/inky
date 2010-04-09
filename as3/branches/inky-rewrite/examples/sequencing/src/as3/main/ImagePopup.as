@@ -26,9 +26,11 @@ package
 				<set background.to="#sequence.previousCommand.result" on="#sequence.variables" />
 				<set alpha.to="0" scaleX.to="0" scaleY.to="0" on="#background" />
 				<tween alpha.to="1" scaleX.to="1" scaleY.to="1" on="#background" for="2s" />
-				<dispatchEvent withType="beforeImageIntro" on="#owner" />
+				<wait for={Event.COMPLETE} on="#sequence.previousCommand" />
+				<dispatchEvent with.type="beforeImageIntro" on="#owner" />
 				<call function="#prepareImage" />
 				<tween alpha.to="1" on="#owner.image" for="2s" />
+				<wait for={Event.COMPLETE} on="#sequence.previousCommand" />
 			</sequence>
 
 		private var background:Sprite;

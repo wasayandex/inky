@@ -5,6 +5,7 @@ package
 	import inky.sequencing.XMLSequence;
 	import flash.events.MouseEvent;
 	import com.gskinner.motion.plugins.ColorTransformPlugin;
+	import flash.events.Event;
 
 	/**
 	 *
@@ -27,12 +28,15 @@ package
 				<wait for={MouseEvent.CLICK} on="#ball" />
 				<set text.to="gonna tween some" on="#owner.textField" />
 				<tween x.to="50" y.to="200" alpha.to="0" for="1s" on="#ball" />
+				<wait for={Event.COMPLETE} on="#sequence.previousCommand" />
 				<set text.to="gonna wait some" on="#owner.textField" />
 				<wait for="30 frames" />
 				<set text.to="gonna tween some more" on="#owner.textField" />
 				<tween tint.to="0x000000ff" x.to="100" alpha.to="1" for="60 frames" on="#ball" />
+				<wait for={Event.COMPLETE} on="#sequence.previousCommand" />
 				<tween x.to="200" for="1500ms" on="#ball" />
-				<dispatchEvent withType="introComplete" on="#owner" />
+				<wait for={Event.COMPLETE} on="#sequence.previousCommand" />
+				<dispatchEvent with.type="introComplete" on="#owner" />
 				<set text.to="DONE" on="#owner.textField" />
 			</sequence>
 

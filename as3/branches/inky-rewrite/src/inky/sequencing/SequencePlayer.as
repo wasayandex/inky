@@ -29,21 +29,35 @@ package inky.sequencing
 		private var pointer:int = 0;
 		private var _previousCommand:Object;
 		private var sequence:ISequence;
-		private var variables:Object;
 		
 		/**
 		 *
 		 */
-		public function SequencePlayer(sequence:ISequence, variables:Object, eventDispatcher:IEventDispatcher = null)
+		public function SequencePlayer(sequence:ISequence, eventDispatcher:IEventDispatcher = null)
 		{
 			this.eventDispatcher = eventDispatcher || sequence;
 			this.sequence = sequence;
-			this.variables = variables;
 		}
 
 		//---------------------------------------
 		// ACCESSORS
 		//---------------------------------------
+		
+		/**
+		 *
+		 */
+		public function get currentIndex():int
+		{ 
+			return this.pointer; 
+		}
+		
+		/**
+		 * 
+		 */
+		public function get currentCommand():Object
+		{
+			return this.pointer >= 0 && this.pointer < this.sequence.length ? this.sequence.getCommandAt(this.pointer) : null;
+		}
 		
 		/**
 		 * 
@@ -116,8 +130,7 @@ package inky.sequencing
 
 			this.isPlaying = true;
 
-			var commandData:CommandData = this.sequence.getCommandDataAt(index);
-			var command:Object = commandData.command;
+			var command:Object = this.sequence.getCommandAt(index);
 
 			// Make sure it's a command.
 			if (!command.hasOwnProperty("execute") || !(command.execute is Function))
@@ -126,11 +139,11 @@ package inky.sequencing
 			if (command is ISequenceCommand)
 				command.sequence = this.sequence;
 
-			// Update the pointer.
+			// Update the pointer/currentCommand
 			this.pointer = index;
 
 			// Prepare the command.
-			this.prepareCommand(commandData);
+			this.eventDispatcher.dispatchEvent(new SequenceEvent(this.sequence, SequenceEvent.BEFORE_COMMAND_EXECUTE));
 			
 			// Execute the command.
 			if (command is IAsyncCommand)
@@ -197,21 +210,7 @@ package inky.sequencing
 				this.eventDispatcher.dispatchEvent(new SequenceEvent(this.sequence, SequenceEvent.COMPLETE));
 			}
 		}
-		
-		/**
-		 * 
-		 */
-		private function prepareCommand(commandData:CommandData):void
-		{
-			var command:Object = commandData.command;
-			var injectors:Array = commandData.injectors;
-			
-			for each (var injector:Function in injectors)
-			{
-				injector(command, this.variables);
-			}
-		}
-		
+
 	}
 	
 }

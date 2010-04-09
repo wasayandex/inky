@@ -19,6 +19,16 @@ package inky.sequencing
 		//---------------------------------------
 		// GETTER / SETTERS
 		//---------------------------------------
+
+		/**
+		 * 
+		 */
+		function get currentCommand():Object;
+
+		/**
+		 * 
+		 */
+		function get currentIndex():int;
 		
 		/**
 		 * 
@@ -30,11 +40,6 @@ package inky.sequencing
 		 */
 		function get previousCommand():Object;
 		
-		/**
-		 * 
-		 */
-		function get variables():Object;
-	
 		//---------------------------------------
 		// PUBLIC METHODS
 		//---------------------------------------
@@ -43,11 +48,6 @@ package inky.sequencing
 		 * 
 		 */
 		function getCommandAt(index:int):Object;
-// TODO: Get rid of getCommandDataAt. CommandData object should not be exposed. In fact they probably shouldn't exist anymore. Just have injectors.
-		/**
-		 * 
-		 */
-		function getCommandDataAt(index:int):CommandData;
 
 		/**
 		 * 
