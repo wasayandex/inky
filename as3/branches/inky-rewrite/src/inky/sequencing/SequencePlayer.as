@@ -248,6 +248,7 @@ package inky.sequencing
 		 */
 		private function onStop():void
 		{
+			this.interjectedSequences = null;
 			this.abortPending = false;
 			this.isPlaying = false;
 			this._previousCommand = null;
