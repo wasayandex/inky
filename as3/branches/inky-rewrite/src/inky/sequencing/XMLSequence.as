@@ -16,6 +16,7 @@ package inky.sequencing
 	import inky.sequencing.commands.LoadCommand;
 	import inky.sequencing.parsers.xml.LoadParser;
 	import inky.sequencing.parsers.CommandParserUtil;
+	import inky.sequencing.parsers.xml.TraceParser;
 	
 	/**
 	 *
@@ -54,17 +55,12 @@ package inky.sequencing
 			this.source = source;
 // TODO: Don't create all these parsers up front for each instance! Create lazily and reuse!
 			this.registerCommand("call", null, new CallParser());
-			this.registerCommand("CallCommand", CallCommand);
 			this.registerCommand("dispatchEvent", null, new DispatchEventParser());
-			this.registerCommand("DispatchEventCommand", DispatchEventCommand);
 			this.registerCommand("wait", null, new WaitParser());
-			this.registerCommand("DelayCommand", DelayCommand);
 			this.registerCommand("tween", null, new GTweenParser());
-			this.registerCommand("GTweenCommand", GTweenCommand);
 			this.registerCommand("set", null, new SetParser());
-			this.registerCommand("SetPropertiesCommand", SetPropertiesCommand);
 			this.registerCommand("load", null, new LoadParser());
-			this.registerCommand("LoadCommand", LoadCommand);
+			this.registerCommand("trace", null, new TraceParser());
 		}
 		
 		//---------------------------------------
