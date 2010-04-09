@@ -37,11 +37,34 @@ package inky.sequencing
 		/**
 		 * 
 		 */
+		function get onAbort():Function;
+		/**
+		 * @private
+		 */
+		function set onAbort(value:Function):void;
+
+		/**
+		 * 
+		 */
+		function get onComplete():Function;
+		/**
+		 * @private
+		 */
+		function set onComplete(value:Function):void;
+
+		/**
+		 * 
+		 */
 		function get previousCommand():Object;
 		
 		//---------------------------------------
 		// PUBLIC METHODS
 		//---------------------------------------
+	
+		/**
+		 * 
+		 */
+		function abort():Boolean;
 	
 		/**
 		 * 

@@ -19,6 +19,8 @@ package inky.sequencing
 	public class AbstractSequence extends EventDispatcher implements ISequence
 	{
 		private var sequencePlayer:SequencePlayer;
+		private var _onAbort:Function;
+		private var _onComplete:Function;
 
 		/**
 		 *
@@ -59,6 +61,52 @@ package inky.sequencing
 		/**
 		 * @inheritDoc
 		 */
+		public function get onAbort():Function
+		{
+			return this._onAbort; 
+		}
+		/**
+		 * @private
+		 */
+		public function set onAbort(value:Function):void
+		{
+			if (value != this._onAbort)
+			{
+				if (value != null)
+					this.addEventListener(SequenceEvent.ABORT, this.abortHandler);
+				else if (this.onAbort != null)
+					this.removeEventListener(SequenceEvent.ABORT, this.abortHandler);
+
+				this._onAbort = value;
+			}
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public function get onComplete():Function
+		{
+			return this._onComplete; 
+		}
+		/**
+		 * @private
+		 */
+		public function set onComplete(value:Function):void
+		{
+			if (value != this._onComplete)
+			{
+				if (value != null)
+					this.addEventListener(SequenceEvent.COMPLETE, this.completeHandler);
+				else if (this.onComplete != null)
+					this.removeEventListener(SequenceEvent.COMPLETE, this.completeHandler);
+
+				this._onComplete = value;
+			}
+		}
+
+		/**
+		 * @inheritDoc
+		 */
 		public function get previousCommand():Object
 		{
 			return this.sequencePlayer ? this.sequencePlayer.previousCommand : null;
@@ -67,6 +115,14 @@ package inky.sequencing
 		//---------------------------------------
 		// PUBLIC METHODS
 		//---------------------------------------
+
+		/**
+		 * @inheritDoc
+		 */
+		public function abort():Boolean
+		{
+			return this.getSequencePlayer().abort();
+		}
 
 		/**
 		 * @inheritDoc
@@ -107,9 +163,27 @@ package inky.sequencing
 		/**
 		 * 
 		 */
+		private function abortHandler(event:SequenceEvent):void
+		{
+			if (this.onAbort != null)
+				this.onAbort(this);
+		}
+		
+		/**
+		 * 
+		 */
 		private function beforeCommandExecuteHandler(event:SequenceEvent):void
 		{
 			this.onBeforeCommandExecute();
+		}
+		
+		/**
+		 * 
+		 */
+		private function completeHandler(event:SequenceEvent):void
+		{
+			if (this.onComplete != null)
+				this.onComplete(this);
 		}
 
 		/**

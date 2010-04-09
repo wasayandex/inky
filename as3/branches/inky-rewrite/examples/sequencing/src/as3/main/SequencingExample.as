@@ -56,11 +56,20 @@ package
 		{
 			this.sequence = new XMLSequence(SEQUENCE_SOURCE, {owner: this, createBall: this.createBall});
 			this.playSequenceButton.addEventListener(MouseEvent.CLICK, this.playSequenceButton_clickHandler);
+			this.abortSequenceButton.addEventListener(MouseEvent.CLICK, this.abortSequenceButton_clickHandler);
 		}
 
 		//---------------------------------------
 		// PRIVATE METHODS
 		//---------------------------------------
+
+		/**
+		 * 
+		 */
+		private function abortSequenceButton_clickHandler(event:MouseEvent):void
+		{
+			this.sequence.abort();
+		}
 
 		/**
 		 * 

@@ -23,6 +23,7 @@ package inky.sequencing
 	 */
 	public class SequencePlayer
 	{
+		private var abortPending:Boolean = false;
 		private var eventDispatcher:IEventDispatcher;
 		private var interjectedSequences:Array;
 		private var isPlaying:Boolean = false;
@@ -70,6 +71,22 @@ package inky.sequencing
 		//---------------------------------------
 		// PUBLIC METHODS
 		//---------------------------------------
+		
+		/**
+		 * 
+		 */
+		public function abort():Boolean
+		{
+			if (!this.isPlaying)
+			{
+				return false;
+			}
+			else
+			{
+				this.abortPending = true;
+				return true;
+			}
+		}
 		
 		/**
 		 * 
@@ -179,7 +196,11 @@ package inky.sequencing
 		 */
 		private function executeNextCommand():void
 		{
-			if (this.interjectedSequences && this.interjectedSequences.length)
+			if (this.abortPending)
+			{
+				this.onAbort();
+			}
+			else if (this.interjectedSequences && this.interjectedSequences.length)
 			{
 				var sequence:ISequence = ISequence(this.interjectedSequences.shift());
 				sequence.addEventListener(SequenceEvent.COMPLETE, this.interjectedSequence_completeHandler);
@@ -191,7 +212,6 @@ package inky.sequencing
 			}
 			else
 			{
-				this.pointer = -1;
 				this.onComplete();
 			}
 		}
@@ -208,16 +228,30 @@ package inky.sequencing
 		/**
 		 * 
 		 */
+		private function onAbort():void
+		{
+			this.onStop();
+			this.eventDispatcher.dispatchEvent(new SequenceEvent(this.sequence, SequenceEvent.ABORT));
+		}
+
+		/**
+		 * 
+		 */
 		private function onComplete():void
 		{
-			if (this.isPlaying)
-			{
-				this.isPlaying = false;
-				
-				// We're at the end of the sequence.
-				this._previousCommand = null;
-				this.eventDispatcher.dispatchEvent(new SequenceEvent(this.sequence, SequenceEvent.COMPLETE));
-			}
+			this.onStop();
+			this.eventDispatcher.dispatchEvent(new SequenceEvent(this.sequence, SequenceEvent.COMPLETE));
+		}
+		
+		/**
+		 * Called by onAbort() and onComplete()
+		 */
+		private function onStop():void
+		{
+			this.abortPending = false;
+			this.isPlaying = false;
+			this._previousCommand = null;
+			this.pointer = -1;
 		}
 
 	}
