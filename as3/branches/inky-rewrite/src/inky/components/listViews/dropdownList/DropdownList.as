@@ -414,6 +414,12 @@ package inky.components.listViews.dropdownList
 				var dropdown:DisplayObject = this.getDropdown() as DisplayObject;
 				if (!this.stage.contains(dropdown))
 					this.stage.addChild(dropdown);
+
+				// Position the menu.
+				var pos:Point = this.localToGlobal(new Point(0, this.height));
+				this.dropdown.x = pos.x;
+				this.dropdown.y = pos.y;
+
 				this.stage.addEventListener(MouseEvent.CLICK, this.stage_clickHandler);
 			}
 		}
@@ -542,7 +548,6 @@ package inky.components.listViews.dropdownList
 				if (!this.listRenderer)
 					throw new Error("No listRenderer defined.");
 
-				var pos:Point = this.localToGlobal(new Point(0, this.height));
 				var dropdownClass:Class = this.listRenderer;
 				this.dropdown = new dropdownClass() as IListView;
 				
@@ -562,8 +567,6 @@ package inky.components.listViews.dropdownList
 				}
 
 				this.dropdown.dataProvider = this.dataProvider;
-				this.dropdown.x = pos.x;
-				this.dropdown.y = pos.y;
 				this.dropdown.addEventListener(MouseEvent.CLICK, this.dropDown_clickHandler);
 			}
 			
