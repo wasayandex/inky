@@ -17,6 +17,7 @@ package inky.sequencing
 	import inky.sequencing.parsers.xml.LoadParser;
 	import inky.sequencing.parsers.CommandParserUtil;
 	import inky.sequencing.parsers.xml.TraceParser;
+	import inky.sequencing.parsers.xml.XMLCommandParserRegistry;
 	
 	/**
 	 *
@@ -33,8 +34,7 @@ package inky.sequencing
 	{
 		private static const VARIABLE_REFERENCE:RegExp = /^#(.*)$/;
 		private var commands:Array = [];
-		private var parserRegistry:Object = {};
-		private var commandRegistry:Object = {};
+		private var parserRegistry:XMLCommandParserRegistry;
 		private var id:String;
 		private var source:XML;
 		private var _variables:Object;
@@ -53,14 +53,6 @@ package inky.sequencing
 			this._variables[id] = this;
 			
 			this.source = source;
-// TODO: Don't create all these parsers up front for each instance! Create lazily and reuse!
-			this.registerCommand("call", null, new CallParser());
-			this.registerCommand("dispatchEvent", null, new DispatchEventParser());
-			this.registerCommand("wait", null, new WaitParser());
-			this.registerCommand("tween", null, new GTweenParser());
-			this.registerCommand("set", null, new SetParser());
-			this.registerCommand("load", null, new LoadParser());
-			this.registerCommand("trace", null, new TraceParser());
 		}
 		
 		//---------------------------------------
@@ -99,7 +91,7 @@ package inky.sequencing
 			if (!command)
 			{
 				var xml:XML = this.source.*[index];
-				command = this.getParser(xml).createCommand(xml);
+				command = this.getParser(xml.name()).createCommand(xml);
 				this.commands[index] = command;
 			}
 			
@@ -107,23 +99,13 @@ package inky.sequencing
 		}
 
 		/**
-		 * Registers a command with the sequence. Normal use is to omit the
-		 * third argument, however, if you want to specify a custom parser,
-		 * you may pass <code>null</code> for the second argument (assuming
-		 * your custom parser allows it).
+		 * 
 		 */
-		public function registerCommand(name:Object, type:Class, parser:IXMLCommandParser = null):void
+		public function registerCommandParser(name:Object, parser:Object):void
 		{
-			var qName:QName;
-			
-			if (name is QName)
-				qName = QName(name);
-			else if (name is String)
-				qName = new QName("", String(name));
-			else throw new ArgumentError("Name parameter must be either a String or QName");
-
-			this.parserRegistry[name] = parser;
-			this.commandRegistry[name] = type;
+			if (!this.parserRegistry)
+				this.parserRegistry = new XMLCommandParserRegistry();
+			this.parserRegistry.registerParser(name, parser);
 		}
 		
 		//---------------------------------------
@@ -133,12 +115,18 @@ package inky.sequencing
 		/**
 		 * 
 		 */
-		private function getParser(xml:XML):IXMLCommandParser
+		private function getParser(name:Object):IXMLCommandParser
 		{
-			var name:QName = xml.name();
-			var parser:IXMLCommandParser = this.parserRegistry[name];
+			var parser:IXMLCommandParser;
+			if (this.parserRegistry)
+				parser = this.parserRegistry.getParser(name);
+			
 			if (!parser)
-				throw new Error("No parser registered for " + xml.name());
+				parser = XMLCommandParserRegistry.globalRegistry.getParser(name);
+			
+			if (!parser)
+				throw new Error("No parser is registered for the name \"" + name + "\".");
+			
 			return parser;
 		}
 
@@ -170,7 +158,7 @@ package inky.sequencing
 				properties[attrName] = value;
 			}
 
-			var parser:IXMLCommandParser = this.getParser(xml);
+			var parser:IXMLCommandParser = this.getParser(xml.name());
 			parser.setCommandProperties(command, properties);
 		}
 

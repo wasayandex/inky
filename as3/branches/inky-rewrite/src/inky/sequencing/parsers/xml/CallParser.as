@@ -2,6 +2,7 @@ package inky.sequencing.parsers.xml
 {
 	import inky.sequencing.commands.CallCommand;
 	import inky.sequencing.parsers.xml.AbstractXMLCommandParser;
+	import inky.sequencing.parsers.xml.XMLCommandParserRegistry;
 	
 	/**
 	 *
@@ -36,6 +37,14 @@ package inky.sequencing.parsers.xml
 		override public function createCommand(xml:XML):Object
 		{
 			return new CallCommand();
+		}
+
+		/**
+		 * 
+		 */
+		public static function install(name:Object = null):void
+		{
+			XMLCommandParserRegistry.globalRegistry.registerParser(name || "call", CallParser);
 		}
 		
 	}

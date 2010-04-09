@@ -5,6 +5,7 @@ package inky.sequencing.parsers.xml
 	import inky.sequencing.parsers.TimeUnit;
 	import inky.sequencing.parsers.ParsedTime;
 	import inky.sequencing.parsers.xml.IXMLCommandParser;
+	import inky.sequencing.parsers.xml.XMLCommandParserRegistry;
 	
 	/**
 	 *
@@ -38,6 +39,14 @@ package inky.sequencing.parsers.xml
 		public function createCommand(xml:XML):Object
 		{
 			return new GTweenCommand();
+		}
+
+		/**
+		 * 
+		 */
+		public static function install(name:Object = null):void
+		{
+			XMLCommandParserRegistry.globalRegistry.registerParser(name || "tween", GTweenParser);
 		}
 
 		/**

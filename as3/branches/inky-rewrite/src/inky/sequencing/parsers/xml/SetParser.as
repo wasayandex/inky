@@ -2,6 +2,7 @@ package inky.sequencing.parsers.xml
 {
 	import inky.sequencing.commands.SetPropertiesCommand;
 	import inky.sequencing.parsers.xml.IXMLCommandParser;
+	import inky.sequencing.parsers.xml.XMLCommandParserRegistry;
 	
 	/**
 	 *
@@ -28,6 +29,14 @@ package inky.sequencing.parsers.xml
 		public function createCommand(xml:XML):Object
 		{
 			return new SetPropertiesCommand();
+		}
+
+		/**
+		 * 
+		 */
+		public static function install(name:Object = null):void
+		{
+			XMLCommandParserRegistry.globalRegistry.registerParser(name || "set", SetParser);
 		}
 
 		/**

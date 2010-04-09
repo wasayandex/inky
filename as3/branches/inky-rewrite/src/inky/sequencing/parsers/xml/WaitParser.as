@@ -5,6 +5,7 @@ package inky.sequencing.parsers.xml
 	import inky.sequencing.parsers.TimeParser;
 	import inky.sequencing.parsers.ParsedTime;
 	import inky.sequencing.parsers.xml.AbstractXMLCommandParser;
+	import inky.sequencing.parsers.xml.XMLCommandParserRegistry;
 	
 	/**
 	 *
@@ -61,6 +62,13 @@ package inky.sequencing.parsers.xml
 			return command;
 		}
 
+		/**
+		 * 
+		 */
+		public static function install(name:Object = null):void
+		{
+			XMLCommandParserRegistry.globalRegistry.registerParser(name || "wait", WaitParser);
+		}
 
 		/**
 		 * @inheritDoc

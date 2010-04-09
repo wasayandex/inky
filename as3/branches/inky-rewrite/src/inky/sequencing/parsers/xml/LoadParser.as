@@ -2,6 +2,7 @@ package inky.sequencing.parsers.xml
 {
 	import inky.sequencing.commands.LoadCommand;
 	import inky.sequencing.parsers.xml.AbstractXMLCommandParser;
+	import inky.sequencing.parsers.xml.XMLCommandParserRegistry;
 	
 	/**
 	 *
@@ -38,7 +39,14 @@ package inky.sequencing.parsers.xml
 		{
 			return new LoadCommand();
 		}
-		
+
+		/**
+		 * 
+		 */
+		public static function install(name:Object = null):void
+		{
+			XMLCommandParserRegistry.globalRegistry.registerParser(name || "load", LoadParser);
+		}
 	}
 	
 }

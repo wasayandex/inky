@@ -94,9 +94,18 @@ package inky.sequencing
 		/**
 		 * 
 		 */
+		public function interjectOn(dispatcher:IEventDispatcher, eventType:String, filter:Object = null, useCapture:Boolean = false, priority:int = 0, useWeakReference:Boolean = false):void
+		{
+// FIXME: Confusing signature. Normally it's interjectionTarget.injerject(interjectedSequence), with this the method is called on the interjectedSequence
+		}
+		
+		/**
+		 * 
+		 */
 		public function play():void
 		{
-			this.executeCommandAt(0);
+			if (!this.isPlaying)
+				this.executeCommandAt(0);
 		}
 		
 		/**

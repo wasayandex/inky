@@ -2,6 +2,7 @@ package inky.sequencing.parsers.xml
 {
 	import inky.sequencing.parsers.xml.AbstractXMLCommandParser;
 	import inky.sequencing.commands.TraceCommand;
+	import inky.sequencing.parsers.xml.XMLCommandParserRegistry;
 	
 	/**
 	 *
@@ -28,7 +29,15 @@ package inky.sequencing.parsers.xml
 		{
 			return new TraceCommand();
 		}
-		
+
+		/**
+		 * 
+		 */
+		public static function install(name:Object = null):void
+		{
+			XMLCommandParserRegistry.globalRegistry.registerParser(name || "trace", TraceParser);
+		}
+
 	}
 	
 }
