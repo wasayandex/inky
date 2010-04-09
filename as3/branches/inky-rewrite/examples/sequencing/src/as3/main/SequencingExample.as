@@ -6,6 +6,8 @@ package
 	import flash.events.MouseEvent;
 	import com.gskinner.motion.plugins.ColorTransformPlugin;
 	import flash.events.Event;
+	import inky.sequencing.parsers.xml.StandardParsers;
+	import inky.sequencing.parsers.xml.GTweenParser;
 
 	/**
 	 *
@@ -20,12 +22,17 @@ package
 	 */
 	public class SequencingExample extends Sprite
 	{
-		private var sequenceASource:XML =
+		// Install sequencing plugins.
+		StandardParsers.install();
+		GTweenParser.install();
+
+		// Install GTween plugins.
+		ColorTransformPlugin.install();
+
+		private static const SEQUENCE_SOURCE:XML =
 			<sequence>
 				<call function="#createBall" />
 				<set ball.to="#sequence.previousCommand.result" on="#sequence.variables" />
-				<set text.to="waiting for click" on="#owner.textField" />
-				<wait for={MouseEvent.CLICK} on="#ball" />
 				<set text.to="gonna tween some" on="#owner.textField" />
 				<tween x.to="50" y.to="200" alpha.to="0" for="1s" on="#ball" />
 				<wait for={Event.COMPLETE} on="#sequence.previousCommand" />
@@ -40,25 +47,21 @@ package
 				<set text.to="DONE" on="#owner.textField" />
 			</sequence>
 
-		private var sequenceA:XMLSequence;
-
-		// TODO: How should we set arguments? For example, on trace?
+		private var sequence:XMLSequence;
 
 		/**
 		 *
 		 */
 		public function SequencingExample()
 		{
-			ColorTransformPlugin.install();
-
-			this.sequenceA = new XMLSequence(this.sequenceASource, {owner: this, createBall: this.createBall, trace: trace});
-			this.sequenceA.play();
+			this.sequence = new XMLSequence(SEQUENCE_SOURCE, {owner: this, createBall: this.createBall});
+			this.playSequenceButton.addEventListener(MouseEvent.CLICK, this.playSequenceButton_clickHandler);
 		}
 
 		//---------------------------------------
 		// PRIVATE METHODS
 		//---------------------------------------
-		
+
 		/**
 		 * 
 		 */
@@ -73,6 +76,14 @@ package
 			ball.y = y;
 			this.addChild(ball);
 			return ball;
+		}
+		
+		/**
+		 * 
+		 */
+		private function playSequenceButton_clickHandler(event:MouseEvent):void
+		{
+			this.sequence.play();
 		}
 		
 	}

@@ -5,6 +5,8 @@ package
 	import inky.sequencing.events.SequenceEvent;
 	import inky.sequencing.ISequence;
 	import inky.sequencing.XMLSequence;
+	import inky.sequencing.parsers.xml.StandardParsers;
+	import inky.sequencing.parsers.xml.GTweenParser;
 	
 	/**
 	 *
@@ -19,6 +21,9 @@ package
 	 */
 	public class SequencingExample2 extends Sprite
 	{
+		StandardParsers.install();
+		GTweenParser.install();
+		
 		private static const LOAD_IMAGE:XML =
 			<sequence>
 				<load url="unicorn.jpg" />
