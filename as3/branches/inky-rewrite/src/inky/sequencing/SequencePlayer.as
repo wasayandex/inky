@@ -45,7 +45,7 @@ package inky.sequencing
 		//---------------------------------------
 		
 		/**
-		 *
+		 * @copy	inky.sequencing.ISequence#currentIndex
 		 */
 		public function get currentIndex():int
 		{ 
@@ -53,7 +53,7 @@ package inky.sequencing
 		}
 		
 		/**
-		 * 
+		 * @copy	inky.sequencing.ISequence#currentCommand
 		 */
 		public function get currentCommand():Object
 		{
@@ -61,7 +61,7 @@ package inky.sequencing
 		}
 		
 		/**
-		 * 
+		 * @copy	inky.sequencing.ISequence#previousCommand
 		 */
 		public function get previousCommand():Object
 		{
@@ -73,7 +73,7 @@ package inky.sequencing
 		//---------------------------------------
 		
 		/**
-		 * 
+		 * @copy	inky.sequencing.ISequence#abort()
 		 */
 		public function abort():Boolean
 		{
@@ -89,7 +89,7 @@ package inky.sequencing
 		}
 		
 		/**
-		 * 
+		 * @copy	inky.sequencing.ISequence#interject()
 		 */
 		public function interject(obj:Object):void
 		{
@@ -109,15 +109,15 @@ package inky.sequencing
 		}
 		
 		/**
-		 * 
+		 *
 		 */
-		public function interjectOn(dispatcher:IEventDispatcher, eventType:String, filter:Object = null, useCapture:Boolean = false, priority:int = 0, useWeakReference:Boolean = false):void
-		{
+//		public function interjectOn(dispatcher:IEventDispatcher, eventType:String, filter:Object = null, useCapture:Boolean = false, priority:int = 0, useWeakReference:Boolean = false):void
+//		{
 // FIXME: Confusing signature. Normally it's interjectionTarget.injerject(interjectedSequence), with this the method is called on the interjectedSequence
-		}
+//		}
 		
 		/**
-		 * 
+		 * @copy	inky.sequencing.ISequence#play()
 		 */
 		public function play():void
 		{
@@ -126,7 +126,7 @@ package inky.sequencing
 		}
 		
 		/**
-		 * 
+		 * @copy	inky.sequencing.ISequence#playFrom()
 		 */
 		public function playFrom(index:int):void
 		{
