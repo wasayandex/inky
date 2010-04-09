@@ -2,10 +2,8 @@ package inky.sequencing
 {
 	import inky.sequencing.commands.CallCommand;
 	import inky.sequencing.ISequence;
-	import inky.sequencing.CommandData;
 	import inky.sequencing.commands.DispatchEventCommand;
-	import inky.sequencing.parsers.xml.IXMLCommandDataParser;
-	import inky.sequencing.parsers.xml.StandardCommandDataParser;
+	import inky.sequencing.parsers.xml.IXMLCommandParser;
 	import inky.sequencing.parsers.xml.DispatchEventParser;
 	import inky.sequencing.commands.DelayCommand;
 	import inky.sequencing.parsers.xml.WaitParser;
@@ -17,6 +15,7 @@ package inky.sequencing
 	import inky.sequencing.AbstractSequence;
 	import inky.sequencing.commands.LoadCommand;
 	import inky.sequencing.parsers.xml.LoadParser;
+	import inky.sequencing.parsers.CommandParserUtil;
 	
 	/**
 	 *
@@ -31,12 +30,12 @@ package inky.sequencing
 	 */
 	public class XMLSequence extends AbstractSequence implements ISequence
 	{
-		private var commandData:Array = [];
+		private static const VARIABLE_REFERENCE:RegExp = /^#(.*)$/;
+		private var commands:Array = [];
 		private var parserRegistry:Object = {};
 		private var commandRegistry:Object = {};
 		private var id:String;
 		private var source:XML;
-		private static var standardParser:IXMLCommandDataParser;
 		private var _variables:Object;
 		
 		/**
@@ -100,8 +99,15 @@ package inky.sequencing
 			if (index < 0 || index >= this.length)
 				throw new RangeError("The specified index is out of bounds.");
 
-			var data:Object = this.getCommandDataAt(index);
-			return data.command;
+			var command:Object = this.commands[index];
+			if (!command)
+			{
+				var xml:XML = this.source.*[index];
+				command = this.getParser(xml).createCommand(xml);
+				this.commands[index] = command;
+			}
+			
+			return command;
 		}
 
 		/**
@@ -110,7 +116,7 @@ package inky.sequencing
 		 * you may pass <code>null</code> for the second argument (assuming
 		 * your custom parser allows it).
 		 */
-		public function registerCommand(name:Object, type:Class, parser:IXMLCommandDataParser = null):void
+		public function registerCommand(name:Object, type:Class, parser:IXMLCommandParser = null):void
 		{
 			var qName:QName;
 			
@@ -127,49 +133,16 @@ package inky.sequencing
 		//---------------------------------------
 		// PRIVATE METHODS
 		//---------------------------------------
-
-		/**
-		 * 
-		 */
-		private function getCommandDataAt(index:int):CommandData
-		{
-			var data:CommandData = this.commandData[index];
-			if (!data)
-			{
-				var xml:XML = this.source.*[index];
-				data =
-				this.commandData[index] = this.parseCommandData(xml);
-			}
-			return data;
-		}
-
-		/**
-		 * 
-		 */
-		private function parseCommandData(xml:XML):CommandData
-		{
-			var data:CommandData;
-			var name:QName = xml.name();
-
-			if (!this.commandRegistry.hasOwnProperty(name))
-				throw new Error("There is no command registered for the name " + name);
-
-			var parser:IXMLCommandDataParser = this.getParser(xml);
-			return parser.parse(xml, this.commandRegistry[name]);
-		}
 		
 		/**
 		 * 
 		 */
-		private function getParser(xml:XML):IXMLCommandDataParser
+		private function getParser(xml:XML):IXMLCommandParser
 		{
 			var name:QName = xml.name();
-			var parser:IXMLCommandDataParser = this.parserRegistry[name];
+			var parser:IXMLCommandParser = this.parserRegistry[name];
 			if (!parser)
-			{
-				parser =
-				XMLSequence.standardParser = XMLSequence.standardParser || new StandardCommandDataParser();
-			}
+				throw new Error("No parser registered for " + xml.name());
 			return parser;
 		}
 
@@ -183,12 +156,26 @@ package inky.sequencing
 		override protected function onBeforeCommandExecute():void
 		{
 			var command:Object = this.currentCommand;
-			var injectors:Array = this.commandData[this.currentIndex].injectors;
+			var xml:XML = this.source.*[this.currentIndex].copy();
+			var properties:Object = {};
+			var match:Object;
 			
-			for each (var injector:Function in injectors)
+			for each (var attr:XML in xml.@*)
 			{
-				injector(command, this.variables);
+				var attrValue:String = attr.toString();
+				var attrName:String = attr.localName();
+				var value:*;
+				
+				if ((match = attrValue.match(VARIABLE_REFERENCE)))
+					value = CommandParserUtil.evaluatePropertyChain(this.variables, match[1].split("."));
+				else
+					value = CommandParserUtil.formatValue(attrValue);
+
+				properties[attrName] = value;
 			}
+
+			var parser:IXMLCommandParser = this.getParser(xml);
+			parser.setCommandProperties(command, properties);
 		}
 
 	}

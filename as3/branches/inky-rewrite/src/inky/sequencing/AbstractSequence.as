@@ -2,7 +2,6 @@ package inky.sequencing
 {
 	import inky.sequencing.ISequence;
 	import flash.events.EventDispatcher;
-	import inky.sequencing.CommandData;
 	import inky.sequencing.SequencePlayer;
 	import inky.sequencing.events.SequenceEvent;
 	

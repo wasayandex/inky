@@ -1,8 +1,7 @@
 package inky.sequencing.parsers.xml
 {
-	import inky.sequencing.parsers.CommandParserUtil;
-	import inky.sequencing.CommandData;
 	import inky.sequencing.commands.LoadCommand;
+	import inky.sequencing.parsers.xml.AbstractXMLCommandParser;
 	
 	/**
 	 *
@@ -15,29 +14,29 @@ package inky.sequencing.parsers.xml
 	 *	@since  2010.03.29
 	 *
 	 */
-	public class LoadParser implements IXMLCommandDataParser
+	public class LoadParser extends AbstractXMLCommandParser
 	{
+		/**
+		 *
+		 */
+		public function LoadParser()
+		{
+			this.propertyMap = {
+				"as": "contentType",
+				using: "loader"
+			};
+		}
 		
 		//---------------------------------------
 		// PUBLIC METHODS
 		//---------------------------------------
-		
+
 		/**
 		 * @inheritDoc
 		 */
-		public function parse(xml:XML, cls:Object):CommandData
+		override public function createCommand(xml:XML):Object
 		{
-			xml = xml.copy();
-			if (xml["@as"].length())
-				xml["@as"].setLocalName("contentType");
-			
-			if (xml.@using.length())
-				xml.@using.setLocalName("loader");
-			
-			return new CommandData(
-				new LoadCommand(),
-				CommandParserUtil.createInjectors(xml)
-			);
+			return new LoadCommand();
 		}
 		
 	}

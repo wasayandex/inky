@@ -1,13 +1,10 @@
 package inky.sequencing.parsers.xml
 {
 	import inky.sequencing.commands.DelayCommand;
-	import inky.sequencing.CommandData;
 	import inky.sequencing.commands.EventListenerCommand;
 	import inky.sequencing.parsers.TimeParser;
-	import inky.sequencing.parsers.CommandParserUtil;
 	import inky.sequencing.parsers.ParsedTime;
-	import inky.sequencing.parsers.TimeUnit;
-	import inky.sequencing.parsers.xml.IXMLCommandDataParser;
+	import inky.sequencing.parsers.xml.AbstractXMLCommandParser;
 	
 	/**
 	 *
@@ -27,12 +24,25 @@ package inky.sequencing.parsers.xml
 	 *	@since  2010.03.30
 	 *
 	 */
-	public class WaitParser implements IXMLCommandDataParser
+	public class WaitParser extends AbstractXMLCommandParser
 	{
 		private static var timeParser:TimeParser;
-		private static const propertyMap:Object = {
+
+		private static const requiredEventListenerCommandProperties:Array = ["for"];
+		private static const requiredDelayCommandProperties:Array = ["for"];
+		private static const eventListenerCommandPropertyMap:Object = {
+			"on": "target",
+			"with.class": "eventClass",
+			"for": "eventType"
+		}
+		private static const delayCommandPropertyMap:Object = {
 			"for": "duration"
-		};
+		}
+		private static const eventListenerCommandFormatters:Object = null;
+		private static var delayCommandFormatters:Object = {
+			duration: formatDuration,
+			units: formatUnits
+		}
 
 		//---------------------------------------
 		// PUBLIC METHODS
@@ -41,39 +51,41 @@ package inky.sequencing.parsers.xml
 		/**
 		 * @inheritDoc
 		 */
-		public function parse(xml:XML, cls:Object):CommandData
+		override public function createCommand(xml:XML):Object
 		{
-			if (!xml["@for"].length())
-				throw new Error("The wait command requires a \"for\" attribute.");
-
-			xml = xml.copy();
-			
 			var command:Object;
-			var formatters:Object;
-
 			if (xml.@on.length())
-			{
 				command = new EventListenerCommand();
-				xml.@on.setLocalName("target");
-				xml["@for"].setLocalName("eventType");
+			else
+				command = new DelayCommand();
+			return command;
+		}
 
-				if (xml["@with.class"].length())
-					xml["@with.class"].setLocalName("eventClass");
+
+		/**
+		 * @inheritDoc
+		 */
+		override public function setCommandProperties(command:Object, properties:Object):void
+		{
+			if (command is EventListenerCommand)
+			{
+				this.requiredProperties = WaitParser.requiredEventListenerCommandProperties;
+				this.propertyMap = WaitParser.eventListenerCommandPropertyMap;
+				this.formatters = WaitParser.eventListenerCommandFormatters;
+			}
+			else if (command is DelayCommand)
+			{
+				properties.units = properties["for"];
+				this.requiredProperties = WaitParser.requiredDelayCommandProperties;
+				this.propertyMap = WaitParser.delayCommandPropertyMap;
+				this.formatters = WaitParser.delayCommandFormatters;
 			}
 			else
 			{
-				command = new DelayCommand();
-				xml["@for"].setLocalName("duration");
-				xml.@units = xml.@duration;
-
-				formatters = {
-					duration: this.formatDuration,
-					units: this.formatUnits
-				};
+				throw new Error();
 			}
-
-			var injectors:Array = CommandParserUtil.createInjectors(xml, formatters);
-			return new CommandData(command, injectors);
+			
+			super.setCommandProperties(command, properties);
 		}
 
 		//---------------------------------------
@@ -83,7 +95,7 @@ package inky.sequencing.parsers.xml
 		/**
 		 * 
 		 */
-		private function formatDuration(time:String):Number
+		private static function formatDuration(time:String):Number
 		{
 			var timeParser:TimeParser = WaitParser.timeParser || (WaitParser.timeParser = new TimeParser());
 			var parseResult:ParsedTime = timeParser.parse(time);
@@ -93,7 +105,7 @@ package inky.sequencing.parsers.xml
 		/**
 		 * 
 		 */
-		private function formatUnits(time:String):String
+		private static function formatUnits(time:String):String
 		{
 			return timeParser.parse(time).units;
 		}

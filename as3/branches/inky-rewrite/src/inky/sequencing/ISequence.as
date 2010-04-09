@@ -1,6 +1,5 @@
 package inky.sequencing 
 {
-	import inky.sequencing.CommandData;
 	import flash.events.IEventDispatcher;
 	
 	/**

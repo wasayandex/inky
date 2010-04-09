@@ -1,9 +1,7 @@
 package inky.sequencing.parsers.xml
 {
 	import inky.sequencing.commands.DispatchEventCommand;
-	import inky.sequencing.parsers.CommandParserUtil;
-	import inky.sequencing.CommandData;
-	import inky.sequencing.parsers.xml.IXMLCommandDataParser;
+	import inky.sequencing.parsers.xml.AbstractXMLCommandParser;
 	
 	/**
 	 *
@@ -16,37 +14,36 @@ package inky.sequencing.parsers.xml
 	 *	@since  2010.03.29
 	 *
 	 */
-	public class DispatchEventParser implements IXMLCommandDataParser
+	public class DispatchEventParser extends AbstractXMLCommandParser
 	{
+		/**
+		 *
+		 */
+		public function DispatchEventParser()
+		{
+			this.requiredProperties = [
+				"with.type",
+				"on"
+			];
+			this.propertyMap = {
+				"with.class": "eventClass",
+				"with.type": "type",
+				"on": "target"
+			}
+		}
 		
 		//---------------------------------------
 		// PUBLIC METHODS
 		//---------------------------------------
-		
+
 		/**
 		 * @inheritDoc
 		 */
-		public function parse(xml:XML, cls:Object):CommandData
+		override public function createCommand(xml:XML):Object
 		{
-			xml = xml.copy();
-			
-			if (!xml.@on.length())
-				throw new Error("The DispatchEventParser requires an \"on\" attribute.");
-			else if (!xml["@with.type"].length())
-				throw new Error("The DispatchEventParser requires a \"with.type\" attribute.");
-			
-			if (xml["@with.class"].length())
-				xml["@with.class"].setLocalName("eventClass");
-
-			xml.@on.setLocalName("target");
-			xml["@with.type"].setLocalName("type");
-			
-			return new CommandData(
-				new DispatchEventCommand(),
-				CommandParserUtil.createInjectors(xml)
-			);
+			return new DispatchEventCommand();
 		}
-		
+
 	}
 	
 }

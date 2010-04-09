@@ -1,9 +1,7 @@
 package inky.sequencing.parsers.xml
 {
-	import inky.sequencing.parsers.CommandParserUtil;
-	import inky.sequencing.CommandData;
 	import inky.sequencing.commands.SetPropertiesCommand;
-	import inky.sequencing.parsers.xml.IXMLCommandDataParser;
+	import inky.sequencing.parsers.xml.IXMLCommandParser;
 	
 	/**
 	 *
@@ -16,41 +14,53 @@ package inky.sequencing.parsers.xml
 	 *	@since  2010.03.29
 	 *
 	 */
-	public class SetParser implements IXMLCommandDataParser
+	public class SetParser implements IXMLCommandParser
 	{
 		private static const TARGET_VALUE:RegExp = /^(.*)\.to$/;
 		
 		//---------------------------------------
 		// PUBLIC METHODS
 		//---------------------------------------
-		
+
 		/**
 		 * @inheritDoc
 		 */
-		public function parse(xml:XML, cls:Object):CommandData
+		public function createCommand(xml:XML):Object
 		{
-			xml = xml.copy();
-			
-			if (!xml.@on.length())
-				throw new Error("The \"set\" command requires an \"on\" attribute.");
-			xml.@on.setLocalName("target");
+			return new SetPropertiesCommand();
+		}
 
+		/**
+		 * @inheritDoc
+		 */
+		public function setCommandProperties(command:Object, properties:Object):void
+		{
+			var formattedPropertyName:String;
+			var host:Object;
+			var value:*;
 			var match:Object;
-			var prop:String;
-			for each (var attr:XML in xml.@*)
-			{
-				if ((match = attr.localName().toString().match(TARGET_VALUE)))
-				{
-					// Format the "to" properties.
-					prop = match[1];
-					attr.setLocalName("propertyValues." + prop);
-				}
-			}
 			
-			return new CommandData(
-				new SetPropertiesCommand(),
-				CommandParserUtil.createInjectors(xml)
-			);
+			for (var propertyName:String in properties)
+			{
+				value = properties[propertyName];
+				host = command;
+				
+				if (propertyName == "on")
+				{
+					formattedPropertyName = "target";
+				}
+				else if ((match = propertyName.match(TARGET_VALUE)))
+				{
+					formattedPropertyName = match[1];
+					host = command.propertyValues;
+				}
+				else
+				{
+					throw new Error("Property \"" + propertyName + "\" is not supported.");
+				}
+
+				host[formattedPropertyName] = value;
+			}
 		}
 		
 	}

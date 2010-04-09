@@ -1,12 +1,10 @@
 package inky.sequencing.parsers.xml
 {
 	import inky.sequencing.commands.GTweenCommand;
-	import inky.sequencing.CommandData;
-	import inky.sequencing.parsers.CommandParserUtil;
 	import inky.sequencing.parsers.TimeParser;
 	import inky.sequencing.parsers.TimeUnit;
 	import inky.sequencing.parsers.ParsedTime;
-	import inky.sequencing.parsers.xml.IXMLCommandDataParser;
+	import inky.sequencing.parsers.xml.IXMLCommandParser;
 	
 	/**
 	 *
@@ -19,85 +17,77 @@ package inky.sequencing.parsers.xml
 	 *	@since  2010.03.29
 	 *
 	 */
-	public class GTweenParser implements IXMLCommandDataParser
+	public class GTweenParser implements IXMLCommandParser
 	{
 		private static const TARGET_VALUE:RegExp = /^(.*)\.to$/;
 		private static const TWEEN_VALUE:RegExp = /^with\.(.*)$/;
 		private static var timeParser:TimeParser;
 		private static const propertyMap:Object = {
-			"for": "tweenProperties.duration",
-			"on": "tweenProperties.target",
+			"for": "duration",
+			"on": "target",
 			using: "tween"
 		};
 		
 		//---------------------------------------
 		// PUBLIC METHODS
 		//---------------------------------------
-		
+
 		/**
-		 *
+		 * @inheritDoc
 		 */
-		public function parse(xml:XML, cls:Object):CommandData
+		public function createCommand(xml:XML):Object
 		{
-			xml = xml.copy();
-			
+			return new GTweenCommand();
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public function setCommandProperties(command:Object, properties:Object):void
+		{
 			var match:Object;
 			var prop:String;
-			var value:String;
+			var value:*;
 			var formattedProp:String;
+			var host:Object;
 
-			for each (var attr:XML in xml.@*)
+			for (var propertyName:String in properties)
 			{
-				if ((formattedProp = GTweenParser.propertyMap[String(attr.localName())]))
+				value = properties[propertyName];
+				host = command;
+
+				if (GTweenParser.propertyMap[propertyName])
 				{
-					attr.setLocalName(formattedProp);
+					formattedProp = GTweenParser.propertyMap[propertyName];
+					
+					if (propertyName != "using")
+						host = command.tweenProperties;
+
+					if (formattedProp == "duration")
+					{
+						var timeParser:TimeParser = GTweenParser.timeParser || (GTweenParser.timeParser = new TimeParser());
+						var parseResult:ParsedTime = timeParser.parse(value);
+						value = parseResult.units == TimeUnit.MILLISECONDS ? parseResult.time / 1000 : parseResult.time;
+						command.tweenProperties.useFrames = parseResult.units == TimeUnit.FRAMES;
+					}
 				}
-				else if ((match = attr.localName().toString().match(TARGET_VALUE)))
+				else if ((match = propertyName.match(TARGET_VALUE)))
 				{
-					// Format the "to" properties.
-					prop = match[1];
-					attr.setLocalName("targetValues." + prop);
+					formattedProp = match[1];
+					host = command.targetValues;
 				}
-				else if ((match = attr.localName().toString().match(TWEEN_VALUE)))
+				else if ((match = propertyName.match(TWEEN_VALUE)))
 				{
-					prop = match[1];
-					attr.setLocalName("tweenProperties." + prop);
+					formattedProp = match[1];
+					host = command.tweenProperties;
 				}
 				else
 				{
-					throw new Error("The attribute \"" + attr + "\" is not supported.");
+					throw new Error("The attribute \"" + propertyName + "\" is not supported.");
 				}
+
+				host[formattedProp] = value;
 			}
-
-			if (xml["@tweenProperties.duration"].length())
-				xml["@tweenProperties.useFrames"] = xml["@tweenProperties.duration"];
-
-			var command:Object = new GTweenCommand();
-			var injectors:Array = CommandParserUtil.createInjectors(xml, {"tweenProperties.duration": this.formatDuration, "tweenProperties.useFrames": this.formatUseFrames});
-			return new CommandData(command, injectors);
-		}
-
-		//---------------------------------------
-		// PRIVATE METHODS
-		//---------------------------------------
-		
-		/**
-		 * 
-		 */
-		private function formatDuration(time:String):Number
-		{
-			var timeParser:TimeParser = GTweenParser.timeParser || (GTweenParser.timeParser = new TimeParser());
-			var parseResult:ParsedTime = timeParser.parse(time);
-			return parseResult.units == TimeUnit.MILLISECONDS ? parseResult.time / 1000 : parseResult.time;
-		}
-		
-		/**
-		 * 
-		 */
-		private function formatUseFrames(time:String):Boolean
-		{
-			var timeParser:TimeParser = GTweenParser.timeParser || (GTweenParser.timeParser = new TimeParser());
-			return timeParser.parse(time).units == TimeUnit.FRAMES;
 		}
 
 	}

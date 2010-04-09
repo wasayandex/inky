@@ -1,6 +1,5 @@
 package inky.sequencing.parsers.xml
 {
-	import inky.sequencing.CommandData;
 	
 	/**
 	 *
@@ -13,14 +12,18 @@ package inky.sequencing.parsers.xml
 	 *	@since  2010.03.29
 	 *
 	 */
-	public interface IXMLCommandDataParser
+	public interface IXMLCommandParser
 	{
 		
 		/**
-		 * @inheritDoc
+		 * 
 		 */
-		function parse(xml:XML, cls:Object):CommandData;
+		function createCommand(xml:XML):Object;
 		
+		/**
+		 * 
+		 */
+		function setCommandProperties(command:Object, properties:Object):void;
 	}
 	
 }
