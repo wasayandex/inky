@@ -149,6 +149,15 @@ package inky.sequencing
 		/**
 		 * 
 		 */
+		private function dispatch(type:String):void
+		{
+			if (this.eventDispatcher.hasEventListener(type))
+				this.eventDispatcher.dispatchEvent(new SequenceEvent(this.sequence, type));
+		}
+		
+		/**
+		 * 
+		 */
 		private function executeCommandAt(index:int):void
 		{
 			if (index < 0 || index >= this.sequence.length)
@@ -169,7 +178,7 @@ package inky.sequencing
 			this.pointer = index;
 
 			// Prepare the command.
-			this.eventDispatcher.dispatchEvent(new SequenceEvent(this.sequence, SequenceEvent.BEFORE_COMMAND_EXECUTE));
+			this.dispatch(SequenceEvent.BEFORE_COMMAND_EXECUTE);
 			
 			// Execute the command.
 			if (command is IAsyncCommand)
@@ -231,7 +240,7 @@ package inky.sequencing
 		private function onAbort():void
 		{
 			this.onStop();
-			this.eventDispatcher.dispatchEvent(new SequenceEvent(this.sequence, SequenceEvent.ABORT));
+			this.dispatch(SequenceEvent.ABORT);
 		}
 
 		/**
@@ -240,7 +249,7 @@ package inky.sequencing
 		private function onComplete():void
 		{
 			this.onStop();
-			this.eventDispatcher.dispatchEvent(new SequenceEvent(this.sequence, SequenceEvent.COMPLETE));
+			this.dispatch(SequenceEvent.COMPLETE);
 		}
 		
 		/**
