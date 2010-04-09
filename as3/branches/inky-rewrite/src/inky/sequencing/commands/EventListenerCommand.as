@@ -57,6 +57,8 @@ package inky.sequencing.commands
 		 */
 		public function execute():void
 		{
+			this._isComplete = false;
+			
 			if (!this.target)
 				throw new Error("There is no target specified.");
 			else if (!this.eventType)
@@ -74,8 +76,6 @@ package inky.sequencing.commands
 		 */
 		private function eventHandler(event:Event):void
 		{
-			this._isComplete = false;
-			
 			// Make sure the event is of the right class.
 			if (this.eventClass)
 			{
