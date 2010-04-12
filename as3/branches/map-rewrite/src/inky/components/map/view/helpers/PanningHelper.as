@@ -75,6 +75,25 @@ package inky.components.map.view.helpers
 		}
 		
 		//---------------------------------------
+		// PROTECTED METHODS
+		//---------------------------------------
+		
+		/**
+		 * @inheritDoc
+		 */
+		override protected function validate():void
+		{
+			var positionIsInvalid:Boolean = this.validationState.propertyIsInvalid("contentX") || this.validationState.propertyIsInvalid("contentY");
+			super.validate();
+			
+			if (positionIsInvalid)
+			{
+				this.contentContainer.x = this.contentX;
+				this.contentContainer.y = this.contentY;
+			}
+		}
+		
+		//---------------------------------------
 		// PRIVATE METHODS
 		//---------------------------------------
 		

@@ -3,6 +3,8 @@ package inky.components.map.view.helpers
 	import inky.components.map.view.IMap;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.Sprite;
+	import inky.layout.validation.LayoutValidator;
+	import inky.utils.ValidationState;
 	
 	/**
 	 *
@@ -20,7 +22,10 @@ package inky.components.map.view.helpers
 	{
 		protected var content:DisplayObjectContainer;
 		protected var contentContainer:Sprite;
+		private var contentContainerProxy:Object;
+		protected var layoutValidator:LayoutValidator;
 		protected var map:IMap;
+		protected var validationState:ValidationState;
 		
 		/**
 		 * Creates a new IMap view helper.
@@ -36,6 +41,9 @@ package inky.components.map.view.helpers
 			this.map = map;
 			this.content = DisplayObjectContainer(map);
 
+			this.layoutValidator = new LayoutValidator(this.content, this.validate);
+			this.validationState = this.layoutValidator.validationState;
+
 			// Find the content container. If it can't be found, create one.
 			var contentContainer = this.content.getChildByName("_contentContainer") as Sprite;
 			if (!contentContainer)
@@ -45,6 +53,7 @@ package inky.components.map.view.helpers
 				this.content.addChild(contentContainer);
 			}
 			this.contentContainer = contentContainer;
+			this.contentContainerProxy = {};
 		}
 		
 		//---------------------------------------
@@ -56,14 +65,26 @@ package inky.components.map.view.helpers
 		 */
 		public function get contentRotation():Number
 		{ 
-			return this.contentContainer.rotation; 
+			var value:Number = this.contentContainerProxy.rotation;
+			if (isNaN(value))
+			{
+				value =
+				this.contentContainerProxy.rotation =
+				this.contentContainer.rotation;
+			}
+			return value;
 		}
 		/**
 		 * @private
 		 */
 		public function set contentRotation(value:Number):void
 		{
-			this.contentContainer.rotation = value;
+			var oldValue:Number = this.contentRotation;
+			if (value != oldValue)
+			{
+				this.contentContainerProxy.rotation = value;
+				this.invalidateProperty('contentRotation');
+			}
 		}
 
 		/**
@@ -71,14 +92,26 @@ package inky.components.map.view.helpers
 		 */
 		public function get contentScaleX():Number
 		{ 
-			return this.contentContainer.scaleX; 
+			var value:Number = this.contentContainerProxy.scaleX;
+			if (isNaN(value))
+			{
+				value =
+				this.contentContainerProxy.scaleX =
+				this.contentContainer.scaleX;
+			}
+			return value;
 		}
 		/**
 		 * @private
 		 */
 		public function set contentScaleX(value:Number):void
 		{
-			this.contentContainer.scaleX = value;
+			var oldValue:Number = this.contentScaleX;
+			if (value != oldValue)
+			{
+				this.contentContainerProxy.scaleX = value;
+				this.invalidateProperty('contentScaleX');
+			}
 		}
 		
 		/**
@@ -86,14 +119,26 @@ package inky.components.map.view.helpers
 		 */
 		public function get contentScaleY():Number
 		{ 
-			return this.contentContainer.scaleY; 
+			var value:Number = this.contentContainerProxy.scaleY;
+			if (isNaN(value))
+			{
+				value =
+				this.contentContainerProxy.scaleY =
+				this.contentContainer.scaleY;
+			}
+			return value;
 		}
 		/**
 		 * @private
 		 */
 		public function set contentScaleY(value:Number):void
 		{
-			this.contentContainer.scaleY = value;
+			var oldValue:Number = this.contentScaleY;
+			if (value != oldValue)
+			{
+				this.contentContainerProxy.scaleY = value;
+				this.invalidateProperty('contentScaleY');
+			}
 		}
 		
 		/**
@@ -101,14 +146,26 @@ package inky.components.map.view.helpers
 		 */
 		public function get contentX():Number
 		{ 
-			return this.contentContainer.x; 
+			var value:Number = this.contentContainerProxy.x;
+			if (isNaN(value))
+			{
+				value =
+				this.contentContainerProxy.x =
+				this.contentContainer.x;
+			}
+			return value;
 		}
 		/**
 		 * @private
 		 */
 		public function set contentX(value:Number):void
 		{
-			this.contentContainer.x = value;
+			var oldValue:Number = this.contentX;
+			if (value != oldValue)
+			{
+				this.contentContainerProxy.x = value;
+				this.invalidateProperty('contentX');
+			}
 		}
 		
 		/**
@@ -116,15 +173,57 @@ package inky.components.map.view.helpers
 		 */
 		public function get contentY():Number
 		{ 
-			return this.contentContainer.y; 
+			var value:Number = this.contentContainerProxy.y;
+			if (isNaN(value))
+			{
+				value =
+				this.contentContainerProxy.y =
+				this.contentContainer.y;
+			}
+			return value;
 		}
 		/**
 		 * @private
 		 */
 		public function set contentY(value:Number):void
 		{
-			this.contentContainer.y = value;
+			var oldValue:Number = this.contentY;
+			if (value != oldValue)
+			{
+				this.contentContainerProxy.y = value;
+				this.invalidateProperty('contentY');
+			}
 		}
+
+		//---------------------------------------
+		// PROTECTED METHODS
+		//---------------------------------------
+		
+		/**
+		 * @inheritDoc
+		 */
+		protected function invalidateProperty(property:String):void
+		{
+			this.layoutValidator.properties[property] = this[property];
+			this.invalidate();
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		protected function invalidate():void
+		{
+			this.layoutValidator.invalidate();
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		protected function validate():void
+		{
+			this.layoutValidator.validationState.markAllPropertiesAsValid();
+		}
+
 
 	}
 	

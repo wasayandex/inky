@@ -33,8 +33,7 @@ package inky.components.map.view.helpers
 	{
 		private var _cachePlacemarkPositions:Boolean;
 		private var placemarkContainer:Sprite;
-		private var layoutValidator:LayoutValidator;
-		private var placemarks:ArrayList;
+		public var placemarks:ArrayList;
 		private var placemarks2Renderers:Dictionary;
 		private var positionCache:Dictionary;
 		private var _recyclePlacemarkRenderers:Boolean;
@@ -57,8 +56,6 @@ package inky.components.map.view.helpers
 			
 			this.recyclePlacemarkRenderers = recyclePlacemarkRenderers;
 			this.cachePlacemarkPositions = cachePlacemarkPositions;
-
-			this.layoutValidator = new LayoutValidator(map as DisplayObject, this.validate);
 
 			this.placemarks = new ArrayList();
 			this.placemarks.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.placemarks_collectionChangeHandler);
@@ -267,27 +264,10 @@ if (this.recyclePlacemarkRenderers)
 		/**
 		 * @inheritDoc
 		 */
-		protected function invalidateProperty(property:String):void
+		override protected function validate():void
 		{
-			this.layoutValidator.properties[property] = this[property];
-			this.invalidate();
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		protected function invalidate():void
-		{
-			this.layoutValidator.invalidate();
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		protected function validate():void
-		{
-			var placemarksAreInvalid:Boolean = this.layoutValidator.validationState.propertyIsInvalid("placemarks");
-			this.layoutValidator.validationState.markAllPropertiesAsValid();
+			var placemarksAreInvalid:Boolean = this.validationState.propertyIsInvalid("placemarks");
+			super.validate();
 
 			if (placemarksAreInvalid)
 			{

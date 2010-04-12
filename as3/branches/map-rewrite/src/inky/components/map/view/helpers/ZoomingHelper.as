@@ -63,23 +63,7 @@ package inky.components.map.view.helpers
 		//---------------------------------------
 		// ACCESSORS
 		//---------------------------------------
-		
-		/**
-		 * @inheritDoc
-		 */
-		override public function set contentScaleX(value:Number):void
-		{
-			this.contentContainer.scaleX = value;
-		}
-		
-		/**
-		 * @inheritDoc
-		 */
-		override public function set contentScaleY(value:Number):void
-		{
-			this.contentContainer.scaleY = value;
-		}
-		
+
 		/**
 		 * The maximum 'zoom' or 'scale' amount.
 		 * 
@@ -223,10 +207,31 @@ package inky.components.map.view.helpers
 			{
 				var point:Point = toCoordinateSpace(new Point(this.mask.width * 0.5, this.mask.height * 0.5), this.mask, this.contentContainer);
 				scale(obj, [scaleX, scaleY], point, {x: "contentX", y: "contentY", scaleX: "contentScaleX", scaleY: "contentScaleY", rotation: "contentRotation"});
+			}
+		}
+		
+		//---------------------------------------
+		// PROTECTED METHODS
+		//---------------------------------------
+		
+		/**
+		 * @inheritDoc
+		 */
+		override protected function validate():void
+		{
+			var scaleIsInvalid:Boolean = this.validationState.propertyIsInvalid("contentScaleX") || this.validationState.propertyIsInvalid("contentScaleY");
+			super.validate();
+			
+			if (scaleIsInvalid)
+			{
+				this.contentContainer.scaleX = this.contentScaleX;
+				this.contentContainer.scaleY = this.contentScaleY;
 				
+//				var obj:Object = this.zoomingProxy || this.map;
 				var dragBounds:Rectangle = this.getDragBounds();
-				obj.contentX = Math.max(Math.min(dragBounds.right, obj.contentX), dragBounds.left);
-				obj.contentY = Math.max(Math.min(dragBounds.bottom, obj.contentY), dragBounds.top);
+// FIXME: This mostly works, but why doesn't it work going through contentX and contentY??
+				this.contentContainer.x = Math.max(Math.min(dragBounds.right, this.contentContainer.x), dragBounds.left);
+				this.contentContainer.y = Math.max(Math.min(dragBounds.bottom, this.contentContainer.y), dragBounds.top);
 			}
 		}
 
