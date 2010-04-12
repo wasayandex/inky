@@ -1,24 +1,89 @@
 package inky.loading.loaders
 {
-	import inky.loading.loaders.SWFLoader;
-
+	import flash.display.Loader;
+	import flash.system.LoaderContext;
+	import flash.system.ApplicationDomain;
+	import inky.net.utils.toURLRequest;
 
 	/**
 	 *
-	 *  Loads runtime libraries &mdash; SWFs that have class definitions
-	 *	compiled into them. Once the library has been loaded, its definitions
-	 *  can be accessed using <code>getDefinitionByName</code>
+	 *  ..
 	 *	
-	 *	@see flash.utils.#getDefinitionByName()
-	 * 
-	 *  @langversion ActionScript 3
-	 *  @playerversion Flash 9.0.0
+	 * 	@langversion ActionScript 3
+	 *	@playerversion Flash 9.0.0
 	 *
-	 *  @author Matthew Tretter
-	 *  @since  2008.06.12
+	 *	@author Matthew Tretter
+	 *	@since  2009.11.25
 	 *
 	 */
-	public class RuntimeLibraryLoader extends SWFLoader
+	public class RuntimeLibraryLoader extends AbstractAssetLoader
 	{
+		private var _loader:Loader;
+		private var _loaderContext:LoaderContext;
+
+
+		/**
+		 *
+		 */
+		public function RuntimeLibraryLoader(source:Object = null)
+		{
+			this.source = source;
+		}
+
+
+
+
+		//
+		// accessors
+		//
+
+
+		/**
+		 * @inheritDoc
+		 */
+		override public function get asset():Object
+		{
+			return null;
+		}
+
+
+		/**
+		 * @inheritDoc
+		 */
+		override protected function getLoadArguments():Array
+		{
+			return [toURLRequest(this.source), this._getLoaderContext()];
+		}
+		
+
+		/**
+		 * @inheritDoc
+		 */
+		override protected function getLoader():Object
+		{
+			return this._loader || (this._loader = new Loader());
+		}
+
+
+		/**
+		 * @inheritDoc
+		 */
+		override protected function getLoaderInfo():Object
+		{
+			return this.getLoader().contentLoaderInfo;
+		}
+
+
+		/**
+		 * 
+		 */
+		private function _getLoaderContext():LoaderContext
+		{
+			return this._loaderContext || (this._loaderContext = new LoaderContext(false, ApplicationDomain.currentDomain));
+		}
+
+
+
+
 	}
 }

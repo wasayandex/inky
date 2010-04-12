@@ -1,6 +1,6 @@
 package inky.loading.events
 {
-	import inky.loading.BaseLoadQueue;
+	import inky.loading.LoadQueue;
 	import flash.events.Event;
 
 
@@ -24,7 +24,7 @@ package inky.loading.events
 		public static const ASSET_REMOVED:String = 'assetRemoved';
 
 		private var _loader:Object;
-		private var _loadQueue:BaseLoadQueue;
+		private var _loadQueue:LoadQueue;
 
 
 
@@ -59,7 +59,7 @@ package inky.loading.events
 		 *     event object.		 		 
 		 *	
 		 */
-		public function LoadQueueEvent(type:String, bubbles:Boolean, cancelable:Boolean, loader:Object, loadQueue:BaseLoadQueue)
+		public function LoadQueueEvent(type:String, bubbles:Boolean, cancelable:Boolean, loader:Object, loadQueue:LoadQueue)
 		{
 			super(type, bubbles, cancelable);
 			this._loader = loader;
@@ -80,7 +80,7 @@ package inky.loading.events
 		 * Generally, this will be a Loader or URLLoader, but it can be any
 		 * object that the user adds to the LoadQueue.
 		 * 
-		 * @see inky.loading.BaseLoadQueue#addItem()		 		 		 		 
+		 * @see inky.loading.LoadQueue#addItem()		 		 		 		 
 		 *	
 		 */
 		public function get loader():Object
@@ -96,7 +96,7 @@ package inky.loading.events
 		 * dispatching the event.		 
 		 *	
 		 */
-		public function get loadQueue():BaseLoadQueue
+		public function get loadQueue():LoadQueue
 		{
 			return this._loadQueue;
 		}

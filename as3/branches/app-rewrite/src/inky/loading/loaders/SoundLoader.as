@@ -1,103 +1,53 @@
 package inky.loading.loaders
 {
-	import flash.events.Event;
-	import flash.events.IEventDispatcher;
-	import flash.events.IOErrorEvent;
-	import flash.events.ProgressEvent;
+	import inky.loading.AbstractAssetLoader;
 	import flash.media.Sound;
-	import inky.loading.events.AssetLoaderEvent;
-	import inky.loading.loaders.AbstractAssetLoader;
-
-
+	
 	/**
 	 *
-	 *  Loads a sound asset.
-	 * 
-	 *  @langversion ActionScript 3
-	 *  @playerversion Flash 9.0.0
+	 *  ..
+	 *	
+	 * 	@langversion ActionScript 3
+	 *	@playerversion Flash 9.0.0
 	 *
-	 *  @author Matthew Tretter
-	 *  @since  2008.05.29
+	 *	@author Matthew Tretter
+	 *	@since  2009.11.24
 	 *
 	 */
 	public class SoundLoader extends AbstractAssetLoader
 	{
-		private var _loader:Sound;
+		private var _asset:Sound;
 
 
 		/**
-		 *
-		 * Creates a new SoundLoader instance.
-		 * 
+		 * @inheritDoc
 		 */
-		public function SoundLoader()
+		override public function get asset():Object
 		{
-			this.createLoader();
-		}
-
-
-
-
-		//
-		// public methods
-		//
-
-
-		/**
-		 * @private
-		 */
-		override public function loadAsset():void
-		{
-			super.loadAsset();
-			this.dispatchEvent(new AssetLoaderEvent(AssetLoaderEvent.READY));
-		}
-
-
-
-
-		//
-		// protected methods
-		//
-
-
-		/**
-		 * @private
-		 */
-		override protected function createLoader():Object
-		{
-			this._loader = new Sound();
-			
-			// Configure listeners.
-			this._loader.addEventListener(Event.COMPLETE, this.relayEvent);
-			this._loader.addEventListener(Event.ID3, this.relayEvent);
-			this._loader.addEventListener(IOErrorEvent.IO_ERROR, this.relayEvent);
-			this._loader.addEventListener(Event.OPEN, this.relayEvent);
-			this._loader.addEventListener(ProgressEvent.PROGRESS, this.relayEvent);
-			
-			this.setContent(this._loader);
-			return this._loader;
+			return this._asset || (this._asset = new Sound());
 		}
 
 
 		/**
-		 * @private
+		 * @inheritDoc
 		 */
 		override protected function getLoaderInfo():Object
 		{
-			return this._loader;
+			return this.asset;
 		}
 
 
 		/**
-		 * @private
+		 * @inheritDoc
 		 */
-		override protected function getLoadArgs():Array
+		override protected function getLoader():Object
 		{
-			return [this.getURLRequest()];
+			return this.asset;
 		}
 
 
 
 
 	}
+	
 }
