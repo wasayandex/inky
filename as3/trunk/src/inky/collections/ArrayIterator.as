@@ -38,7 +38,7 @@ package inky.collections
 		/**
 		 * @private
 		 */
-		override protected function addItemAt(item:Object, index:uint):void
+		override protected function addItemAt(item:Object, index:int):void
 		{
 			this._target.splice(index, 0, item);
 		}
@@ -47,7 +47,7 @@ package inky.collections
 		/**
 		 * @private
 		 */
-		override protected function getLength():uint
+		override protected function getLength():int
 		{
 			return this._target.length;
 		}	
@@ -56,7 +56,7 @@ package inky.collections
 		/**
 		 * @private
 		 */
-		override protected function getItemAt(index:uint):Object
+		override protected function getItemAt(index:int):Object
 		{
 			return this._target[index];
 		}
@@ -65,7 +65,7 @@ package inky.collections
 		/**
 		 * @private
 		 */
-		override protected function removeItemAt(index:uint):Object
+		override protected function removeItemAt(index:int):Object
 		{
 			return this._target.splice(index, 1);
 		}
@@ -74,7 +74,7 @@ package inky.collections
 		/**
 		 * @private
 		 */
-		override protected function replaceItemAt(newItem:Object, index:uint):Object
+		override protected function replaceItemAt(newItem:Object, index:int):Object
 		{
 			return this._target.splice(index, 1, newItem)[0];
 		}

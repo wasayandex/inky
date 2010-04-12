@@ -60,7 +60,7 @@
 		/**
 		 * @inheritDoc
 		 */
-		public function get length():uint
+		public function get length():int
 		{
 			return this._list.length;
 		}
@@ -79,35 +79,39 @@
 		public function addItem(item:Object):void
 		{
 			this._list.push(item);
-			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.ADD, -1, -1, [item]));
+			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.ADD, this._list.length - 1, -1, [item]));
 		}
 
 		/**
 		 * @inheritDoc
 		 */
-		public function addItemAt(item:Object, index:uint):void
+		public function addItemAt(item:Object, index:int):void
 		{
 			if (index && (index < 0 || index > this.length))
 			{
 				throw new RangeError("The supplied index (" + index + ") is out of bounds.");
 			}
 			this._list.splice(index, 0, item);
-			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.ADD, -1, -1, [item]));
+			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.ADD, index, -1, [item]));
 		}
 
 
 		/**
 		 * @inheritDoc
 		 */
-		public function addItemsAt(collection:ICollection, index:uint):void
+		public function addItemsAt(collection:ICollection, index:int):void
 		{
+			if (index && (index < 0 || index > this.length))
+			{
+				throw new RangeError("The supplied index (" + index + ") is out of bounds.");
+			}
 			var p:int = index;
 			for (var i:IIterator = collection.iterator(); i.hasNext(); )
 			{
 				this._list.splice(p, i, i.next());
 				p++;
 			}
-			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.ADD, -1, -1, collection.toArray()));
+			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.ADD, index, -1, collection.toArray()));
 		}
 
 
@@ -122,7 +126,7 @@
 			{
 				this._list.push(i.next());
 			}
-			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.ADD, -1, -1, collection.toArray()));
+			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.ADD, this._list.length - collection.length -1, -1, collection.toArray()));
 		}
 
 
@@ -203,7 +207,7 @@
 		/**
 		 * @inheritDoc
 		 */
-		public function getItemAt(index:uint):Object
+		public function getItemAt(index:int):Object
 		{
 			if (index >= this.length)
 			{
@@ -225,7 +229,7 @@
 		/**
 		 * @inheritDoc
 		 */
-		public function getSubList(fromIndex:uint, toIndex:uint):IList
+		public function getSubList(fromIndex:int, toIndex:int):IList
 		{
 			return new RandomAccessSubList(this, fromIndex, toIndex);
 		}
@@ -243,7 +247,7 @@
 		/**
 		 * @inheritDoc
 		 */
-		public function listIterator(index:uint = 0):IListIterator
+		public function listIterator(index:int = 0):IListIterator
 		{
 			return new ListIterator(this, index);
 		}
@@ -266,6 +270,7 @@
 		public function removeItem(item:Object):Object
 		{
 			var index:int = this.getItemIndex(item);
+			this._list.splice(index, 1);
 			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.REMOVE, -1, index, [item]));
 			return item;
 		}
@@ -274,7 +279,7 @@
 		/**
 		 * @inheritDoc
 		 */
-		public function removeItemAt(index:uint):Object
+		public function removeItemAt(index:int):Object
 		{
 			var item:Object = this._list[index];
 			this._list.splice(index, 1);
@@ -299,7 +304,7 @@
 		/**
 		 * @inheritDoc
 		 */
-		public function replaceItemAt(newItem:Object, index:uint):Object
+		public function replaceItemAt(newItem:Object, index:int):Object
 		{
 			if (index > this.length)
 			{
@@ -413,7 +418,7 @@
 		{
 			var index:int = -1;
 
-			for (var i:uint = 0; i < this._list.length; i++)
+			for (var i:int = 0; i < this._list.length; i++)
 			{
 				if (EqualityUtil.objectsAreEqual(this._list[i], item))
 				{
