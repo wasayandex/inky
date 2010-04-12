@@ -774,7 +774,7 @@
 			
 			if (isError)
 			{
-				this.dispatchEvent(new FormEvent(FormEvent.ERROR));
+				this.dispatchEvent(new FormEvent(FormEvent.SUBMISSION_ERROR));
 			}
 			else if (success && this.debug)
 			{
