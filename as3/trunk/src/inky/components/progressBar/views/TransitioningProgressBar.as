@@ -1,49 +1,40 @@
-package inky.components.transitioningObject
+package inky.components.progressBar.views
 {
 	import inky.commands.PlayFrameLabelCommand;
 	import inky.commands.IAsyncCommand;
+	import inky.components.progressBar.views.BaseProgressBar;
 	import inky.components.transitioningObject.ITransitioningObject;
 	import inky.components.transitioningObject.TransitioningObjectBehavior;
+	import inky.components.transitioningObject.TransitioningObjectState;
 	import inky.components.transitioningObject.events.TransitionEvent;
-	import flash.display.DisplayObject;
-	import flash.display.DisplayObjectContainer;
 	import flash.display.FrameLabel;
-	import flash.display.MovieClip;
-	import flash.display.SimpleButton;
-	import flash.display.Sprite;
-	import flash.text.TextField;
 	import inky.commands.tokens.IAsyncToken;
 
-
+	
 	/**
 	 *
-	 *  A MovieClip implementation of the ITransitioningObject interface.
+	 * A progress bar that implements the ITransitioningObject interface.
 	 * 
-	 * 	@langversion ActionScript 3
+	 * @langversion ActionScript 3
 	 * @playerversion Flash 9.0.0
 	 *
-	 * @author Zack Dolin
 	 * @author Eric Eldredge
-	 * @author Rich Perez
-	 * @author Matthew Tretter
-	 * @since  2007.11.09
+	 * @since  2008.02.13
 	 *
 	 */
-	public class TransitioningMovieClip extends MovieClip implements ITransitioningObject
+	public class TransitioningProgressBar extends BaseProgressBar implements ITransitioningObject 
 	{
 		private var _proxy:TransitioningObjectBehavior;
 
-
+		
 		/**
 		 *
-		 * Creates an instance of TransitioningMovieClip.
-		 *
+		 * Creates a new TransitioningProgressBar instance.
+		 * 
 		 */
-		public function TransitioningMovieClip()
+		public function TransitioningProgressBar()
 		{
-			// Create the TransitioningObjectBehavior
 			this._proxy = new TransitioningObjectBehavior(this);
-			
 			// Determine whether the clip has "intro" and "outro" labels.
 			var hasIntroLabel:Boolean = false;
 			var hasOutroLabel:Boolean = false;
@@ -57,16 +48,14 @@ package inky.components.transitioningObject
 			if (hasIntroLabel)
 			{
 				this.intro = new PlayFrameLabelCommand('intro', this);
-				this.stop();
 			}
 			if (hasOutroLabel)
 			{
 				this.outro = new PlayFrameLabelCommand('outro', this);
-				this.stop();
 			}
 			
-			this._proxy.addEventListener(TransitionEvent.TRANSITION_START, this._relayEvent, false, 0, true);
-			this._proxy.addEventListener(TransitionEvent.TRANSITION_FINISH, this._relayEvent, false, 0, true);
+			this._proxy.addEventListener(TransitionEvent.TRANSITION_START, this._relayEvent);
+			this._proxy.addEventListener(TransitionEvent.TRANSITION_FINISH, this._relayEvent);
 		}
 
 
@@ -143,8 +132,7 @@ package inky.components.transitioningObject
 
 		/**
 		 *
-		 * Relays the TransitionEvent from the TransitioningObjectBehavior
-		 * decorator.
+		 * Relays the transition event.
 		 * 
 		 */
 		private function _relayEvent(e:TransitionEvent):void

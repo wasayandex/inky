@@ -1,21 +1,21 @@
-﻿package inky.components 
+package inky.components.button 
 {
 	import inky.utils.IDisplayObject;
-	import flash.events.IEventDispatcher;
-
-
+	
 	/**
-	 *	Describes the methods that a Button must implement.
 	 *
-	 *	@langversion ActionScript 3.0
-	 *	@playerversion Flash 9.0
+	 *  ..
+	 *	
+	 * 	@langversion ActionScript 3
+	 *	@playerversion Flash 9.0.0
 	 *
 	 *	@author Eric Eldredge
-	 *	@author Matthew Tretter (matthew@exanimo.com)
-	 *	@since  2009.01.30
+	 *	@since  2010.02.02
+	 *
 	 */
 	public interface IButton extends IDisplayObject
 	{
+
 		//
 		// accessors
 		//
@@ -46,9 +46,9 @@
 		 */
 		function get enabled():Boolean
 		function set enabled(enabled:Boolean):void
+		
 
-
-
+		
 
 	}
 	

@@ -39,6 +39,7 @@ package inky.media
 		private var _autoRewind:Boolean;
 		private var _bufferTime:Number;
 		private var _bufferingTimer:Timer;
+		private var _lastPlayheadTime:Number;
 		private var _pan:Number = 0;
 		private var _position:Number;
 		private var _playheadUpdateTimer:Timer;
@@ -54,16 +55,17 @@ package inky.media
 
 
 		/**
-		 *
 		 * Constructs!
-		 *
 		 */
-		public function AudioPlayer()
+		public function AudioPlayer(sound:Sound = null)
 		{
 			this._autoRewind = false;
 			this._bufferTime = 0.1;
 			this._volume = 1;
 			this.sp = NaN;
+			
+			if (sound)
+				this._initSound(sound);
 		}
 	
 	
@@ -188,9 +190,7 @@ package inky.media
 			this._playheadUpdateTimer.addEventListener(TimerEvent.TIMER, this._dispatchPlayheadUpdateEvent, false, 0, true);
 			
 			if (this.state == MediaState.PLAYING)
-			{
 				this._playheadUpdateTimer.start();
-			}
 		}
 
 
@@ -316,8 +316,7 @@ package inky.media
 		public function close():void
 		{
 			this._stop();
-			if (this._sound)
-				this._sound.close();
+			this._sound.close();
 			this._dispatchMediaEvent(MediaEvent.CLOSE);
 		}
 
@@ -353,7 +352,6 @@ package inky.media
 		public function play():void
 		{
 			this._play(this._position || 0);
-			this._playheadUpdateTimer.start();
 		}
 
 
@@ -396,17 +394,20 @@ package inky.media
 		 */
 		private function _bufferingTimerHandler(e:TimerEvent = null):void
 		{
-			if (this._sound && !this._sound.isBuffering)
+			if (this._sound)
 			{
-				// When the sound has finished buffering, dispatch a playing event.
-				if (this._state == MediaState.BUFFERING)
+				if (!this._sound.isBuffering)
 				{
-					this._setAndDispatchState(MediaState.PLAYING);
+					// When the sound has finished buffering, dispatch a playing event.
+					if (this._state == MediaState.BUFFERING)
+					{
+						this._setAndDispatchState(MediaState.PLAYING);
+					}
 				}
-			}
-			else if (this._state == MediaState.PLAYING)
-			{
-				// TODO: Pause until the buffer is complete again.
+				else if (this._state == MediaState.PLAYING)
+				{
+					// TODO: Pause until the buffer is complete again.
+				}
 			}
 		}
 
@@ -429,7 +430,11 @@ package inky.media
 		 */
 		private function _dispatchPlayheadUpdateEvent(e:TimerEvent = null):void
 		{
-			this._dispatchMediaEvent(MediaEvent.PLAYHEAD_UPDATE);
+			if (this.playheadTime != this._lastPlayheadTime)
+			{
+				this._dispatchMediaEvent(MediaEvent.PLAYHEAD_UPDATE);
+				this._lastPlayheadTime = this.playheadTime;
+			}
 		}
 
 
@@ -507,6 +512,28 @@ package inky.media
 
 
 		/**
+		 * Initializes the sound object. If you load audio using load(), a new
+		 * sound object will be created and passed to this function. If you
+		 * wrap an existing object (by passing it to the constructor), it will
+		 * be passed to this function.
+		 */
+		private function _initSound(sound:Sound):void
+		{
+			this._sound = sound;
+			this._soundTransform = this._soundTransform || new SoundTransform();
+			this._updateSoundTransform();
+			this._totalTime = NaN;
+			this._position = 0;
+			this.playheadUpdateInterval = this._playheadUpdateTimer ? this.playheadUpdateInterval : 250;
+			this.progressInterval = this._progressTimer ? this.playheadUpdateInterval : 250;
+			this._sound.addEventListener(Event.ID3, this._relayID3Event, false, 0, true);
+			this._sound.addEventListener(Event.COMPLETE, this._loadCompleteHandler, false, 0, true);
+			this._sound.addEventListener(ProgressEvent.PROGRESS, this._progressHandler, false, 0, true);
+			this._getDuration();
+		}
+
+
+		/**
 		 *
 		 *
 		 *
@@ -519,7 +546,7 @@ package inky.media
 				this._sound.removeEventListener(Event.ID3, this._relayID3Event);
 				this._sound.removeEventListener(ProgressEvent.PROGRESS, this._progressHandler);
 				
-				// Do this without a try/catch
+				// TODO: Do this without a try/catch
 				try
 				{
 					this._sound.close();
@@ -528,22 +555,13 @@ package inky.media
 				{
 				}
 			}
+			
+			this._initSound(new Sound());
 
-			this._sound = new Sound();
-			this._soundTransform = this._soundTransform || new SoundTransform();
-			this._updateSoundTransform();
-			this._totalTime = NaN;
-			this._position = 0;
-			this.playheadUpdateInterval = this._playheadUpdateTimer ? this.playheadUpdateInterval : 250;
-			this.progressInterval = this._progressTimer ? this.playheadUpdateInterval : 250;
-			this._sound.addEventListener(Event.ID3, this._relayID3Event, false, 0, true);
-			this._sound.addEventListener(Event.COMPLETE, this._loadCompleteHandler, false, 0, true);
-			this._sound.addEventListener(ProgressEvent.PROGRESS, this._progressHandler, false, 0, true);
-			this._getDuration();
+			// TODO: Don't always set checkPolicyFile to true.
 			this._source = url;
-			this._setAndDispatchState(MediaState.LOADING);
-// TODO: Don't always set checkPolicyFile to true.
 			this._sound.load(new URLRequest(url), new SoundLoaderContext(this.bufferTime * 1000, true));
+			this._setAndDispatchState(MediaState.LOADING);
 		}
 
 
@@ -567,14 +585,13 @@ package inky.media
 		private function _play(time:Number):void
 		{
 			if (this._soundChannel)
-			{
 				this._soundChannel.stop();
-			}
 			this._setAndDispatchState(MediaState.BUFFERING);
 			this._startBufferingTimer();
 			this._soundChannel = this._sound.play(time * 1000, 0, this.soundTransform);
 			this.soundTransform = this._soundChannel.soundTransform;
 			this._soundChannel.addEventListener(Event.SOUND_COMPLETE, this._soundCompleteHandler, false, 0, true);
+			this._playheadUpdateTimer.start();
 		}
 
 

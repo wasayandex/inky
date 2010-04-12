@@ -1,8 +1,8 @@
-﻿package inky.components.scrollBar.views
+﻿package inky.components.scrollBar
 {
 	import inky.binding.events.PropertyChangeEvent;
 	import inky.binding.utils.BindingUtil;
-	import inky.components.scrollBar.views.IScrollBar;
+	import inky.components.scrollBar.IScrollBar;
 	import inky.components.scrollBar.ScrollBarDirection;
 	import inky.components.scrollBar.events.ScrollEvent;
 	import inky.utils.DragUtil;
@@ -81,7 +81,7 @@
 			this._pageSize = 10;
 	
 			this._minScrollPosition = 0;
-			this._maxScrollPosition = 0;
+			this._maxScrollPosition = 1;
 			this._minThumbSize = 10;
 			this._scrollPosition = 0;
 
@@ -266,7 +266,7 @@
 		 */	
 		public function get minScrollPosition():Number
 		{
-			return this._minScrollPosition || 0;
+			return this._minScrollPosition;
 		}
 		/**
 		 * @private
@@ -288,7 +288,7 @@
 		 */	
 		public function get maxScrollPosition():Number
 		{
-			return this._maxScrollPosition || 0;
+			return this._maxScrollPosition;
 		}
 		/**
 		 * @private

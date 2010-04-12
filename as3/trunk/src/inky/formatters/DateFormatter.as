@@ -1,4 +1,4 @@
-﻿package inky.formatters
+package inky.formatters
 {
 
 	/**
@@ -209,9 +209,9 @@
 				case 4:
 					return DateFormatter._monthNamesShort[date.month];
 				case 5:
-					return this._formatNumber(date.month, 2);
+					return this._formatNumber((date.month + 1), 2);
 				case 6:
-					return date.month.toString();
+					return (date.month + 1).toString();
 				case 7:
 					return this._formatNumber(date.date, 2);
 				case 8:

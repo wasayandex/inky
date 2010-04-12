@@ -1,15 +1,14 @@
 ﻿package inky.components.transitioningObject
 {
-	import inky.async.actions.IAction;
-	import inky.async.IAsyncToken;
+	import inky.commands.IAsyncCommand;
+	import inky.commands.tokens.IAsyncToken;
 	import inky.components.transitioningObject.TransitioningObjectState;
 	import inky.components.transitioningObject.events.TransitionEvent;
 	import inky.utils.AddedToStageEventFixer;
 	import flash.display.DisplayObject;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
-	import inky.async.async_internal;
-	import inky.async.AsyncToken;
+	import inky.commands.tokens.AsyncToken;
 
 
 	/**
@@ -32,9 +31,9 @@
 	public class TransitioningObjectBehavior extends EventDispatcher
 	{
 		private var _addedToStageEventFixer:AddedToStageEventFixer;
-		private var _intro:IAction;
+		private var _intro:IAsyncCommand;
 		private var _obj:DisplayObject;
-		private var _outro:IAction;
+		private var _outro:IAsyncCommand;
 		private var _removeToken:IAsyncToken;
 		private var _state:String;
 		private var _transition:Object;
@@ -69,14 +68,14 @@
 		/**
 		 * @copy inky.components.transitioningObject.ITransitioningObject#intro
 		 */
-		public function get intro():IAction
+		public function get intro():IAsyncCommand
 		{
 			return this._intro;
 		}
 		/**
 		 * @private
 		 */
-		public function set intro(intro:IAction):void
+		public function set intro(intro:IAsyncCommand):void
 		{
 			this._intro = intro;
 
@@ -89,14 +88,14 @@
 		/**
 		 * @copy inky.components.transitioningObject.ITransitioningObject#outro
 		 */
-		public function get outro():IAction
+		public function get outro():IAsyncCommand
 		{
 			return this._outro;
 		}
 		/**
 		 * @private	
 		 */
-		public function set outro(outro:IAction):void
+		public function set outro(outro:IAsyncCommand):void
 		{
 			this._outro = outro;
 
@@ -155,10 +154,11 @@
 		 */
 		private function _actionFinishHandler(token:IAsyncToken):void
 		{
+			var transition:Object = this._transition;
 			this._transition = null;
 			var removeNow:Boolean = this._state == TransitioningObjectState.PLAYING_OUTRO;
 			this._state = TransitioningObjectState.STABLE;
-			this._dispatchFinishEvent();
+			this._dispatchFinishEvent(transition);
 			if (removeNow)
 				this._removeNow();
 		}
@@ -167,18 +167,18 @@
 		/**
 		 *	
 		 */
-		private function _dispatchFinishEvent():void
+		private function _dispatchFinishEvent(transition:Object):void
 		{
-			this.dispatchEvent(new TransitionEvent(TransitionEvent.TRANSITION_FINISH, false, false, null));
+			this.dispatchEvent(new TransitionEvent(TransitionEvent.TRANSITION_FINISH, false, false, transition));
 		}
 		
 		
 		/**
 		 *	
 		 */
-		private function _dispatchStartEvent():void
+		private function _dispatchStartEvent(transition:Object):void
 		{
-			this.dispatchEvent(new TransitionEvent(TransitionEvent.TRANSITION_START, false, false, null));
+			this.dispatchEvent(new TransitionEvent(TransitionEvent.TRANSITION_START, false, false, transition));
 		}
 		
 		
@@ -199,8 +199,8 @@
 			}
 			else
 			{
-				this._dispatchStartEvent();
-				this._dispatchFinishEvent();
+				this._dispatchStartEvent(null);
+				this._dispatchFinishEvent(null);
 			}
 		}
 
@@ -210,33 +210,33 @@
 		 * Plays a specific transition.
 		 *
 		 */
-		private function _playTransition(transition:IAction):IAsyncToken
+		private function _playTransition(transition:IAsyncCommand):IAsyncToken
 		{
 			var token:IAsyncToken;
 			
-			if (this._transition)
+			/*if (this._transition)
 			{
 				if (this._transition.cancelable)
 					this._transition.cancel();
 				else
 					throw new Error('You cannot start a transition while an uncancelable transition is already playing. ' + this._transition);
-			}
-
+			}*/
+			
 			this._transition = transition;
 
 			if (transition)
 			{
 				this._state = this._transition == this.intro ? TransitioningObjectState.PLAYING_INTRO : this._transition == this.outro ? TransitioningObjectState.PLAYING_OUTRO : null;
-				token = transition.startAction();
+				token = transition.execute();
 				token.addResponder(this._actionFinishHandler);
-				this._dispatchStartEvent();
+				this._dispatchStartEvent(transition);
 			}
 			else
 			{
-				this._dispatchStartEvent();
-				this._dispatchFinishEvent();
+				this._dispatchStartEvent(null);
+				this._dispatchFinishEvent(null);
 				token = new AsyncToken();
-				token.async_internal::callResponders();
+				token.callResponders();
 			}
 			
 			return token;
@@ -258,8 +258,7 @@
 				if (createToken)
 				{
 					token = new AsyncToken();
-					token.async_internal::callResponders();
-					token.addResponder(this._actionFinishHandler);
+					token.callResponders();
 				}
 			}
 			

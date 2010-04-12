@@ -38,7 +38,6 @@ package inky.components.progressBar.views
 		private var _timer:Timer;
 		private var _value:Number;
 		
-		
 		public function BaseProgressBar()
 		{
 			//
@@ -48,7 +47,6 @@ package inky.components.progressBar.views
 			{
 				throw new ArgumentError('Error #2012: BaseProgressBar$ class cannot be instantiated.');
 			}
-			
 			
 			this.mode = ProgressBarMode.EVENT;
 			this._value = 0;
@@ -133,7 +131,7 @@ package inky.components.progressBar.views
 		{
 			var value:Number = this.value - this.minimum;
 			var maximum:Number = this.maximum - this.minimum;
-			return value && maximum ? value / maximum * 100 : 0;
+			return value && maximum ? Math.max(0, Math.min(1, value / maximum)) * 100 : 0;
 		}
 
 
@@ -244,18 +242,18 @@ package inky.components.progressBar.views
 			{
 				case ProgressBarMode.EVENT:
 					if (!this.source) return;
+					
+					var source:Object = this.source is Loader ? this.source.contentLoaderInfo : this.source;
+					source.addEventListener(ProgressEvent.PROGRESS, this._progressHandler);
+					source.addEventListener(Event.COMPLETE, this._completeHandler);
+					
+					this.minimum = 0;
+					this.maximum = source.bytesTotal;
+					this.value = source.bytesLoaded;
 
-//! contentLoaderInfo added...
-					if (this.source is Loader)
-					{
-						this.source.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, this._progressHandler);
-						this.source.contentLoaderInfo.addEventListener(Event.COMPLETE, this._completeHandler);
-					}
-					else
-					{
-						this.source.addEventListener(ProgressEvent.PROGRESS, this._progressHandler);
-						this.source.addEventListener(Event.COMPLETE, this._completeHandler);
-					}
+					if (this.maximum && this.value == this.maximum)
+						this._completeHandler(null);
+
 					
 					break;
 				case ProgressBarMode.MANUAL:
@@ -285,7 +283,7 @@ package inky.components.progressBar.views
 			// If the source is changed while the event is bubbling, you may
 			// get extra COMPLETE events, so check the source against
 			// the event's currentTarget.
-			if (e && e.currentTarget != this.source) return;
+//			if (e.currentTarget != this.source) return;
 
 			this.dispatchEvent(new Event(Event.COMPLETE));
 		}
@@ -355,11 +353,8 @@ package inky.components.progressBar.views
 				case ProgressBarMode.MANUAL:
 					break;
 				case ProgressBarMode.POLLED:
-					if (this._timer)
-					{
-						this._timer.stop();
-						this._timer.removeEventListener(TimerEvent.TIMER, this._timerHandler);
-					}
+					this._timer.stop();
+					this._timer.removeEventListener(TimerEvent.TIMER, this._timerHandler);
 					break;
 			}
 		}
