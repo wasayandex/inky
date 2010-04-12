@@ -17,7 +17,8 @@ package inky.forms.events
 	 */
 	public class FormEvent extends Event
 	{
-		public static const ERROR:String = 'error';
+		public static const COMPLETE:String= "complete";
+		public static const SUBMISSION_ERROR:String = 'submissionError';
 		public static const SUBMIT:String = 'submit';
 		public static const SUBMIT_CANCELLED:String = 'submitCancelled';
 		public static const VALIDATION_ERROR:String = 'validationError';

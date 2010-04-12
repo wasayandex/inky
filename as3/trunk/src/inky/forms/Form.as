@@ -300,10 +300,10 @@
 			
 			this._controller = new FormController();
 			this._controller.addEventListener(FormEvent.SUBMIT, this._relayEvent);
-			this._controller.addEventListener(FormEvent.ERROR, this._relayEvent);
+			this._controller.addEventListener(FormEvent.SUBMISSION_ERROR, this._relayEvent);
 			this._controller.addEventListener(FormEvent.SUBMIT_CANCELLED, this._relayEvent);
 			this._controller.addEventListener(FormEvent.VALIDATION_ERROR, this._relayEvent);
-			this._controller.addEventListener(Event.COMPLETE, this._relayEvent);
+			this._controller.addEventListener(FormEvent.COMPLETE, this._relayEvent);
 			this._controller.addEventListener(Event.OPEN, this._relayEvent);
             this._controller.addEventListener(ProgressEvent.PROGRESS, this._relayEvent);
             this._controller.addEventListener(SecurityErrorEvent.SECURITY_ERROR, this._relayEvent);
