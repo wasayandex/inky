@@ -15,7 +15,7 @@ package inky.display.utils
 	 *	@since  2010.01.28
 	 *
 	 */
-	public function scale(sprite:Object, scale:Object, registrationPoint:Point = null):void
+	public function scale(sprite:Object, scale:Object, registrationPoint:Point = null, propertyMap:Object = null):void
 	{
 		var scaleX:Number;
 		var scaleY:Number;
@@ -41,23 +41,30 @@ package inky.display.utils
 
 		registrationPoint = registrationPoint || new Point();
 		
+		propertyMap = propertyMap || {};
+		propertyMap.x = propertyMap.x || "x";
+		propertyMap.y = propertyMap.y || "y";
+		propertyMap.scaleX = propertyMap.scaleX || "scaleX";
+		propertyMap.scaleY = propertyMap.scaleY || "scaleY";
+		propertyMap.rotation = propertyMap.rotation || "rotation";
+
 		// The registration point in the parent's coordiante space.
-		var oldLocation:Point = new Point(sprite.x + sprite.scaleX * registrationPoint.x, sprite.y + sprite.scaleY * registrationPoint.y);
+		var oldLocation:Point = new Point(sprite[propertyMap.x] + sprite[propertyMap.scaleX] * registrationPoint.x, sprite[propertyMap.y] + sprite[propertyMap.scaleY] * registrationPoint.y);
 		
 		// The registration point in the parent's coordiante space, after the transformation.
-		var newLocation:Point = new Point(sprite.x + scaleX * registrationPoint.x, sprite.y + scaleY * registrationPoint.y);
+		var newLocation:Point = new Point(sprite[propertyMap.x] + scaleX * registrationPoint.x, sprite[propertyMap.y] + scaleY * registrationPoint.y);
 
-		if (sprite.rotation != 0)
+		if (sprite[propertyMap.rotation] != 0)
 		{
-			Helper.rotate(oldLocation, sprite.rotation);
-			Helper.rotate(newLocation, sprite.rotation);
+			Helper.rotate(oldLocation, sprite[propertyMap.rotation]);
+			Helper.rotate(newLocation, sprite[propertyMap.rotation]);
 		}
 
-		sprite.scaleX = scaleX;
-		sprite.scaleY = scaleY;
-		
-		sprite.x -= newLocation.x - oldLocation.x;
-		sprite.y -= newLocation.y - oldLocation.y;
+		sprite[propertyMap.scaleX] = scaleX;
+		sprite[propertyMap.scaleY] = scaleY;
+
+		sprite[propertyMap.x] -= newLocation.x - oldLocation.x;
+		sprite[propertyMap.y] -= newLocation.y - oldLocation.y;
 	}
 
 
