@@ -1,4 +1,4 @@
-package inky.components.transitioningObject
+package inky.transitioning
 {
 	/**
 	 *
@@ -16,29 +16,23 @@ package inky.components.transitioningObject
 	 * @since  2008.01.10
 	 *
 	 */
-	public class TransitioningObjectState
+	public class TransitioningState
 	{
 		/**
-		 *
 		 * Specifies that the object is currently playing its intro.
-		 *	
 		 */
-		public static const PLAYING_INTRO:String = 'playingIntro';
+		public static const PLAYING_INTRO:String = "playingIntro";
 
 
 		/**
-		 *
 		 * Specifies that the object is currently playing its outro.
-		 *	
 		 */
-		public static const PLAYING_OUTRO:String = 'playingOutro';
+		public static const PLAYING_OUTRO:String = "playingOutro";
 
 
 		/**
-		 *
 		 * Specifies that the object is not playing its intro or outro.
-		 *	
 		 */
-		public static const STABLE:String = 'stable';
+		public static const IDLE:String = "idle";
 	}
 }

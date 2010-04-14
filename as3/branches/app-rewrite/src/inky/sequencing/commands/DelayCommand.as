@@ -22,7 +22,6 @@ package inky.sequencing.commands
 	{
 		private var enterFrameBeacon:Sprite;
 		private var frameCount:int;
-		private var _isComplete:Boolean;
 		
 		/**
 		 * The duration to delay in milliseconds.
@@ -41,17 +40,9 @@ package inky.sequencing.commands
 		/**
 		 * @inheritDoc
 		 */
-		public function get async():Boolean
+		public function get isAsync():Boolean
 		{
 			return true;
-		}
-		
-		/**
-		 *
-		 */
-		public function get isComplete():Boolean
-		{ 
-			return this._isComplete; 
 		}
 
 		//---------------------------------------
@@ -63,8 +54,6 @@ package inky.sequencing.commands
 		 */
 		public function execute():void
 		{
-			this._isComplete = false;
-			
 			if (this.duration == 0)
 			{
 				this.onComplete();
@@ -115,7 +104,6 @@ package inky.sequencing.commands
 		 */
 		private function onComplete():void
 		{
-			this._isComplete = true;
 			this.dispatchEvent(new Event(Event.COMPLETE));
 		}
 		
