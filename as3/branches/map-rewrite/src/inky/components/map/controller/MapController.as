@@ -5,6 +5,7 @@ package inky.components.map.controller
 	import inky.utils.IDestroyable;
 	import inky.components.map.model.MapModel;
 	import inky.binding.utils.IChangeWatcher;
+	import inky.components.map.model.IMapModel;
 	
 	/**
 	 *
@@ -19,8 +20,6 @@ package inky.components.map.controller
 	 */
 	public class MapController implements IDestroyable
 	{
-		private var modelWatcher:IChangeWatcher;
-		private var changeWatchers:Array;
 		private var map:IMap;
 		
 		/**
@@ -32,7 +31,6 @@ package inky.components.map.controller
 		public function MapController(map:IMap)
 		{
 			this.map = map;
-			this.modelWatcher = BindingUtil.bindSetter(this.initializeForModel, map, "model");
 		}
 		
 		//---------------------------------------
@@ -44,8 +42,6 @@ package inky.components.map.controller
 		 */
 		public function destroy():void
 		{
-			this.modelWatcher.unwatch();
-			this.clearChangeWatchers();
 		}
 
 		//---------------------------------------
@@ -55,19 +51,19 @@ package inky.components.map.controller
 		/**
 		 * 
 		 */
-		private function clearChangeWatchers():void
+		/*private function clearChangeWatchers():void
 		{
 			if (this.changeWatchers)
 			{
 				while (this.changeWatchers.length)
 					this.changeWatchers.pop().unwatch();
 			}
-		}
+		}*/
 		
 		/**
 		 * 
 		 */
-		private function initializeForModel(model:MapModel):void
+		/*private function initializeForModel(model:MapModel):void
 		{
 			this.clearChangeWatchers();
 
@@ -82,53 +78,10 @@ package inky.components.map.controller
 			{
 				this.map.removeAllPlacemarks();
 			}
+			
+			this.model = model;
+		}*/
 
-		}
-		
-		/**
-		 * 
-		 */
-		private function setSelectedDocument(document:Object):void
-		{
-			if (!document)
-			{
-				// show all placemarks.
-				this.map.addPlacemarks(this.map.model.placemarks.toArray());
-			}
-			else
-			{
-				
-			}
-		}
-		
-		/**
-		 * 
-		 */
-		private function setSelectedFolder(folder:Object):void
-		{
-			if (!folder)
-			{
-			}
-			else
-			{
-			}
-		}
-		
-		
-		/**
-		 * 
-		 */
-		private function setSelectedPlacemark(placemark:Object):void
-		{
-			if (!placemark)
-			{
-			}
-			else
-			{
-			}
-		}
-
-		
 	}
 	
 }

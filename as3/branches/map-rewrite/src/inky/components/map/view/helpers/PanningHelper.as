@@ -88,8 +88,9 @@ package inky.components.map.view.helpers
 			
 			if (positionIsInvalid)
 			{
-				this.contentContainer.x = this.contentX;
-				this.contentContainer.y = this.contentY;
+				var dragBounds:Rectangle = this.getDragBounds();
+				this.contentContainer.x = Math.max(Math.min(dragBounds.right, this.contentX), dragBounds.left);
+				this.contentContainer.y = Math.max(Math.min(dragBounds.bottom, this.contentY), dragBounds.top);
 			}
 		}
 		

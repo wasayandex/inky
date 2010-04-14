@@ -224,14 +224,12 @@ package inky.components.map.view.helpers
 			
 			if (scaleIsInvalid)
 			{
-				this.contentContainer.scaleX = this.contentScaleX;
-				this.contentContainer.scaleY = this.contentScaleY;
-				
-//				var obj:Object = this.zoomingProxy || this.map;
+				this.contentContainer.scaleX = Math.min(Math.max(this.minimumZoom, this.contentScaleX), this.maximumZoom);
+				this.contentContainer.scaleY = Math.min(Math.max(this.minimumZoom, this.contentScaleY), this.maximumZoom);
+
 				var dragBounds:Rectangle = this.getDragBounds();
-// FIXME: This mostly works, but why doesn't it work going through contentX and contentY??
-				this.contentContainer.x = Math.max(Math.min(dragBounds.right, this.contentContainer.x), dragBounds.left);
-				this.contentContainer.y = Math.max(Math.min(dragBounds.bottom, this.contentContainer.y), dragBounds.top);
+				this.contentX = Math.max(Math.min(dragBounds.right, this.contentX), dragBounds.left);
+				this.contentY = Math.max(Math.min(dragBounds.bottom, this.contentY), dragBounds.top);
 			}
 		}
 

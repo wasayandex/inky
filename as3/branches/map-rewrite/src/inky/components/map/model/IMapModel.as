@@ -1,6 +1,5 @@
 package inky.components.map.model 
 {
-	import inky.collections.IList;
 	
 	/**
 	 *
@@ -20,50 +19,9 @@ package inky.components.map.model
 		//---------------------------------------
 		
 		/**
-		 * The currently selected document.
-		 * 
-		 * This value can be null if no document has been selected, or if the
-		 * model contains no documents. This value is nulled if the 
-		 * selectedPlacemark value changes to a value that does not lie in
-		 * a document. If the selectedPlacemark does lie in a document, this
-		 * value is updated to reflect that document as being selected.
+		 * Returns an object that represents the kml document root.
 		 */
-		function get selectedDocument():Object;
-		function set selectedDocument(value:Object):void;
-		
-		/**
-		 * The currently selected folder. 
-		 * 
-		 * This value can be null if no folder has been selected, or if the 
-		 * document contains no folders. This value is nulled if the 
-		 * selectedPlacemark value changes to a value that does not lie in 
-		 * a Folder. If the selectedPlacemark does lie in a folder, this 
-		 * value is updated to reflect that folder as being selected.
-		 */
-		function get selectedFolder():Object;
-		function set selectedFolder(value:Object):void;		
-		
-		/**
-		 * The currently selected placemark. 
-		 * 
-		 * This value can be null if no placemark has been selected, or if the 
-		 * document contains no placemarks. This value is nulled if the 
-		 * selectedFolder or selectedDocument values change.
-		 */
-		function get selectedPlacemark():Object;
-		function set selectedPlacemark(value:Object):void;
-		
-		/**
-		 * Returns a list of all documents.
-		 * Documents can contain other Features, such as Placemarks and Folders.
-		 */
-		function get documents():IList;
-		
-		/**
-		 * Returns a list of all folders.
-		 * Folders can be used to organize other Features, such as Placemarks, hierarchically.
-		 */
-		function get folders():IList;
+		function get document():Object;
 		
 		/**
 		 * Returns an object that represents the latitude and longitude boundaries of the map.
@@ -71,29 +29,56 @@ package inky.components.map.model
 		function get latLonBox():Object;
 		
 		/**
-		 * Returns a list of all placemarks. 
+		 * Returns a list of currently selected folders.
 		 */
-		function get placemarks():IList;
+		function get selectedFolders():Array;
+		
+		/**
+		 * Returns the currently selected placemark. 
+		 * 
+		 * This value can be null if no placemark has been selected, or if the 
+		 * document contains no placemarks. This value is nulled if the 
+		 * selectedFolders value changes to not include the folder that contains 
+		 * the selected placemark.
+		 */
+		function get selectedPlacemark():Object;
 		
 		//---------------------------------------
 		// PUBLIC METHODS
 		//---------------------------------------
 		
 		/**
-		 * Returns a list of the folders contained in a document.
+		 * Deselects the specified folder. If this folder contains 
+		 * one or more other folders, those folders will be deselected 
+		 * as well. A view might respond to this action by removing 
+		 * all Placemarks contained in the deselected folders.
 		 */
-		function getFoldersForDocument(document:Object):IList;
+		function deselectFolder(folder:Object):void;
 		
 		/**
-		 * Returns a list of placemarks contained in a document.
+		 * Determines whether or not a folder is selected.
 		 */
-		function getPlacemarksForDocument(document:Object):IList;
+		function folderIsSelected(folder:Object):Boolean;
 		
 		/**
-		 * Returns a list of placemarks contained in a folder.
+		 * Returns a list of folders in a container. If the container is not
+		 * specified, the document root is assumed.
 		 */
-		function getPlacemarksForFolder(folder:Object):IList;
+		function getFolders(container:Object = null):Array;
 		
+		/**
+		 * Returns a list of placemarks in a container. If the container is not
+		 * specified, the document root is assumed.
+		 */
+		function getPlacemarks(container:Object = null):Array;
+		
+		/**
+		 * Selects the specified folder. If this folder is nested in 
+		 * one or more other folders, those folders will be selected 
+		 * as well. A view might respond to this action by rendering 
+		 * all Placemarks contained in the selected folders.
+		 */
+		function selectFolder(folder:Object):void;
 		
 	}
 	

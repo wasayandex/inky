@@ -2,8 +2,6 @@ package inky.components.map.model
 {
 	import flash.events.EventDispatcher;
 	import inky.binding.events.PropertyChangeEvent;
-	import inky.collections.ArrayList;
-	import inky.collections.IList;
 	import inky.components.map.model.IMapModel;
 	import com.google.maps.extras.xmlparsers.kml.Document;
 	import com.google.maps.extras.xmlparsers.kml.Folder;
@@ -25,13 +23,9 @@ package inky.components.map.model
 	 */
 	public class MapModel extends EventDispatcher implements IMapModel
 	{
-		private var document:Document;
-		private var _documents:IList;
-		private var _folders:IList;
+		private var _document:Document;
 		private var _latLonBox:Object;
-		private var _placemarks:IList;
-		private var _selectedDocument:Object;
-		private var _selectedFolder:Object;
+		private var _selectedFolders:Array;
 		private var _selectedPlacemark:Object;
 		
 		/**
@@ -48,10 +42,15 @@ package inky.components.map.model
 		 */
 		public function MapModel(document:Document)
 		{
-			this.document = document;
+			if (document == null)
+				throw new ArgumentError("MapModel must be instantiated with a valid KML Document.");
+
+			this._document = document;
+			
+			this._selectedFolders = [];
 			
 			// Parse the latLonBox. We use the first one we find.
-			var overlays:Array = this.getOverlaysInContainer(Container(document));
+			var overlays:Array = this.getOverlaysInContainer(Container(document), true);
 			for (var i:int = 0; i < overlays.length; i++)
 			{
 				var overlay:Overlay = Overlay(overlays[i]);
@@ -70,17 +69,9 @@ package inky.components.map.model
 		/**
 		 * @inheritDoc
 		 */
-		public function get documents():IList
+		public function get document():Object
 		{
-			return new ArrayList(this.getDocumentsInContainer(Container(this.document)));
-		}
-		
-		/**
-		 * @inheritDoc
-		 */
-		public function get folders():IList
-		{
-			return new ArrayList(this.getFoldersInContainer(Container(this.document)));
+			return this._document;
 		}
 		
 		/**
@@ -89,54 +80,6 @@ package inky.components.map.model
 		public function get latLonBox():Object
 		{
 			return this._latLonBox;
-		}
-		
-		/**
-		 * @inheritDoc
-		 */
-		public function get placemarks():IList
-		{
-			return new ArrayList(this.getPlacemarksInContainer(Container(this.document)));
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public function get selectedDocument():Object
-		{ 
-			return this._selectedDocument; 
-		}
-		/**
-		 * @private
-		 */
-		public function set selectedDocument(value:Object):void
-		{
-			var oldValue:Object = this._selectedDocument;
-			if (value != oldValue)
-			{
-				this._selectedDocument = value;
-				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "selectedDocument", oldValue, value));	
-			}
-		}
-		
-		/**
-		 * @inheritDoc
-		 */
-		public function get selectedFolder():Object
-		{ 
-			return this._selectedFolder; 
-		}
-		/**
-		 * @private
-		 */
-		public function set selectedFolder(value:Object):void
-		{
-			var oldValue:Object = this._selectedFolder;
-			if (value != oldValue)
-			{
-				this._selectedFolder = value;
-				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "selectedFolder", oldValue, value));	
-			}
 		}
 		
 		/**
@@ -159,6 +102,14 @@ package inky.components.map.model
 			}
 		}
 		
+		/**
+		 * @inheritDoc
+		 */
+		public function get selectedFolders():Array
+		{
+			return this._selectedFolders.slice();
+		}
+		
 		//---------------------------------------
 		// PUBLIC METHODS
 		//---------------------------------------
@@ -166,25 +117,64 @@ package inky.components.map.model
 		/**
 		 * @inheritDoc
 		 */
-		public function getFoldersForDocument(document:Object):IList
+		public function deselectFolder(folder:Object):void
 		{
-			return null;
+			if (!(folder is Folder))
+				throw new ArgumentError("Invalid target.");
+
+			var i:int = this._selectedFolders.indexOf(folder);
+			if (i != -1)
+			{
+				var oldValue:Array = this.selectedFolders;
+				this._selectedFolders.splice(i, 1);
+				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "selectedFolders", oldValue, this.selectedFolders));	
+			}
 		}
 		
 		/**
 		 * @inheritDoc
 		 */
-		public function getPlacemarksForDocument(document:Object):IList
+		public function folderIsSelected(folder:Object):Boolean
 		{
-			return null;
+			return this._selectedFolders.indexOf(folder) != -1;
 		}
 		
 		/**
 		 * @inheritDoc
 		 */
-		public function getPlacemarksForFolder(folder:Object):IList
+		public function getPlacemarks(container:Object = null):Array
 		{
-			return null;
+			if (container == null)
+				return this.getPlacemarksInContainer(Container(this.document), true);
+			else
+				return this.getPlacemarksInContainer(Container(container));
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function getFolders(container:Object = null):Array
+		{
+			if (container == null)
+				return this.getFoldersInContainer(Container(this.document), true);
+			else
+				return this.getFoldersInContainer(Container(container));
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function selectFolder(folder:Object):void
+		{
+			if (!(folder is Folder))
+				throw new ArgumentError("Invalid target.");
+
+			if (this._selectedFolders.indexOf(folder) == -1)
+			{
+				var oldValue:Array = this.selectedFolders;
+				this._selectedFolders.push(folder);
+				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "selectedFolders", oldValue, this.selectedFolders));	
+			}
 		}
 		
 		//---------------------------------------
@@ -192,17 +182,9 @@ package inky.components.map.model
 		//---------------------------------------
 		
 		/**
-		 * 
+		 * Utility for recursively retrieving all features of a specific type found in a container.
 		 */
-		private function getDocumentsInContainer(container:Container):Array
-		{
-			return this.getFeaturesInContainer(Document, container);
-		}
-		
-		/**
-		 * 
-		 */
-		private function getFeaturesInContainer(featureClass:Class, container:Container):Array
+		private function getFeaturesInContainer(featureClass:Class, container:Container, recursive:Boolean):Array
 		{
 			var containerFeatures:Array = container.features;
 			var features:Array = [];
@@ -210,9 +192,9 @@ package inky.components.map.model
 			{
 				var addFeature:Boolean = feature is featureClass;
 
-				if (!addFeature && feature is Container)
+				if (!addFeature && feature is Container && recursive)
 				{
-					feature = this.getFeaturesInContainer(featureClass, Container(feature));
+					feature = this.getFeaturesInContainer(featureClass, Container(feature), recursive);
 					addFeature = feature.length;
 				}
 				
@@ -230,25 +212,25 @@ package inky.components.map.model
 		/**
 		 * 
 		 */
-		private function getFoldersInContainer(container:Container):Array
+		private function getFoldersInContainer(container:Container, recursive:Boolean = false):Array
 		{
-			return this.getFeaturesInContainer(Folder, container);
+			return this.getFeaturesInContainer(Folder, container, recursive);
 		}
 		
 		/**
 		 * 
 		 */
-		private function getOverlaysInContainer(container:Container):Array
+		private function getOverlaysInContainer(container:Container, recursive:Boolean = false):Array
 		{
-			return this.getFeaturesInContainer(Overlay, container);
+			return this.getFeaturesInContainer(Overlay, container, recursive);
 		}
 
 		/**
 		 * 
 		 */
-		private function getPlacemarksInContainer(container:Container):Array
+		private function getPlacemarksInContainer(container:Container, recursive:Boolean = false):Array
 		{
-			return this.getFeaturesInContainer(Placemark, container);
+			return this.getFeaturesInContainer(Placemark, container, recursive);
 		}
 		
 

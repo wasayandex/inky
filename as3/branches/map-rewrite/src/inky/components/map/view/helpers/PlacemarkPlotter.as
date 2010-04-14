@@ -194,6 +194,9 @@ package inky.components.map.view.helpers
 		 */
 		protected function getPlacemarkRendererFor(placemark:Object):Object
 		{
+			if (!this.map.placemarkRendererClass)
+				throw new Error("placemarkRendererClass not defined on map.");
+			
 			var renderer:Object;
 
 // TODO: recycle placemarks instead of simply saving all of them.
@@ -272,15 +275,20 @@ if (this.recyclePlacemarkRenderers)
 			if (placemarksAreInvalid)
 			{
 				var placemark:Object;
+				var placemarkModel:Object;
 
 				// Remove any placemarks no longer present.
-				while (this.placemarkContainer.numChildren)
-					this.placemarkContainer.removeChildAt(0);
+				for (var i:int = 0; i < this.placemarkContainer.numChildren; i++)
+				{
+					placemarkModel = Object(this.placemarkContainer.getChildAt(i)).model;
+					if (!this.placemarks.containsItem(placemarkModel))
+						this.placemarkContainer.removeChildAt(i--);
+				}
 
 				// Add any items not already added.
-				for (var i:IIterator = this.placemarks.iterator(); i.hasNext(); )
+				for (var j:IIterator = this.placemarks.iterator(); j.hasNext(); )
 				{
-					var placemarkModel:Object = i.next();
+					placemarkModel = j.next();
 					placemark = this.getPlacemarkRendererFor(placemarkModel);
 					var placemarkPosition:Point = this.getPositionFor(placemarkModel);
 					placemark.x = placemarkPosition.x;
