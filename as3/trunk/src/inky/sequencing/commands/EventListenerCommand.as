@@ -22,7 +22,6 @@ package inky.sequencing.commands
 	{
 		public var eventClass:Object;
 		public var eventType:String;
-		private var _isComplete:Boolean;
 		public var target:IEventDispatcher;
 		public var useCapture:Boolean = false;
 		public var priority:int = 0;
@@ -35,17 +34,9 @@ package inky.sequencing.commands
 		/**
 		 * @inheritDoc
 		 */
-		public function get async():Boolean
+		public function get isAsync():Boolean
 		{
 			return true;
-		}
-		
-		/**
-		 * @inheritDoc
-		 */
-		public function get isComplete():Boolean
-		{
-			return this._isComplete;
 		}
 		
 		//---------------------------------------
@@ -57,8 +48,6 @@ package inky.sequencing.commands
 		 */
 		public function execute():void
 		{
-			this._isComplete = false;
-			
 			if (!this.target)
 				throw new Error("There is no target specified.");
 			else if (!this.eventType)
@@ -101,7 +90,6 @@ package inky.sequencing.commands
 		 */
 		private function onComplete():void
 		{
-			this._isComplete = true;
 			this.dispatchEvent(new Event(Event.COMPLETE));
 		}
 		

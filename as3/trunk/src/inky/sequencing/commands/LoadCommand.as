@@ -25,10 +25,9 @@ package inky.sequencing.commands
 	{
 		private static const GRAPHIC_EXTENSION:RegExp = /\.(swf|gif|png|jpg|jpeg)(\?.*)?$/i
 
-		private var _async:Boolean = true;
+		private var _isAsync:Boolean = true;
 		public var content:*;
 		public var contentType:Object;
-		private var _isComplete:Boolean;
 		private var formattedContentType:String;
 		public var loader:Object;
 		public var url:Object;
@@ -40,24 +39,16 @@ package inky.sequencing.commands
 		/**
 		 *
 		 */
-		public function get async():Boolean
+		public function get isAsync():Boolean
 		{ 
-			return this._async; 
+			return this._isAsync; 
 		}
 		/**
 		 * @private
 		 */
-		public function set async(value:Boolean):void
+		public function set isAsync(value:Boolean):void
 		{
-			this._async = value;
-		}
-		
-		/**
-		 *
-		 */
-		public function get isComplete():Boolean
-		{ 
-			return this._isComplete; 
+			this._isAsync = value;
 		}
 		
 		//---------------------------------------
@@ -69,8 +60,6 @@ package inky.sequencing.commands
 		 */
 		public function execute():void
 		{
-			this._isComplete = false;
-			
 			if (!this.url)
 				throw new Error("You must set the \"url\" property.");
 
@@ -169,7 +158,6 @@ package inky.sequencing.commands
 		 */
 		private function onComplete():void
 		{
-			this._isComplete = true;
 			this.dispatchEvent(new Event(Event.COMPLETE));
 		}
 

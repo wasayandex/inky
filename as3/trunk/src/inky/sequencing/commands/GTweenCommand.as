@@ -19,8 +19,7 @@ package inky.sequencing.commands
 	 */
 	public class GTweenCommand extends EventDispatcher implements IAsyncCommand
 	{
-		private var _async:Boolean = false;
-		private var _isComplete:Boolean;
+		private var _isAsync:Boolean = false;
 		public var tween:GTween;
 		public var tweenProperties:Object = {};
 		public var targetValues:Object = {};
@@ -32,24 +31,16 @@ package inky.sequencing.commands
 		/**
 		 * @inheritDoc
 		 */
-		public function get async():Boolean
+		public function get isAsync():Boolean
 		{ 
-			return this._async; 
+			return this._isAsync; 
 		}
 		/**
 		 * @private
 		 */
-		public function set async(value:Boolean):void
+		public function set isAsync(value:Boolean):void
 		{
-			this._async = value;
-		}
-		
-		/**
-		 * @inheritDoc
-		 */
-		public function get isComplete():Boolean
-		{
-			return this._isComplete;
+			this._isAsync = value;
 		}
 		
 		//---------------------------------------
@@ -61,8 +52,6 @@ package inky.sequencing.commands
 		 */
 		public function execute():void
 		{
-			this._isComplete = false;
-
 			if (!this.tween)
 				this.tween = new GTween();
 
@@ -86,7 +75,6 @@ package inky.sequencing.commands
 		private function tween_completeHandler(event:Event):void
 		{
 			event.currentTarget.removeEventListener(event.type, arguments.callee);
-			this._isComplete = true;
 			this.dispatchEvent(new Event(Event.COMPLETE));
 		}
 		
