@@ -3,6 +3,7 @@ package inky.layout.validation
 	import flash.events.EventDispatcher;
 	import flash.display.DisplayObject;
 	import flash.events.Event;
+	import flash.utils.Dictionary;
 	import inky.utils.IDestroyable;
 	
 	/**
@@ -22,6 +23,7 @@ package inky.layout.validation
 		protected var target:DisplayObject;
 		protected var isInvalid:Boolean;
 		private var _validateWhenNotVisible:Boolean;
+		private static var _scheduledValidations:Dictionary = new Dictionary();
 
 		/**
 		 * Creates a new ValidationScheduler.
@@ -91,6 +93,8 @@ package inky.layout.validation
 				this.target = null;
 				this.callback = null;
 			}
+			
+			delete _scheduledValidations[this];
 		}
 		
 		/**
@@ -103,6 +107,7 @@ package inky.layout.validation
 			if (!this.isInvalid)
 			{
 				this.isInvalid = true;
+				_scheduledValidations[this] = null;
 
 				if (this.target.stage)
 					this.addListenersAndInvalidateStage();
@@ -146,6 +151,7 @@ package inky.layout.validation
 				this.validate();
 
 			this.isInvalid = false;
+			delete _scheduledValidations[this];
 		}
 		
 		//---------------------------------------
