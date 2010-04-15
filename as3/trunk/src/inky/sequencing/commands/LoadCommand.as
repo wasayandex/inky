@@ -25,7 +25,7 @@ package inky.sequencing.commands
 	{
 		private static const GRAPHIC_EXTENSION:RegExp = /\.(swf|gif|png|jpg|jpeg)(\?.*)?$/i
 
-		private var _isAsync:Boolean = true;
+		private var _isAsync:Boolean = false;
 		public var content:*;
 		public var contentType:Object;
 		private var formattedContentType:String;
