@@ -6,10 +6,25 @@ package inky.components.map.controller
 	import inky.components.map.model.MapModel;
 	import inky.binding.utils.IChangeWatcher;
 	import inky.components.map.model.IMapModel;
+	import inky.components.map.controller.IMapController;
 	
 	/**
 	 *
-	 *  A controller that provides typical map functionality to an IMap.
+	 *  A basic implementation of IMapController. This controller has the basic 
+	 *  interactions between view and model defined, but requires mediation 
+	 *  (via an IMapControllerMediator) to facilitate the execution of those 
+	 *  interactions. 
+	 * 
+	 * 	<p>For example, in order to respond to a user selecting a placemark view, 
+	 *  a mediator such as the PlacemarkSelectionMediator knows what aspects 
+	 *  of the user interaction with the view require a response from the controller, 
+	 *  and it facilitates the process by monitoring the view for user interaction, 
+	 *  and then instructing the controller to make the appropriate responses 
+	 *  (usually in the form of model changes).</p>
+	 * 
+	 *  @see inky.components.map.controller.mediators.IMapControllerMediator
+	 *  @see inky.components.map.model.IMapModel
+	 *  @see inky.components.map.view.IMap
 	 *	
 	 * 	@langversion ActionScript 3
 	 *	@playerversion Flash 9.0.0
@@ -18,19 +33,20 @@ package inky.components.map.controller
 	 *	@since  2010.04.07
 	 *
 	 */
-	public class MapController implements IDestroyable
+	public class MapController implements IMapController
 	{
-		private var map:IMap;
+		private var _model:IMapModel;
+		
+		//---------------------------------------
+		// ACCESSORS
+		//---------------------------------------
 		
 		/**
-		 * Creates a new map behavior.
-		 * 
-		 * @param map
-		 * 		The IMap target to apply map behavior to.
+		 * @inheritDoc
 		 */
-		public function MapController(map:IMap)
+		public function set model(value:IMapModel):void
 		{
-			this.map = map;
+			this._model = value;
 		}
 		
 		//---------------------------------------
@@ -38,49 +54,56 @@ package inky.components.map.controller
 		//---------------------------------------
 		
 		/**
-		 * 
+		 * @inheritDoc
 		 */
-		public function destroy():void
+		public function deselectFolder(folder:Object):void
 		{
+			this.getModel().deselectFolder(folder);
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function deselectPlacemark(placemark:Object):void
+		{
+			this.getModel().deselectPlacemark(placemark);
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function selectFolder(folder:Object):void
+		{
+			this.getModel().selectFolder(folder);
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function selectPlacemark(placemark:Object):void
+		{
+			// TODO: Provide a simple config for choosing whether or not to allow multiple placemark selections?
+			var model:Object = this.getModel();
+			for each (var selectedPlacemark:Object in model.selectedPlacemarks)
+				model.deselectPlacemark(selectedPlacemark);
+
+			model.selectPlacemark(placemark);
 		}
 
 		//---------------------------------------
-		// PRIVATE METHODS
+		// PROTECTED METHODS
 		//---------------------------------------
 		
 		/**
 		 * 
 		 */
-		/*private function clearChangeWatchers():void
+		protected function getModel():IMapModel
 		{
-			if (this.changeWatchers)
-			{
-				while (this.changeWatchers.length)
-					this.changeWatchers.pop().unwatch();
-			}
-		}*/
-		
-		/**
-		 * 
-		 */
-		/*private function initializeForModel(model:MapModel):void
-		{
-			this.clearChangeWatchers();
-
-			if (model)
-			{
-				this.changeWatchers = [];
-				this.changeWatchers.push(BindingUtil.bindSetter(this.setSelectedDocument, model, "selectedDocument"));
-				this.changeWatchers.push(BindingUtil.bindSetter(this.setSelectedFolder, model, "selectedFolder"));
-				this.changeWatchers.push(BindingUtil.bindSetter(this.setSelectedPlacemark, model, "selectedPlacemark"));
-			}
-			else
-			{
-				this.map.removeAllPlacemarks();
-			}
+			if (!this._model)
+				throw new Error("Model not defined for controller.");
 			
-			this.model = model;
-		}*/
+			return this._model;
+		}
 
 	}
 	

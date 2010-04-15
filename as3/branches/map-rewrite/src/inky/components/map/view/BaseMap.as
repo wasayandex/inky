@@ -8,6 +8,8 @@ package inky.components.map.view
 	import inky.components.map.view.helpers.PlacemarkPlotter;
 	import flash.display.DisplayObject;
 	import inky.binding.utils.BindingUtil;
+	import flash.events.MouseEvent;
+	import inky.components.map.view.events.MapEvent;
 	
 	/**
 	 *
@@ -42,7 +44,6 @@ package inky.components.map.view
 
 			this.changeWatchers = [];
 			this.changeWatchers.push(BindingUtil.bindSetter(this.setSelectedFolders, this, ["model", "selectedFolders"]));
-			this.changeWatchers.push(BindingUtil.bindSetter(this.setSelectedPlacemark, this, ["model", "selectedPlacemark"]));
 		}
 		
 		//---------------------------------------
@@ -273,19 +274,6 @@ package inky.components.map.view
 				// Add the placemarks that sit outside of the folder structure.
 				// Since they don't reside in folders that can ever be selected, they are always present.
 				this.addPlacemarks(this.model.getPlacemarks(this.model.document));
-			}
-		}
-		
-		/**
-		 * 
-		 */
-		private function setSelectedPlacemark(placemark:Object):void
-		{
-			if (!placemark)
-			{
-			}
-			else
-			{
 			}
 		}
 		

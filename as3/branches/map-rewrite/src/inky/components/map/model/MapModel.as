@@ -26,7 +26,7 @@ package inky.components.map.model
 		private var _document:Document;
 		private var _latLonBox:Object;
 		private var _selectedFolders:Array;
-		private var _selectedPlacemark:Object;
+		private var _selectedPlacemarks:Array;
 		
 		/**
 		 * Creates a new MapModel.
@@ -48,6 +48,7 @@ package inky.components.map.model
 			this._document = document;
 			
 			this._selectedFolders = [];
+			this._selectedPlacemarks = [];
 			
 			// Parse the latLonBox. We use the first one we find.
 			var overlays:Array = this.getOverlaysInContainer(Container(document), true);
@@ -85,29 +86,17 @@ package inky.components.map.model
 		/**
 		 * @inheritDoc
 		 */
-		public function get selectedPlacemark():Object
-		{ 
-			return this._selectedPlacemark; 
-		}
-		/**
-		 * @private
-		 */
-		public function set selectedPlacemark(value:Object):void
+		public function get selectedFolders():Array
 		{
-			var oldValue:Object = this._selectedPlacemark;
-			if (value != oldValue)
-			{
-				this._selectedPlacemark = value;
-				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "selectedPlacemark", oldValue, value));	
-			}
+			return this._selectedFolders.slice();
 		}
 		
 		/**
 		 * @inheritDoc
 		 */
-		public function get selectedFolders():Array
-		{
-			return this._selectedFolders.slice();
+		public function get selectedPlacemarks():Array
+		{ 
+			return this._selectedPlacemarks.slice(); 
 		}
 		
 		//---------------------------------------
@@ -134,20 +123,42 @@ package inky.components.map.model
 		/**
 		 * @inheritDoc
 		 */
+		public function deselectPlacemark(placemark:Object):void
+		{
+			if (!(placemark is Placemark))
+				throw new ArgumentError("Invalid target.");
+
+			var i:int = this._selectedPlacemarks.indexOf(placemark);
+			if (i != -1)
+			{
+				var oldValue:Array = this.selectedPlacemarks;
+				this._selectedPlacemarks.splice(i, 1);
+				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "selectedPlacemarks", oldValue, this.selectedPlacemarks));	
+			}
+		}
+
+		/**
+		 * @inheritDoc
+		 */
 		public function folderIsSelected(folder:Object):Boolean
 		{
 			return this._selectedFolders.indexOf(folder) != -1;
 		}
-		
+
 		/**
 		 * @inheritDoc
 		 */
-		public function getPlacemarks(container:Object = null):Array
+		public function placemarkIsSelected(placemark:Object):Boolean
 		{
-			if (container == null)
-				return this.getPlacemarksInContainer(Container(this.document), true);
-			else
-				return this.getPlacemarksInContainer(Container(container));
+			return this._selectedPlacemarks.indexOf(placemark) != -1;
+		}
+
+		/**
+		 * 
+		 */
+		public function getFolderByID(id:String):Object
+		{
+			return this.getFeatureByID(id, Folder);
 		}
 		
 		/**
@@ -159,6 +170,25 @@ package inky.components.map.model
 				return this.getFoldersInContainer(Container(this.document), true);
 			else
 				return this.getFoldersInContainer(Container(container));
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function getPlacemarkByID(id:String):Object
+		{
+			return this.getFeatureByID(id, Placemark);
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function getPlacemarks(container:Object = null):Array
+		{
+			if (container == null)
+				return this.getPlacemarksInContainer(Container(this.document), true);
+			else
+				return this.getPlacemarksInContainer(Container(container));
 		}
 		
 		/**
@@ -176,10 +206,42 @@ package inky.components.map.model
 				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "selectedFolders", oldValue, this.selectedFolders));	
 			}
 		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public function selectPlacemark(placemark:Object):void
+		{
+			if (!(placemark is Placemark))
+				throw new ArgumentError("Invalid target.");
+
+			if (this._selectedPlacemarks.indexOf(placemark) == -1)
+			{
+				var oldValue:Array = this.selectedPlacemarks;
+				this._selectedPlacemarks.push(placemark);
+				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "selectedPlacemarks", oldValue, this.selectedPlacemarks));	
+			}
+		}
 		
 		//---------------------------------------
 		// PRIVATE METHODS
 		//---------------------------------------
+		
+		/**
+		 * Utility for finding a feature in the document that matches an id.
+		 * NOTE: This assumes feature ids are unique.
+		 */
+		private function getFeatureByID(id:String, featureClass:Class):Object
+		{
+			var feature:Object;
+			var features:Array = this.getFeaturesInContainer(featureClass, Container(this.document), true);
+			for each (feature in features)
+			{
+				if (feature.id == id)
+					return feature;
+			}
+			return null;
+		}
 		
 		/**
 		 * Utility for recursively retrieving all features of a specific type found in a container.
