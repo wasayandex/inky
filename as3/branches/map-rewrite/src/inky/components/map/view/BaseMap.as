@@ -3,13 +3,12 @@ package inky.components.map.view
 	import flash.display.Sprite;
 	import inky.collections.IMap;
 	import inky.binding.events.PropertyChangeEvent;
-	import inky.components.map.controller.MapController;
 	import inky.components.map.model.IMapModel;
 	import inky.components.map.view.helpers.PlacemarkPlotter;
 	import flash.display.DisplayObject;
 	import inky.binding.utils.BindingUtil;
-	import flash.events.MouseEvent;
-	import inky.components.map.view.events.MapEvent;
+	import inky.components.map.view.helpers.OverlayLoader;
+	import flash.geom.Point;
 	
 	/**
 	 *
@@ -29,20 +28,22 @@ package inky.components.map.view
 	public class BaseMap extends Sprite implements IMap
 	{
 		private var changeWatchers:Array;
+		private var overlayLoader:OverlayLoader;
 		private var placemarkPlotter:PlacemarkPlotter;
 		private var _model:IMapModel;
 		private var _placemarkRendererClass:Class;
 		
 		/**
 		 * Creates a BaseMap. 
-		 * This class can be instantiated directly, but generally should be extended intstead.
 		 */
 		public function BaseMap()
 		{
+			this.overlayLoader = new OverlayLoader(this);
 			// TODO: Should we store exposed PlacemarkPlotter values (recyclePlacemarkRenderers, cachePlacemarkPositions) to account for a situation where a subclass sets them before calling super()?
 			this.placemarkPlotter = new PlacemarkPlotter(this);
 
 			this.changeWatchers = [];
+			this.changeWatchers.push(BindingUtil.bindSetter(this.setSelectedPlacemarks, this, ["model", "selectedPlacemarks"]));
 			this.changeWatchers.push(BindingUtil.bindSetter(this.setSelectedFolders, this, ["model", "selectedFolders"]));
 		}
 		
@@ -193,23 +194,7 @@ package inky.components.map.view
 		//---------------------------------------
 		// PUBLIC METHODS
 		//---------------------------------------
-		
-		/**
-		 * @inheritDoc
-		 */
-		public function addPlacemark(placemark:Object):void
-		{
-			this.placemarkPlotter.addPlacemark(placemark);
-		}
-		
-		/**
-		 * @inheritDoc
-		 */
-		public function addPlacemarks(placemarks:Array):void
-		{
-			this.placemarkPlotter.addPlacemarks(placemarks);
-		}
-		
+
 		/**
 		 * @inheritDoc
 		 */
@@ -217,30 +202,8 @@ package inky.components.map.view
 		{
 			while (this.changeWatchers.length)
 				this.changeWatchers.pop().unwatch();
-		}
-		
-		/**
-		 * @inheritDoc
-		 */
-		public function removeAllPlacemarks():void
-		{
-			this.placemarkPlotter.removeAllPlacemarks();
-		}
-		
-		/**
-		 * @inheritDoc
-		 */
-		public function removePlacemark(placemark:Object):void
-		{
-			this.placemarkPlotter.removePlacemark(placemark);
-		}
-		
-		/**
-		 * @inheritDoc
-		 */
-		public function removePlacemarks(placemarks:Array):void
-		{
-			this.placemarkPlotter.removePlacemarks(placemarks);
+			
+			this.placemarkPlotter.destroy();
 		}
 		
 		//---------------------------------------
@@ -255,26 +218,54 @@ package inky.components.map.view
 			return this.getChildByName("_contentContainer");
 		}
 		
-		//---------------------------------------
-		// PRIVATE METHODS
-		//---------------------------------------
-
 		/**
-		 * 
+		 * @copy inky.components.map.view.helpers.PlacemarkPlotter#getPlacemarkRendererFor
 		 */
-		private function setSelectedFolders(folders:Array):void
+		protected function getPlacemarkRendererFor(placemark:Object):Object
 		{
-			this.removeAllPlacemarks();
-
+			return this.placemarkPlotter.getPlacemarkRendererFor(placemark);
+		}
+		
+		/**
+		 * @copy inky.components.map.view.helpers.PlacemarkPlotter#getPositionFor
+		 */
+		protected function getPositionFor(placemark:Object):Point
+		{
+			return this.placemarkPlotter.getPositionFor(placemark);
+		}
+		
+		/**
+		 * Set the selected folders. This method may be overriden by subclasses 
+		 * to alter the view behavior when folder selections change.
+		 * 
+		 * @param folders
+		 * 		A list of selected folers.
+		 */
+		protected function setSelectedFolders(folders:Array):void
+		{
+			this.placemarkPlotter.removeAllPlacemarks();
+			
 			if (this.model)
 			{
 				for each (var folder:Object in this.model.selectedFolders)
-					this.addPlacemarks(this.model.getPlacemarks(folder));
+					this.placemarkPlotter.addPlacemarks(this.model.getPlacemarks(folder));
 				
 				// Add the placemarks that sit outside of the folder structure.
-				// Since they don't reside in folders that can ever be selected, they are always present.
-				this.addPlacemarks(this.model.getPlacemarks(this.model.document));
+				// Since they don't reside in folders that can never be selected, they are always present.
+				this.placemarkPlotter.addPlacemarks(this.model.getPlacemarks(this.model.document));
 			}
+		}
+		
+		/**
+		 * Set the selected placemarks. This method may be overriden by subclasses 
+		 * to alter the view behavior when placemark selections change.
+		 * 
+		 * @param placemarks
+		 * 		A list of selected placemarks.
+		 */
+		protected function setSelectedPlacemarks(placemarks:Array):void
+		{
+			
 		}
 		
 	}

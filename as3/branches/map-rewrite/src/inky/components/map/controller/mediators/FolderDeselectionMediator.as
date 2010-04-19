@@ -3,7 +3,6 @@ package inky.components.map.controller.mediators
 	import inky.components.map.controller.mediators.AbstractMapControllerMediator;
 	import inky.components.map.controller.IMapController;
 	import inky.components.map.view.events.MapFeatureEvent;
-	import flash.events.Event;
 	
 	/**
 	 *
@@ -16,17 +15,17 @@ package inky.components.map.controller.mediators
 	 *	@since  2010.04.14
 	 *
 	 */
-	public class FolderSelectionMediator extends AbstractMapControllerMediator
+	public class FolderDeselectionMediator extends AbstractMapControllerMediator
 	{
 		/**
 		 *
 		 */
-		public function FolderSelectionMediator(controller:IMapController, view:Object)
+		public function FolderDeselectionMediator(controller:IMapController, view:Object)
 		{
 			this.controller = controller;
 			this.view = view;
 
-			this.addTrigger(MapFeatureEvent.SELECT_FOLDER_TRIGGERED);
+			this.addTrigger(MapFeatureEvent.DESELECT_FOLDER_TRIGGERED);
 		}
 		
 		//---------------------------------------
@@ -38,7 +37,7 @@ package inky.components.map.controller.mediators
 		 */
 		override protected function handleTrigger(trigger:String, site:Object):void
 		{
-			this.controller.selectFolder(site);
+			this.controller.deselectFolder(site);
 		}
 		
 	}

@@ -4,7 +4,7 @@ package inky.components.map.controller.mediators
 	import flash.events.Event;
 	import inky.components.map.controller.mediators.IMapControllerMediator;
 	import flash.utils.getQualifiedClassName;
-	import inky.components.map.view.events.MapEvent;
+	import inky.components.map.view.events.MapFeatureEvent;
 	import flash.utils.Dictionary;
 	import inky.utils.IDestroyable;
 	
@@ -25,7 +25,8 @@ package inky.components.map.controller.mediators
 		private var _selectionFilter:Function;
 		private var _trigger:String;
 		private var _view:Object;
-		private var triggers2Sites:Dictionary;
+		private var triggers2SiteFilters:Dictionary;
+		private var triggers2TargetValidators:Dictionary;
 
 		/**
 		 * AbstractMapControllerMediator cannot be directly instantiated. 
@@ -41,7 +42,8 @@ package inky.components.map.controller.mediators
 			if (getQualifiedClassName(this) == 'inky.components.map.controller.mediators::AbstractMapControllerMediator')
 				throw new ArgumentError('Error #2012: AbstractMapControllerMediator$ class cannot be instantiated.');
 			
-			this.triggers2Sites = new Dictionary(true);
+			this.triggers2SiteFilters = new Dictionary(true);
+			this.triggers2TargetValidators = new Dictionary(true);
 		}
 
 		//---------------------------------------
@@ -102,16 +104,19 @@ package inky.components.map.controller.mediators
 		 * @param trigger
 		 * 		The trigger (event type) to handle.
 		 * 
+		 * @param targetValidator
+		 * 		A method used to determine whether or not the trigger is from the desired target.
+		 * 
 		 * @param siteFilter
-		 * 		A method used to determine the intended site for the action invoked 
-		 * 		by the trigger. 
+		 * 		A method used to determine the intended site for the action invoked by the trigger. 
 		 * 
 		 * @see #getSiteFilter
 		 * @see #setSiteFilter
 		 * @see #removeTrigger
 		 */
-		public function addTrigger(trigger:String, siteFilter:Function = null):void
+		public function addTrigger(trigger:String, targetValidator:Function = null, siteFilter:Function = null):void
 		{
+			this._setTargetValidator(trigger, targetValidator);
 			this._setSiteFilter(trigger, siteFilter);
 			if (this.view)
 				this.view.addEventListener(trigger, this.triggerHandler, false, 0, true);
@@ -122,34 +127,52 @@ package inky.components.map.controller.mediators
 		 */
 		public function destroy():void
 		{
-			for (var trigger:String in this.triggers2Sites)
+			for (var trigger:String in this.triggers2SiteFilters)
 				this.removeTrigger(trigger);
 		}
 
 		/**
-		 * Gets the method for filtering the intended site for the action invoked
+		 * Gets a method used to determine the intended site for the action invoked
 		 * by the trigger. By default, a triggering event's <code>target</code> 
-		 * is used as the selection site, unless the event is a 
-		 * <code>MapEvent</code>, in which case the MapEvent's 
-		 * <code>feature</code> is used.
+		 * is used as the action site, unless the event is a <code>MapFeatureEvent</code>, 
+		 * in which case the MapFeatureEvent's <code>feature</code> is used.
 		 * 
 		 * @param trigger
 		 * 		The trigger (event type) the site filter is used for.
 		 * 
+		 * @return The method used to determine the intended site for the action invoked by the trigger.
+		 * 
 		 * @see #setSiteFilter
 		 * @see #addTrigger
-		 * @see inky.components.map.events.MapEvent#feature
+		 * @see inky.components.map.events.MapFeatureEvent#feature
 		 */
 		public function getSiteFilter(trigger:String):Function
 		{ 
-			return this.triggers2Sites[trigger];
+			return this.triggers2SiteFilters[trigger];
 		}
 		
 		/**
-		 * Sets the method for filtering the intended site for the action invoked
+		 * Gets a method used to check a trigger event target. If the event 
+		 * target is not matched by the filter, the trigger action is not invoked.
+		 * 
+		 * @param trigger
+		 * 		The trigger (event type) the target filter is used for.
+		 * 
+		 * @return The method used to check the specified trigger target.
+		 * 
+		 * @see #setTargetValidator
+		 * @see #addTrigger
+		 */
+		public function getTargetValidator(trigger:String):Function
+		{
+			return this.triggers2TargetValidators[trigger];
+		}
+		
+		/**
+		 * Sets a method used to determine the intended site for the action invoked
 		 * by the trigger. If a filter is not set, a triggering event's 
-		 * <code>target</code> is used as the selection site, unless the event 
-		 * is a <code>MapEvent</code>, in which case the MapEvent's 
+		 * <code>target</code> is used as the action site, unless the event 
+		 * is a <code>MapFeatureEvent</code>, in which case the MapFeatureEvent's 
 		 * <code>feature</code> is used.
 		 * 
 		 * @param trigger
@@ -161,13 +184,33 @@ package inky.components.map.controller.mediators
 		 * 
 		 * @see #getSiteFilter
 		 * @see #addTrigger
-		 * @see inky.components.map.events.MapEvent#feature
+		 * @see inky.components.map.events.MapFeatureEvent#feature
 		 */
 		public function setSiteFilter(trigger:String, siteFilter:Function):void
 		{
-			if (!this.triggers2Sites[trigger])
+			if (!this.triggers2SiteFilters[trigger])
 				throw new ArgumentError('trigger ' + trigger + ' needs to be added before a selection filter can be defined for it.');
 			this._setSiteFilter(trigger, siteFilter);
+		}
+		
+		/**
+		 * Sets a method used to check a trigger event target. If the event 
+		 * target is not matched by the filter, the trigger action is not invoked.
+		 * 
+		 * @param trigger
+		 * 		The trigger (event type) the target filter is used for.
+		 * 
+		 * @param targetValidator
+		 * 		A method used to check a trigger event target.
+		 * 
+		 * @see #getTargetValidator
+		 * @see #addTrigger
+		 */
+		public function setTargetValidator(trigger:String, targetValidator:Function):void
+		{
+			if (!this.triggers2TargetValidators[trigger])
+				throw new ArgumentError('trigger ' + trigger + ' needs to be added before a target filter can be defined for it.');
+			this._setTargetValidator(trigger, targetValidator);
 		}
 		
 		/**
@@ -180,7 +223,8 @@ package inky.components.map.controller.mediators
 		 */
 		public function removeTrigger(trigger:String):void
 		{
-			delete this.triggers2Sites[trigger];
+			delete this.triggers2TargetValidators[trigger];
+			delete this.triggers2SiteFilters[trigger];
 			if (this.view)
 				this.view.removeEventListener(trigger, this.triggerHandler);
 		}
@@ -192,12 +236,12 @@ package inky.components.map.controller.mediators
 		/**
 		 * The default site filter.
 		 * A triggering event's target is used as the selection site, unless the 
-		 * event is a MapEvent, in which case the MapEvent's feature is used.
+		 * event is a MapFeatureEvent, in which case the MapFeatureEvent's feature is used.
 		 */
 		protected function defaultSiteFilter(event:Event):Object 
 		{ 
-			if (event is MapEvent)
-				return MapEvent(event).feature;
+			if (event is MapFeatureEvent)
+				return MapFeatureEvent(event).feature;
 			else
 				return event.target;
 		}
@@ -222,7 +266,7 @@ package inky.components.map.controller.mediators
 		{
 			if (this.view)
 			{
-				for (var trigger:String in this.triggers2Sites)
+				for (var trigger:String in this.triggers2SiteFilters)
 					this.view.addEventListener(trigger, this.triggerHandler, false, 0, true);
 			}
 		}
@@ -236,7 +280,15 @@ package inky.components.map.controller.mediators
 			if (filter == null)
 				filter = this.defaultSiteFilter;
 
-			this.triggers2Sites[trigger] = filter;
+			this.triggers2SiteFilters[trigger] = filter;
+		}
+		
+		/**
+		 * 
+		 */
+		private function _setTargetValidator(trigger:String, targetValidator:Function = null):void
+		{
+			this.triggers2TargetValidators[trigger] = targetValidator;
 		}
 		
 		/**
@@ -244,7 +296,10 @@ package inky.components.map.controller.mediators
 		 */
 		private function triggerHandler(event:Event):void
 		{
-			this.handleTrigger(event.type, this.triggers2Sites[event.type](event));
+			var filter:Function = this.triggers2TargetValidators[event.type];
+			
+			if (filter == null || filter.apply(null, [event.target]))
+				this.handleTrigger(event.type, this.triggers2SiteFilters[event.type](event));
 		}
 	}
 	

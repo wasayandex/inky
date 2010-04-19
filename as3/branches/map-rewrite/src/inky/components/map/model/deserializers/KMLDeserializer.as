@@ -1,7 +1,7 @@
 package inky.components.map.model.deserializers 
 {
 	import com.google.maps.extras.xmlparsers.kml.Kml22;
-	import inky.components.map.model.MapModel;
+	import inky.components.map.model.KMLMapModel;
 	import com.google.maps.extras.xmlparsers.kml.Feature;
 	import com.google.maps.extras.xmlparsers.kml.Document;
 	import inky.components.map.model.IMapModel;
@@ -48,7 +48,7 @@ package inky.components.map.model.deserializers
 			else
 				document = new Document(root.xml);
 
-			var model:MapModel = new MapModel(document);
+			var model:KMLMapModel = new KMLMapModel(document);
 			return model;
 		}
 	}

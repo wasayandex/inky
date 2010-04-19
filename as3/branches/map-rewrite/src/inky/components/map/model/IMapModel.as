@@ -29,6 +29,11 @@ package inky.components.map.model
 		function get latLonBox():Object;
 		
 		/**
+		 * Gets an object that represent a graphic overlay.
+		 */
+		function get overlay():Object;
+		
+		/**
 		 * Gets a list of currently selected folders.
 		 * 
 		 * <p>This list can be empty if no folders have been selected, or if there 
@@ -123,20 +128,6 @@ package inky.components.map.model
 		function placemarkIsSelected(placemark:Object):Boolean;
 		
 		/**
-		 * Returns a folder that matches the specified id.
-		 * 
-		 * <p><em>NOTE</em>: This assumes that folder ids are unique.</p>
-		 * 
-		 * @param id
-		 * 		The id to match a folder to.
-		 * 
-		 * @return The folder that matches the id, or null if none is found.
-		 * 
-		 * @see #getFolders
-		 */
-		function getFolderByID(id:String):Object;
-		
-		/**
 		 * Returns a list of folders in a container.
 		 * 
 		 * <p>If the container is not specified, the document root is assumed.</p>
@@ -152,20 +143,6 @@ package inky.components.map.model
 		 * @see #getFolderByID
 		 */
 		function getFolders(container:Object = null):Array;
-		
-		/**
-		 * Returns a placemark that matches the specified id.
-		 * 
-		 * <p><em>NOTE</em>: This assumes that placemark ids are unique.</p>
-		 * 
-		 * @param id
-		 * 		The id to match a placemark to.
-		 * 
-		 * @return The placemark that matches the id, or null if none is found.
-		 * 
-		 * @see #getPlacemarks
-		 */
-		function getPlacemarkByID(id:String):Object;
 		
 		/**
 		 * Returns a list of placemarks in a container. 

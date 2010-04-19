@@ -1,10 +1,5 @@
 package inky.components.map.controller 
 {
-	import inky.components.map.view.IMap;
-	import inky.binding.utils.BindingUtil;
-	import inky.utils.IDestroyable;
-	import inky.components.map.model.MapModel;
-	import inky.binding.utils.IChangeWatcher;
 	import inky.components.map.model.IMapModel;
 	import inky.components.map.controller.IMapController;
 	
@@ -82,12 +77,7 @@ package inky.components.map.controller
 		 */
 		public function selectPlacemark(placemark:Object):void
 		{
-			// TODO: Provide a simple config for choosing whether or not to allow multiple placemark selections?
-			var model:Object = this.getModel();
-			for each (var selectedPlacemark:Object in model.selectedPlacemarks)
-				model.deselectPlacemark(selectedPlacemark);
-
-			model.selectPlacemark(placemark);
+			this.getModel().selectPlacemark(placemark);
 		}
 
 		//---------------------------------------

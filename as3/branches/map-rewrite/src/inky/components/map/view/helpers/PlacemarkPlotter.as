@@ -2,20 +2,14 @@ package inky.components.map.view.helpers
 {
 	import inky.components.map.view.IMap;
 	import flash.display.Sprite;
-	import flash.display.DisplayObjectContainer;
-	import inky.binding.utils.BindingUtil;
 	import flash.display.DisplayObject;
 	import flash.utils.Dictionary;
 	import inky.collections.IIterator;
 	import inky.collections.events.CollectionEvent;
-	import inky.collections.IList;
 	import inky.collections.ArrayList;
 	import inky.utils.IDestroyable;
-	import inky.layout.validation.LayoutValidator;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
-	import inky.components.map.model.MapModel;
-	import inky.binding.utils.IChangeWatcher;
 	import inky.components.map.view.helpers.BaseMapViewHelper;
 	
 	/**
@@ -157,6 +151,87 @@ package inky.components.map.view.helpers
 			this.placemarks.removeEventListener(CollectionEvent.COLLECTION_CHANGE, this.placemarks_collectionChangeHandler);
 			this.placemarks = null;
 		}
+
+		/**
+		 * Returns a placemark renderer for the specified placemark.
+		 * 
+		 * @param placemark
+		 * 		The placemark to retrieve a renderer for.
+		 */
+		public function getPlacemarkRendererFor(placemark:Object):Object
+		{
+			if (!this.map.placemarkRendererClass)
+				throw new Error("placemarkRendererClass not defined on map.");
+
+			var renderer:Object;
+
+// TODO: recycle placemarks instead of simply saving all of them.
+if (this.recyclePlacemarkRenderers)
+{
+	if (!this.placemarks2Renderers)
+		this.placemarks2Renderers = new Dictionary(true);
+	else
+		renderer = this.placemarks2Renderers[placemark];
+}
+
+			if (!renderer)
+			{
+				renderer = new this.map.placemarkRendererClass();
+if (this.recyclePlacemarkRenderers)
+	this.placemarks2Renderers[placemark] = renderer;
+			}
+
+			renderer.model = placemark;
+			return renderer;
+		}
+
+		/**
+		 * Returns a point that represents the position a placemark renderer 
+		 * for the provided placemark would occupy.
+		 * 
+		 * @param placemark
+		 * 		The placemark to retrieve a renderer position for.
+		 */
+		public function getPositionFor(placemark:Object):Point
+		{
+			var point:Point;
+
+			// If position caching is enabled, look for a cached position for this placemark.
+			if (this.cachePlacemarkPositions)
+			{
+				if (!this.positionCache)
+					this.positionCache = new Dictionary(true);
+				else
+					point = this.positionCache[placemark];
+			}
+
+			if (!point)
+			{
+				point = this.getKMLCoordinatesFor(placemark);
+
+				var longitudeDifference:Number = this.map.model.latLonBox.east - this.map.model.latLonBox.west;
+				var latitudeDifference:Number = this.map.model.latLonBox.south - this.map.model.latLonBox.north;
+
+				var mapBounds:Rectangle = this.content.getBounds(this.content);
+
+				point.x = ((point.x - this.map.model.latLonBox.west) / longitudeDifference) * mapBounds.width;
+				point.y = ((point.y - this.map.model.latLonBox.north) / latitudeDifference) * mapBounds.height;
+
+				if (this.map.model.latLonBox.rotation)
+				{
+					var center:Point = new Point(mapBounds.width / 2, mapBounds.height / 2);
+					point = point.subtract(center);		
+					this.rotatePoint(point, this.map.model.latLonBox.rotation);
+					point =	point.add(center);
+				}
+
+				// If position caching is enabled, cache the calculated position for this placemark.
+				if (this.cachePlacemarkPositions)
+					this.positionCache[placemark] = point;
+			}
+
+			return point;
+		}
 		
 		/**
 		 * 
@@ -188,81 +263,6 @@ package inky.components.map.view.helpers
 		//---------------------------------------
 		// PROTECTED METHODS
 		//---------------------------------------
-
-		/**
-		 * @inheritDoc
-		 */
-		protected function getPlacemarkRendererFor(placemark:Object):Object
-		{
-			if (!this.map.placemarkRendererClass)
-				throw new Error("placemarkRendererClass not defined on map.");
-			
-			var renderer:Object;
-
-// TODO: recycle placemarks instead of simply saving all of them.
-if (this.recyclePlacemarkRenderers)
-{
-	if (!this.placemarks2Renderers)
-		this.placemarks2Renderers = new Dictionary(true);
-	else
-		renderer = this.placemarks2Renderers[placemark];
-}
-
-			if (!renderer)
-			{
-				renderer = new this.map.placemarkRendererClass();
-if (this.recyclePlacemarkRenderers)
-	this.placemarks2Renderers[placemark] = renderer;
-			}
-
-			renderer.model = placemark;
-			return renderer;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		protected function getPositionFor(placemark:Object):Point
-		{
-			var point:Point;
-
-			// If position caching is enabled, look for a cached position for this placemark.
-			if (this.cachePlacemarkPositions)
-			{
-				if (!this.positionCache)
-					this.positionCache = new Dictionary(true);
-				else
-					point = this.positionCache[placemark];
-
-			}
-
-			if (!point)
-			{
-				point = this.getKMLCoordinatesFor(placemark);
-
-				var longitudeDifference:Number = this.map.model.latLonBox.east - this.map.model.latLonBox.west;
-				var latitudeDifference:Number = this.map.model.latLonBox.south - this.map.model.latLonBox.north;
-
-				var mapBounds:Rectangle = DisplayObject(this.map).getBounds(DisplayObject(this.map));
-
-				point.x = ((point.x - this.map.model.latLonBox.west) / longitudeDifference) * mapBounds.width;
-				point.y = ((point.y - this.map.model.latLonBox.north) / latitudeDifference) * mapBounds.height;
-
-				if (this.map.model.latLonBox.rotation)
-				{
-					var center:Point = new Point(mapBounds.width / 2, mapBounds.height / 2);
-					point = point.subtract(center);		
-					this.rotatePoint(point, this.map.model.latLonBox.rotation);
-					point =	point.add(center);
-				}
-
-				// If position caching is enabled, cache the calculated position for this placemark.
-				if (this.cachePlacemarkPositions)
-					this.positionCache[placemark] = point;
-			}
-
-			return point;
-		}
 
 		/**
 		 * @inheritDoc

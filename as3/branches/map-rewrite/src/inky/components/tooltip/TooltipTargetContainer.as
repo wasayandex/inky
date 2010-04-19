@@ -4,19 +4,18 @@
 	import flash.display.InteractiveObject;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	import inky.utils.IDestroyable;
 
 
-	public class TooltipTargetContainer
+	public class TooltipTargetContainer implements IDestroyable
 	{
 		private var _container:DisplayObjectContainer;
 		private var _tooltip:ITooltip;
 		private var _triggerEvent:String;
 		private var _targetFilter:Function;
 
-
 		/**
-		 *
-		 *	
+		 * 
 		 */
 		public function TooltipTargetContainer(container:DisplayObjectContainer, tooltip:ITooltip = null)
 		{
@@ -24,12 +23,13 @@
 			this._tooltip = tooltip || container.getChildByName("tooltip") as ITooltip || container.getChildByName("_tooltip") as ITooltip;
 			this.triggerEvent = MouseEvent.MOUSE_OVER;
 		}
-
-
+		
+		//---------------------------------------
+		// ACCESSORS
+		//---------------------------------------
+		
 		/**
-		 *
-		 *
-		 *
+		 * 
 		 */
 		public function get targetFilter():Function
 		{
@@ -43,22 +43,16 @@
 			this._targetFilter = value;
 		}
 
-
 		/**
-		 *
-		 *
-		 *
+		 * 
 		 */
 		public function get tooltip():ITooltip
 		{
 			return this._tooltip;
 		}
 
-
 		/**
-		 *
-		 *
-		 *
+		 * 
 		 */
 		public function get triggerEvent():String
 		{
@@ -78,9 +72,27 @@
 				this._triggerEvent = value;
 			}
 		}
+		
+		//---------------------------------------
+		// PUBLIC METHODS
+		//---------------------------------------
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function destroy():void
+		{
+			if (this.triggerEvent)
+				this._container.removeEventListener(this.triggerEvent, this._triggerHandler);
+		}
+		
+		//---------------------------------------
+		// PRIVATE METHODS
+		//---------------------------------------
 
-
-
+		/**
+		 * 
+		 */
 		private function _triggerHandler(e:Event):void
 		{
 			var target:InteractiveObject = e.target as InteractiveObject;
@@ -91,7 +103,5 @@
 			}
 		}
 
-		
-		
 	}
 }

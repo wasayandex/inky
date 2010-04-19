@@ -63,8 +63,8 @@ package inky.components.map.view.helpers
 		 */
 		protected function getDragBounds():Rectangle
 		{
-			var contentBounds:Rectangle = this.contentContainer.getBounds(this.content);
-			var maskBounds:Rectangle = this.mask.getBounds(this.content);
+			var contentBounds:Rectangle = this.contentContainer.getRect(this.content);
+			var maskBounds:Rectangle = this.mask.getRect(this.content);
 			var bounds:Rectangle = new Rectangle(maskBounds.width - contentBounds.width, maskBounds.height - contentBounds.height, contentBounds.width - maskBounds.width, contentBounds.height - maskBounds.height);
 			return bounds;
 		}

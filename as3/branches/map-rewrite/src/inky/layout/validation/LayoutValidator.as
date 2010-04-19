@@ -2,7 +2,7 @@ package inky.layout.validation
 {
 	import flash.events.Event;
 	import inky.layout.validation.ValidationScheduler;
-	import inky.utils.ValidationState;
+	import inky.layout.utils.ValidationState;
 	import inky.utils.EqualityUtil;
 	import flash.display.DisplayObject;
 	import inky.utils.CloningUtil;
@@ -55,15 +55,32 @@ package inky.layout.validation
 		 * to optimize redrawing and updating as much as possible.
 		 * 
 		 * <p>A callback should always updated the validation state by calling
-		 * <code>markAllAsValid()</code> on this object.</p>
+		 * <code>markAllPropertiesAsValid()</code>.</p>
 		 * 
-		 * @see inky.utils.ValidationState
+		 * @see inky.layout.utils.ValidationState
 		 */
 		public function get validationState():ValidationState
 		{
 			return this._validationState;
 		}
 		
+		//---------------------------------------
+		// PUBLIC METHODS
+		//---------------------------------------
+		
+		/**
+		 * Convenience method for marking all invalid properties as valid. This method 
+		 * can be used in place of <code>state.markAllPropertiesAsValid()</code> 
+		 * in validation callback methods.
+		 * 
+		 * @see #state
+		 * @see inky.layout.utils.ValidationState
+		 */
+		public function markAllPropertiesAsValid():void
+		{
+			this._validationState.markAllPropertiesAsValid();
+		}
+
 		//---------------------------------------
 		// PROTECTED METHODS
 		//---------------------------------------
@@ -76,7 +93,7 @@ package inky.layout.validation
 			var changedProps:Object = this.copyProperties(this.properties);
 
 			if (++this.validationCount > 100)
-				throw new Error("Recursive validation. Double Check that validationState.markAllPropertiesAsValid() is called in your validation method.")
+				throw new Error("Recursive validation. Double Check that markAllPropertiesAsValid() is called in your validation method.")
 
 			for (var prop:String in changedProps)
 			{

@@ -21,51 +21,123 @@ package inky.components.map.model
 	 *	@since  2010.02.19
 	 *
 	 */
-	public class MapModel extends EventDispatcher implements IMapModel
+	public class KMLMapModel extends EventDispatcher implements IMapModel
 	{
+		private var _allowMultipleFolderSlections:Boolean;
+		private var _allowMultiplePlacemarkSelections:Boolean;
 		private var _document:Document;
-		private var _latLonBox:Object;
+		private var _overlay:Object;
 		private var _selectedFolders:Array;
 		private var _selectedPlacemarks:Array;
 		
 		/**
-		 * Creates a new MapModel.
+		 * Creates a new KMLMapModel.
 		 * 
-		 * MapModel uses the KML parsing tools in the Google Maps API for Flash Utility Library. 
+		 * KMLMapModel uses the KML parsing tools in the Google Maps API for Flash Utility Library. 
 		 * The library can be found at: <code>http://code.google.com/p/gmaps-utility-library-flash/</code>.
-		 * MapModel uses this libarary's KML parsers to populate the model from XML.
+		 * KMLMapModel uses this libarary's KML parsers to populate the model from XML.
 		 * 
 		 * @see inky.components.map.model.deserializers.KMLDeserializer;
 		 * 
 		 * @param document
 		 * 		The root document object. This is the document that the model represents.
 		 */
-		public function MapModel(document:Document)
+		public function KMLMapModel(document:Document)
 		{
 			if (document == null)
-				throw new ArgumentError("MapModel must be instantiated with a valid KML Document.");
+				throw new ArgumentError("KMLMapModel must be instantiated with a valid KML Document.");
 
 			this._document = document;
 			
 			this._selectedFolders = [];
 			this._selectedPlacemarks = [];
 			
-			// Parse the latLonBox. We use the first one we find.
+			this._allowMultipleFolderSlections = true;
+			this._allowMultiplePlacemarkSelections = false;
+			
+			// Find the overlay. We use the first one we find.
+			// TODO: Support multiple overlays?
 			var overlays:Array = this.getOverlaysInContainer(Container(document), true);
 			for (var i:int = 0; i < overlays.length; i++)
 			{
 				var overlay:Overlay = Overlay(overlays[i]);
 				if (overlay is KmlGroundOverlay)
 				{
-					this._latLonBox = KmlGroundOverlay(overlay).latLonBox;
+					this._overlay = overlay;
 					break;
 				}
 			}
+			
+			// TODO: interpret folder 'visible' data as indicating whether or not to make the folders selected?
+			for each (var folder:Object in this.getFolders())
+				this.selectFolder(folder);
 		}
 		
 		//---------------------------------------
 		// ACCESSORS
 		//---------------------------------------
+		
+		/**
+		 * Gets and sets whether the model allows more than one folder to be 
+		 * selected at a time.
+		 * 
+		 * <p>If <code>false</code>, new folder selections replace old selections.
+		 * If <code>true</code>, new folder selections are added to old selections.</p>
+		 */
+		public function get allowMultipleFolderSlections():Boolean
+		{ 
+			return this._allowMultipleFolderSlections; 
+		}
+		/**
+		 * @private
+		 */
+		public function set allowMultipleFolderSlections(value:Boolean):void
+		{
+			var oldValue:Boolean = this._allowMultipleFolderSlections;
+			if (value != oldValue)
+			{
+				this._allowMultipleFolderSlections = value;
+				if (!value && this._selectedFolders.length > 1)
+				{
+					var oldSelectedFoldersValue:Array = this.selectedFolders;
+					while (this._selectedFolders.length > 1)
+						this._selectedFolders.shift();
+					
+					this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "selectedFolders", oldSelectedFoldersValue, this.selectedFolders));	
+				}
+			}
+		}
+		
+		/**
+		 * Gets and sets whether the model allows more than one placemark to be 
+		 * selected at a time.
+		 * 
+		 * <p>If <code>false</code>, new placemark selections replace old selections.
+		 * If <code>true</code>, new placemark selections are added to old selections.</p>
+		 */
+		public function get allowMultiplePlacemarkSelections():Boolean
+		{ 
+			return this._allowMultiplePlacemarkSelections; 
+		}
+		/**
+		 * @private
+		 */
+		public function set allowMultiplePlacemarkSelections(value:Boolean):void
+		{
+			var oldValue:Boolean = this._allowMultiplePlacemarkSelections;
+			if (value != oldValue)
+			{
+				this._allowMultiplePlacemarkSelections = value;
+				if (!value && this._selectedPlacemarks.length > 1)
+				{
+					var oldSelectedPlacemarksValue:Array = this.selectedPlacemarks;
+					while (this._selectedPlacemarks.length > 1)
+						this._selectedPlacemarks.shift();
+					
+					this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "selectedPlacemarks", oldSelectedPlacemarksValue, this.selectedPlacemarks));	
+				}
+			}
+		}
 		
 		/**
 		 * @inheritDoc
@@ -80,7 +152,12 @@ package inky.components.map.model
 		 */
 		public function get latLonBox():Object
 		{
-			return this._latLonBox;
+			return this.overlay.latLonBox;
+		}
+		
+		public function get overlay():Object
+		{
+			return this._overlay;
 		}
 		
 		/**
@@ -154,14 +231,6 @@ package inky.components.map.model
 		}
 
 		/**
-		 * 
-		 */
-		public function getFolderByID(id:String):Object
-		{
-			return this.getFeatureByID(id, Folder);
-		}
-		
-		/**
 		 * @inheritDoc
 		 */
 		public function getFolders(container:Object = null):Array
@@ -170,14 +239,6 @@ package inky.components.map.model
 				return this.getFoldersInContainer(Container(this.document), true);
 			else
 				return this.getFoldersInContainer(Container(container));
-		}
-		
-		/**
-		 * @inheritDoc
-		 */
-		public function getPlacemarkByID(id:String):Object
-		{
-			return this.getFeatureByID(id, Placemark);
 		}
 		
 		/**
@@ -202,6 +263,10 @@ package inky.components.map.model
 			if (this._selectedFolders.indexOf(folder) == -1)
 			{
 				var oldValue:Array = this.selectedFolders;
+
+				if (!this.allowMultipleFolderSlections)
+					this._selectedFolders = [];
+
 				this._selectedFolders.push(folder);
 				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "selectedFolders", oldValue, this.selectedFolders));	
 			}
@@ -218,6 +283,10 @@ package inky.components.map.model
 			if (this._selectedPlacemarks.indexOf(placemark) == -1)
 			{
 				var oldValue:Array = this.selectedPlacemarks;
+				
+				if (!this.allowMultiplePlacemarkSelections)
+					this._selectedPlacemarks = [];
+
 				this._selectedPlacemarks.push(placemark);
 				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "selectedPlacemarks", oldValue, this.selectedPlacemarks));	
 			}
@@ -268,6 +337,7 @@ package inky.components.map.model
 					features.splice.apply(null, arr);
 				}
 			}
+
 			return features;
 		}
 		

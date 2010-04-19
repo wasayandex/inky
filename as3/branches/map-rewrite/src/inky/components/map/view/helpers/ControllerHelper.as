@@ -11,6 +11,10 @@ package inky.components.map.view.helpers
 	import inky.components.map.controller.IMapController;
 	import inky.components.map.controller.mediators.IMapControllerMediator;
 	import flash.utils.Dictionary;
+	import inky.components.map.controller.mediators.FolderSelectionMediator;
+	import inky.components.map.controller.mediators.FolderDeselectionMediator;
+	import inky.components.map.controller.mediators.PlacemarkSelectionMediator;
+	import inky.components.map.controller.mediators.PlacemarkDeselectionMediator;
 	
 	/**
 	 *
@@ -25,12 +29,14 @@ package inky.components.map.view.helpers
 	 */
 	public class ControllerHelper implements IDestroyable
 	{
+		private var _controller:IMapController;
+		private var controllerClass:Class;
+		private var _folderDeselectionMediator:FolderDeselectionMediator;
+		private var _placemarkDeselectionMediator:PlacemarkDeselectionMediator;
 		private var map:IMap;
 		private var mediators:Dictionary;
 		private var model:IMapModel;
 		private var modelWatcher:IChangeWatcher;
-		private var _controller:IMapController;
-		private var controllerClass:Class;
 		private var _folderSelectionMediator:FolderSelectionMediator;
 		private var _placemarkSelectionMediator:PlacemarkSelectionMediator;
 		
@@ -38,10 +44,11 @@ package inky.components.map.view.helpers
 		 * Creates a new controller helper.
 		 * 
 		 * <p>This helper instantiates the default MapController, and it also 
-		 * creates two mediators: a FolderSelectionMediator and a 
-		 * PlacemarkSelectionMediator, both of which allow the controller to be 
-		 * ignorant of the implementation of the view by mediating the process 
-		 * of interpreting user interactivity with the view into controller actions.</p>
+		 * creates four mediators: a FolderSelectionMediator, a FolderDeselectionMediator, 
+		 * a PlacemarkSelectionMediator, and a PlacemarkDeselectionMediator, all of which 
+		 * allow the controller to be ignorant of the implementation of the view by 
+		 * mediating the process of interpreting user interactivity with the view into 
+		 * controller actions.</p>
 		 * 
 		 * @param map
 		 * 		The IMap target to give the IMapController.
@@ -53,7 +60,15 @@ package inky.components.map.view.helpers
 		{
 			this.mediators = new Dictionary(true);
 			this.map = map;
-			this.controllerClass = controllerClass || MapController;
+			controllerClass = controllerClass || MapController;
+
+			this._controller = new controllerClass();
+			
+			this._folderSelectionMediator = new FolderSelectionMediator(this.controller, this.map);
+			this._folderDeselectionMediator = new FolderDeselectionMediator(this.controller, this.map);
+			this._placemarkSelectionMediator = new PlacemarkSelectionMediator(this.controller, this.map);
+			this._placemarkDeselectionMediator = new PlacemarkDeselectionMediator(this.controller, this.map);
+
 			this.modelWatcher = BindingUtil.bindSetter(this.initializeForModel, map, "model");
 		}
 		
@@ -67,6 +82,22 @@ package inky.components.map.view.helpers
 		public function get controller():IMapController
 		{
 			return this._controller;
+		}
+		
+		/**
+		 * Gets the folder deselection mediator.
+		 */
+		public function get folderDeselectionMediator():FolderDeselectionMediator
+		{
+			return this._folderDeselectionMediator;
+		}
+		
+		/**
+		 * Gets the placemark deselection mediator.
+		 */
+		public function get placemarkDeselectionMediator():PlacemarkDeselectionMediator
+		{
+			return this._placemarkDeselectionMediator;
 		}
 		
 		/**
@@ -99,11 +130,10 @@ package inky.components.map.view.helpers
 			for (var mediatorClass:Object in this.mediators)
 				this.unregisterMediatorClass(mediatorClass as Class);
 
-			if (this._folderSelectionMediator)
-				this._folderSelectionMediator.destroy();
-
-			if (this._placemarkSelectionMediator)
-				this._placemarkSelectionMediator.destroy();
+			this._placemarkDeselectionMediator.destroy();
+			this._folderDeselectionMediator.destroy();
+			this._placemarkSelectionMediator.destroy();
+			this._folderSelectionMediator.destroy();
 		}
 		
 		/**
@@ -117,10 +147,7 @@ package inky.components.map.view.helpers
 		 */
 		public function registerMediatorClass(mediatorClass:Class):void
 		{
-			if (this.model)
-				this.mediators[mediatorClass] = this.createMediator(mediatorClass);
-			else
-				this.mediators[mediatorClass] = null;
+			this.mediators[mediatorClass] = this.createMediator(mediatorClass);
 		}
 		
 		/**
@@ -167,31 +194,7 @@ package inky.components.map.view.helpers
 		private function initializeForModel(model:IMapModel):void
 		{
 			this.model = model;
-
-			if (model)
-			{
-				this._controller = new this.controllerClass();
-				this.controller.model = model;
-				this._folderSelectionMediator = new FolderSelectionMediator(this.controller, this.map);
-				this._placemarkSelectionMediator = new PlacemarkSelectionMediator(this.controller, this.map);
-
-				for (var mediatorClass:Object in this.mediators)
-					this.mediators[mediatorClass] = this.createMediator(mediatorClass as Class);
-			}
-			else
-			{
-				if (this._folderSelectionMediator)
-					this._folderSelectionMediator.destroy();
-				
-				if (this._placemarkSelectionMediator)
-					this._placemarkSelectionMediator.destroy();
-				
-				for each (var mediator:Object in this.mediators)
-				{
-					if (mediator != null) 
-						mediator.destroy();
-				}
-			}
+			this.controller.model = model;
 		}
 
 	}

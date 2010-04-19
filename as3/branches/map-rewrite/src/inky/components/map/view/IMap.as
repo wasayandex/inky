@@ -62,46 +62,5 @@ package inky.components.map.view
 		function get placemarkRendererClass():Class;
 		function set placemarkRendererClass(value:Class):void;
 		
-		//---------------------------------------
-		// PUBLIC METHODS
-		//---------------------------------------
-		
-		/**
-		 * Adds a placemark to the map content.
-		 * 
-		 * @param placemark
-		 * 		The placemark to be added.
-		 */
-		function addPlacemark(placemark:Object):void;
-		
-		/**
-		 * Adds multiple placemarks to the map content.
-		 * 
-		 * @param placemarks
-		 * 		An array of the placemarks to be added.
-		 */
-		function addPlacemarks(placemarks:Array):void;
-		
-		/**
-		 * Removes all placemarks from the map content.
-		 */
-		function removeAllPlacemarks():void;
-		
-		/**
-		 * Removes a placemark from the map content.
-		 * 
-		 * @param placemark
-		 * 		The placemark to be removed.
-		 */
-		function removePlacemark(placemark:Object):void;
-		
-		/**
-		 * Removes multiple placemarks from the map content.
-		 * 
-		 * @param placemarks
-		 * 		An array of the placemarks to be removed.
-		 */
-		function removePlacemarks(placemarks:Array):void;
-	
 	}
 }

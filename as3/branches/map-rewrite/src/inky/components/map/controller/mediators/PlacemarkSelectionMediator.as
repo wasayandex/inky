@@ -2,7 +2,7 @@ package inky.components.map.controller.mediators
 {
 	import inky.components.map.controller.mediators.AbstractMapControllerMediator;
 	import inky.components.map.controller.IMapController;
-	import inky.components.map.view.events.MapEvent;
+	import inky.components.map.view.events.MapFeatureEvent;
 	
 	/**
 	 *
@@ -25,8 +25,7 @@ package inky.components.map.controller.mediators
 			this.controller = controller;
 			this.view = view;
 
-			this.addTrigger(MapEvent.SELECT_PLACEMARK_CLICKED);
-			this.addTrigger(MapEvent.DESELECT_PLACEMARK_CLICKED);
+			this.addTrigger(MapFeatureEvent.SELECT_PLACEMARK_TRIGGERED);
 		}
 		
 		//---------------------------------------
@@ -38,14 +37,7 @@ package inky.components.map.controller.mediators
 		 */
 		override protected function handleTrigger(trigger:String, site:Object):void
 		{
-			if (trigger == MapEvent.SELECT_PLACEMARK_CLICKED)
-			{
-				this.controller.selectPlacemark(site);
-			}
-			else if (trigger == MapEvent.DESELECT_PLACEMARK_CLICKED)
-			{
-				this.controller.deselectPlacemark(site);
-			}
+			this.controller.selectPlacemark(site);
 		}
 		
 	}

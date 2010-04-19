@@ -5,6 +5,8 @@ package inky.components.map.view.helpers
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import inky.utils.IDestroyable;
+	import inky.components.map.view.events.MapEvent;
 	
 	/**
 	 *
@@ -17,7 +19,7 @@ package inky.components.map.view.helpers
 	 *	@since  2010.04.12
 	 *
 	 */
-	public class PanningHelper extends MaskedMapViewHelper
+	public class PanningHelper extends MaskedMapViewHelper implements IDestroyable
 	{
 		private var _panningProxy:Object;
 		private var startDragPosition:Point;
@@ -30,7 +32,7 @@ package inky.components.map.view.helpers
 			super(map);
 
 			this.panningProxy = panningProxy;
-			this.content.addEventListener(MouseEvent.MOUSE_DOWN, this.content_mouseDownHandler);
+			this.contentContainer.addEventListener(MouseEvent.MOUSE_DOWN, this.content_mouseDownHandler);
 		}
 		
 		//---------------------------------------
@@ -60,6 +62,16 @@ package inky.components.map.view.helpers
 		//---------------------------------------
 		
 		/**
+		 * @inheritDoc
+		 */
+		public function destroy():void
+		{
+			this.contentContainer.removeEventListener(MouseEvent.MOUSE_DOWN, this.content_mouseDownHandler);
+			this.contentContainer.stage.removeEventListener(MouseEvent.MOUSE_MOVE, this.stage_mouseMoveHandler);
+			this.contentContainer.stage.removeEventListener(MouseEvent.MOUSE_UP, this.stage_mouseUpHandler);
+		}
+		
+		/**
 		 * Moves the map content.
 		 * 
 		 * @param x
@@ -70,8 +82,26 @@ package inky.components.map.view.helpers
 		public function moveContent(x:Number, y:Number):void
 		{
 			var obj:Object = this.panningProxy || this.map;
-			obj.contentY = y;
-			obj.contentX = x;
+
+			if (obj.contentX != x)
+				obj.contentX = x;
+			
+			if (obj.contentY != y)
+				obj.contentY = y;
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		override public function reset():void
+		{
+			super.reset();
+			
+			if (this.panningProxy)
+			{
+				this.panningProxy.contentX = this.contentX;
+				this.panningProxy.contentY = this.contentY;
+			}	
 		}
 		
 		//---------------------------------------
@@ -91,6 +121,7 @@ package inky.components.map.view.helpers
 				var dragBounds:Rectangle = this.getDragBounds();
 				this.contentContainer.x = Math.max(Math.min(dragBounds.right, this.contentX), dragBounds.left);
 				this.contentContainer.y = Math.max(Math.min(dragBounds.bottom, this.contentY), dragBounds.top);
+				this.content.dispatchEvent(new MapEvent(MapEvent.MOVE));
 			}
 		}
 		
@@ -103,7 +134,8 @@ package inky.components.map.view.helpers
 		 */
 		private function content_mouseDownHandler(event:MouseEvent):void
 		{
-			this.startMapDrag();
+			if (event.currentTarget == this.contentContainer)
+				this.startMapDrag();
 		}
 		
 		/**
@@ -128,8 +160,8 @@ package inky.components.map.view.helpers
 		private function startMapDrag():void
 		{
 			this.startDragPosition = new Point(this.content.mouseX - this.contentContainer.x, this.content.mouseY - this.contentContainer.y);
-			this.content.stage.addEventListener(MouseEvent.MOUSE_MOVE, this.stage_mouseMoveHandler);
-			this.content.stage.addEventListener(MouseEvent.MOUSE_UP, this.stage_mouseUpHandler);
+			this.contentContainer.stage.addEventListener(MouseEvent.MOUSE_MOVE, this.stage_mouseMoveHandler);
+			this.contentContainer.stage.addEventListener(MouseEvent.MOUSE_UP, this.stage_mouseUpHandler);
 		}
 		
 		/**
@@ -137,8 +169,8 @@ package inky.components.map.view.helpers
 		 */
 		private function stopMapDrag():void
 		{
-			this.content.stage.removeEventListener(MouseEvent.MOUSE_MOVE, this.stage_mouseMoveHandler);
-			this.content.stage.removeEventListener(MouseEvent.MOUSE_UP, this.stage_mouseUpHandler);
+			this.contentContainer.stage.removeEventListener(MouseEvent.MOUSE_MOVE, this.stage_mouseMoveHandler);
+			this.contentContainer.stage.removeEventListener(MouseEvent.MOUSE_UP, this.stage_mouseUpHandler);
 		}
 
 		/**

@@ -4,6 +4,12 @@ package inky.components.map.view
 	import inky.components.map.view.helpers.PanningHelper;
 	import inky.components.map.view.helpers.ZoomingHelper;
 	import flash.display.InteractiveObject;
+	import inky.components.map.view.helpers.TooltipHelper;
+	import inky.components.tooltip.ITooltip;
+	import inky.binding.utils.BindingUtil;
+	import flash.display.DisplayObject;
+	import inky.components.map.view.IInteractiveMap;
+	import inky.components.map.view.helpers.ShowPlacemarkHelper;
 	
 	/**
 	 *
@@ -22,10 +28,12 @@ package inky.components.map.view
 	 *	@since  2010.04.11
 	 *
 	 */
-	public class BaseInteractiveMap extends BaseMap
+	public class BaseInteractiveMap extends BaseMap implements IInteractiveMap
 	{
 		private var panningHelper:PanningHelper;
 		private var zoomingHelper:ZoomingHelper;
+		private var showPlacemarkHelper:ShowPlacemarkHelper;
+		private var tooltipHelper:TooltipHelper;
 		
 		/**
 		 * Creates a BaseInteractiveMap. 
@@ -33,14 +41,18 @@ package inky.components.map.view
 		 */
 		public function BaseInteractiveMap()
 		{
-			// TODO: Should we store exposed PanningHelper and ZoomingHelper values to account for a situation where a subclass sets them before calling super()?
 			this.panningHelper = new PanningHelper(this);
 			this.zoomingHelper = new ZoomingHelper(this);
+			this.tooltipHelper = new TooltipHelper(this, this.getPlacemarkRendererFor);
+			this.showPlacemarkHelper = new ShowPlacemarkHelper(this, this.getPlacemarkRendererFor);
+			BindingUtil.bindSetter(this.reset, this, "model");
 		}
 
 		//---------------------------------------
 		// ACCESSORS
 		//---------------------------------------
+
+// TODO: Store the exposed helper properties, in case a subclass delays super construction until after setting them?
 		
 		/**
 		 * @inheritDoc
@@ -163,6 +175,21 @@ package inky.components.map.view
 		}
 
 		/**
+		 * @copy inky.components.map.view.helpers.TooltipHelper#tooltip
+		 */
+		public function get tooltip():ITooltip
+		{ 
+			return this.tooltipHelper.tooltip;
+		}
+		/**
+		 * @private
+		 */
+		public function set tooltip(value:ITooltip):void
+		{
+			this.tooltipHelper.tooltip = value;
+		}
+
+		/**
 		 * @copy inky.components.map.view.helpers.ZoomingHelper#zoomInButton
 		 */
 		public function get zoomInButton():InteractiveObject
@@ -223,13 +250,25 @@ package inky.components.map.view
 		}
 		
 		//---------------------------------------
-		// PROTECTED METHODS
+		// PUBLIC METHODS
 		//---------------------------------------
 		
 		/**
+		 * @inheritDoc
+		 */
+		override public function destroy():void
+		{
+			super.destroy();
+			this.panningHelper.destroy();
+			this.zoomingHelper.destroy();
+			this.tooltipHelper.destroy();
+			this.showPlacemarkHelper.destroy();
+		}
+
+		/**
 		 * @copy inky.components.map.view.helpers.PanningHelper#moveContent
 		 */
-		protected function moveContent(x:Number, y:Number):void
+		public function moveContent(x:Number, y:Number):void
 		{
 			this.panningHelper.moveContent(x, y);
 		}
@@ -237,10 +276,40 @@ package inky.components.map.view
 		/**
 		 * @copy inky.components.map.view.helpers.ZoomingHelper#scaleContent
 		 */
-		protected function scaleContent(scaleX:Number, scaleY:Number):void
+		public function scaleContent(scaleX:Number, scaleY:Number):void
 		{
 			this.zoomingHelper.scaleContent(scaleX, scaleY);
 		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function showPlacemark(placemark:Object):void
+		{
+			this.showPlacemarkHelper.showPlacemark(placemark);
+		}
+		
+		//---------------------------------------
+		// PRIVATE METHODS
+		//---------------------------------------
+		
+		/**
+		 * 
+		 */
+		private function reset(model:Object):void
+		{
+			var contentContainer:DisplayObject = this.getContentContainer();
+			contentContainer.x = 
+			contentContainer.y = 0;
+			contentContainer.scaleX =
+			contentContainer.scaleY = this.minimumZoom;
+			
+			this.panningHelper.reset();
+			this.zoomingHelper.reset();
+			this.tooltipHelper.reset();
+			this.showPlacemarkHelper.reset();
+		}
+		
 	}
 	
 }

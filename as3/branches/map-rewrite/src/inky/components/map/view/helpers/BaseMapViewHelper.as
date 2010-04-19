@@ -4,7 +4,7 @@ package inky.components.map.view.helpers
 	import flash.display.DisplayObjectContainer;
 	import flash.display.Sprite;
 	import inky.layout.validation.LayoutValidator;
-	import inky.utils.ValidationState;
+	import inky.layout.utils.ValidationState;
 	
 	/**
 	 *
@@ -20,6 +20,7 @@ package inky.components.map.view.helpers
 	 */
 	public class BaseMapViewHelper
 	{
+		// TODO: Rename content to something more accurate, like mapAsDisplayObject??
 		protected var content:DisplayObjectContainer;
 		protected var contentContainer:Sprite;
 		private var contentContainerProxy:Object;
@@ -194,6 +195,18 @@ package inky.components.map.view.helpers
 				this.invalidateProperty('contentY');
 			}
 		}
+		
+		//---------------------------------------
+		// PUBLIC METHODS
+		//---------------------------------------
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function reset():void
+		{
+			this.contentContainerProxy = {};
+		}
 
 		//---------------------------------------
 		// PROTECTED METHODS
@@ -221,7 +234,7 @@ package inky.components.map.view.helpers
 		 */
 		protected function validate():void
 		{
-			this.layoutValidator.validationState.markAllPropertiesAsValid();
+			this.layoutValidator.markAllPropertiesAsValid();
 		}
 
 

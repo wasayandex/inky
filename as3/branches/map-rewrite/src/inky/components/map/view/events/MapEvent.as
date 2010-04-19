@@ -16,18 +16,15 @@ package inky.components.map.view.events
 	 */
 	public class MapEvent extends Event
 	{
-		private var _feature:Object;
-		
 		/**
-		 *  The <code>MapEvent.DESELECT_FOLDER_CLICKED</code> constant defines the value of the 
-		 *  <code>type</code> property of the event object for a <code>deselectFolderClicked</code> event.
+		 *  The <code>MapEvent.MOVE</code> constant defines the value of the 
+		 *  <code>type</code> property of the event object for a <code>move</code> event.
 		 * 
 		 *  <p>The properties of the event object have the following values:</p>
 		 *  <table class="innertable">
 		 *     <tr><th>Property</th><th>Value</th></tr>
-		 *     <tr><td><code>bubbles</code></td><td>false</td></tr>
+		 *     <tr><td><code>bubbles</code></td><td>true</td></tr>
 		 *     <tr><td><code>cancelable</code></td><td>false</td></tr>
-		 *     <tr><td><code>feature</code></td><td>The object that the event pertains to.</td></tr>
 		 *     <tr><td><code>currentTarget</code></td><td>The Object that defines the 
 		 *       event listener that handles the event. For example, if you use 
 		 *       <code>myButton.addEventListener()</code> to register an event listener, 
@@ -38,20 +35,19 @@ package inky.components.map.view.events
 		 *       Object listening for the event.</td></tr>
 		 *  </table>
 		 *
-		 *  @eventType deselectFolderClicked
+		 *  @eventType move
 		 */
-		public static const DESELECT_FOLDER_CLICKED:String = "deselectFolderClicked";
+		public static const MOVE:String = "move";
 		
 		/**
-		 *  The <code>MapEvent.DESELECT_PLACEMARK_CLICKED</code> constant defines the value of the 
-		 *  <code>type</code> property of the event object for a <code>deselectPlacemarkClicked</code> event.
+		 *  The <code>MapEvent.SCALE</code> constant defines the value of the 
+		 *  <code>type</code> property of the event object for a <code>scale</code> event.
 		 * 
 		 *  <p>The properties of the event object have the following values:</p>
 		 *  <table class="innertable">
 		 *     <tr><th>Property</th><th>Value</th></tr>
-		 *     <tr><td><code>bubbles</code></td><td>false</td></tr>
+		 *     <tr><td><code>bubbles</code></td><td>true</td></tr>
 		 *     <tr><td><code>cancelable</code></td><td>false</td></tr>
-		 *     <tr><td><code>feature</code></td><td>The object that the event pertains to.</td></tr>
 		 *     <tr><td><code>currentTarget</code></td><td>The Object that defines the 
 		 *       event listener that handles the event. For example, if you use 
 		 *       <code>myButton.addEventListener()</code> to register an event listener, 
@@ -62,84 +58,21 @@ package inky.components.map.view.events
 		 *       Object listening for the event.</td></tr>
 		 *  </table>
 		 *
-		 *  @eventType deselectPlacemarkClicked
+		 *  @eventType scale
 		 */
-		public static const DESELECT_PLACEMARK_CLICKED:String = "deselectPlacemarkClicked";
-
-		/**
-		 *  The <code>MapEvent.SELECT_FOLDER_CLICKED</code> constant defines the value of the 
-		 *  <code>type</code> property of the event object for a <code>selectFolderClicked</code> event.
-		 * 
-		 *  <p>The properties of the event object have the following values:</p>
-		 *  <table class="innertable">
-		 *     <tr><th>Property</th><th>Value</th></tr>
-		 *     <tr><td><code>bubbles</code></td><td>false</td></tr>
-		 *     <tr><td><code>cancelable</code></td><td>false</td></tr>
-		 *     <tr><td><code>feature</code></td><td>The object that the event pertains to.</td></tr>
-		 *     <tr><td><code>currentTarget</code></td><td>The Object that defines the 
-		 *       event listener that handles the event. For example, if you use 
-		 *       <code>myButton.addEventListener()</code> to register an event listener, 
-		 *       myButton is the value of the <code>currentTarget</code>. </td></tr>
-		 *     <tr><td><code>target</code></td><td>The Object that dispatched the event; 
-		 *       it is not always the Object listening for the event. 
-		 *       Use the <code>currentTarget</code> property to always access the 
-		 *       Object listening for the event.</td></tr>
-		 *  </table>
-		 *
-		 *  @eventType selectFolderClicked
-		 */
-		public static const SELECT_FOLDER_CLICKED:String = "selectFolderClicked";
-		
-		/**
-		 *  The <code>MapEvent.SELECT_PLACEMARK_CLICKED</code> constant defines the value of the 
-		 *  <code>type</code> property of the event object for a <code>selectPlacemarkClicked</code> event.
-		 * 
-		 *  <p>The properties of the event object have the following values:</p>
-		 *  <table class="innertable">
-		 *     <tr><th>Property</th><th>Value</th></tr>
-		 *     <tr><td><code>bubbles</code></td><td>false</td></tr>
-		 *     <tr><td><code>cancelable</code></td><td>false</td></tr>
-		 *     <tr><td><code>feature</code></td><td>The object that the event pertains to.</td></tr>
-		 *     <tr><td><code>currentTarget</code></td><td>The Object that defines the 
-		 *       event listener that handles the event. For example, if you use 
-		 *       <code>myButton.addEventListener()</code> to register an event listener, 
-		 *       myButton is the value of the <code>currentTarget</code>. </td></tr>
-		 *     <tr><td><code>target</code></td><td>The Object that dispatched the event; 
-		 *       it is not always the Object listening for the event. 
-		 *       Use the <code>currentTarget</code> property to always access the 
-		 *       Object listening for the event.</td></tr>
-		 *  </table>
-		 *
-		 *  @eventType selectPlacemarkClicked
-		 */
-		public static const SELECT_PLACEMARK_CLICKED:String = "selectPlacemarkClicked";
-		
+		public static const SCALE:String = "scale";
+				
 		/**
 		 *  Constructor.
 		 *
 		 *  @param type
 		 *      The event type; indicates the action that caused the event.
-		 *  @param feature
-		 * 		The object that the event pertains to.
 		 */
-		public function MapEvent(type:String, feature:Object = null)
+		public function MapEvent(type:String)
 		{
 			super(type, true, false);
-			this._feature = feature;
 		}
 		
-		//---------------------------------------
-		// ACCESSORS
-		//---------------------------------------
-		
-		/**
-		 * Gets the object that the event pertains to.
-		 */
-		public function get feature():Object
-		{
-			return this._feature;
-		}
-
 		//---------------------------------------
 		// PUBLIC METHODS
 		//---------------------------------------
@@ -149,7 +82,7 @@ package inky.components.map.view.events
 		 */
 		override public function clone():Event
 		{
-			return new MapEvent(this.type, this.feature);
+			return new MapEvent(this.type);
 		}
 
 		/**
@@ -157,7 +90,7 @@ package inky.components.map.view.events
 		 */
 		public override function toString():String
 		{
-			return this.formatToString("MapEvent", "feature");
+			return this.formatToString("MapEvent");
 		}
 
 	}

@@ -2,8 +2,7 @@ package inky.components.map.view
 {
 	import inky.components.map.view.BaseInteractiveMap;
 	import inky.components.map.view.helpers.ControllerHelper;
-	import flash.events.MouseEvent;
-	import inky.components.map.view.events.MapEvent;
+	import inky.components.map.controller.MapController;
 	
 	/**
 	 *
@@ -14,7 +13,7 @@ package inky.components.map.view
 	 *  use BaseInteractiveMap instead.
 	 *	
 	 *  @see inky.components.map.view.IMap
-	 *  @see inky.components.map.view.InteractiveMap
+	 *  @see inky.components.map.view.BaseInteractiveMap
 	 * 
 	 * 	@langversion ActionScript 3
 	 *	@playerversion Flash 9.0.0
@@ -25,15 +24,15 @@ package inky.components.map.view
 	 */
 	public class InteractiveMap extends BaseInteractiveMap
 	{
-		private var _controllerHelper:ControllerHelper;
 		private var _controllerClass:Class;
-
+		private var controllerHelper:ControllerHelper;
+		
 		/**
-		 * Creates an InteractiveMap.
+		 *
 		 */
 		public function InteractiveMap()
 		{
-			this.addEventListener(MouseEvent.CLICK, this.clickHandler);
+			this.controllerClass = MapController;
 		}
 		
 		//---------------------------------------
@@ -41,74 +40,177 @@ package inky.components.map.view
 		//---------------------------------------
 		
 		/**
-		 * @copy inky.components.map.view.Map#controllerClass
+		 * Sets the controller class that is created by the controller helper.
+		 * Set this to a custom controller class to easily modify the behavior of the 
+		 * map interaction.
+		 * 
+		 * @see inky.components.map.controller.IMapController
+		 * @see inky.components.map.controller.MapController
 		 */
 		public function set controllerClass(value:Class):void
 		{
-			if (this._controllerHelper)
-				this._controllerHelper.destroy();
+			var oldValue:Class = this._controllerClass;
+			if (oldValue != value)
+			{
+				this._controllerClass = value;
 
-			this._controllerClass = value;
+				if (this.controllerHelper)
+					this.controllerHelper.destroy();
+
+				if (value)
+					this.controllerHelper = new ControllerHelper(this, value);
+			}
 		}
 		
 		//---------------------------------------
 		// PUBLIC METHODS
 		//---------------------------------------
-		
+
 		/**
-		 * @copy inky.components.map.view.Map#addFolderSelectionTrigger
+		 * Adds a trigger (event type) that the controller should respond to by making a 
+		 * folder deselection. The trigger is typically an event that is the result of user 
+		 * interaction with the view, such as a click event, and a mediator typically 
+		 * responds to the trigger by executing methods on the controller.
+		 * 
+		 * @param trigger
+		 * 		The trigger (event type) to handle.
+		 * 
+		 * @param targetValidator
+		 * 		A method used to check the trigger (event) target. If the target doesn't 
+		 * 		validate, the trigger action is not invoked.
+		 * 
+		 * @param siteFilter
+		 * 		A method used to determine the intended site for the action invoked by the trigger. 
+		 * 
+		 * @see #addFolderSelectionTrigger
+		 * @see #addPlacemarkDeselectionTrigger
+		 * @see #addPlacemarkSelectionTrigger
+		 * @see inky.components.map.controller.mediators.IMapControllerMediator
+		 * @see inky.components.map.controller.mediators.FolderDeselectionMediator
 		 */
-		public function addFolderSelectionTrigger(trigger:String, siteFilter:Function = null):void
+		public function addFolderDeselectionTrigger(trigger:String, targetValidator:Function = null, siteFilter:Function = null):void
 		{
-			this.getControllerHelper().folderSelectionMediator.addTrigger(trigger, siteFilter);
+			this.controllerHelper.folderDeselectionMediator.addTrigger(trigger, targetValidator, siteFilter);
 		}
 		
 		/**
-		 * @copy inky.components.map.view.Map#addPlacemarkSelectionTrigger
+		 * Adds a trigger (event type) that the controller should respond to by making a 
+		 * folder selection. The trigger is typically an event that is the result of user 
+		 * interaction with the view, such as a click event, and a mediator typically 
+		 * responds to the trigger by executing methods on the controller.
+		 * 
+		 * @param trigger
+		 * 		The trigger (event type) to handle.
+		 * 
+		 * @param targetValidator
+		 * 		A method used to check the trigger (event) target. If the target doesn't 
+		 * 		validate, the trigger action is not invoked.
+		 * 
+		 * @param siteFilter
+		 * 		A method used to determine the intended site for the action invoked by the trigger. 
+		 * 
+		 * @see #addFolderDeselectionTrigger
+		 * @see #addPlacemarkDeselectionTrigger
+		 * @see #addPlacemarkSelectionTrigger
+		 * @see inky.components.map.controller.mediators.IMapControllerMediator
+		 * @see inky.components.map.controller.mediators.FolderSelectionMediator
 		 */
-		public function addPlacemarkSelectionTrigger(trigger:String, siteFilter:Function = null):void
+		public function addFolderSelectionTrigger(trigger:String, targetValidator:Function = null, siteFilter:Function = null):void
 		{
-			this.getControllerHelper().placemarkSelectionMediator.addTrigger(trigger, siteFilter);
+			this.controllerHelper.folderSelectionMediator.addTrigger(trigger, targetValidator, siteFilter);
+		}
+
+		/**
+		 * Adds a trigger (event type) that the controller should respond to by making a 
+		 * placemark deselection. The trigger is typically an event that is the result of 
+		 * user interaction with the view, such as a click event, and a mediator 
+		 * typically responds to the trigger by executing methods on the controller.
+		 * 
+		 * @param trigger
+		 * 		The trigger (event type) to handle.
+		 * 
+		 * @param targetValidator
+		 * 		A method used to check the trigger (event) target. If the target doesn't 
+		 * 		validate, the trigger action is not invoked.
+		 * 
+		 * @param siteFilter
+		 * 		A method used to determine the intended site for the action invoked by the trigger. 
+		 * 
+		 * @see #addFolderSelectionTrigger
+		 * @see #addFolderDeselectionTrigger
+		 * @see #addPlacemarkSelectionTrigger
+		 * @see inky.components.map.controller.mediators.IMapControllerMediator
+		 * @see inky.components.map.controller.mediators.PlacemarkDeselectionMediator
+		 */
+		public function addPlacemarkDeselectionTrigger(trigger:String, targetValidator:Function = null, siteFilter:Function = null):void
+		{
+			this.controllerHelper.placemarkDeselectionMediator.addTrigger(trigger, targetValidator, siteFilter);
 		}
 		
 		/**
-		 * @copy inky.components.map.view.Map#registerMediatorClass
+		 * Adds a trigger (event type) that the controller should respond to by making a 
+		 * placemark selection. The trigger is typically an event that is the result of 
+		 * user interaction with the view, such as a click event, and a mediator 
+		 * typically responds to the trigger by executing methods on the controller.
+		 * 
+		 * @param trigger
+		 * 		The trigger (event type) to handle.
+		 * 
+		 * @param targetValidator
+		 * 		A method used to check the trigger (event) target. If the target doesn't 
+		 * 		validate, the trigger action is not invoked.
+		 * 
+		 * @param siteFilter
+		 * 		A method used to determine the intended site for the action invoked by the trigger. 
+		 * 
+		 * @see #addPlacemarkDeselectionTrigger
+		 * @see #addFolderSelectionTrigger
+		 * @see #addFolderDeselectionTrigger
+		 * @see inky.components.map.controller.mediators.IMapControllerMediator
+		 * @see inky.components.map.controller.mediators.PlacemakrSelectionMediator
+		 */
+		public function addPlacemarkSelectionTrigger(trigger:String, targetValidator:Function = null, siteFilter:Function = null):void
+		{
+			this.controllerHelper.placemarkSelectionMediator.addTrigger(trigger, targetValidator, siteFilter);
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		override public function destroy():void
+		{
+			super.destroy();
+			this.controllerHelper.destroy();
+		}
+		
+		/**
+		 * Registers a mediator class with the controller helper. The mediator is 
+		 * instantiated by the controller helper.
+		 * 
+		 * @param mediatorClass
+		 * 		The IMapControllerMediator class to register.
+		 * 
+		 * @see inky.components.map.controller.mediators.IMapControllerMediator
+		 * @see inky.components.map.view.helpers.ControllerHelper#registerMediatorClass
 		 */
 		public function registerMediatorClass(mediatorClass:Class):void
 		{
-			this.getControllerHelper().registerMediatorClass(mediatorClass);
+			this.controllerHelper.registerMediatorClass(mediatorClass);
 		}
 		
 		/**
-		 * @copy inky.components.map.view.Map#unregisterMediatorClass
+		 * Unregisters a mediator class with the controller helper. Any instances of the 
+		 * mediator class that were created by the controller helper are destroyed.
+		 * 
+		 * @param mediatorClass
+		 * 		The IMapControllerMediator class to unregister.
+		 * 
+		 * @see inky.components.map.controller.mediators.IMapControllerMediator
+		 * @see inky.components.map.view.helpers.ControllerHelper#unregisterMediatorClass
 		 */
 		public function unregisterMediatorClass(mediatorClass:Class):void
 		{
-			this.getControllerHelper().unregisterMediatorClass(mediatorClass);
-		}
-		
-		//---------------------------------------
-		// PRIVATE METHODS
-		//---------------------------------------
-
-		/**
-		 * 
-		 */
-		private function clickHandler(event:MouseEvent):void
-		{
-			if (!this.placemarkRendererClass)
-				return;
-
-			if (event.target is this.placemarkRendererClass)
-				this.dispatchEvent(new MapEvent(MapEvent.SELECT_PLACEMARK_CLICKED, event.target.model));
-		}
-		
-		/**
-		 * 
-		 */
-		private function getControllerHelper():ControllerHelper
-		{
-			return this._controllerHelper || (this._controllerHelper = new ControllerHelper(this, this._controllerClass));
+			this.controllerHelper.unregisterMediatorClass(mediatorClass);
 		}
 
 	}
