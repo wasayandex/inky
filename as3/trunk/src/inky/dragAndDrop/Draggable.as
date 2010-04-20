@@ -13,9 +13,6 @@ package inky.dragAndDrop
 	import flash.events.Event;
 	import inky.display.utils.removeFromDisplayList;
 	import flash.display.Stage;
-	import inky.dragAndDrop.cursors.DraggingCursor;
-	import inky.dragAndDrop.cursors.DraggableCursor;
-
 
 	/**
 	 *
@@ -49,13 +46,8 @@ package inky.dragAndDrop
 		/**
 		 *
 		 */
-		public function Draggable(sprite:InteractiveObject, lockCenter:Boolean = false, bounds:Rectangle = null, draggingCursorOrClass:* = undefined, draggableCursorOrClass:* = undefined, positionProxy:Object = null)
+		public function Draggable(sprite:InteractiveObject, lockCenter:Boolean = false, bounds:Rectangle = null, draggingCursorOrClass:Object = null, draggableCursorOrClass:Object = null, positionProxy:Object = null)
 		{
-			if (draggableCursorOrClass === undefined)
-				draggableCursorOrClass = DraggableCursor;
-			if (draggingCursorOrClass === undefined)
-				draggingCursorOrClass = DraggingCursor;
-			
 			this._isDraggable = true;
 			this.draggingCursorOrClass = draggingCursorOrClass;
 			this.draggableCursorOrClass = draggableCursorOrClass;
