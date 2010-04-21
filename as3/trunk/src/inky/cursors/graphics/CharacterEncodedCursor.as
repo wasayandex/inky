@@ -1,4 +1,4 @@
-package inky.dragAndDrop.cursors 
+package inky.cursors.graphics
 {
 	import flash.display.Sprite;
 	

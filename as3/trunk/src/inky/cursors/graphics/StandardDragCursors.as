@@ -1,7 +1,7 @@
-package inky.dragAndDrop.cursors 
+package inky.cursors.graphics
 {
 	import flash.display.Sprite;
-	import inky.dragAndDrop.cursors.CharacterEncodedCursor;
+	import inky.cursors.graphics.CharacterEncodedCursor;
 
 	/**
 	 *
