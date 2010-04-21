@@ -333,7 +333,7 @@ package inky.components.map.model
 				{
 					// Workaround for an Array.splice() bug. See comments from matthew@exanimo.com: http://livedocs.adobe.com/flash/9.0/ActionScriptLangRefV3/Array.html#comments
 					var arr:Array = feature is Array ? feature as Array : [feature];
-					arr.unshift(-1, 0);
+					arr.unshift(features.length, 0);
 					features.splice.apply(null, arr);
 				}
 			}
