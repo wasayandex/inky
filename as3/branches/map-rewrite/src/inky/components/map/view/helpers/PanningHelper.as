@@ -7,6 +7,7 @@ package inky.components.map.view.helpers
 	import inky.components.map.view.events.MapEvent;
 	import inky.dragAndDrop.Draggable;
 	import inky.dragAndDrop.DraggableCursors;
+	import inky.cursors.graphics.StandardDragCursors;
 	
 	/**
 	 *
@@ -23,6 +24,7 @@ package inky.components.map.view.helpers
 	{
 		private var draggable:Draggable;
 		private var _panningProxy:Object;
+		private var draggableCursors:DraggableCursors;
 		
 		/**
 		 * @copy inky.components.map.view.helpers.MaskedMapViewHelper
@@ -32,6 +34,7 @@ package inky.components.map.view.helpers
 			super(map);
 			this.panningProxy = panningProxy;
 			this.draggable = new Draggable(this.contentContainer, false, this.getDragBounds());
+			this.draggableCursors = new DraggableCursors(this.draggable);
 		}
 		
 		//---------------------------------------
