@@ -18,23 +18,22 @@ package
 	 */
 	public class DraggableCursorsExample extends Sprite
 	{
-		private var cursorManager:CursorManager;
-		
 		/**
 		 *
 		 */
 		public function DraggableCursorsExample()
 		{
-			// Register the cursors for our application.
-			this.cursorManager = CursorManager.getInstance(this.stage);
-			this.cursorManager.registerCursors([
-				{id: CursorManager.DEFAULT, cursor: "DefaultCursor"},
-				{id: DraggableCursors.DRAGGABLE_CURSOR, cursor: "DraggableCursor"},
-				{id: CursorManager.POINTER, cursor: "PointerCursor"},
-				{id: DraggableCursors.DRAGGING_CURSOR, cursor: "DraggingCursor"}
-			]);
+			// Register the cursors for our application. Note that the order is
+			// important because it dictates priority. If you want to use the
+			// system cursor for the default or pointer, pass null as the
+			// second argument.
+			var cursorManager:CursorManager = CursorManager.getInstance(this.stage);
+			cursorManager.registerCursor(CursorManager.DEFAULT, "DefaultCursor");
+			cursorManager.registerCursor(DraggableCursors.DRAGGABLE_CURSOR, "DraggableCursor");
+			cursorManager.registerCursor(CursorManager.POINTER, "PointerCursor");
+			cursorManager.registerCursor(DraggableCursors.DRAGGING_CURSOR, "DraggingCursor");			
 
-			// Create draggables and then give them cursors.
+			// Create draggables and then give them cursors (using the default DraggableCursors ids).
 			new DraggableCursors(new Draggable(this.redBox));
 			new DraggableCursors(new Draggable(this.blueBox));
 			
