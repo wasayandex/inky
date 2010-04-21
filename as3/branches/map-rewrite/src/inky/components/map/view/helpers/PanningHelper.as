@@ -2,11 +2,11 @@ package inky.components.map.view.helpers
 {
 	import inky.components.map.view.helpers.MaskedMapViewHelper;
 	import inky.components.map.view.IMap;
-	import flash.events.MouseEvent;
-	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import inky.utils.IDestroyable;
 	import inky.components.map.view.events.MapEvent;
+	import inky.dragAndDrop.Draggable;
+	import inky.dragAndDrop.DraggableCursors;
 	
 	/**
 	 *
@@ -21,8 +21,8 @@ package inky.components.map.view.helpers
 	 */
 	public class PanningHelper extends MaskedMapViewHelper implements IDestroyable
 	{
+		private var draggable:Draggable;
 		private var _panningProxy:Object;
-		private var startDragPosition:Point;
 		
 		/**
 		 * @copy inky.components.map.view.helpers.MaskedMapViewHelper
@@ -30,9 +30,8 @@ package inky.components.map.view.helpers
 		public function PanningHelper(map:IMap, panningProxy:Object = null)
 		{
 			super(map);
-
 			this.panningProxy = panningProxy;
-			this.contentContainer.addEventListener(MouseEvent.MOUSE_DOWN, this.content_mouseDownHandler);
+			this.draggable = new Draggable(this.contentContainer, false, this.getDragBounds());
 		}
 		
 		//---------------------------------------
@@ -54,7 +53,11 @@ package inky.components.map.view.helpers
 		 */
 		public function set panningProxy(value:Object):void
 		{
-			this._panningProxy = value;
+			if (value != this._panningProxy)
+			{
+				this._panningProxy = value;
+				this.draggable.positionProxy = value ? new DragProxy(value) : null;
+			}
 		}
 		
 		//---------------------------------------
@@ -66,9 +69,6 @@ package inky.components.map.view.helpers
 		 */
 		public function destroy():void
 		{
-			this.contentContainer.removeEventListener(MouseEvent.MOUSE_DOWN, this.content_mouseDownHandler);
-			this.contentContainer.stage.removeEventListener(MouseEvent.MOUSE_MOVE, this.stage_mouseMoveHandler);
-			this.contentContainer.stage.removeEventListener(MouseEvent.MOUSE_UP, this.stage_mouseUpHandler);
 		}
 		
 		/**
@@ -88,6 +88,14 @@ package inky.components.map.view.helpers
 			
 			if (obj.contentY != y)
 				obj.contentY = y;
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		override public function onOverlayUpdated():void
+		{
+			this.draggable.bounds = this.getDragBounds();
 		}
 		
 		/**
@@ -124,70 +132,51 @@ package inky.components.map.view.helpers
 				this.content.dispatchEvent(new MapEvent(MapEvent.MOVE));
 			}
 		}
-		
-		//---------------------------------------
-		// PRIVATE METHODS
-		//---------------------------------------
-		
-		/**
-		 * 
-		 */
-		private function content_mouseDownHandler(event:MouseEvent):void
-		{
-			if (event.currentTarget == this.contentContainer)
-				this.startMapDrag();
-		}
-		
-		/**
-		 * 
-		 */
-		private function stage_mouseMoveHandler(event:MouseEvent):void
-		{
-			this.updateMapDrag();
-		}
-
-		/**
-		 * 
-		 */
-		private function stage_mouseUpHandler(event:MouseEvent):void
-		{
-			this.stopMapDrag();
-		}
-		
-		/**
-		 * Starts monitoring mouse movement.
-		 */
-		private function startMapDrag():void
-		{
-			this.startDragPosition = new Point(this.content.mouseX - this.contentContainer.x, this.content.mouseY - this.contentContainer.y);
-			this.contentContainer.stage.addEventListener(MouseEvent.MOUSE_MOVE, this.stage_mouseMoveHandler);
-			this.contentContainer.stage.addEventListener(MouseEvent.MOUSE_UP, this.stage_mouseUpHandler);
-		}
-		
-		/**
-		 * Stops monitoring mouse movement.
-		 */
-		private function stopMapDrag():void
-		{
-			this.contentContainer.stage.removeEventListener(MouseEvent.MOUSE_MOVE, this.stage_mouseMoveHandler);
-			this.contentContainer.stage.removeEventListener(MouseEvent.MOUSE_UP, this.stage_mouseUpHandler);
-		}
-
-		/**
-		 * Updates the content based on mouse position.
-		 */
-		private function updateMapDrag():void
-		{
-			var x:Number = this.content.mouseX - this.startDragPosition.x;
-			var y:Number = this.content.mouseY - this.startDragPosition.y;
-
-			var dragBounds:Rectangle = this.getDragBounds();
-			x = Math.max(Math.min(x, dragBounds.x + dragBounds.width), dragBounds.x);
-			y = Math.max(Math.min(y, dragBounds.y + dragBounds.height), dragBounds.y);
-			
-			this.moveContent(x, y);
-		}
 
 	}
 	
+}
+
+
+class DragProxy
+{
+	private var proxiedObject:Object;
+	
+	/**
+	 *
+	 */
+	public function DragProxy(proxiedObject:Object)
+	{
+		this.proxiedObject = proxiedObject;
+	}
+	
+	/**
+	 * 
+	 */
+	public function set x(value:Number):void
+	{
+		this.proxiedObject.contentX = value;
+	}
+	/**
+	 * @private
+	 */
+	public function get x():Number
+	{
+		return this.proxiedObject.contentX;
+	}
+	
+	/**
+	 * 
+	 */
+	public function set y(value:Number):void
+	{
+		this.proxiedObject.contentY = value;
+	}
+	/**
+	 * @private
+	 */
+	public function get y():Number
+	{
+		return this.proxiedObject.contentY;
+	}
 }

@@ -5,6 +5,7 @@ package inky.components.map.view.helpers
 	import flash.display.Sprite;
 	import inky.layout.validation.LayoutValidator;
 	import inky.layout.utils.ValidationState;
+	import flash.events.EventDispatcher;
 	
 	/**
 	 *
@@ -18,7 +19,7 @@ package inky.components.map.view.helpers
 	 *	@since  2010.04.12
 	 *
 	 */
-	public class BaseMapViewHelper
+	public class BaseMapViewHelper extends EventDispatcher
 	{
 		// TODO: Rename content to something more accurate, like mapAsDisplayObject??
 		protected var content:DisplayObjectContainer;
@@ -199,6 +200,13 @@ package inky.components.map.view.helpers
 		//---------------------------------------
 		// PUBLIC METHODS
 		//---------------------------------------
+		
+		/**
+		 * 
+		 */
+		public function onOverlayUpdated():void
+		{
+		}
 		
 		/**
 		 * @inheritDoc

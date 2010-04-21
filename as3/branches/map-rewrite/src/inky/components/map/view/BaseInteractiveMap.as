@@ -10,6 +10,7 @@ package inky.components.map.view
 	import flash.display.DisplayObject;
 	import inky.components.map.view.IInteractiveMap;
 	import inky.components.map.view.helpers.ShowPlacemarkHelper;
+	import flash.events.Event;
 	
 	/**
 	 *
@@ -41,6 +42,8 @@ package inky.components.map.view
 		 */
 		public function BaseInteractiveMap()
 		{
+			super();
+			this.overlayLoader.addEventListener("overlayUpdated", this.overlayLoader_overlayUpdatedHandler);
 			this.panningHelper = new PanningHelper(this);
 			this.zoomingHelper = new ZoomingHelper(this);
 			this.tooltipHelper = new TooltipHelper(this, this.getPlacemarkRendererFor);
@@ -292,6 +295,22 @@ package inky.components.map.view
 		//---------------------------------------
 		// PRIVATE METHODS
 		//---------------------------------------
+		
+		/**
+		 * 
+		 */
+		private function overlayLoader_overlayUpdatedHandler(event:Event):void
+		{
+			for each (var helper:Object in [
+				this.panningHelper,
+				this.zoomingHelper,
+				this.showPlacemarkHelper,
+				this.tooltipHelper
+			])
+			{
+				helper.onOverlayUpdated();
+			}
+		}
 		
 		/**
 		 * 

@@ -9,6 +9,7 @@ package inky.components.map.view.helpers
 	import inky.binding.utils.IChangeWatcher;
 	import flash.utils.getDefinitionByName;
 	import flash.display.DisplayObject;
+	import flash.events.Event;
 	
 	/**
 	 *
@@ -77,6 +78,8 @@ package inky.components.map.view.helpers
 					var overlayClass:Class = getDefinitionByName(url.replace(/^lib:\/\//, "")) as Class;
 					var overlay:DisplayObject = new overlayClass() as DisplayObject;
 					this.overlayContainer.addChild(overlay);
+					
+					this.dispatchEvent(new Event("overlayUpdated"));
 				}
 			}
 		}

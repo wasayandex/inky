@@ -28,8 +28,8 @@ package inky.components.map.view
 	public class BaseMap extends Sprite implements IMap
 	{
 		private var changeWatchers:Array;
-		private var overlayLoader:OverlayLoader;
-		private var placemarkPlotter:PlacemarkPlotter;
+		protected var overlayLoader:OverlayLoader;
+		protected var placemarkPlotter:PlacemarkPlotter;
 		private var _model:IMapModel;
 		private var _placemarkRendererClass:Class;
 		
