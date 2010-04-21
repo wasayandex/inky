@@ -58,6 +58,18 @@ package inky.cursors
 		//---------------------------------------
 		// PUBLIC METHODS
 		//---------------------------------------
+		
+		/**
+		 * 
+		 */
+		public function getPriority(id:String):int
+		{
+			var priority:int = -1;
+			var data:Object = this.idMap[id];
+			if (data)
+				priority = this.priorityMap.indexOf(data);
+			return priority;
+		}
 
 		/**
 		 * 
@@ -83,25 +95,6 @@ package inky.cursors
 			return removed;
 		}
 
-		/**
-		 * 
-		 */
-		public function setCursor(id:String):CursorToken
-		{
-			if (!this.idMap[id])
-				throw new ArgumentError("No cursor has been registered for id \"" + id + "\"");
-			
-			var token:CursorToken = new CursorToken(this, id);
-			
-			if (!this.activeCursors[id])
-				this.activeCursors[id] = [];
-			this.activeCursors[id].push(token);
-
-			this.updateCursor();
-			
-			return token;
-		}
-		
 		/**
 		 * Register a cursor type.
 		 */
@@ -139,7 +132,26 @@ package inky.cursors
 					priority++;
 			}
 		}
-		
+
+		/**
+		 * 
+		 */
+		public function setCursor(id:String):CursorToken
+		{
+			if (!this.idMap[id])
+				throw new ArgumentError("No cursor has been registered for id \"" + id + "\"");
+			
+			var token:CursorToken = new CursorToken(this, id);
+			
+			if (!this.activeCursors[id])
+				this.activeCursors[id] = [];
+			this.activeCursors[id].push(token);
+
+			this.updateCursor();
+			
+			return token;
+		}
+
 		/**
 		 * 
 		 */
