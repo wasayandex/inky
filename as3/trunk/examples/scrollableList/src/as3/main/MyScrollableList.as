@@ -1,1 +1,34 @@
-﻿package{	import caurina.transitions.Tweener;	import inky.framework.components.listViews.scrollableList.ScrollableList;	import flash.display.DisplayObjectContainer;	import flash.display.Sprite;	import flash.text.TextField;	/**	 *	 *		 */	public class MyScrollableList extends ScrollableList	{		override protected function moveContent(x:Number, y:Number):void		{			var contentContainer:DisplayObjectContainer = this.getContentContainer();			Tweener.addTween(contentContainer, {x: x, y: y, time: 3, onUpdate: this.invalidate});		}	}}
+﻿package
+{
+	import inky.components.listViews.scrollableList.ScrollableList;
+	import com.gskinner.motion.GTween;
+	import com.gskinner.motion.easing.Exponential;
+
+	/**
+	 *
+	 *	
+	 */
+	public class MyScrollableList extends ScrollableList
+	{
+		private var tween:GTween;
+		
+		/**
+		 *
+		 */
+		public function MyScrollableList()
+		{
+			this.itemRendererClass = MyListItem;
+			this.tween = new GTween(this.getContentContainer(), 0.5, null, {ease: Exponential.easeOut, onChange: this.tweenChangeHandler});
+			this.contentContainerProxy = this.tween.proxy;
+		}
+
+		/**
+		 * 
+		 */
+		private function tweenChangeHandler(tween:GTween):void
+		{
+			this.invalidate();
+		}
+
+	}
+}

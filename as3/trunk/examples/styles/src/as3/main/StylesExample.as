@@ -1,9 +1,9 @@
 ﻿package
 {
 	import flash.display.Sprite;
-	import inky.framework.styles.StyleSheet;
-	import inky.framework.styles.StyleManager;
-	import inky.framework.styles.StyleableTextField;
+	import inky.styles.StyleSheet;
+	import inky.styles.StyleManager;
+	import inky.styles.StyleableTextField;
 	import flash.net.URLLoader;
 	import flash.events.Event;
 	import flash.net.URLRequest;
@@ -22,7 +22,7 @@
 	 */
 	public class StylesExample extends Sprite
 	{
-		private var _loader:URLLoader
+		private var cssLoader:URLLoader
 
 
 		/**
@@ -31,16 +31,16 @@
 		public function StylesExample()
 		{
 			// Load the stylesheet.
-			this._loader = new URLLoader();
-			this._loader.addEventListener(Event.COMPLETE, this._cssLoadCompleteHandler);
-			this._loader.load(new URLRequest("example.css"));
+			this.cssLoader = new URLLoader();
+			this.cssLoader.addEventListener(Event.COMPLETE, this.cssLoader_completeHandler);
+			this.cssLoader.load(new URLRequest("example.css"));
 		}
 
 
 		/**
 		 *	Applies the styles once the style sheet is loaded.
 		 */
-		private function _cssLoadCompleteHandler(event:Event):void
+		private function cssLoader_completeHandler(event:Event):void
 		{
 			// Create a new stylesheet.
 			var myStyleSheet:StyleSheet = new StyleSheet();
