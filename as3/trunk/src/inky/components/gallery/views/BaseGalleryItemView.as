@@ -370,14 +370,12 @@
 		{
 			if (this.progressBar && this.progressBar.parent)
 			{
-				if (this.progressBar is ITransitioningObject)
-				{
-					ITransitioningObject(this.progressBar).remove();
-				}
+// TODO: Use ITransitioningObject when that gets sorted out.
+				var progressBar:* = this.progressBar;
+				if (progressBar.hasOwnProperty("remove") && progressBar.remove is Function)
+					progressBar.remove();
 				else
-				{
 					this.progressBar.parent.removeChild(DisplayObject(this.progressBar));
-				}
 			}
 		}
 		
