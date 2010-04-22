@@ -6,8 +6,7 @@
 	import flash.display.DisplayObjectContainer;
 	import flash.geom.Rectangle;
 	import inky.layout.ILayout;
-	import inky.layout.ILayoutConstraints;
-	import flash.utils.Dictionary;
+	import inky.layout.layouts.AbstractConstrainedLayout;
 	
 	/**
 	 *
@@ -20,10 +19,9 @@
 	 *	@since  2009.07.31
 	 *
 	 */
-	public class GridLayout implements ILayout
+	public class GridLayout extends AbstractConstrainedLayout implements ILayout
 	{
 		private var _columnWidths:Array;
-		private var _constraints:Dictionary;
 		private var _horizontalSpacing:Number;
 		private var _numColumns:uint;
 		private var _numRows:uint;
@@ -31,9 +29,6 @@
 		private var _verticalSpacing:Number;
 		private var _x:Number;
 		private var _y:Number;
-
-
-
 
 		/**
 		 *
@@ -53,20 +48,15 @@
 		{
 			this._x =
 			this._y = 0;
-			this._constraints = new Dictionary(true);
 			this.numColumns = numColumns;
 			this.numRows = numRows;
 			this.horizontalSpacing = horizontalSpacing;
 			this.verticalSpacing = verticalSpacing;
 		}
 
-
-
-
-		//
-		// accessors
-		//
-
+		//---------------------------------------
+		// ACCESSORS
+		//---------------------------------------
 
 		/**
 		 *
@@ -83,7 +73,6 @@
 			this._columnWidths = columnWidths;
 		}
 
-
 		/**
 		 *
 		 */
@@ -98,7 +87,6 @@
 		{
 			this._horizontalSpacing = horizontalSpacing;
 		}
-
 
 		/**
 		 *
@@ -115,7 +103,6 @@
 			this._numColumns = numColumns;
 		}
 
-
 		/**
 		 *
 		 */
@@ -130,7 +117,6 @@
 		{
 			this._numRows = numRows;
 		}
-
 
 		/**
 		 *
@@ -147,7 +133,6 @@
 			this._rowHeights = rowHeights;
 		}
 
-
 		/**
 		 *
 		 */
@@ -162,7 +147,6 @@
 		{
 			this._verticalSpacing = verticalSpacing;
 		}
-
 
 		/**
 		 *
@@ -179,7 +163,6 @@
 			this._x = value;
 		}
 
-
 		/**
 		 *
 		 */
@@ -195,29 +178,14 @@
 			this._y = value;
 		}
 
-
-
-
-		//
-		// public methods
-		//
-
-
-		/**
-		 *
-		 * Gets the constraints associated with a DisplayObject.
-		 *
-		 */
-		public function getConstraints(obj:DisplayObject):ILayoutConstraints
-		{
-			return this._constraints[obj];
-		}
-
+		//---------------------------------------
+		// PUBLIC METHODS
+		//---------------------------------------
 
 		/**
 		 *	@inheritDoc
 		 */
-		public function layoutContainer(container:DisplayObjectContainer, layoutItems:Array = null):void
+		override public function layoutContainer(container:DisplayObjectContainer, layoutItems:Array = null):void
 		{
 			var bounds:Rectangle;
 			var child:DisplayObject;
@@ -387,34 +355,6 @@
 				}
 			}
 		}
-
-
-		/**
-		 *
-		 * Set constraints for a DisplayObject whose parent is registered with
-		 * this layout.
-		 *
-		 * @param obj
-		 *     the DisplayObject whose constraints to set
-		 * @param constraints
-		 *     the constraints to apply to the given DisplayObject
-		 *
-		 * @throws ArgumentError
-		 *     thrown if the supplied DisplayObject is not a child of a
-		 *     registered container
-		 *
-		 */
-		public function setConstraints(obj:DisplayObject, constraints:ILayoutConstraints):void
-		{
-			// Clone constraints so the same object can be changed and set as
-			// constraints on another element.
-			constraints = constraints.clone() as ILayoutConstraints;
-
-			this._constraints[obj] = constraints;
-		}
-
-
-
 
 	}
 }

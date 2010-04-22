@@ -1,14 +1,12 @@
-package inky.layout
+package inky.layout.layouts.boxModel
 {
-	import inky.layout.BaseLayoutManager;
-	import inky.layout.Layout;
 	import flash.display.DisplayObjectContainer;
-	import flash.utils.Dictionary;
-	import inky.collections.IIterator;
-	import inky.collections.IList;
 	import flash.display.DisplayObject;
 	import flash.geom.Rectangle;
-	import inky.layout.BoxModelLayoutPosition;
+	import inky.layout.ILayout;
+	import inky.layout.layouts.AbstractConstrainedLayout;
+	import inky.layout.layouts.boxModel.BoxModelLayoutConstraints;
+	import inky.layout.layouts.boxModel.BoxModelLayoutPosition;
 
 
 	/**
@@ -22,40 +20,32 @@ package inky.layout
 	 *	@since  2009.07.27
 	 *
 	 */
-	public class BoxModelLayout extends BaseLayoutManager
+	public class BoxModelLayout extends AbstractConstrainedLayout implements ILayout
 	{
-
-
-
-		/**
-		 *
-		 * 
-		 *
-		 */
-		public function BoxModelLayout()
-		{
-		}
-
-
-
-		//
-		// public methods
-		//
-
-
+		//---------------------------------------
+		// PUBLIC METHODS
+		//---------------------------------------
+		
 		/**
 		 * @inheritDoc
 		 */
-		override public function calculateLayout(container:DisplayObjectContainer):Layout
+		override public function layoutContainer(container:DisplayObjectContainer, clients:Array = null):void
 		{
-			var layout:Layout = new Layout();
-			var layoutItems:IList = this.getLayoutItems(container);
-			var containerBounds:Rectangle = container.getBounds(container);
-
-			for (var i:IIterator = layoutItems.iterator(); i.hasNext(); )
+			if (!clients)
 			{
-				var layoutItem:DisplayObject = i.next() as DisplayObject;
-				var constraints:BoxModelLayoutConstraints = this.getConstraints(layoutItem) as BoxModelLayoutConstraints;
+				clients = [];
+				for (var i:int = 0; i < container.numChildren; i++)
+				{
+					clients.push(container.getChildAt(i));
+				}
+			}
+			
+			var containerBounds:Rectangle = container.getBounds(container);
+			var child:DisplayObject;
+
+			for each (child in clients)
+			{
+				var constraints:BoxModelLayoutConstraints = this.getConstraints(child) as BoxModelLayoutConstraints;
 				var bounds:Rectangle;
 
 				if (constraints)
@@ -65,7 +55,7 @@ package inky.layout
 // TODO: Calculate relative to first box model ancestor.
 						case BoxModelLayoutPosition.ABSOLUTE:
 						{
-							bounds = this._getAbsoluteBounds(layoutItem, container, containerBounds, constraints);
+							bounds = this._getAbsoluteBounds(child, container, containerBounds, constraints);
 							break;
 						}
 						case BoxModelLayoutPosition.STATIC:
@@ -80,13 +70,12 @@ package inky.layout
 				}
 				else
 				{
-					bounds = layoutItem.getBounds(container);
+					bounds = child.getBounds(container);
 				}
 	
-				layout.addItem(layoutItem.name, bounds);
+				child.x = bounds.x;
+				child.y = bounds.y;
 			}
-			
-			return layout;
 		}
 
 
