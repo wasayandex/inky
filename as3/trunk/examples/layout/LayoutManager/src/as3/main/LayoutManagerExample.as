@@ -18,7 +18,7 @@
 	 */
 	public class LayoutManagerExample extends Sprite
 	{
-		private var _parentWindow:Window;
+		private var parentWindow:Window;
 
 
 		/**
@@ -26,26 +26,26 @@
 		 */
 		public function LayoutManagerExample()
 		{
-			this._parentWindow = new Window();
-			this.addChild(this._parentWindow);
+			this.parentWindow = new Window();
+			this.addChild(this.parentWindow);
 			
 			// Add nested windows.
 			for (var i:int = 0; i < 4; i++)
 			{
 				var nestedWindow:Window = new Window();
-				this._parentWindow.addNestedWindow(nestedWindow);
+				this.parentWindow.addNestedWindow(nestedWindow);
 			}
 			
-			this.stage.addEventListener(MouseEvent.MOUSE_MOVE, this._mouseMoveHandler);
+			this.stage.addEventListener(MouseEvent.MOUSE_MOVE, this.mouseMoveHandler);
 		}
 		
 		
 		/**
 		 *	
 		 */
-		private function _mouseMoveHandler(event:MouseEvent):void
+		private function mouseMoveHandler(event:MouseEvent):void
 		{
-			this._parentWindow.width = this.mouseX;
+			this.parentWindow.width = this.mouseX;
 		}
 
 

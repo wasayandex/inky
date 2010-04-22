@@ -3,7 +3,7 @@ package
 	import flash.display.Sprite;
 	import inky.layout.ILayoutManagerClient;
 	import inky.layout.LayoutManager;
-	import inky.layout.GridLayout;
+	import inky.layout.layouts.gridLayout.GridLayout;
 
 	/**
 	 *
@@ -18,11 +18,11 @@ package
 	 */
 	public class Window extends Sprite implements ILayoutManagerClient
 	{
-		private var _grid:GridLayout;
+		private var gridLayout:GridLayout;
 		private var _height:Number;
-		private var _LayoutManager:LayoutManager;
+		private var layoutManager:LayoutManager;
+		private var nestedWindows:Array;
 		private var _width:Number;
-		private var _nestedWindows:Array;
 		
 		private static const BORDER_SIZE:Number = 2;
 
@@ -32,38 +32,18 @@ package
 		 */
 		public function Window()
 		{
-			this._grid = new GridLayout();
-			this._nestedWindows = [];
-			this._LayoutManager = LayoutManager.getInstance();
+			this.gridLayout = new GridLayout();
+			this.nestedWindows = [];
+			this.layoutManager = LayoutManager.getInstance();
 			
 			// Set default values.
 			this._width = super.width;
 			this._height = super.height;
 		}
 
-
-
-		public function addNestedWindow(window:Window):Window
-		{
-			// Add the window to the display list.
-			this.nestedWindowContainer.addChild(window);
-			
-			// Add the window to the list of windows.
-			if (this._nestedWindows.indexOf(window) == -1)
-				this._nestedWindows.push(window);
-				
-			// Invalidate the display list.
-			this._LayoutManager.invalidateDisplayList(this);
-			return window;
-		}
-
-
-
-
-		//
-		// accessors
-		//
-
+		//---------------------------------------
+		// ACCESSORS
+		//---------------------------------------
 
 		/**
 		 *	@inheritDoc
@@ -80,11 +60,9 @@ package
 			if (value != this._height)
 			{
 				this._height = value;
-				this._LayoutManager.invalidateSize(this);
-				this._LayoutManager.invalidateDisplayList(this);
+				this.layoutManager.invalidateLayout(this);
 			}
 		}
-
 
 		/**
 		 *	@inheritDoc
@@ -101,54 +79,50 @@ package
 			if (value != this._width)
 			{
 				this._width = value;
-				this._LayoutManager.invalidateSize(this);
-				this._LayoutManager.invalidateDisplayList(this);
+				this.layoutManager.invalidateLayout(this);
 			}
 		}
 
+		//---------------------------------------
+		// PUBLIC METHODS
+		//---------------------------------------
 
-
-
-		//
-		// public methods
-		//
-
+		/**
+		 * 
+		 */
+		public function addNestedWindow(window:Window):Window
+		{
+			// Add the window to the display list.
+			this.nestedWindowContainer.addChild(window);
+			
+			// Add the window to the list of windows.
+			if (this.nestedWindows.indexOf(window) == -1)
+				this.nestedWindows.push(window);
+				
+			// Invalidate the display list.
+			this.layoutManager.invalidateLayout(this);
+			return window;
+		}
 
 		/**
 		 * @inheritDoc
 		 */
-		public function validateDisplayList():void
+		public function validateLayout():void
 		{
-			var availableWidth:Number = this.width - 2 * BORDER_SIZE;
-			var nestedWindowSize:Number = availableWidth / this._nestedWindows.length;
-			for each (var window:Window in this._nestedWindows)
-			{
-				window.width =
-				window.height =  nestedWindowSize;
-			}
-			this._grid.layoutContainer(this, this._nestedWindows);
-		}
-
-		
-		/**
-		 * @inheritDoc
-		 */
-		public function validateProperties():void
-		{
-		}
-
-
-		/**
-		 * @inheritDoc	
-		 */
-		public function validateSize():void
-		{
+			// Validate the size.
 			this.background.width = this.width;
 			this.background.height = this.height;
+			
+			var availableWidth:Number = this.width - 2 * BORDER_SIZE;
+			var nestedWindowSize:Number = availableWidth / this.nestedWindows.length;
+
+			for each (var window:Window in this.nestedWindows)
+			{
+				window.width =
+				window.height = nestedWindowSize;
+			}
+			this.gridLayout.layoutContainer(this, this.nestedWindows);
 		}
-
-
-
 
 	}
 }
