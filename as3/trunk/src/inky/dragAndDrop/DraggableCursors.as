@@ -68,11 +68,13 @@ package inky.dragAndDrop
 			this.cursorsToRegister = {
 				dragging: {
 					id: this.draggingCursorId,
-					cursor: draggingCursor || StandardDragCursors.draggingCursor
+					cursor: draggingCursor || StandardDragCursors.draggingCursor,
+					showSystemCursor: false
 				},
 				draggable: {
 					id: this.draggableCursorId,
-					cursor: draggableCursor || StandardDragCursors.draggableCursor
+					cursor: draggableCursor || StandardDragCursors.draggableCursor,
+					showSystemCursor: false
 				}
 			}
 
@@ -133,9 +135,9 @@ package inky.dragAndDrop
 
 			// Register the custom cursor with the cursor id (if one is not already registered)
 			if (cursorManager.getPriority(this.cursorsToRegister.dragging.id) == -1)
-				cursorManager.registerCursor(this.cursorsToRegister.dragging.id, this.cursorsToRegister.dragging.cursor, pointerPriority + 1);
+				cursorManager.registerCursor(this.cursorsToRegister.dragging.id, this.cursorsToRegister.dragging.cursor, this.cursorsToRegister.dragging.showSystemCursor, pointerPriority + 1);
 			if (cursorManager.getPriority(this.cursorsToRegister.draggable.id) == -1)
-				cursorManager.registerCursor(this.cursorsToRegister.draggable.id, this.cursorsToRegister.draggable.cursor, pointerPriority);
+				cursorManager.registerCursor(this.cursorsToRegister.draggable.id, this.cursorsToRegister.draggable.cursor, this.cursorsToRegister.draggable.showSystemCursor, pointerPriority);
 
 			this.cursorsToRegister = null;
 			this.isInitialized = true;
