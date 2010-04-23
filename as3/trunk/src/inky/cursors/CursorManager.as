@@ -44,8 +44,8 @@ package inky.cursors
 			this.stage = stage;
 			
 			this.registerCursors([
-				{id: CursorManager.DEFAULT},
-				{id: CursorManager.POINTER}
+				{id: CursorManager.DEFAULT, showSystemCursor: true},
+				{id: CursorManager.POINTER, showSystemCursor: true}
 			]);
 
 			this.setCursor(CursorManager.DEFAULT);
@@ -91,14 +91,16 @@ package inky.cursors
 				}
 			}
 
-			this.updateCursor();			
+			if (removed)
+				this.updateCursor();
+
 			return removed;
 		}
 
 		/**
 		 * Register a cursor type.
 		 */
-		public function registerCursor(id:String, cursorOrCursorClass:Object, priority:int = -1):void
+		public function registerCursor(id:String, cursorOrCursorClass:Object, showSystemCursor:Boolean = false, priority:int = -1):void
 		{
 // TODO: Add hideSystemCursor boolean.
 			this.unregisterCursor(id);
@@ -112,7 +114,8 @@ package inky.cursors
 
 			var data:Object = {
 				id: id,
-				cursorOrCursorClass: cursorOrCursorClass
+				cursorOrCursorClass: cursorOrCursorClass,
+				showSystemCursor: showSystemCursor
 			};
 			this.idMap[id] = data;
 			this.priorityMap.splice(priority, 0, data);
@@ -127,7 +130,7 @@ package inky.cursors
 		{
 			for each (var cursorData in cursorDataObjects)
 			{
-				this.registerCursor(cursorData.id, cursorData.cursor, priority);
+				this.registerCursor(cursorData.id, cursorData.cursor, cursorData.showSystemCursor, priority);
 				if (priority != -1)
 					priority++;
 			}
@@ -221,6 +224,7 @@ package inky.cursors
 		private function updateCursor():void
 		{
 			var dataToShow:Object;
+
 			for (var i:int = this.priorityMap.length - 1; i >= 0; i--)
 			{
 				var data:Object = this.priorityMap[i];
@@ -234,7 +238,6 @@ package inky.cursors
 			// Show the cursor.
 			if (dataToShow)
 			{
-				Mouse.hide();
 				if (!this.cursorContainer)
 				{
 					this.cursorContainer = new Sprite();
@@ -245,10 +248,10 @@ package inky.cursors
 				while (this.cursorContainer.numChildren)
 					this.cursorContainer.removeChildAt(0);
 
-				this.stage.addChild(this.cursorContainer);
-				
 				var cursor:DisplayObject = DisplayObject(dataToShow.cursor);
+				var showSystemCursor:Boolean = dataToShow.showSystemCursor;
 
+				// If the cursor was registered with a class, we'll have to create it.
 				if (!dataToShow.hasOwnProperty("cursor"))
 				{
 					if (dataToShow.cursorOrCursorClass)
@@ -268,28 +271,29 @@ package inky.cursors
 					}
 					else
 					{
-						// Use the default cursor.
+						// There's no cursor.
 						cursor = null;
 					}
 					dataToShow.cursor = cursor;
 				}
 				
+				if (showSystemCursor)
+					Mouse.show();
+				else
+					Mouse.hide();
+				
 				if (cursor)
 				{
+					this.stage.addChild(this.cursorContainer);
 					this.cursorContainer.addChild(cursor);
 					this.updateCursorPosition();
 					this.stage.addEventListener(MouseEvent.MOUSE_MOVE, this.updateCursorPosition, false, 0, true);
 				}
 				else
 				{
-					Mouse.show();
+					removeFromDisplayList(this.cursorContainer);
+					this.stage.removeEventListener(MouseEvent.MOUSE_MOVE, this.updateCursorPosition);
 				}
-			}
-			else
-			{
-				Mouse.show();
-				removeFromDisplayList(this.cursorContainer);
-				this.stage.removeEventListener(MouseEvent.MOUSE_MOVE, this.updateCursorPosition);
 			}
 		}
 		
