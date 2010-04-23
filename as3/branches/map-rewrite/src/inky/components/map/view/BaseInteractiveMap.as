@@ -345,8 +345,8 @@ package inky.components.map.view
 			var contentContainer:DisplayObject = this.getContentContainer();
 			contentContainer.x = 
 			contentContainer.y = 0;
-			contentContainer.scaleX =
-			contentContainer.scaleY = this.minimumZoom;
+			overlayContainer.scaleX =
+			overlayContainer.scaleY = this.minimumZoom;
 			
 			this.panningHelper.reset();
 			this.zoomingHelper.reset();

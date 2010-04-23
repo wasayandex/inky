@@ -171,11 +171,14 @@ package inky.components.map.view.helpers
 		{
 			super.reset();
 			
-			/*if (this.panningProxy)
+			if (this.panningProxy)
 			{
-				this.panningProxy.contentX = this.contentX;
-				this.panningProxy.contentY = this.contentY;
-			}*/
+				if (this.panningProxy.contentX != this.contentX)
+					this.panningProxy.contentX = this.contentX;
+
+				if (this.panningProxy.contentY != this.contentY)
+					this.panningProxy.contentY = this.contentY;
+			}
 		}
 
 		/**

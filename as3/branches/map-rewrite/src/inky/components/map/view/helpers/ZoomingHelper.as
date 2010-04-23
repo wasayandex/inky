@@ -324,11 +324,14 @@ package inky.components.map.view.helpers
 		{
 			super.reset();
 			
-			/*if (this.zoomingProxy)
+			if (this.zoomingProxy)
 			{
-				this.zoomingProxy.contentScaleX = this.contentScaleX;
-				this.zoomingProxy.contentScaleY = this.contentScaleY;
-			}	*/
+ 				if (this.zoomingProxy.contentScaleX != this.contentScaleX)
+					this.zoomingProxy.contentScaleX = this.contentScaleX;
+
+			 	if (this.zoomingProxy.contentScaleY != this.contentScaleY)
+					this.zoomingProxy.contentScaleY = this.contentScaleY;
+			}	
 		}
 		
 		/**

@@ -84,7 +84,7 @@ package inky.components.map.view.helpers
 					var overlay:DisplayObject = new overlayClass() as DisplayObject;
 					this.overlayContainer.addChild(overlay);
 					
-					this.dispatchEvent(new MapEvent(MapEvent.OVERLAY_UPDATED));
+					this.mapContent.dispatchEvent(new MapEvent(MapEvent.OVERLAY_UPDATED));
 				}
 			}
 		}
