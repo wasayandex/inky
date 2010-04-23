@@ -1,14 +1,14 @@
 ﻿package inky.components.transitioningObject
 {
-	import inky.commands.IAsyncCommand;
-	import inky.commands.tokens.IAsyncToken;
+	import inky.sequencing.commands.IAsyncCommand;
+	import inky.async.IAsyncToken;
 	import inky.components.transitioningObject.TransitioningObjectState;
 	import inky.components.transitioningObject.events.TransitionEvent;
 	import inky.utils.AddedToStageEventFixer;
 	import flash.display.DisplayObject;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
-	import inky.commands.tokens.AsyncToken;
+	import inky.async.AsyncToken;
 
 
 	/**

@@ -1,10 +1,10 @@
 package inky.components.transitioningObject
 {
-	import inky.commands.IAsyncCommand;
+	import inky.sequencing.commands.IAsyncCommand;
 	import inky.utils.IDisplayObject;
 	import flash.display.DisplayObject;
 	import flash.geom.Rectangle;
-	import inky.commands.tokens.IAsyncToken;
+	import inky.async.IAsyncToken;
 
 
     /**

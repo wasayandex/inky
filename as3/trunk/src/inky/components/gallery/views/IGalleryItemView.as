@@ -22,11 +22,11 @@ package inky.components.gallery.views
 		/**
 		 *	
 		 */
-		function get model():GalleryItemModel;
+		function get dataProvider():GalleryItemModel;
 		/**
 		 *	@private
 		 */
-		function set model(model:GalleryItemModel):void
+		function set dataProvider(model:GalleryItemModel):void
 	}
 	
 }

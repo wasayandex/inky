@@ -214,8 +214,8 @@
 			if (isNaN(size))
 			{
 				var itemItemRenderer:Object = this.getItemRendererFor(index);
-				if (!EqualityUtil.objectsAreEqual(itemItemRenderer.model, this.dataProvider.getItemAt(index)))
-					itemItemRenderer.model = this.dataProvider.getItemAt(index);
+				if (!EqualityUtil.objectsAreEqual(itemItemRenderer.dataProvider, this.dataProvider.getItemAt(index)))
+					itemItemRenderer.dataProvider = this.dataProvider.getItemAt(index);
 				size = itemItemRenderer[this._widthOrHeight];
 				this._sizeCache[index] = size;
 			}
@@ -536,8 +536,8 @@ if (!this.orientation) return;
 				listItem = this.getItemRendererFor(index);
 
 				var model:Object = this.dataProvider.getItemAt(index);
-				if (!EqualityUtil.objectsAreEqual(listItem.model, model))
-					listItem.model = model;
+				if (!EqualityUtil.objectsAreEqual(listItem.dataProvider, model))
+					listItem.dataProvider = model;
 
 				if (listItem.parent != this.__contentContainer)
 					this.__contentContainer.addChild(listItem as DisplayObject);
