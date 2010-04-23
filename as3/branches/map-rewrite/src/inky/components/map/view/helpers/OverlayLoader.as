@@ -5,11 +5,12 @@ package inky.components.map.view.helpers
 	import inky.components.map.model.IMapModel;
 	import inky.components.map.view.helpers.BaseMapViewHelper;
 	import inky.utils.IDestroyable;
-	import flash.display.Sprite;
 	import inky.binding.utils.IChangeWatcher;
 	import flash.utils.getDefinitionByName;
 	import flash.display.DisplayObject;
-	import flash.events.Event;
+	import inky.components.map.view.events.MapEvent;
+	import inky.layout.validation.LayoutValidator;
+	import flash.display.DisplayObjectContainer;
 	
 	/**
 	 *
@@ -24,24 +25,20 @@ package inky.components.map.view.helpers
 	 */
 	public class OverlayLoader extends BaseMapViewHelper implements IDestroyable
 	{
-		private var modelWatcher:IChangeWatcher;
-		private var overlayContainer:Sprite;
+		protected var modelWatcher:IChangeWatcher;
+		protected var overlayContainer:DisplayObjectContainer;
 
 		/**
-		 *
+		 * @copy inky.components.map.view.helpers.BaseMapViewHelper
+		 * 
+		 * @param overlayContainer
+		 * 		The map's overlay container.
 		 */
-		public function OverlayLoader(map:IMap)
+		public function OverlayLoader(map:IMap, layoutValidator:LayoutValidator, overlayContainer:DisplayObjectContainer)
 		{
-			super(map);
+			super(map, layoutValidator);
 
-			var overlayContainer:Sprite = this.contentContainer.getChildByName("_overlayContainer") as Sprite;
-			if (!overlayContainer)
-			{
-				overlayContainer = new Sprite();
-				this.contentContainer.addChild(overlayContainer);
-			}
 			this.overlayContainer = overlayContainer;
-
 			this.modelWatcher = BindingUtil.bindSetter(this.findAndLoadOverlay, this.map, "model");
 		}
 		
@@ -64,22 +61,30 @@ package inky.components.map.view.helpers
 		/**
 		 * 
 		 */
+		private function clearOverlay():void
+		{
+			while (this.overlayContainer.numChildren)
+				this.overlayContainer.removeChildAt(0);
+		}
+		
+		/**
+		 * 
+		 */
 		private function findAndLoadOverlay(model:IMapModel):void
 		{
 // TODO: Finish implementing this overlay loader.
-			while (this.overlayContainer.numChildren)
-				this.overlayContainer.removeChildAt(0);
-
 			if (model && model.overlay && model.overlay.icon && model.overlay.icon.href)
 			{
 				var url:String = model.overlay.icon.href;
 				if (url.match(/^lib:\/\//))
 				{
+					this.clearOverlay();
+					
 					var overlayClass:Class = getDefinitionByName(url.replace(/^lib:\/\//, "")) as Class;
 					var overlay:DisplayObject = new overlayClass() as DisplayObject;
 					this.overlayContainer.addChild(overlay);
 					
-					this.dispatchEvent(new Event("overlayUpdated"));
+					this.dispatchEvent(new MapEvent(MapEvent.OVERLAY_UPDATED));
 				}
 			}
 		}

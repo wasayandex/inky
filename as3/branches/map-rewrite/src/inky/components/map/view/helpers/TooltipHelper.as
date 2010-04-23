@@ -1,12 +1,13 @@
 package inky.components.map.view.helpers 
 {
 	import inky.components.map.view.IMap;
-	import inky.components.map.view.helpers.MaskedMapViewHelper;
 	import inky.components.tooltip.ITooltip;
 	import inky.binding.utils.BindingUtil;
 	import inky.utils.IDestroyable;
 	import inky.components.map.view.events.MapEvent;
 	import flash.display.InteractiveObject;
+	import inky.layout.validation.LayoutValidator;
+	import inky.components.map.view.helpers.BaseMapViewHelper;
 	
 	/**
 	 *
@@ -19,7 +20,7 @@ package inky.components.map.view.helpers
 	 *	@since  2010.04.16
 	 *
 	 */
-	public class TooltipHelper extends MaskedMapViewHelper implements IDestroyable
+	public class TooltipHelper extends BaseMapViewHelper implements IDestroyable
 	{
 		private var target:InteractiveObject;
 		private var _tooltip:ITooltip;
@@ -36,12 +37,12 @@ package inky.components.map.view.helpers
 		 * 
 		 * @see inky.components.tooltip.ITooltip#target
 		 */
-		public function TooltipHelper(map:IMap, placemarkRendererCallback:Function)
+		public function TooltipHelper(map:IMap, layoutValidator:LayoutValidator, placemarkRendererCallback:Function)
 		{
-			super(map);
+			super(map, layoutValidator);
 			this.watchers = [];
 			this.placemarkRendererCallback = placemarkRendererCallback;
-			this.tooltip = this.content.getChildByName("_tooltip") as ITooltip;
+			this.tooltip = this.mapContent.getChildByName("_tooltip") as ITooltip;
 		}
 		
 		//---------------------------------------
@@ -90,19 +91,17 @@ package inky.components.map.view.helpers
 		/**
 		 * 
 		 */
-		private function content_scaleHandler(event:MapEvent):void
+		private function content_scaledHandler(event:MapEvent):void
 		{
-			//FIXME: If the tooltip implementation doesn't update position if the target doesn't change, this won't work.
-			this.tooltip.target = this.target;
+			this.tooltip.updatePosition();
 		}
 
 		/**
 		 * 
 		 */
-		private function content_moveHandler(event:MapEvent):void
+		private function content_movedHandler(event:MapEvent):void
 		{
-			//FIXME: If the tooltip implementation doesn't update position if the target doesn't change, this won't work.
-			this.tooltip.target = this.target;
+			this.tooltip.updatePosition();
 		}
 
 		/**
@@ -112,8 +111,8 @@ package inky.components.map.view.helpers
 		{
 			if (placemarks && placemarks.length)
 			{
-				this.content.addEventListener(MapEvent.MOVE, this.content_moveHandler);
-				this.content.addEventListener(MapEvent.SCALE, this.content_scaleHandler);
+				this.map.addEventListener(MapEvent.MOVED, this.content_movedHandler);
+				this.map.addEventListener(MapEvent.SCALED, this.content_scaledHandler);
 				this.target = 
 				this.tooltip.target = this.placemarkRendererCallback.apply(null, [placemarks.pop()]);
 				this.tooltip.show();
@@ -130,8 +129,8 @@ package inky.components.map.view.helpers
 		private function hideTooltip():void
 		{
 			this._tooltip.hide();
-			this.content.removeEventListener(MapEvent.MOVE, this.content_moveHandler);
-			this.content.removeEventListener(MapEvent.SCALE, this.content_scaleHandler);
+			this.map.removeEventListener(MapEvent.MOVED, this.content_movedHandler);
+			this.map.removeEventListener(MapEvent.SCALED, this.content_scaledHandler);
 		}
 		
 		/**

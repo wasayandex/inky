@@ -82,8 +82,7 @@ package inky.components.map.model
 		 * @see #selectFolder
 		 */
 		function deselectFolder(folder:Object):void;
-		
-		
+
 		/**
 		 * Deselects the specified placemark.
 		 * 
@@ -128,6 +127,20 @@ package inky.components.map.model
 		function placemarkIsSelected(placemark:Object):Boolean;
 		
 		/**
+		 * Returns a folder that matches a given id.
+		 * 
+		 * <p>The first folder that matches the id is returned, as the assumption 
+		 * is that ids are unique. If no matching folder is found, <code>null<code>
+		 * is returned.</p>
+		 * 
+		 * @param id
+		 * 		The unique id to match a folder to.
+		 * 
+		 * @return A folder that matches the id, or <code>null</code>.
+		 */
+		function getFolderByID(id:String):Object;
+		
+		/**
 		 * Returns a list of folders in a container.
 		 * 
 		 * <p>If the container is not specified, the document root is assumed.</p>
@@ -143,6 +156,20 @@ package inky.components.map.model
 		 * @see #getFolderByID
 		 */
 		function getFolders(container:Object = null):Array;
+		
+		/**
+		 * Returns a placemark that matches a given id.
+		 * 
+		 * <p>The first placemark that matches the id is returned, as the assumption 
+		 * is that ids are unique. If no matching placemark is found, <code>null<code>
+		 * is returned.</p>
+		 * 
+		 * @param id
+		 * 		The unique id to match a placemark to.
+		 * 
+		 * @return A placemark that matches the id, or <code>null</code>.
+		 */
+		function getPlacemarkByID(id:String):Object;
 		
 		/**
 		 * Returns a list of placemarks in a container. 

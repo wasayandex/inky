@@ -14,7 +14,7 @@
 	import inky.components.scrollBar.IScrollBar;
 	import inky.collections.events.CollectionEvent;
 	import flash.utils.setTimeout;
-	import inky.utils.ValidationState;
+	import inky.layout.utils.ValidationState;
 	import inky.utils.describeObject;
 
 

@@ -2,9 +2,10 @@ package inky.components.map.view.helpers
 {
 	import inky.components.map.view.helpers.BaseMapViewHelper;
 	import flash.display.DisplayObject;
-	import inky.components.map.view.IMap;
-	import flash.display.Shape;
-	import flash.geom.Rectangle;
+	import flash.utils.Dictionary;
+	import inky.layout.validation.LayoutValidator;
+	import flash.display.DisplayObjectContainer;
+	import inky.components.map.view.IInteractiveMap;
 	
 	/**
 	 *
@@ -20,38 +21,40 @@ package inky.components.map.view.helpers
 	 */
 	public class MaskedMapViewHelper extends BaseMapViewHelper
 	{
+		private static var contentContainerProxies:Dictionary;
 		protected var mask:DisplayObject;	
+		protected var contentContainer:DisplayObjectContainer;
 
 		/**
 		 * @copy inky.components.map.view.helpers.BaseMapViewHelper
+		 * 
+		 * @param mask
+		 * 		The map's content mask.
+		 * 
+		 * @param contentContainer
+		 * 		The map's content container.
 		 */
-		public function MaskedMapViewHelper(map:IMap)
+		public function MaskedMapViewHelper(map:IInteractiveMap, layoutValidator:LayoutValidator, mask:DisplayObject, contentContainer:DisplayObjectContainer)
 		{
-			super(map);
-
-			// Find the content container mask.
-			var mask:DisplayObject = this.contentContainer.mask || this.content.getChildByName('_mask');
-			if (!mask)
-			{ 
-				var child:DisplayObject;
-				for (var i:int = this.content.numChildren - 1; i >= 0; i--)
-				{
-					child = this.content.getChildAt(i);
-					if (child is Shape)
-					{
-						mask = child;
-						break;
-					}
-				}
-			}
-
-			if (!mask)
-				throw new Error('ViewHelper target is missing a mask.');
-
-			if (this.contentContainer.mask != mask)
-				this.contentContainer.mask = mask;
-
+			super(map, layoutValidator);
+			
 			this.mask = mask;
+			this.contentContainer = contentContainer;
+		}
+		
+		//---------------------------------------
+		// PUBLIC METHODS
+		//---------------------------------------
+		
+		/**
+		 * @inheritDoc
+		 */
+		override public function reset():void
+		{
+			super.reset();
+
+			if (contentContainerProxies && contentContainerProxies[this.contentContainer])
+				delete contentContainerProxies[this.contentContainer];
 		}
 		
 		//---------------------------------------
@@ -59,14 +62,17 @@ package inky.components.map.view.helpers
 		//---------------------------------------
 		
 		/**
-		 * 
+		 * @inheritDoc
 		 */
-		protected function getDragBounds():Rectangle
+		protected function getContentContainerProxy():Object
 		{
-			var contentBounds:Rectangle = this.contentContainer.getRect(this.content);
-			var maskBounds:Rectangle = this.mask.getRect(this.content);
-			var bounds:Rectangle = new Rectangle(maskBounds.width - contentBounds.width, maskBounds.height - contentBounds.height, contentBounds.width - maskBounds.width, contentBounds.height - maskBounds.height);
-			return bounds;
+			if (!contentContainerProxies)
+				contentContainerProxies = new Dictionary(true);
+			
+			if (!contentContainerProxies[this.contentContainer])
+				contentContainerProxies[this.contentContainer] = {};
+
+			return contentContainerProxies[this.contentContainer];
 		}
 
 	}

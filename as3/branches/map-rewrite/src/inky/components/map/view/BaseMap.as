@@ -9,6 +9,10 @@ package inky.components.map.view
 	import inky.binding.utils.BindingUtil;
 	import inky.components.map.view.helpers.OverlayLoader;
 	import flash.geom.Point;
+	import inky.binding.utils.IChangeWatcher;
+	import inky.layout.validation.LayoutValidator;
+	import flash.display.DisplayObjectContainer;
+	import inky.utils.describeObject;
 	
 	/**
 	 *
@@ -28,8 +32,13 @@ package inky.components.map.view
 	public class BaseMap extends Sprite implements IMap
 	{
 		private var changeWatchers:Array;
+		protected var contentContainer:DisplayObjectContainer;
+		protected var overlayContainer:DisplayObjectContainer;
 		protected var overlayLoader:OverlayLoader;
+		protected var placemarkContainer:DisplayObjectContainer;
 		protected var placemarkPlotter:PlacemarkPlotter;
+		protected var layoutValidator:LayoutValidator;
+		private var modelWatcher:IChangeWatcher;
 		private var _model:IMapModel;
 		private var _placemarkRendererClass:Class;
 		
@@ -38,13 +47,53 @@ package inky.components.map.view
 		 */
 		public function BaseMap()
 		{
-			this.overlayLoader = new OverlayLoader(this);
+
+			// Find the content container. If it can't be found, create one.
+			var contentContainer = this.getChildByName("_contentContainer") as DisplayObjectContainer;
+			if (!contentContainer)
+			{
+				contentContainer = new Sprite();
+				contentContainer.name == "_contentContainer";
+				this.addChild(contentContainer);
+			}
+			this.contentContainer = contentContainer;
+			
+			// Find the overlay container. If it can't be found, create one.
+			var overlayContainer:DisplayObjectContainer = this.contentContainer.getChildByName("_overlayContainer") as DisplayObjectContainer;
+			if (!overlayContainer)
+			{
+				overlayContainer = new Sprite();
+				overlayContainer.name = "_overlayContainer";
+				this.contentContainer.addChild(overlayContainer);
+				for (var i:int = 0; i < this.contentContainer.numChildren; i++)
+				{
+					var child:DisplayObject = this.contentContainer.getChildAt(i);
+					if (!child.name.match(/^_(placemark|overlay)Container$/))
+					{
+						overlayContainer.addChild(child);
+						i--;
+					}
+				}
+			}
+			this.overlayContainer = overlayContainer;
+
+			// Find the placemark container. If it can't be found, create one.
+			var placemarkContainer:DisplayObjectContainer = this.contentContainer.getChildByName("_placemarkContainer") as DisplayObjectContainer;
+			if (!placemarkContainer)
+			{
+				placemarkContainer = new Sprite();
+				this.contentContainer.addChild(placemarkContainer);
+			}
+			this.placemarkContainer = placemarkContainer;
+
+			this.layoutValidator = new LayoutValidator(this, this.validate);
+			
+			this.overlayLoader = new OverlayLoader(this, this.layoutValidator, this.overlayContainer);
 			// TODO: Should we store exposed PlacemarkPlotter values (recyclePlacemarkRenderers, cachePlacemarkPositions) to account for a situation where a subclass sets them before calling super()?
-			this.placemarkPlotter = new PlacemarkPlotter(this);
+			this.placemarkPlotter = new PlacemarkPlotter(this, this.layoutValidator, this.contentContainer, this.placemarkContainer, this.overlayContainer);
 
 			this.changeWatchers = [];
-			this.changeWatchers.push(BindingUtil.bindSetter(this.setSelectedPlacemarks, this, ["model", "selectedPlacemarks"]));
-			this.changeWatchers.push(BindingUtil.bindSetter(this.setSelectedFolders, this, ["model", "selectedFolders"]));
+			this.modelWatcher = BindingUtil.bindSetter(this.initializeForModel, this, "model");
 		}
 		
 		//---------------------------------------
@@ -65,82 +114,7 @@ package inky.components.map.view
 		{
 			this.placemarkPlotter.cachePlacemarkPositions = value;
 		}
-		
-		/**
-		 * @inheritDoc
-		 */
-		public function get contentRotation():Number
-		{ 
-			return this.getContentContainer().rotation; 
-		}
-		/**
-		 * @private
-		 */
-		public function set contentRotation(value:Number):void
-		{
-			this.getContentContainer().rotation = value;
-		}
 
-		/**
-		 * @inheritDoc
-		 */
-		public function get contentX():Number
-		{ 
-			return this.getContentContainer().x; 
-		}
-		/**
-		 * @private
-		 */
-		public function set contentX(value:Number):void
-		{
-			this.getContentContainer().x = value;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public function get contentY():Number
-		{ 
-			return this.getContentContainer().y; 
-		}
-		/**
-		 * @private
-		 */
-		public function set contentY(value:Number):void
-		{
-			this.getContentContainer().y = value;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public function get contentScaleX():Number
-		{ 
-			return this.getContentContainer().scaleX; 
-		}
-		/**
-		 * @private
-		 */
-		public function set contentScaleX(value:Number):void
-		{
-			this.getContentContainer().scaleX = value;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public function get contentScaleY():Number
-		{ 
-			return this.getContentContainer().scaleY; 
-		}
-		/**
-		 * @private
-		 */
-		public function set contentScaleY(value:Number):void
-		{
-			this.getContentContainer().scaleY = value;
-		}
-		
 		/**
 		 * @inheritDoc
 		 */
@@ -191,6 +165,21 @@ package inky.components.map.view
 			this.placemarkPlotter.recyclePlacemarkRenderers = value;
 		}
 		
+		/**
+		 * @copy inky.components.map.view.helpers.PlacemarkPlotter#scalePlacemarks
+		 */
+		public function get scalePlacemarks():Boolean
+		{ 
+			return this.placemarkPlotter.scalePlacemarks; 
+		}
+		/**
+		 * @private
+		 */
+		public function set scalePlacemarks(value:Boolean):void
+		{
+			this.placemarkPlotter.scalePlacemarks = value;
+		}
+		
 		//---------------------------------------
 		// PUBLIC METHODS
 		//---------------------------------------
@@ -202,6 +191,8 @@ package inky.components.map.view
 		{
 			while (this.changeWatchers.length)
 				this.changeWatchers.pop().unwatch();
+			
+			this.modelWatcher.unwatch();
 			
 			this.placemarkPlotter.destroy();
 		}
@@ -266,6 +257,35 @@ package inky.components.map.view
 		protected function setSelectedPlacemarks(placemarks:Array):void
 		{
 			
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		protected function validate():void
+		{
+			this.overlayLoader.validate();
+			this.placemarkPlotter.validate();
+			this.layoutValidator.validationState.markAllPropertiesAsValid();
+		}
+		
+		//---------------------------------------
+		// PRIVATE METHODS
+		//---------------------------------------
+		
+		/**
+		 *
+		 */
+		private function initializeForModel(model:Object):void
+		{
+			while (this.changeWatchers.length)
+				this.changeWatchers.pop().unwatch();
+			
+			if (model)
+			{
+				this.changeWatchers.push(BindingUtil.bindSetter(this.setSelectedPlacemarks, model, "selectedPlacemarks"));
+				this.changeWatchers.push(BindingUtil.bindSetter(this.setSelectedFolders, model, "selectedFolders"));
+			}
 		}
 		
 	}

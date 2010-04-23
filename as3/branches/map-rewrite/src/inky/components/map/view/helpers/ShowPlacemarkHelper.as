@@ -6,6 +6,9 @@ package inky.components.map.view.helpers
 	import inky.utils.toCoordinateSpace;
 	import inky.components.map.view.IInteractiveMap;
 	import inky.utils.IDestroyable;
+	import flash.display.DisplayObjectContainer;
+	import flash.display.DisplayObject;
+	import inky.layout.validation.LayoutValidator;
 	
 	/**
 	 *
@@ -23,11 +26,14 @@ package inky.components.map.view.helpers
 		private var placemarkRendererCallback:Function;
 		
 		/**
-		 *
+		 * @copy inky.components.map.view.helpers.MaskedMapViewHelper
+		 * 
+		 * @param placemarkRendererCallback
+		 * 		A method used to retreive the renderer for a placemark.
 		 */
-		public function ShowPlacemarkHelper(map:IInteractiveMap, placemarkRendererCallback:Function)
+		public function ShowPlacemarkHelper(map:IInteractiveMap, layoutValidator:LayoutValidator, mask:DisplayObject, contentContainer:DisplayObjectContainer, placemarkRendererCallback:Function)
 		{
-			super(map);
+			super(map, layoutValidator, mask, contentContainer);
 			this.placemarkRendererCallback = placemarkRendererCallback;
 		}
 		
@@ -44,20 +50,20 @@ package inky.components.map.view.helpers
 		}
 		
 		/**
-		 * @inheritDoc
+		 * Updates the view to reveal the associated placemark renderer for a 
+		 * given placemark.
+		 * 
+		 * @param placemark
+		 * 		The placemark to show.
 		 */
 		public function showPlacemark(placemark:Object):void
 		{
 			var placemarkRenderer:Object = this.placemarkRendererCallback(placemark);
-			var point:Point = toCoordinateSpace(new Point(placemarkRenderer.x, placemarkRenderer.y), this.contentContainer, this.content);
+			var point:Point = toCoordinateSpace(new Point(placemarkRenderer.x, placemarkRenderer.y), this.contentContainer, this.mapContent);
 
-			var maskBounds:Rectangle = this.mask.getRect(this.content);
+			var maskBounds:Rectangle = this.mask.getRect(this.mapContent);
 			var x:Number = this.contentContainer.x - (point.x - maskBounds.width / 2);
 			var y:Number = this.contentContainer.y - (point.y - maskBounds.height / 2);
-
-			var dragBounds:Rectangle = this.getDragBounds();
-			x = Math.max(Math.min(x, dragBounds.x + dragBounds.width), dragBounds.x);
-			y = Math.max(Math.min(y, dragBounds.y + dragBounds.height), dragBounds.y);
 
 			IInteractiveMap(this.map).moveContent(x, y);
 		}

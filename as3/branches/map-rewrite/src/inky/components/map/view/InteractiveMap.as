@@ -3,6 +3,7 @@ package inky.components.map.view
 	import inky.components.map.view.BaseInteractiveMap;
 	import inky.components.map.view.helpers.ControllerHelper;
 	import inky.components.map.controller.MapController;
+	import inky.components.map.controller.mediators.IMapControllerMediator;
 	
 	/**
 	 *
@@ -184,6 +185,27 @@ package inky.components.map.view
 		}
 		
 		/**
+		 * Registers a mediator with the controller helper. 
+		 * 
+		 * <p>The mediator is already instantiated, so the controller helper will only set 
+		 * the <code>controller</code> property on the mediator. It will only set the 
+		 * <code>view</code> property if it is not already set. The advantage of this 
+		 * approach (as opposed to registering the class via <code>registerMediatorClass</code>) 
+		 * is that it allows mediators to target related views (such as list of placemark 
+		 * descriptions, for example), yet still control the map model.</p>
+		 * 
+		 * @param mediator
+		 * 		The IMapControllerMediator to register.
+		 * 
+		 * @see inky.components.map.controller.mediators.IMapControllerMediator
+		 * @see inky.components.map.view.helpers.ControllerHelper#registerMediator
+		 */
+		public function registerMediator(mediator:IMapControllerMediator):void
+		{
+			this.controllerHelper.registerMediator(mediator);
+		}
+		
+		/**
 		 * Registers a mediator class with the controller helper. The mediator is 
 		 * instantiated by the controller helper.
 		 * 
@@ -196,6 +218,21 @@ package inky.components.map.view
 		public function registerMediatorClass(mediatorClass:Class):void
 		{
 			this.controllerHelper.registerMediatorClass(mediatorClass);
+		}
+		
+		/**
+		 * Unregisters a mediator with the controller helper. The mediator instance 
+		 * is destroyed by the controller helper.
+		 * 
+		 * @param mediatorClass
+		 * 		The IMapControllerMediator to unregister.
+		 * 
+		 * @see inky.components.map.controller.mediators.IMapControllerMediator
+		 * @see inky.components.map.view.helpers.ControllerHelper#unregisterMediator
+		 */
+		public function unregisterMediator(mediator:IMapControllerMediator):void
+		{
+			this.controllerHelper.unregisterMediator(mediator);
 		}
 		
 		/**

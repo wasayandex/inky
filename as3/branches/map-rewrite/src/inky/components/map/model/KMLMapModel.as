@@ -193,6 +193,21 @@ package inky.components.map.model
 			{
 				var oldValue:Array = this.selectedFolders;
 				this._selectedFolders.splice(i, 1);
+				
+				// Update the selected placemarks.
+				for each (var placemark:Object in this.selectedPlacemarks)
+				{
+					var deselectPlacemark:Boolean = true;
+					for (var j:int = 0; deselectPlacemark && j < this._selectedFolders.length; j++)
+					{
+						if (this.getPlacemarksInContainer(this._selectedFolders[j]).indexOf(placemark) != -1)
+							deselectPlacemark = false;
+					}
+
+					if (deselectPlacemark)
+						this.deselectPlacemark(placemark);
+				}
+
 				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "selectedFolders", oldValue, this.selectedFolders));	
 			}
 		}
@@ -229,6 +244,14 @@ package inky.components.map.model
 		{
 			return this._selectedPlacemarks.indexOf(placemark) != -1;
 		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function getFolderByID(id:String):Object
+		{
+			return this.getFeatureByID(Folder, id);
+		}
 
 		/**
 		 * @inheritDoc
@@ -239,6 +262,14 @@ package inky.components.map.model
 				return this.getFoldersInContainer(Container(this.document), true);
 			else
 				return this.getFoldersInContainer(Container(container));
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function getPlacemarkByID(id:String):Object
+		{
+			return this.getFeatureByID(Placemark, id);
 		}
 		
 		/**
@@ -268,7 +299,7 @@ package inky.components.map.model
 					this._selectedFolders = [];
 
 				this._selectedFolders.push(folder);
-				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "selectedFolders", oldValue, this.selectedFolders));	
+				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "selectedFolders", oldValue, this.selectedFolders));
 			}
 		}
 
@@ -289,6 +320,20 @@ package inky.components.map.model
 
 				this._selectedPlacemarks.push(placemark);
 				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "selectedPlacemarks", oldValue, this.selectedPlacemarks));	
+
+				// Update the selected folders.
+				/*for each (var placemark:Object in this.selectedPlacemarks)
+				{
+					var deselectPlacemark:Boolean = true;
+					for (var j:int = 0; deselectPlacemark && j < this._selectedFolders.length; j++)
+					{
+						if (this.getPlacemarksInContainer(this._selectedFolders[j]).indexOf(placemark) != -1)
+							deselectPlacemark = false;
+					}
+
+					if (deselectPlacemark)
+						this.deselectPlacemark(placemark);
+				}*/
 			}
 		}
 		
@@ -300,7 +345,7 @@ package inky.components.map.model
 		 * Utility for finding a feature in the document that matches an id.
 		 * NOTE: This assumes feature ids are unique.
 		 */
-		private function getFeatureByID(id:String, featureClass:Class):Object
+		private function getFeatureByID(featureClass:Class, id:String):Object
 		{
 			var feature:Object;
 			var features:Array = this.getFeaturesInContainer(featureClass, Container(this.document), true);

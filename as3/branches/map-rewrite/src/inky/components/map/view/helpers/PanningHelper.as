@@ -1,13 +1,17 @@
 package inky.components.map.view.helpers 
 {
 	import inky.components.map.view.helpers.MaskedMapViewHelper;
-	import inky.components.map.view.IMap;
-	import flash.geom.Rectangle;
 	import inky.utils.IDestroyable;
 	import inky.components.map.view.events.MapEvent;
 	import inky.dragAndDrop.Draggable;
 	import inky.dragAndDrop.DraggableCursors;
-	import inky.cursors.graphics.StandardDragCursors;
+	import inky.layout.validation.LayoutValidator;
+	import flash.display.DisplayObjectContainer;
+	import flash.display.DisplayObject;
+	import inky.components.map.view.IInteractiveMap;
+	import flash.geom.Rectangle;
+	import inky.utils.toCoordinateSpace;
+	import flash.geom.Point;
 	
 	/**
 	 *
@@ -22,25 +26,89 @@ package inky.components.map.view.helpers
 	 */
 	public class PanningHelper extends MaskedMapViewHelper implements IDestroyable
 	{
-		private var draggable:Draggable;
+		protected var draggable:Draggable;
 		private var _panningProxy:Object;
-		private var draggableCursors:DraggableCursors;
+		protected var draggableCursors:DraggableCursors;
 		
 		/**
 		 * @copy inky.components.map.view.helpers.MaskedMapViewHelper
+		 * 
+		 * @param panningProxy
+		 * 		An object that stands in for the contentContainer in panning manipulation methods.
 		 */
-		public function PanningHelper(map:IMap, panningProxy:Object = null)
+		public function PanningHelper(map:IInteractiveMap, layoutValidator:LayoutValidator, mask:DisplayObject, contentContainer:DisplayObjectContainer, panningProxy:Object = null)
 		{
-			super(map);
-			this.panningProxy = panningProxy;
+			super(map, layoutValidator, mask, contentContainer);
 			this.draggable = new Draggable(this.contentContainer, false, this.getDragBounds());
 			this.draggableCursors = new DraggableCursors(this.draggable);
+
+			this.panningProxy = panningProxy;
+			
+			this.mapContent.addEventListener(MapEvent.OVERLAY_UPDATED, this.content_boundsChangeHandler);
+			this.mapContent.addEventListener(MapEvent.SCALED, this.content_boundsChangeHandler);
 		}
 		
 		//---------------------------------------
 		// ACCESSORS
 		//---------------------------------------
 		
+		
+		/**
+		 *
+		 */
+		public function get contentX():Number
+		{ 
+			var contentContainerProxy:Object = this.getContentContainerProxy();
+			var value:Number = contentContainerProxy.x;
+			if (isNaN(value))
+			{
+				value =
+				contentContainerProxy.x =
+				this.contentContainer.x;
+			}
+			return this.normalizeX(value);
+		}
+		/**
+		 * @private
+		 */
+		public function set contentX(value:Number):void
+		{
+			var oldValue:Number = this.contentX;
+			if (value != oldValue)
+			{
+				this.getContentContainerProxy().x = this.normalizeX(value);
+				this.invalidateProperty('contentX');
+			}
+		}
+		
+		/**
+		 *
+		 */
+		public function get contentY():Number
+		{ 
+			var contentContainerProxy:Object = this.getContentContainerProxy();
+			var value:Number = contentContainerProxy.y;
+			if (isNaN(value))
+			{
+				value =
+				contentContainerProxy.y =
+				this.contentContainer.y;
+			}
+			return this.normalizeY(value);
+		}
+		/**
+		 * @private
+		 */
+		public function set contentY(value:Number):void
+		{
+			var oldValue:Number = this.contentY;
+			if (value != oldValue)
+			{
+				this.getContentContainerProxy().y = this.normalizeY(value);
+				this.invalidateProperty('contentY');
+			}
+		}
+
 		/**
 		 * An object that stands in for the contentContainer in panning manipulation methods.
 		 * For example, setting this value to a GTween proxy will let you have easing pretty easily.
@@ -56,13 +124,10 @@ package inky.components.map.view.helpers
 		 */
 		public function set panningProxy(value:Object):void
 		{
-			if (value != this._panningProxy)
-			{
-				this._panningProxy = value;
-				this.draggable.positionProxy = value ? new DragProxy(value) : null;
-			}
+			this._panningProxy = value;
+			this.draggable.positionProxy = value ? new DragProxy(value) : new DragProxy(this.map);
 		}
-		
+
 		//---------------------------------------
 		// PUBLIC METHODS
 		//---------------------------------------
@@ -72,6 +137,16 @@ package inky.components.map.view.helpers
 		 */
 		public function destroy():void
 		{
+			this.mapContent.removeEventListener(MapEvent.OVERLAY_UPDATED, this.content_boundsChangeHandler);
+			this.mapContent.removeEventListener(MapEvent.SCALED, this.content_boundsChangeHandler);
+		}
+		
+		/**
+		 * 
+		 */
+		public function getDragBounds():Rectangle
+		{
+			return this.calculateDragBounds();
 		}
 		
 		/**
@@ -85,20 +160,8 @@ package inky.components.map.view.helpers
 		public function moveContent(x:Number, y:Number):void
 		{
 			var obj:Object = this.panningProxy || this.map;
-
-			if (obj.contentX != x)
-				obj.contentX = x;
-			
-			if (obj.contentY != y)
-				obj.contentY = y;
-		}
-		
-		/**
-		 * @inheritDoc
-		 */
-		override public function onOverlayUpdated():void
-		{
-			this.draggable.bounds = this.getDragBounds();
+			obj.contentX = x;
+			obj.contentY = y;
 		}
 		
 		/**
@@ -108,32 +171,68 @@ package inky.components.map.view.helpers
 		{
 			super.reset();
 			
-			if (this.panningProxy)
+			/*if (this.panningProxy)
 			{
 				this.panningProxy.contentX = this.contentX;
 				this.panningProxy.contentY = this.contentY;
-			}	
+			}*/
 		}
-		
-		//---------------------------------------
-		// PROTECTED METHODS
-		//---------------------------------------
-		
+
 		/**
 		 * @inheritDoc
 		 */
-		override protected function validate():void
+		override public function validate():void
 		{
 			var positionIsInvalid:Boolean = this.validationState.propertyIsInvalid("contentX") || this.validationState.propertyIsInvalid("contentY");
 			super.validate();
 			
 			if (positionIsInvalid)
 			{
-				var dragBounds:Rectangle = this.getDragBounds();
-				this.contentContainer.x = Math.max(Math.min(dragBounds.right, this.contentX), dragBounds.left);
-				this.contentContainer.y = Math.max(Math.min(dragBounds.bottom, this.contentY), dragBounds.top);
-				this.content.dispatchEvent(new MapEvent(MapEvent.MOVE));
+				this.contentContainer.x = this.contentX;
+				this.contentContainer.y = this.contentY;
+				this.mapContent.dispatchEvent(new MapEvent(MapEvent.MOVED));
 			}
+		}
+		
+		//---------------------------------------
+		// PRIVATE METHODS
+		//---------------------------------------
+
+		/**
+		 * 
+		 */
+		private function calculateDragBounds():Rectangle
+		{
+			var contentBounds:Rectangle = this.contentContainer.getRect(this.mapContent);
+			var maskBounds:Rectangle = this.mask.getRect(this.mapContent);
+			var bounds:Rectangle = new Rectangle(maskBounds.width - contentBounds.width, maskBounds.height - contentBounds.height, contentBounds.width - maskBounds.width, contentBounds.height - maskBounds.height);
+			return bounds;
+		}
+
+		/**
+		 * 
+		 */
+		private function content_boundsChangeHandler(event:MapEvent):void
+		{
+			this.draggable.bounds = this.getDragBounds();
+		}
+
+		/**
+		 * 
+		 */
+		private function normalizeX(value:Number):Number
+		{
+			var dragBounds:Rectangle = this.getDragBounds();
+			return Math.max(Math.min(dragBounds.right, value), dragBounds.left);
+		}
+		
+		/**
+		 * 
+		 */
+		private function normalizeY(value:Number):Number
+		{
+			var dragBounds:Rectangle = this.getDragBounds();
+			return Math.max(Math.min(dragBounds.bottom, value), dragBounds.top);
 		}
 
 	}

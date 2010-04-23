@@ -21,12 +21,9 @@ package inky.components.map.view.helpers
 	 */
 	public class BaseMapViewHelper extends EventDispatcher
 	{
-		// TODO: Rename content to something more accurate, like mapAsDisplayObject??
-		protected var content:DisplayObjectContainer;
-		protected var contentContainer:Sprite;
-		private var contentContainerProxy:Object;
-		protected var layoutValidator:LayoutValidator;
 		protected var map:IMap;
+		protected var mapContent:DisplayObjectContainer;
+		protected var layoutValidator:LayoutValidator;
 		protected var validationState:ValidationState;
 		
 		/**
@@ -35,166 +32,16 @@ package inky.components.map.view.helpers
 		 * @param map
 		 * 		The IMap target to apply the view helper behavior to.
 		 */
-		public function BaseMapViewHelper(map:IMap)
+		public function BaseMapViewHelper(map:IMap, layoutValidator:LayoutValidator)
 		{
 			if ((!map is DisplayObjectContainer))
 				throw new ArgumentError("Target map must be a DisplayObjectContainer.");
 
 			this.map = map;
-			this.content = DisplayObjectContainer(map);
-
-			this.layoutValidator = new LayoutValidator(this.content, this.validate);
-			this.validationState = this.layoutValidator.validationState;
-
-			// Find the content container. If it can't be found, create one.
-			var contentContainer = this.content.getChildByName("_contentContainer") as Sprite;
-			if (!contentContainer)
-			{
-				contentContainer = new Sprite();
-				contentContainer.name == "_contentContainer";
-				this.content.addChild(contentContainer);
-			}
-			this.contentContainer = contentContainer;
-			this.contentContainerProxy = {};
-		}
-		
-		//---------------------------------------
-		// ACCESSORS
-		//---------------------------------------
-
-		/**
-		 *
-		 */
-		public function get contentRotation():Number
-		{ 
-			var value:Number = this.contentContainerProxy.rotation;
-			if (isNaN(value))
-			{
-				value =
-				this.contentContainerProxy.rotation =
-				this.contentContainer.rotation;
-			}
-			return value;
-		}
-		/**
-		 * @private
-		 */
-		public function set contentRotation(value:Number):void
-		{
-			var oldValue:Number = this.contentRotation;
-			if (value != oldValue)
-			{
-				this.contentContainerProxy.rotation = value;
-				this.invalidateProperty('contentRotation');
-			}
-		}
-
-		/**
-		 *
-		 */
-		public function get contentScaleX():Number
-		{ 
-			var value:Number = this.contentContainerProxy.scaleX;
-			if (isNaN(value))
-			{
-				value =
-				this.contentContainerProxy.scaleX =
-				this.contentContainer.scaleX;
-			}
-			return value;
-		}
-		/**
-		 * @private
-		 */
-		public function set contentScaleX(value:Number):void
-		{
-			var oldValue:Number = this.contentScaleX;
-			if (value != oldValue)
-			{
-				this.contentContainerProxy.scaleX = value;
-				this.invalidateProperty('contentScaleX');
-			}
-		}
-		
-		/**
-		 *
-		 */
-		public function get contentScaleY():Number
-		{ 
-			var value:Number = this.contentContainerProxy.scaleY;
-			if (isNaN(value))
-			{
-				value =
-				this.contentContainerProxy.scaleY =
-				this.contentContainer.scaleY;
-			}
-			return value;
-		}
-		/**
-		 * @private
-		 */
-		public function set contentScaleY(value:Number):void
-		{
-			var oldValue:Number = this.contentScaleY;
-			if (value != oldValue)
-			{
-				this.contentContainerProxy.scaleY = value;
-				this.invalidateProperty('contentScaleY');
-			}
-		}
-		
-		/**
-		 *
-		 */
-		public function get contentX():Number
-		{ 
-			var value:Number = this.contentContainerProxy.x;
-			if (isNaN(value))
-			{
-				value =
-				this.contentContainerProxy.x =
-				this.contentContainer.x;
-			}
-			return value;
-		}
-		/**
-		 * @private
-		 */
-		public function set contentX(value:Number):void
-		{
-			var oldValue:Number = this.contentX;
-			if (value != oldValue)
-			{
-				this.contentContainerProxy.x = value;
-				this.invalidateProperty('contentX');
-			}
-		}
-		
-		/**
-		 *
-		 */
-		public function get contentY():Number
-		{ 
-			var value:Number = this.contentContainerProxy.y;
-			if (isNaN(value))
-			{
-				value =
-				this.contentContainerProxy.y =
-				this.contentContainer.y;
-			}
-			return value;
-		}
-		/**
-		 * @private
-		 */
-		public function set contentY(value:Number):void
-		{
-			var oldValue:Number = this.contentY;
-			if (value != oldValue)
-			{
-				this.contentContainerProxy.y = value;
-				this.invalidateProperty('contentY');
-			}
+			this.mapContent = DisplayObjectContainer(map);
+			
+			this.layoutValidator = layoutValidator;
+			this.validationState = layoutValidator.validationState;
 		}
 		
 		//---------------------------------------
@@ -202,18 +49,17 @@ package inky.components.map.view.helpers
 		//---------------------------------------
 		
 		/**
-		 * 
-		 */
-		public function onOverlayUpdated():void
-		{
-		}
-		
-		/**
 		 * @inheritDoc
 		 */
 		public function reset():void
 		{
-			this.contentContainerProxy = {};
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public function validate():void
+		{
 		}
 
 		//---------------------------------------
@@ -225,7 +71,8 @@ package inky.components.map.view.helpers
 		 */
 		protected function invalidateProperty(property:String):void
 		{
-			this.layoutValidator.properties[property] = this[property];
+			//this.layoutValidator.properties[property] = this[property];
+			this.layoutValidator.validationState.markPropertyAsInvalid(property);
 			this.invalidate();
 		}
 
@@ -236,15 +83,6 @@ package inky.components.map.view.helpers
 		{
 			this.layoutValidator.invalidate();
 		}
-
-		/**
-		 * @inheritDoc
-		 */
-		protected function validate():void
-		{
-			this.layoutValidator.markAllPropertiesAsValid();
-		}
-
 
 	}
 	

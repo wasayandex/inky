@@ -3,15 +3,16 @@ package inky.components.map.view.helpers
 	import inky.components.map.view.helpers.MaskedMapViewHelper;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
-	import inky.display.utils.scale;
-	import inky.components.map.view.IMap;
 	import flash.display.InteractiveObject;
 	import flash.geom.Point;
-	import flash.geom.Rectangle;
 	import inky.utils.toCoordinateSpace;
 	import inky.utils.IDestroyable;
-	import inky.utils.describeObject;
 	import inky.components.map.view.events.MapEvent;
+	import inky.layout.validation.LayoutValidator;
+	import flash.display.DisplayObjectContainer;
+	import flash.display.DisplayObject;
+	import inky.components.map.view.IInteractiveMap;
+	import inky.display.utils.scale;
 	
 	/**
 	 *
@@ -32,9 +33,16 @@ package inky.components.map.view.helpers
 		private var _zoomingProxy:Object;
 		private var _zoomInterval:Number;
 		private var _zoomOutButton:InteractiveObject;
+		protected var overlayContainer:DisplayObjectContainer;
 
 		/**
 		 * @copy inky.components.map.view.helpers.MaskedMapViewHelper
+		 * 
+		 * @param overlayContainer
+		 * 		The map's overlay container.
+		 * 
+		 * @param zoomingProxy
+		 * 		An object that stands in for the contentContainer in scale manipulation methods.
 		 * 
 		 * @param maximumZoom
 		 * 		The maximum 'zoom' amount.
@@ -48,22 +56,108 @@ package inky.components.map.view.helpers
 		 * 		The amount of 'zoom' change per update.
 		 * @see #zoomInterval
 		 */
-		public function ZoomingHelper(map:IMap, zoomingProxy:Object = null, maximumZoom:Number = 2, minimumZoom:Number = 1, zoomInterval:Number = 0.05)
+		public function ZoomingHelper(map:IInteractiveMap, layoutValidator:LayoutValidator, mask:DisplayObject, contentContainer:DisplayObjectContainer, overlayContainer:DisplayObjectContainer, zoomingProxy:Object = null, maximumZoom:Number = 2, minimumZoom:Number = 1, zoomInterval:Number = 0.05)
 		{
-			super(map);
+			super(map, layoutValidator, mask, contentContainer);
 			
 			this.zoomingProxy = zoomingProxy;
 			this.maximumZoom = maximumZoom;
 			this.minimumZoom = minimumZoom;
 			this.zoomInterval = zoomInterval;
 			
-			this.zoomInButton = this.content.getChildByName("_zoomInButton") as InteractiveObject;
-			this.zoomOutButton = this.content.getChildByName("_zoomOutButton") as InteractiveObject;
+			this.zoomInButton = this.mapContent.getChildByName("_zoomInButton") as InteractiveObject;
+			this.zoomOutButton = this.mapContent.getChildByName("_zoomOutButton") as InteractiveObject;
+			
+			this.overlayContainer = overlayContainer;
 		}
 		
 		//---------------------------------------
 		// ACCESSORS
 		//---------------------------------------
+
+		/**
+		 *
+		 */
+		public function get contentRotation():Number
+		{ 
+			var contentContainerProxy:Object = this.getContentContainerProxy();
+			var value:Number = contentContainerProxy.rotation;
+			if (isNaN(value))
+			{
+				value =
+				contentContainerProxy.rotation =
+				this.contentContainer.rotation;
+			}
+			return value;
+		}
+		/**
+		 * @private
+		 */
+		public function set contentRotation(value:Number):void
+		{
+			var oldValue:Number = this.contentRotation;
+			if (value != oldValue)
+			{
+				this.getContentContainerProxy().rotation = value;
+				this.invalidateProperty('contentRotation');
+			}
+		}
+
+		/**
+		 *
+		 */
+		public function get contentScaleX():Number
+		{ 
+			var contentContainerProxy:Object = this.getContentContainerProxy();
+			var value:Number = contentContainerProxy.scaleX;
+			if (isNaN(value))
+			{
+				value =
+				contentContainerProxy.scaleX =
+				this.overlayContainer.scaleX;
+			}
+			return this.normalizeScale(value);
+		}
+		/**
+		 * @private
+		 */
+		public function set contentScaleX(value:Number):void
+		{
+			var oldValue:Number = this.contentScaleX;
+			if (value != oldValue)
+			{
+				this.getContentContainerProxy().scaleX = this.normalizeScale(value);
+				this.invalidateProperty('contentScaleX');
+			}
+		}
+		
+		/**
+		 *
+		 */
+		public function get contentScaleY():Number
+		{ 
+			var contentContainerProxy:Object = this.getContentContainerProxy();
+			var value:Number = contentContainerProxy.scaleY;
+			if (isNaN(value))
+			{
+				value =
+				contentContainerProxy.scaleY =
+				this.overlayContainer.scaleY;
+			}
+			return this.normalizeScale(value);
+		}
+		/**
+		 * @private
+		 */
+		public function set contentScaleY(value:Number):void
+		{
+			var oldValue:Number = this.contentScaleY;
+			if (value != oldValue)
+			{
+				this.getContentContainerProxy().scaleY = this.normalizeScale(value);
+				this.invalidateProperty('contentScaleY');
+			}
+		}
 
 		/**
 		 * The maximum 'zoom' or 'scale' amount.
@@ -198,11 +292,11 @@ package inky.components.map.view.helpers
 		 */
 		public function destroy():void
 		{
-			this.content.removeEventListener(Event.ENTER_FRAME, this.zoomIn);
-			if (this.content.stage)
+			this.mapContent.removeEventListener(Event.ENTER_FRAME, this.zoomIn);
+			if (this.mapContent.stage)
 			{
-				this.content.stage.removeEventListener(MouseEvent.MOUSE_UP, this.zoomInButton_mouseUpHandler);
-				this.content.stage.removeEventListener(MouseEvent.MOUSE_UP, this.zoomOutButton_mouseUpHandler);
+				this.mapContent.stage.removeEventListener(MouseEvent.MOUSE_UP, this.zoomInButton_mouseUpHandler);
+				this.mapContent.stage.removeEventListener(MouseEvent.MOUSE_UP, this.zoomOutButton_mouseUpHandler);
 			}
 			
 			if (this.zoomInButton)
@@ -218,9 +312,9 @@ package inky.components.map.view.helpers
 		public function scaleContent(scaleX:Number, scaleY:Number):void
 		{
 			var obj:Object = this.zoomingProxy || this.map;
-			
-			if (obj.contentScaleX != scaleX || obj.contentScaleY != scaleY)
-				scale(obj, [scaleX, scaleY], this.getCenterPoint(), {x: "contentX", y: "contentY", scaleX: "contentScaleX", scaleY: "contentScaleY", rotation: "contentRotation"});
+			/*obj.contentScaleX = scaleX;
+			obj.contentScaleY = scaleY;*/
+			scale(obj, [scaleX, scaleY], this.getCenterPoint(), {x: "contentX", y: "contentY", scaleX: "contentScaleX", scaleY: "contentScaleY", rotation: "contentRotation"});
 		}
 		
 		/**
@@ -230,35 +324,26 @@ package inky.components.map.view.helpers
 		{
 			super.reset();
 			
-			if (this.zoomingProxy)
+			/*if (this.zoomingProxy)
 			{
 				this.zoomingProxy.contentScaleX = this.contentScaleX;
 				this.zoomingProxy.contentScaleY = this.contentScaleY;
-			}	
+			}	*/
 		}
-		
-		//---------------------------------------
-		// PROTECTED METHODS
-		//---------------------------------------
 		
 		/**
 		 * @inheritDoc
 		 */
-		override protected function validate():void
+		override public function validate():void
 		{
 			var scaleIsInvalid:Boolean = this.validationState.propertyIsInvalid("contentScaleX") || this.validationState.propertyIsInvalid("contentScaleY");
 			super.validate();
 			
 			if (scaleIsInvalid)
 			{
-				this.contentContainer.scaleX = Math.min(Math.max(this.minimumZoom, this.contentScaleX), this.maximumZoom);
-				this.contentContainer.scaleY = Math.min(Math.max(this.minimumZoom, this.contentScaleY), this.maximumZoom);
-				this.content.dispatchEvent(new MapEvent(MapEvent.SCALE));
-
-				var dragBounds:Rectangle = this.getDragBounds();
-				this.contentContainer.x = Math.max(Math.min(dragBounds.right, this.contentContainer.x), dragBounds.left);
-				this.contentContainer.y = Math.max(Math.min(dragBounds.bottom, this.contentContainer.y), dragBounds.top);
-				this.content.dispatchEvent(new MapEvent(MapEvent.MOVE));
+				this.overlayContainer.scaleX = this.contentScaleX;
+				this.overlayContainer.scaleY = this.contentScaleY;
+				this.mapContent.dispatchEvent(new MapEvent(MapEvent.SCALED));
 			}
 		}
 
@@ -271,9 +356,31 @@ package inky.components.map.view.helpers
 		 */
 		private function getCenterPoint():Point
 		{
-			return toCoordinateSpace(new Point(this.mask.width * 0.5, this.mask.height * 0.5), this.mask, this.content);
+			return toCoordinateSpace(new Point(this.mask.width * 0.5, this.mask.height * 0.5), this.mask, this.overlayContainer);
 		}
 		
+		/**
+		 * 
+		 */
+		private function normalizeScale(value:Number):Number
+		{
+			return Math.min(Math.max(this.minimumZoom, value), this.maximumZoom);
+		}
+		
+		/**
+		 * 
+		 */
+		private function rotatePoint(p:Point, r:Number):void
+		{
+			r *= Math.PI / 180;
+			var cos:Number = Math.cos(r);
+			var sin:Number = Math.sin(r);
+			var oldX:Number = p.x;
+			var oldY:Number = p.y;
+			p.x = oldX * cos - oldY * sin;
+			p.y = oldX * sin + oldY * cos;
+		}
+
 		/**
 		 * Scale the map up.
 		 */
@@ -293,8 +400,8 @@ package inky.components.map.view.helpers
 		 */
 		private function zoomInButton_mouseDownHandler(event:MouseEvent):void
 		{
-			this.content.addEventListener(Event.ENTER_FRAME, this.zoomIn);
-			this.content.stage.addEventListener(MouseEvent.MOUSE_UP, this.zoomInButton_mouseUpHandler);
+			this.mapContent.addEventListener(Event.ENTER_FRAME, this.zoomIn);
+			this.mapContent.stage.addEventListener(MouseEvent.MOUSE_UP, this.zoomInButton_mouseUpHandler);
 		}
 
 		/**
@@ -302,8 +409,8 @@ package inky.components.map.view.helpers
 		 */
 		private function zoomInButton_mouseUpHandler(event:MouseEvent):void
 		{
-			this.content.removeEventListener(Event.ENTER_FRAME, this.zoomIn);			
-			this.content.stage.removeEventListener(MouseEvent.MOUSE_UP, this.zoomInButton_mouseUpHandler);
+			this.mapContent.removeEventListener(Event.ENTER_FRAME, this.zoomIn);			
+			this.mapContent.stage.removeEventListener(MouseEvent.MOUSE_UP, this.zoomInButton_mouseUpHandler);
 		}
 
 		/**
@@ -325,8 +432,8 @@ package inky.components.map.view.helpers
 		 */
 		private function zoomOutButton_mouseDownHandler(event:MouseEvent):void
 		{
-			this.content.addEventListener(Event.ENTER_FRAME, this.zoomOut);			
-			this.content.stage.addEventListener(MouseEvent.MOUSE_UP, this.zoomOutButton_mouseUpHandler);
+			this.mapContent.addEventListener(Event.ENTER_FRAME, this.zoomOut);			
+			this.mapContent.stage.addEventListener(MouseEvent.MOUSE_UP, this.zoomOutButton_mouseUpHandler);
 		}
 
 		/**
@@ -334,8 +441,8 @@ package inky.components.map.view.helpers
 		 */
 		private function zoomOutButton_mouseUpHandler(event:MouseEvent):void
 		{
-			this.content.removeEventListener(Event.ENTER_FRAME, this.zoomOut);			
-			this.content.stage.removeEventListener(MouseEvent.MOUSE_UP, this.zoomOutButton_mouseUpHandler);
+			this.mapContent.removeEventListener(Event.ENTER_FRAME, this.zoomOut);			
+			this.mapContent.stage.removeEventListener(MouseEvent.MOUSE_UP, this.zoomOutButton_mouseUpHandler);
 		}
 
 	}	

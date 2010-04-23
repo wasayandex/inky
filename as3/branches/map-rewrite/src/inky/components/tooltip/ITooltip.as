@@ -23,5 +23,6 @@ package inky.components.tooltip
 		function set target(target:InteractiveObject):void;
 		function hide():void;
 		function show():void;
+		function updatePosition():void;
 	}
 }

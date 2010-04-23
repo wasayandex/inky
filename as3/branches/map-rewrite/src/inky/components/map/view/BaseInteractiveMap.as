@@ -10,7 +10,7 @@ package inky.components.map.view
 	import flash.display.DisplayObject;
 	import inky.components.map.view.IInteractiveMap;
 	import inky.components.map.view.helpers.ShowPlacemarkHelper;
-	import flash.events.Event;
+	import flash.display.Shape;
 	
 	/**
 	 *
@@ -35,6 +35,7 @@ package inky.components.map.view
 		private var zoomingHelper:ZoomingHelper;
 		private var showPlacemarkHelper:ShowPlacemarkHelper;
 		private var tooltipHelper:TooltipHelper;
+		private var __mask:DisplayObject;
 		
 		/**
 		 * Creates a BaseInteractiveMap. 
@@ -43,11 +44,35 @@ package inky.components.map.view
 		public function BaseInteractiveMap()
 		{
 			super();
-			this.overlayLoader.addEventListener("overlayUpdated", this.overlayLoader_overlayUpdatedHandler);
-			this.panningHelper = new PanningHelper(this);
-			this.zoomingHelper = new ZoomingHelper(this);
-			this.tooltipHelper = new TooltipHelper(this, this.getPlacemarkRendererFor);
-			this.showPlacemarkHelper = new ShowPlacemarkHelper(this, this.getPlacemarkRendererFor);
+
+			// Find the content container mask.
+			var mask:DisplayObject = this.contentContainer.mask || this.getChildByName('_mask');
+			if (!mask)
+			{ 
+				var child:DisplayObject;
+				for (var i:int = this.numChildren - 1; i >= 0; i--)
+				{
+					child = this.getChildAt(i);
+					if (child is Shape)
+					{
+						mask = child;
+						break;
+					}
+				}
+			}
+
+			if (!mask)
+				throw new Error('Map is missing a mask.');
+
+			if (this.contentContainer.mask != mask)
+				this.contentContainer.mask = mask;
+
+			this.__mask = mask;
+
+			this.panningHelper = new PanningHelper(this, this.layoutValidator, this.__mask, this.contentContainer);
+			this.zoomingHelper = new ZoomingHelper(this, this.layoutValidator, this.__mask, this.contentContainer, this.overlayContainer);
+			this.showPlacemarkHelper = new ShowPlacemarkHelper(this, this.layoutValidator, this.__mask, this.contentContainer, this.getPlacemarkRendererFor);
+			this.tooltipHelper = new TooltipHelper(this, this.layoutValidator, this.getPlacemarkRendererFor);
 			BindingUtil.bindSetter(this.reset, this, "model");
 		}
 
@@ -60,14 +85,14 @@ package inky.components.map.view
 		/**
 		 * @inheritDoc
 		 */
-		override public function get contentRotation():Number
+		public function get contentRotation():Number
 		{ 
 			return this.zoomingHelper.contentRotation; 
 		}
 		/**
 		 * @private
 		 */
-		override public function set contentRotation(value:Number):void
+		public function set contentRotation(value:Number):void
 		{
 			this.zoomingHelper.contentRotation = value;
 		}
@@ -75,14 +100,14 @@ package inky.components.map.view
 		/**
 		 * @inheritDoc
 		 */
-		override public function get contentX():Number
+		public function get contentX():Number
 		{ 
 			return this.panningHelper.contentX; 
 		}
 		/**
 		 * @private
 		 */
-		override public function set contentX(value:Number):void
+		public function set contentX(value:Number):void
 		{
 			this.panningHelper.contentX = value;
 		}
@@ -90,14 +115,14 @@ package inky.components.map.view
 		/**
 		 * @inheritDoc
 		 */
-		override public function get contentY():Number
+		public function get contentY():Number
 		{ 
 			return this.panningHelper.contentY; 
 		}
 		/**
 		 * @private
 		 */
-		override public function set contentY(value:Number):void
+		public function set contentY(value:Number):void
 		{
 			this.panningHelper.contentY = value;
 		}
@@ -105,14 +130,14 @@ package inky.components.map.view
 		/**
 		 * @inheritDoc
 		 */
-		override public function get contentScaleX():Number
+		public function get contentScaleX():Number
 		{ 
 			return this.zoomingHelper.contentScaleX; 
 		}
 		/**
 		 * @private
 		 */
-		override public function set contentScaleX(value:Number):void
+		public function set contentScaleX(value:Number):void
 		{
 			this.zoomingHelper.contentScaleX = value;
 		}
@@ -120,14 +145,14 @@ package inky.components.map.view
 		/**
 		 * @inheritDoc
 		 */
-		override public function get contentScaleY():Number
+		public function get contentScaleY():Number
 		{ 
 			return this.zoomingHelper.contentScaleY; 
 		}
 		/**
 		 * @private
 		 */
-		override public function set contentScaleY(value:Number):void
+		public function set contentScaleY(value:Number):void
 		{
 			this.zoomingHelper.contentScaleY = value;
 		}
@@ -293,24 +318,24 @@ package inky.components.map.view
 		}
 		
 		//---------------------------------------
-		// PRIVATE METHODS
+		// PROTECTED METHODS
 		//---------------------------------------
 		
 		/**
-		 * 
+		 * @inheritDoc
 		 */
-		private function overlayLoader_overlayUpdatedHandler(event:Event):void
+		override protected function validate():void
 		{
-			for each (var helper:Object in [
-				this.panningHelper,
-				this.zoomingHelper,
-				this.showPlacemarkHelper,
-				this.tooltipHelper
-			])
-			{
-				helper.onOverlayUpdated();
-			}
+			this.zoomingHelper.validate();
+			this.panningHelper.validate();
+			this.tooltipHelper.validate();
+			this.showPlacemarkHelper.validate();
+			super.validate();
 		}
+
+		//---------------------------------------
+		// PRIVATE METHODS
+		//---------------------------------------
 		
 		/**
 		 * 

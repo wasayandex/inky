@@ -15,6 +15,8 @@ package inky.components.map.view.helpers
 	import inky.components.map.controller.mediators.FolderDeselectionMediator;
 	import inky.components.map.controller.mediators.PlacemarkSelectionMediator;
 	import inky.components.map.controller.mediators.PlacemarkDeselectionMediator;
+	import flash.utils.getQualifiedClassName;
+	import flash.utils.getDefinitionByName;
 	
 	/**
 	 *
@@ -137,6 +139,25 @@ package inky.components.map.view.helpers
 		}
 		
 		/**
+		 * Adds a mediator.
+		 * 
+		 * @param mediator
+		 * 		The IMapControllerMediator to register.
+		 * 
+		 * @see inky.components.map.controller.mediators.IMapControllerMediator
+		 * @see #registerMediator
+		 */
+		public function registerMediator(mediator:IMapControllerMediator):void
+		{
+			var mediatorClass:Class = getDefinitionByName(getQualifiedClassName(mediator)) as Class;
+			
+			this.mediators[mediatorClass] = mediator;
+			
+			mediator.controller = this.controller;
+			mediator.view = mediator.view || this.map;
+		}
+		
+		/**
 		 * Adds a mediator class.
 		 * 
 		 * @param mediatorClass
@@ -151,6 +172,25 @@ package inky.components.map.view.helpers
 		}
 		
 		/**
+		 * Removes a mediator from the controller helper. The mediator instance is destroyed.
+		 * 
+		 * @param mediator
+		 * 		The IMapControllerMediator to unregister.
+		 * 
+		 * @see inky.components.map.controller.mediators.IMapControllerMediator
+		 * @see #registerMediator
+		 */
+		public function unregisterMediator(mediator:IMapControllerMediator):void
+		{
+			var mediatorClass:Class = getDefinitionByName(getQualifiedClassName(mediator)) as Class;
+			
+			if (this.mediators[mediatorClass] != null)
+				this.mediators[mediatorClass].destroy();
+			
+			delete this.mediators[mediatorClass];
+		}
+		
+		/**
 		 * Removes a mediator class from the controller helper. Any instances of the 
 		 * mediator class that were created by the controller helper are destroyed.
 		 * 
@@ -158,7 +198,7 @@ package inky.components.map.view.helpers
 		 * 		The IMapControllerMediator class to unregister.
 		 * 
 		 * @see inky.components.map.controller.mediators.IMapControllerMediator
-		 * @see inky.components.map.view.helpers.ControllerHelper#unregisterMediatorClass
+		 * @see #registerMediatorClass
 		 */
 		public function unregisterMediatorClass(mediatorClass:Class):void
 		{

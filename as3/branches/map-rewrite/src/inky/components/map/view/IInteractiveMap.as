@@ -3,6 +3,7 @@ package inky.components.map.view
 	import inky.components.map.view.IMap;
 	import inky.components.tooltip.ITooltip;
 	import flash.display.InteractiveObject;
+	import flash.display.DisplayObjectContainer;
 	
 	/**
 	 *
@@ -20,6 +21,36 @@ package inky.components.map.view
 		//---------------------------------------
 		// ACCESSORS
 		//---------------------------------------
+		
+		/**
+		 * Gets and sets the rotation value for the map content container.
+		 */
+		function get contentRotation():Number;
+		function set contentRotation(value:Number):void;
+		
+		/**
+		 * Gets and sets the x value for the map content container.
+		 */
+		function get contentX():Number;
+		function set contentX(value:Number):void;
+		
+		/**
+		 * Gets and sets the y value for the map content container.
+		 */
+		function get contentY():Number;
+		function set contentY(value:Number):void;
+		
+		/**
+		 * Gets and sets the scaleX value for the map content container.
+		 */
+		function get contentScaleX():Number;
+		function set contentScaleX(value:Number):void;
+		
+		/**
+		 * Gets and sets the scaleY value for the map content container.
+		 */
+		function get contentScaleY():Number;
+		function set contentScaleY(value:Number):void;
 		
 		/**
 		 * 

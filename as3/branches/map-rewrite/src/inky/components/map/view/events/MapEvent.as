@@ -17,13 +17,13 @@ package inky.components.map.view.events
 	public class MapEvent extends Event
 	{
 		/**
-		 *  The <code>MapEvent.MOVE</code> constant defines the value of the 
-		 *  <code>type</code> property of the event object for a <code>move</code> event.
+		 *  The <code>MapEvent.MOVED</code> constant defines the value of the 
+		 *  <code>type</code> property of the event object for a <code>moved</code> event.
 		 * 
 		 *  <p>The properties of the event object have the following values:</p>
 		 *  <table class="innertable">
 		 *     <tr><th>Property</th><th>Value</th></tr>
-		 *     <tr><td><code>bubbles</code></td><td>true</td></tr>
+		 *     <tr><td><code>bubbles</code></td><td>false</td></tr>
 		 *     <tr><td><code>cancelable</code></td><td>false</td></tr>
 		 *     <tr><td><code>currentTarget</code></td><td>The Object that defines the 
 		 *       event listener that handles the event. For example, if you use 
@@ -35,18 +35,18 @@ package inky.components.map.view.events
 		 *       Object listening for the event.</td></tr>
 		 *  </table>
 		 *
-		 *  @eventType move
+		 *  @eventType moved
 		 */
-		public static const MOVE:String = "move";
+		public static const MOVED:String = "moved";
 		
 		/**
-		 *  The <code>MapEvent.SCALE</code> constant defines the value of the 
-		 *  <code>type</code> property of the event object for a <code>scale</code> event.
+		 *  The <code>MapEvent.OVERLAY_UPDATED</code> constant defines the value of the 
+		 *  <code>type</code> property of the event object for a <code>overlayUpdated</code> event.
 		 * 
 		 *  <p>The properties of the event object have the following values:</p>
 		 *  <table class="innertable">
 		 *     <tr><th>Property</th><th>Value</th></tr>
-		 *     <tr><td><code>bubbles</code></td><td>true</td></tr>
+		 *     <tr><td><code>bubbles</code></td><td>false</td></tr>
 		 *     <tr><td><code>cancelable</code></td><td>false</td></tr>
 		 *     <tr><td><code>currentTarget</code></td><td>The Object that defines the 
 		 *       event listener that handles the event. For example, if you use 
@@ -58,10 +58,33 @@ package inky.components.map.view.events
 		 *       Object listening for the event.</td></tr>
 		 *  </table>
 		 *
-		 *  @eventType scale
+		 *  @eventType overlayUpdated
 		 */
-		public static const SCALE:String = "scale";
-				
+		public static const OVERLAY_UPDATED:String = "overlayUpdated";
+		
+		/**
+		 *  The <code>MapEvent.SCALED</code> constant defines the value of the 
+		 *  <code>type</code> property of the event object for a <code>scaled</code> event.
+		 * 
+		 *  <p>The properties of the event object have the following values:</p>
+		 *  <table class="innertable">
+		 *     <tr><th>Property</th><th>Value</th></tr>
+		 *     <tr><td><code>bubbles</code></td><td>false</td></tr>
+		 *     <tr><td><code>cancelable</code></td><td>false</td></tr>
+		 *     <tr><td><code>currentTarget</code></td><td>The Object that defines the 
+		 *       event listener that handles the event. For example, if you use 
+		 *       <code>myButton.addEventListener()</code> to register an event listener, 
+		 *       myButton is the value of the <code>currentTarget</code>. </td></tr>
+		 *     <tr><td><code>target</code></td><td>The Object that dispatched the event; 
+		 *       it is not always the Object listening for the event. 
+		 *       Use the <code>currentTarget</code> property to always access the 
+		 *       Object listening for the event.</td></tr>
+		 *  </table>
+		 *
+		 *  @eventType scaled
+		 */
+		public static const SCALED:String = "scaled";
+
 		/**
 		 *  Constructor.
 		 *
