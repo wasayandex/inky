@@ -354,8 +354,8 @@ if (this.recyclePlacemarkRenderers)
 		 */
 		private function getKMLCoordinatesFor(placemark:Object):Point
 		{
-			var coords:Object = placemark.geometry.coordinates.coordsList[0];
-			return new Point(coords.lon, coords.lat);
+			var point:Object = placemark.point;
+			return new Point(point.longitude, point.latitude);
 		}
 		
 		/**

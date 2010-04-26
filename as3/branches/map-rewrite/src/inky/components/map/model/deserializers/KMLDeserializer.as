@@ -1,10 +1,9 @@
 package inky.components.map.model.deserializers 
 {
-	import com.google.maps.extras.xmlparsers.kml.Kml22;
 	import inky.components.map.model.KMLMapModel;
-	import com.google.maps.extras.xmlparsers.kml.Feature;
-	import com.google.maps.extras.xmlparsers.kml.Document;
-	import inky.components.map.model.IMapModel;
+	import inky.kml.KMLDocument;
+	import inky.kml.Feature;
+	import inky.kml.Document;
 	
 	/**
 	 *
@@ -27,7 +26,7 @@ package inky.components.map.model.deserializers
 		/**
 		 * @inheritDoc
 		 */
-		public function deserialize(data:Object):IMapModel
+		public function deserialize(data:Object):KMLMapModel
 		{
 			var xml:XML;
 			if (data is XML)
@@ -36,20 +35,21 @@ package inky.components.map.model.deserializers
 				xml = new XML(data);
 			else
 				throw new ArgumentError("Data type not recognized as XML.");
+			
+			var model:KMLMapModel;
 
 			var document:Document;
-			var root:Feature = new Kml22(xml).feature;
-
+			var root:Feature = new KMLDocument(xml).rootFeature;
+			
 			if (!root)
 				throw new Error("No root feature found. KML is malformed.");
-
+			
 			if (root is Document)
 				document = Document(root);
 			else
 				document = new Document(root.xml);
 
-			var model:KMLMapModel = new KMLMapModel(document);
-			return model;
+			return new KMLMapModel(document);
 		}
 	}
 	

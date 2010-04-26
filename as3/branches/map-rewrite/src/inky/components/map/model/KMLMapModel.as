@@ -3,12 +3,12 @@ package inky.components.map.model
 	import flash.events.EventDispatcher;
 	import inky.binding.events.PropertyChangeEvent;
 	import inky.components.map.model.IMapModel;
-	import com.google.maps.extras.xmlparsers.kml.Document;
-	import com.google.maps.extras.xmlparsers.kml.Folder;
-	import com.google.maps.extras.xmlparsers.kml.Container;
-	import com.google.maps.extras.xmlparsers.kml.Placemark;
-	import com.google.maps.extras.xmlparsers.kml.Overlay;
-	import com.google.maps.extras.xmlparsers.kml.KmlGroundOverlay;
+	import inky.kml.Document;
+	import inky.kml.Container;
+	import inky.kml.Folder;
+	import inky.kml.Placemark;
+	import inky.kml.Overlay;
+	import inky.kml.GroundOverlay;
 	
 	/**
 	 *
@@ -26,16 +26,14 @@ package inky.components.map.model
 		private var _allowMultipleFolderSlections:Boolean;
 		private var _allowMultiplePlacemarkSelections:Boolean;
 		private var _document:Document;
-		private var _overlay:Object;
+		private var _overlay:GroundOverlay;
 		private var _selectedFolders:Array;
 		private var _selectedPlacemarks:Array;
 		
 		/**
 		 * Creates a new KMLMapModel.
 		 * 
-		 * KMLMapModel uses the KML parsing tools in the Google Maps API for Flash Utility Library. 
-		 * The library can be found at: <code>http://code.google.com/p/gmaps-utility-library-flash/</code>.
-		 * KMLMapModel uses this libarary's KML parsers to populate the model from XML.
+		 * KMLMapModel uses the KML parsing tools in the <code>inky.kml</code> package.
 		 * 
 		 * @see inky.components.map.model.deserializers.KMLDeserializer;
 		 * 
@@ -61,9 +59,9 @@ package inky.components.map.model
 			for (var i:int = 0; i < overlays.length; i++)
 			{
 				var overlay:Overlay = Overlay(overlays[i]);
-				if (overlay is KmlGroundOverlay)
+				if (overlay is GroundOverlay)
 				{
-					this._overlay = overlay;
+					this._overlay = GroundOverlay(overlay);
 					break;
 				}
 			}

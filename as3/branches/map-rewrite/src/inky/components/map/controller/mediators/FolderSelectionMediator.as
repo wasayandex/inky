@@ -3,7 +3,6 @@ package inky.components.map.controller.mediators
 	import inky.components.map.controller.mediators.AbstractMapControllerMediator;
 	import inky.components.map.controller.IMapController;
 	import inky.components.map.view.events.MapFeatureEvent;
-	import flash.events.Event;
 	
 	/**
 	 *
