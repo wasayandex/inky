@@ -40,13 +40,9 @@
 			this._invalidComponents = new PriorityQueue();
 		}
 
-
-
-
-		//
-		// public methods
-		//
-
+		//---------------------------------------
+		// PUBLIC METHODS
+		//---------------------------------------
 
 		/**
 		 *	
@@ -58,14 +54,6 @@
 
 			return LayoutManager._instance;
 		}
-
-
-
-
-		//
-		// private methods
-		//
-
 
 		/**
 		 *	
@@ -92,7 +80,6 @@
 			}
 		}
 
-
 		/**
 		 * 
 		 */
@@ -103,13 +90,9 @@
 				this.invalidateLayout(parent);
 		}
 
-
-
-
-		//
-		// private methods
-		//
-
+		//---------------------------------------
+		// PRIVATE METHODS
+		//---------------------------------------
 
 		/**
 		 *	
@@ -147,7 +130,6 @@
 			}
 		}
 
-
 		/**
 		 *	Called when an object that was invalidated off-stage is added to the stage.
 		 */
@@ -156,7 +138,6 @@
 			event.currentTarget.removeEventListener(event.type, arguments.callee);
 			this.invalidateLayout(event.currentTarget as ILayoutManagerClient);
 		}
-
 
 		/**
 		 *	
@@ -178,7 +159,6 @@
 			this._isInvalid = false;
 		}
 		
-		
 		/**
 		 *	
 		 */
@@ -187,9 +167,6 @@
 			if (client is ILayoutManagerClient)
 				ILayoutManagerClient(client).validateLayout();
 		}
-
-
-
 
 	}
 }

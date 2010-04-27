@@ -1,4 +1,4 @@
-package inky.layout 
+package inky.layout.layouts.boxModel
 {
 	import inky.layout.ILayoutConstraints;
 

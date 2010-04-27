@@ -1,6 +1,6 @@
 ﻿package inky.components.listViews.scrollableList
 {
-	import inky.collections.*;
+	import inky.collections.IList;
 	import inky.components.scrollPane.BaseScrollPane;
 	import inky.components.scrollBar.ScrollPolicy;
 	import inky.components.listViews.IListView;
@@ -31,6 +31,7 @@
 	 */
 	public class ScrollableList extends BaseScrollPane implements IListView
 	{
+// TODO: Figure out a way that will easily allow you to make a ScrollableList whose shown item is the centered on. Not only does this require a different validateContentPosition(), but also a different updateScrollBar(). see <http://inky.googlecode.com/svn/trunk/as3/trunk/examples/gallery/src/as3/main/MyScrollableList.as> -r1042 for validateContentPosition() implementation
 		private static const HORIZONTAL:String = "horizontal"; // Should be in another class.
 		private static const VERTICAL:String = "vertical";
 		
@@ -212,10 +213,11 @@
 			var size:Number = this._sizeCache[index];
 			if (isNaN(size))
 			{
-				var itemItemRenderer:Object = this.getItemRendererFor(index);
-				if (!EqualityUtil.objectsAreEqual(itemItemRenderer.model, this.dataProvider.getItemAt(index)))
-					itemItemRenderer.model = this.dataProvider.getItemAt(index);
-				size = itemItemRenderer[this._widthOrHeight];
+				var itemRenderer:Object = this.getItemRendererFor(index);
+				var itemModel:Object = this.dataProvider.getItemAt(index);
+				if (!EqualityUtil.objectsAreEqual(itemRenderer.model, itemModel))
+					itemRenderer.model = itemModel;
+				size = itemRenderer[this._widthOrHeight];
 				this._sizeCache[index] = size;
 			}
 			return size;
