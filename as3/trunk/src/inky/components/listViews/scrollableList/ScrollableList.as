@@ -213,10 +213,11 @@
 			var size:Number = this._sizeCache[index];
 			if (isNaN(size))
 			{
-				var itemItemRenderer:Object = this.getItemRendererFor(index);
-				if (!EqualityUtil.objectsAreEqual(itemItemRenderer.dataProvider, this.dataProvider.getItemAt(index)))
-					itemItemRenderer.dataProvider = this.dataProvider.getItemAt(index);
-				size = itemItemRenderer[this._widthOrHeight];
+				var itemRenderer:Object = this.getItemRendererFor(index);
+				var itemModel:Object = this.dataProvider.getItemAt(index);
+				if (!EqualityUtil.objectsAreEqual(itemRenderer.model, itemModel))
+					itemRenderer.model = itemModel;
+				size = itemRenderer[this._widthOrHeight];
 				this._sizeCache[index] = size;
 			}
 			return size;
@@ -536,8 +537,8 @@ if (!this.orientation) return;
 				listItem = this.getItemRendererFor(index);
 
 				var model:Object = this.dataProvider.getItemAt(index);
-				if (!EqualityUtil.objectsAreEqual(listItem.dataProvider, model))
-					listItem.dataProvider = model;
+				if (!EqualityUtil.objectsAreEqual(listItem.model, model))
+					listItem.model = model;
 
 				if (listItem.parent != this.__contentContainer)
 					this.__contentContainer.addChild(listItem as DisplayObject);
