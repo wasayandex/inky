@@ -226,6 +226,15 @@ package inky.components.map.view
 		}
 		
 		/**
+		 * Resets the map (called when the map model changes, typically).
+		 */
+		protected function reset():void
+		{
+			this.placemarkPlotter.reset();
+			this.overlayLoader.reset();
+		}
+		
+		/**
 		 * Set the selected folders. This method may be overriden by subclasses 
 		 * to alter the view behavior when folder selections change.
 		 * 
@@ -283,6 +292,7 @@ package inky.components.map.view
 			
 			if (model)
 			{
+				this.reset();
 				this.changeWatchers.push(BindingUtil.bindSetter(this.setSelectedPlacemarks, model, "selectedPlacemarks"));
 				this.changeWatchers.push(BindingUtil.bindSetter(this.setSelectedFolders, model, "selectedFolders"));
 			}

@@ -99,8 +99,8 @@ package inky.components.map.view.helpers
 			if (value != oldValue)
 			{
 				this._cachePlacemarkPositions = value;
-				if (!value && this.positionCache)
-					this.positionCache = null;
+				if (!value)
+					this.clearPositionCache();
 					
 			}
 		}
@@ -263,6 +263,10 @@ if (this.recyclePlacemarkRenderers)
 				if (this.cachePlacemarkPositions)
 					this.positionCache[placemark] = point;
 			}
+			else
+			{
+				trace("using cached position. HAHA pwdn")
+			}
 
 			return point;
 		}
@@ -292,6 +296,15 @@ if (this.recyclePlacemarkRenderers)
 		{
 			for (var i:int = 0; i < placemarks.length; i++)
 				this.removePlacemark(placemarks[i]);
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		override public function reset():void
+		{
+			super.reset();
+			this.clearPositionCache();
 		}
 
 		/**
@@ -342,11 +355,19 @@ if (this.recyclePlacemarkRenderers)
 			else
 			{
 				if (this.cachePlacemarkPositions)
-					this.positionCache = new Dictionary(true); 
+					this.clearPositionCache();
 
 				for (var j:IIterator = this.placemarks.iterator(); j.hasNext(); )
 					this.updatePlacemarkPosition(this.getPlacemarkRendererFor(j.next()));
 			}
+		}
+		
+		/**
+		 * 
+		 */
+		private function clearPositionCache():void
+		{
+			this.positionCache = null;
 		}
 
 		/**

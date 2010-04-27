@@ -73,7 +73,6 @@ package inky.components.map.view
 			this.zoomingHelper = new ZoomingHelper(this, this.layoutValidator, this.__mask, this.contentContainer, this.overlayContainer);
 			this.showPlacemarkHelper = new ShowPlacemarkHelper(this, this.layoutValidator, this.__mask, this.contentContainer, this.getPlacemarkRendererFor);
 			this.tooltipHelper = new TooltipHelper(this, this.layoutValidator, this.getPlacemarkRendererFor);
-			BindingUtil.bindSetter(this.reset, this, "model");
 		}
 
 		//---------------------------------------
@@ -322,26 +321,12 @@ package inky.components.map.view
 		//---------------------------------------
 		
 		/**
-		 * @inheritDoc
-		 */
-		override protected function validate():void
-		{
-			this.zoomingHelper.validate();
-			this.panningHelper.validate();
-			this.tooltipHelper.validate();
-			this.showPlacemarkHelper.validate();
-			super.validate();
-		}
-
-		//---------------------------------------
-		// PRIVATE METHODS
-		//---------------------------------------
-		
-		/**
 		 * 
 		 */
-		private function reset(model:Object):void
+		override protected function reset():void
 		{
+			super.reset();
+
 			var contentContainer:DisplayObject = this.getContentContainer();
 			contentContainer.x = 
 			contentContainer.y = 0;
@@ -352,6 +337,18 @@ package inky.components.map.view
 			this.zoomingHelper.reset();
 			this.tooltipHelper.reset();
 			this.showPlacemarkHelper.reset();
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		override protected function validate():void
+		{
+			this.zoomingHelper.validate();
+			this.panningHelper.validate();
+			this.tooltipHelper.validate();
+			this.showPlacemarkHelper.validate();
+			super.validate();
 		}
 		
 	}
