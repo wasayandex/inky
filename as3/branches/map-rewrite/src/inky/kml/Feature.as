@@ -33,9 +33,41 @@ package inky.kml
 		/**
 		 * @inheritDoc
 		 */
+		public function get address():String
+		{
+			return this.getValueFor("address");
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public function get description():String
+		{
+			return this.getValueFor("description");
+		}
+
+		/**
+		 * @inheritDoc
+		 */
 		public function get extendedData():ExtendedData
 		{
 			return this.getValueFor("extendedData")
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public function get name():String
+		{
+			return this.getValueFor("name");
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function get phoneNumber():String
+		{
+			return this.getValueFor("phoneNumber");
 		}
 		
 	}
