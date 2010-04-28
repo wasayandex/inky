@@ -52,6 +52,7 @@
 		private var _unusedItems:Object;
 		private var _recycleItemRenderers:Boolean;
 		private var shownItem:int;
+		private var showItemAtPending:Boolean;
 		private var _sizeCache:Array;
 		private var _spacing:Number;
 		private var validationState:ValidationState;
@@ -288,6 +289,8 @@
 		 */
 		public function showItemAt(index:int):void
 		{
+			// Flag a public showItemAt update as pending; this will stop scrollBar updates from overriding the user-provided index.
+			this.showItemAtPending = true;
 			this._showItemAt(index, true);
 		}
 
@@ -307,9 +310,13 @@
 		 */
 		override protected function scrollHandler(event:ScrollEvent):void
 		{
-// TODO: Because the super constructor's bindings access something that calls this, orientation 
-// is null (not yet initialized). Should orientation have a default value?
+// TODO: Because the super constructor's bindings access something that calls this, orientation is null (not yet initialized). Should orientation have a default value?
 if (!this.orientation) return;
+			
+			// If a public showItemAt update is pending, the user value overrides the calculated value from scrollbar, so ignore this update.
+			if (this.showItemAtPending) 
+				return;
+
 			var index:Number = this.dataProvider ? Math.max(0, Math.min(this.dataProvider.length - 1, Math.round(this.getScrollPosition()))) : 0;
 			this._showItemAt(index);
 		}
@@ -598,7 +605,7 @@ if (!this.orientation) return;
 			this._firstVisibleItemIndex = -1;
 
 			if (resetScrollPosition)
-				this.showItemAt(0);
+				this._showItemAt(0, true);
 			else
 				this._showItemAt(Math.min(this.shownItem, this.dataProvider.length - 1));
 			
@@ -702,9 +709,13 @@ if (!this.orientation) return;
 				this.validateScrollPosition();
 			if (displayListIsInvalid)
 				this.redraw();
-
+			
 			// If a property has become invalid during validation, revalidate.
 			this.validate(null);
+
+			// If a public showItemAt update is pending, assume it has been taken care of by this validation.
+			if (this.showItemAtPending)
+				this.showItemAtPending = false;
 		}
 
 		/**

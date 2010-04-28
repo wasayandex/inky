@@ -263,10 +263,6 @@ if (this.recyclePlacemarkRenderers)
 				if (this.cachePlacemarkPositions)
 					this.positionCache[placemark] = point;
 			}
-			else
-			{
-				trace("using cached position. HAHA pwdn")
-			}
 
 			return point;
 		}
