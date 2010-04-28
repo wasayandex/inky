@@ -13,6 +13,7 @@ package inky.components.map.view.helpers
 	import inky.components.map.view.events.MapEvent;
 	import inky.layout.validation.LayoutValidator;
 	import flash.display.DisplayObjectContainer;
+	import inky.utils.EqualityUtil;
 	
 	/**
 	 *
@@ -27,11 +28,11 @@ package inky.components.map.view.helpers
 	 */
 	public class PlacemarkPlotter extends BaseMapViewHelper implements IDestroyable
 	{
-		private var _cachePlacemarkPositions:Boolean;
+		protected var availableRenderers:Array;
 		protected var contentContainer:DisplayObjectContainer;
 		protected var placemarkContainer:DisplayObjectContainer;
 		protected var overlayContainer:DisplayObjectContainer;
-		protected var placemarks2Renderers:Dictionary;
+		protected var rendererCache:Dictionary;
 		protected var positionCache:Dictionary;
 		private var _recyclePlacemarkRenderers:Boolean;
 		private var _scalePlacemarks:Boolean;
@@ -51,17 +52,12 @@ package inky.components.map.view.helpers
 		 * 		Whether or not to recycle placemark renderer instances.
 		 * @see #recyclePlacemarkRenderers
 		 * @see inky.components.map.view.IMap#placemarkRendererClass
-		 * 
-		 * @param cachePlacemarkPositions
-		 * 		Whether or not to cache the placemark positions, or recalculate them every time a placemark is added.
-		 * @see #cachePlacemarkPositions
 		 */
-		public function PlacemarkPlotter(map:IMap, layoutValidator:LayoutValidator, contentContainer:DisplayObjectContainer, placemarkContainer:DisplayObjectContainer, overlayContainer:DisplayObjectContainer, scalePlacemarks:Boolean = false, recyclePlacemarkRenderers:Boolean = true, cachePlacemarkPositions:Boolean = true)
+		public function PlacemarkPlotter(map:IMap, layoutValidator:LayoutValidator, contentContainer:DisplayObjectContainer, placemarkContainer:DisplayObjectContainer, overlayContainer:DisplayObjectContainer, scalePlacemarks:Boolean = false, recyclePlacemarkRenderers:Boolean = true)
 		{
 			super(map, layoutValidator);
 			
 			this.recyclePlacemarkRenderers = recyclePlacemarkRenderers;
-			this.cachePlacemarkPositions = cachePlacemarkPositions;
 			this.scalePlacemarks = scalePlacemarks;
 			
 			this.placemarks = new ArrayList();
@@ -77,33 +73,6 @@ package inky.components.map.view.helpers
 		//---------------------------------------
 		// ACCESSORS
 		//---------------------------------------
-
-		/**
-		 * Whether or not to cache the placemark positions.
-		 * 
-		 * <p>If <code>false</code>, positions are recalculated every time the same placemark is added. 
-		 * If <code>true</code>, positions are reused every time the same placemark is added.</p>
-		 * 
-		 * @default true
-		 */
-		public function get cachePlacemarkPositions():Boolean
-		{ 
-			return this._cachePlacemarkPositions; 
-		}
-		/**
-		 * @private
-		 */
-		public function set cachePlacemarkPositions(value:Boolean):void
-		{
-			var oldValue:Boolean = this._cachePlacemarkPositions;
-			if (value != oldValue)
-			{
-				this._cachePlacemarkPositions = value;
-				if (!value)
-					this.clearPositionCache();
-					
-			}
-		}
 		
 		/**
 		 * Whether or not to recycle placemark renderer instances.
@@ -127,8 +96,8 @@ package inky.components.map.view.helpers
 			if (value != oldValue)
 			{
 				this._recyclePlacemarkRenderers = value;
-				if (!value && this.placemarks2Renderers)
-					this.placemarks2Renderers = null;
+				if (!value && this.availableRenderers)
+					this.availableRenderers = null;
 			}
 		}
 		
@@ -184,6 +153,12 @@ package inky.components.map.view.helpers
 		{
 			this.placemarks.removeEventListener(CollectionEvent.COLLECTION_CHANGE, this.placemarks_collectionChangeHandler);
 			this.placemarks = null;
+			
+			if (this.rendererCache)
+				this.rendererCache = null;
+				
+			if (this.positionCache)
+				this.positionCache = null;
 		}
 
 		/**
@@ -199,22 +174,26 @@ package inky.components.map.view.helpers
 
 			var renderer:Object;
 
-// TODO: recycle placemarks instead of simply saving all of them.
-if (this.recyclePlacemarkRenderers)
-{
-	if (!this.placemarks2Renderers)
-		this.placemarks2Renderers = new Dictionary(true);
-	else
-		renderer = this.placemarks2Renderers[placemark];
-}
-
-			if (!renderer)
+			if (!this.rendererCache)
 			{
-				renderer = new this.map.placemarkRendererClass();
-if (this.recyclePlacemarkRenderers)
-	this.placemarks2Renderers[placemark] = renderer;
+				this.rendererCache = new Dictionary(true);
 			}
+			else
+			{
+				for (var key:Object in this.rendererCache)
+				{
+					if (EqualityUtil.objectsAreEqual(this.rendererCache[key], placemark))
+					{
+						renderer = key;
+						break;
+					}
+				}
+			}
+			
+			if (!renderer)
+				renderer = this.getAvailablePlacemarkRenderer();
 
+			this.rendererCache[renderer] = placemark;
 			renderer.model = placemark;
 			return renderer;
 		}
@@ -230,13 +209,22 @@ if (this.recyclePlacemarkRenderers)
 		{
 			var point:Point;
 
-			// If position caching is enabled, look for a cached position for this placemark.
-			if (this.cachePlacemarkPositions)
+			// Look for a cached position for this placemark.
+			if (!this.positionCache)
 			{
-				if (!this.positionCache)
-					this.positionCache = new Dictionary(true);
-				else
-					point = this.positionCache[placemark];
+				this.positionCache = new Dictionary();
+			}
+			else
+			{
+				for (var key:Object in this.positionCache)
+				{
+					if (EqualityUtil.objectsAreEqual(this.positionCache[key], placemark))
+					{
+						this.positionCache[key] = placemark;
+						point = key as Point;
+						break;
+					}
+				}
 			}
 
 			if (!point)
@@ -259,9 +247,8 @@ if (this.recyclePlacemarkRenderers)
 					point =	point.add(center);
 				}
 
-				// If position caching is enabled, cache the calculated position for this placemark.
-				if (this.cachePlacemarkPositions)
-					this.positionCache[placemark] = point;
+				// Cache the calculated position for this placemark.
+				this.positionCache[point] = placemark;
 			}
 
 			return point;
@@ -314,22 +301,27 @@ if (this.recyclePlacemarkRenderers)
 // TODO: Separate updating the model (adding and removing placemarks) from updating the positions.
 			if (placemarksAreInvalid)
 			{
+				var renderer:Object;
 				var placemark:Object;
-				var placemarkModel:Object;
 
 				// Remove any placemarks no longer present.
 				for (var i:int = 0; i < this.placemarkContainer.numChildren; i++)
 				{
-					placemarkModel = Object(this.placemarkContainer.getChildAt(i)).model;
-					if (!this.placemarks.containsItem(placemarkModel))
-						this.placemarkContainer.removeChildAt(i--);
+					renderer = Object(this.placemarkContainer.getChildAt(i));
+					placemark = renderer.model;
+					if (!this.placemarks.containsItem(placemark))
+					{
+						this.recyclePlacemarkRenderer(renderer)
+						i--;
+					}
 				}
+				
 				// Add any items not already added, and adjust all placemark positions.
 				for (var j:IIterator = this.placemarks.iterator(); j.hasNext(); )
 				{
-					placemark = this.getPlacemarkRendererFor(j.next());
-					this.updatePlacemarkPosition(placemark);
-					this.placemarkContainer.addChild(placemark as DisplayObject);
+					renderer = this.getPlacemarkRendererFor(j.next());
+					this.updatePlacemarkRendererPosition(renderer);
+					this.placemarkContainer.addChild(renderer as DisplayObject);
 				}
 			}
 		}
@@ -350,11 +342,10 @@ if (this.recyclePlacemarkRenderers)
 			}
 			else
 			{
-				if (this.cachePlacemarkPositions)
-					this.clearPositionCache();
+				this.clearPositionCache();
 
 				for (var j:IIterator = this.placemarks.iterator(); j.hasNext(); )
-					this.updatePlacemarkPosition(this.getPlacemarkRendererFor(j.next()));
+					this.updatePlacemarkRendererPosition(this.getPlacemarkRendererFor(j.next()));
 			}
 		}
 		
@@ -364,6 +355,22 @@ if (this.recyclePlacemarkRenderers)
 		private function clearPositionCache():void
 		{
 			this.positionCache = null;
+		}
+		
+		/**
+		 * 
+		 */
+		private function getAvailablePlacemarkRenderer():Object
+		{
+			var renderer:Object;
+
+			if (this.recyclePlacemarkRenderers && this.availableRenderers && this.availableRenderers.length)
+				renderer = this.availableRenderers.pop();
+			
+			if (!renderer)
+				renderer = new this.map.placemarkRendererClass();
+			
+			return renderer;
 		}
 
 		/**
@@ -386,6 +393,25 @@ if (this.recyclePlacemarkRenderers)
 		/**
 		 * 
 		 */
+		private function recyclePlacemarkRenderer(renderer:Object):void
+		{
+			if (this.placemarkContainer.contains(DisplayObject(renderer)))
+				this.placemarkContainer.removeChild(DisplayObject(renderer));
+			
+			delete this.rendererCache[renderer];
+
+			if (this.recyclePlacemarkRenderers)
+			{
+				if (!this.availableRenderers)
+					this.availableRenderers = [];
+
+				this.availableRenderers.push(renderer);
+			}
+		}
+		
+		/**
+		 * 
+		 */
 		private function rotatePoint(p:Point, r:Number):void
 		{
 			r *= Math.PI / 180;
@@ -400,12 +426,12 @@ if (this.recyclePlacemarkRenderers)
 		/**
 		 * @inheritDoc
 		 */
-		protected function updatePlacemarkPosition(placemark:Object):void
+		protected function updatePlacemarkRendererPosition(renderer:Object):void
 		{
-			var placemarkPosition:Point = this.getPositionFor(placemark.model);
+			var placemarkPosition:Point = this.getPositionFor(renderer.model);
 
-			placemark.x = placemarkPosition.x;
-			placemark.y = placemarkPosition.y;
+			renderer.x = placemarkPosition.x;
+			renderer.y = placemarkPosition.y;
 		}
 
 	}

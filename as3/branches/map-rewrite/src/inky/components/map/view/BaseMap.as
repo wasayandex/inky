@@ -89,7 +89,8 @@ package inky.components.map.view
 			this.layoutValidator = new LayoutValidator(this, this.validate);
 			
 			this.overlayLoader = new OverlayLoader(this, this.layoutValidator, this.overlayContainer);
-			// TODO: Should we store exposed PlacemarkPlotter values (recyclePlacemarkRenderers, cachePlacemarkPositions) to account for a situation where a subclass sets them before calling super()?
+
+			// TODO: Should we store exposed PlacemarkPlotter values (recyclePlacemarkRenderers) to account for a situation where a subclass sets them before calling super()?
 			this.placemarkPlotter = new PlacemarkPlotter(this, this.layoutValidator, this.contentContainer, this.placemarkContainer, this.overlayContainer);
 
 			this.changeWatchers = [];
@@ -99,21 +100,6 @@ package inky.components.map.view
 		//---------------------------------------
 		// IMap Implementation
 		//---------------------------------------
-		
-		/**
-		 * @copy inky.components.map.view.helpers.PlacemarkPlotter#cachePlacemarkPositions
-		 */
-		public function get cachePlacemarkPositions():Boolean
-		{ 
-			return this.placemarkPlotter.cachePlacemarkPositions; 
-		}
-		/**
-		 * @private
-		 */
-		public function set cachePlacemarkPositions(value:Boolean):void
-		{
-			this.placemarkPlotter.cachePlacemarkPositions = value;
-		}
 
 		/**
 		 * @inheritDoc

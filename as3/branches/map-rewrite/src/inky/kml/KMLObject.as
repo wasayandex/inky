@@ -7,8 +7,6 @@ package inky.kml
 	import inky.kml.Feature;
 	import inky.kml.kml;
 	import inky.utils.IEquatable;
-	import flash.utils.describeType;
-	import inky.collections.E4XHashMap;
 	
 	/**
 	 *
@@ -26,9 +24,6 @@ package inky.kml
 		private var _xml:XML;
 		private static var pkg:String;
 		private var elementMap:Object;
-		private var _propertyList:Array;
-		private var _classPropertyList:Array;
-		private static var __kmlObjectCache:E4XHashMap;
 		
 		use namespace kml;
 		
@@ -38,9 +33,6 @@ package inky.kml
 		public function KMLObject(xml:XML)
 		{
 			this._xml = xml;
-			
-			if (!__kmlObjectCache)
-				__kmlObjectCache = new E4XHashMap(true);
 		}
 		
 		//---------------------------------------
@@ -123,19 +115,14 @@ package inky.kml
 		 */
 		protected function getKMLObjectFor(xml:*):Object
 		{
-			var obj:Object = __kmlObjectCache.getItemByKey(xml);
-			
-			if (!obj)
+			var obj:Object;
+			var featureType:String = xml.localName();
+			if (featureType.match(/^[A-Z]/))
 			{
-				var featureType:String = xml.localName();
-				if (featureType.match(/^[A-Z]/))
-				{
-					var objClass:Class = getDefinitionByName(this.getPackage() + featureType) as Class;
-					obj = new objClass(xml);
-					__kmlObjectCache.putItemAt(obj, xml);
-				}
+				var objClass:Class = getDefinitionByName(this.getPackage() + featureType) as Class;
+				obj = new objClass(xml);
 			}
-			
+
 			return obj;
 		}
 		
@@ -246,51 +233,6 @@ package inky.kml
 			return pkg;
 		}
 		
-		/**
-		 * 
-		 */
-		private function getPropertyList():Array
-		{
-			if (!this._propertyList)
-			{
-				// Start with a list of the class properties.
-				this._propertyList = this.getClassPropertyList().slice();
-				
-				// Add the properties found in xml attributes and children.
-				var elements:XMLList = this.xml.attributes() + this.xml.children();
-				for each (var element:XML in elements)
-				{
-					var propName:String = element.localName();
-					// Don't add the property if it is already in the list (defined in the class).
-					if (this._propertyList.indexOf(propName) == -1)
-					{
-						if (this.elementMap && this.elementMap[propName])
-							propName = this.elementMap[propName];
-
-						this._propertyList.push(propName);
-					}
-				}
-			}
-
-			return this._propertyList;
-		}
-		
-		/**
-		 * 
-		 */
-		private function getClassPropertyList():Array
-		{
-			if (!this._classPropertyList)
-			{
-				this._classPropertyList = [];
-				var typeDef:XML = describeType(this);
-				for each (var accessor:XML in typeDef.accessor)
-					this._classPropertyList.push(accessor.@name.toString());
-			};
-			
-			return this._classPropertyList;
-		}
-		
 		//---------------------------------------
 		// IEQUATABLE IMPLEMENTATION
 		//---------------------------------------
@@ -331,34 +273,29 @@ package inky.kml
 		 */
 		override flash_proxy function hasProperty(name:*):Boolean
 		{
-			return this.getPropertyList().indexOf(name) != -1;
-		}
-		
-		/**
-		 * @inheritDoc
-		 */
-		override flash_proxy function nextName(index:int):String 
-		{
-			return this.getPropertyList()[index - 1];
-		}
-		
-		/**
-		 * @inheritDoc
-		 */
-		override flash_proxy function nextNameIndex(index:int):int 
-		{
-			if (index < this.getPropertyList().length)
-				return index + 1;
-			else
-				return 0;
-		}
-		
-		/**
-		 * @inheritDoc
-		 */
-		override flash_proxy function nextValue(index:int):*
-		{
-			return this.getValueFor(this.getPropertyList()[index - 1]);
+			var propName:String;
+			var hasProperty:Boolean = false;
+			if (this.elementMap)
+			{
+				for each (propName in this.elementMap)
+				{
+					if (hasProperty = propName == name)
+						break;
+				}
+			}
+			
+			if (!hasProperty)
+			{
+				var elements:XMLList = this.xml.attributes() + this.xml.children();
+				for each (var element:XML in elements)
+				{
+					propName = element.localName();
+					if (hasProperty = (propName == name) && (!this.elementMap || !this.elementMap[propName]))
+						break;
+				}
+			}
+			
+			return hasProperty;
 		}
 		
 	}

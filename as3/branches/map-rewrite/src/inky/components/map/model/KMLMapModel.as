@@ -9,6 +9,7 @@ package inky.components.map.model
 	import inky.kml.Placemark;
 	import inky.kml.Overlay;
 	import inky.kml.GroundOverlay;
+	import inky.collections.ArrayList;
 	
 	/**
 	 *
@@ -27,8 +28,8 @@ package inky.components.map.model
 		private var _allowMultiplePlacemarkSelections:Boolean;
 		private var _document:Document;
 		private var _overlay:GroundOverlay;
-		private var _selectedFolders:Array;
-		private var _selectedPlacemarks:Array;
+		private var _selectedFolders:ArrayList;
+		private var _selectedPlacemarks:ArrayList;
 		
 		/**
 		 * Creates a new KMLMapModel.
@@ -47,8 +48,8 @@ package inky.components.map.model
 
 			this._document = document;
 			
-			this._selectedFolders = [];
-			this._selectedPlacemarks = [];
+			this._selectedFolders = new ArrayList();
+			this._selectedPlacemarks = new ArrayList();
 			
 			this._allowMultipleFolderSlections = true;
 			this._allowMultiplePlacemarkSelections = false;
@@ -99,7 +100,7 @@ package inky.components.map.model
 				{
 					var oldSelectedFoldersValue:Array = this.selectedFolders;
 					while (this._selectedFolders.length > 1)
-						this._selectedFolders.shift();
+						this._selectedFolders.removeItemAt(0);
 					
 					this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "selectedFolders", oldSelectedFoldersValue, this.selectedFolders));	
 				}
@@ -130,7 +131,7 @@ package inky.components.map.model
 				{
 					var oldSelectedPlacemarksValue:Array = this.selectedPlacemarks;
 					while (this._selectedPlacemarks.length > 1)
-						this._selectedPlacemarks.shift();
+						this._selectedPlacemarks.removeItemAt(0);
 					
 					this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "selectedPlacemarks", oldSelectedPlacemarksValue, this.selectedPlacemarks));	
 				}
@@ -163,7 +164,7 @@ package inky.components.map.model
 		 */
 		public function get selectedFolders():Array
 		{
-			return this._selectedFolders.slice();
+			return this._selectedFolders.toArray();
 		}
 		
 		/**
@@ -171,7 +172,7 @@ package inky.components.map.model
 		 */
 		public function get selectedPlacemarks():Array
 		{ 
-			return this._selectedPlacemarks.slice(); 
+			return this._selectedPlacemarks.toArray(); 
 		}
 		
 		//---------------------------------------
@@ -186,11 +187,10 @@ package inky.components.map.model
 			if (!(folder is Folder))
 				throw new ArgumentError("Invalid target.");
 
-			var i:int = this._selectedFolders.indexOf(folder);
-			if (i != -1)
+			if (this._selectedFolders.containsItem(folder))
 			{
 				var oldValue:Array = this.selectedFolders;
-				this._selectedFolders.splice(i, 1);
+				this._selectedFolders.removeItem(folder);
 				
 				// Update the selected placemarks.
 				for each (var placemark:Object in this.selectedPlacemarks)
@@ -198,8 +198,8 @@ package inky.components.map.model
 					var deselectPlacemark:Boolean = true;
 					for (var j:int = 0; deselectPlacemark && j < this._selectedFolders.length; j++)
 					{
-						if (this.getPlacemarksInContainer(this._selectedFolders[j]).indexOf(placemark) != -1)
-							deselectPlacemark = false;
+						var placemarksInContainer:ArrayList = new ArrayList(this.getPlacemarksInContainer(this._selectedFolders.getItemAt(j) as Container));
+						deselectPlacemark = !placemarksInContainer.containsItem(placemark);
 					}
 
 					if (deselectPlacemark)
@@ -218,11 +218,10 @@ package inky.components.map.model
 			if (!(placemark is Placemark))
 				throw new ArgumentError("Invalid target.");
 
-			var i:int = this._selectedPlacemarks.indexOf(placemark);
-			if (i != -1)
+			if (this._selectedPlacemarks.containsItem(placemark))
 			{
 				var oldValue:Array = this.selectedPlacemarks;
-				this._selectedPlacemarks.splice(i, 1);
+				this._selectedPlacemarks.removeItem(placemark);
 				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "selectedPlacemarks", oldValue, this.selectedPlacemarks));	
 			}
 		}
@@ -232,7 +231,7 @@ package inky.components.map.model
 		 */
 		public function folderIsSelected(folder:Object):Boolean
 		{
-			return this._selectedFolders.indexOf(folder) != -1;
+			return this._selectedFolders.containsItem(folder);
 		}
 
 		/**
@@ -240,7 +239,7 @@ package inky.components.map.model
 		 */
 		public function placemarkIsSelected(placemark:Object):Boolean
 		{
-			return this._selectedPlacemarks.indexOf(placemark) != -1;
+			return this._selectedPlacemarks.containsItem(placemark);
 		}
 		
 		/**
@@ -289,14 +288,14 @@ package inky.components.map.model
 			if (!(folder is Folder))
 				throw new ArgumentError("Invalid target.");
 
-			if (this._selectedFolders.indexOf(folder) == -1)
+			if (!this._selectedFolders.containsItem(folder))
 			{
 				var oldValue:Array = this.selectedFolders;
 
 				if (!this.allowMultipleFolderSlections)
-					this._selectedFolders = [];
+					this._selectedFolders = new ArrayList();
 
-				this._selectedFolders.push(folder);
+				this._selectedFolders.addItem(folder);
 				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "selectedFolders", oldValue, this.selectedFolders));
 			}
 		}
@@ -309,14 +308,14 @@ package inky.components.map.model
 			if (!(placemark is Placemark))
 				throw new ArgumentError("Invalid target.");
 
-			if (this._selectedPlacemarks.indexOf(placemark) == -1)
+			if (!this._selectedPlacemarks.containsItem(placemark))
 			{
 				var oldValue:Array = this.selectedPlacemarks;
 				
 				if (!this.allowMultiplePlacemarkSelections)
-					this._selectedPlacemarks = [];
+					this._selectedPlacemarks = new ArrayList();
 
-				this._selectedPlacemarks.push(placemark);
+				this._selectedPlacemarks.addItem(placemark);
 				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "selectedPlacemarks", oldValue, this.selectedPlacemarks));	
 
 				// Update the selected folders.
