@@ -298,6 +298,14 @@ package inky.kml
 			return hasProperty;
 		}
 		
+		/**
+		 * @inheritDoc
+		 */
+		override flash_proxy function nextNameIndex(index:int):int 
+		{ 
+			return 0; 
+		}
+		
 	}
 	
 }

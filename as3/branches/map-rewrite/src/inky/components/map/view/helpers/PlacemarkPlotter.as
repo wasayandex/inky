@@ -234,6 +234,14 @@ package inky.components.map.view.helpers
 				var longitudeDifference:Number = this.map.model.latLonBox.east - this.map.model.latLonBox.west;
 				var latitudeDifference:Number = this.map.model.latLonBox.south - this.map.model.latLonBox.north;
 
+				var kmlBounds:Rectangle = new Rectangle(this.map.model.latLonBox.west, this.map.model.latLonBox.north, longitudeDifference, latitudeDifference);
+
+				if (!this.numberIsBetween(point.x, kmlBounds.left, kmlBounds.right) || !this.numberIsBetween(point.y, kmlBounds.top, kmlBounds.bottom))
+				{
+					trace("Warning: placemark is out of bounds. It will not be plotted.\not" + placemark.xml);
+					return null;
+				}
+
 				var mapBounds:Rectangle = this.overlayContainer.getRect(this.contentContainer);
 
 				point.x = ((point.x - this.map.model.latLonBox.west) / longitudeDifference) * mapBounds.width;
@@ -253,6 +261,25 @@ package inky.components.map.view.helpers
 
 			return point;
 		}
+
+		private function numberIsBetween(n:Number, a:Number, b:Number):Boolean
+		{
+			var min:Number;
+			var max:Number;
+			if (a < b)
+			{
+				min = a;
+				max = b;
+			}
+			else
+			{
+				min = b;
+				max = a;
+			}
+
+			return n <= max && n >= min;
+		}
+
 		
 		/**
 		 * 
@@ -320,8 +347,8 @@ package inky.components.map.view.helpers
 				for (var j:IIterator = this.placemarks.iterator(); j.hasNext(); )
 				{
 					renderer = this.getPlacemarkRendererFor(j.next());
-					this.updatePlacemarkRendererPosition(renderer);
-					this.placemarkContainer.addChild(renderer as DisplayObject);
+					if (this.updatePlacemarkRendererPosition(renderer))
+						this.placemarkContainer.addChild(renderer as DisplayObject);
 				}
 			}
 		}
@@ -426,12 +453,17 @@ package inky.components.map.view.helpers
 		/**
 		 * @inheritDoc
 		 */
-		protected function updatePlacemarkRendererPosition(renderer:Object):void
+		protected function updatePlacemarkRendererPosition(renderer:Object):Boolean
 		{
 			var placemarkPosition:Point = this.getPositionFor(renderer.model);
-
-			renderer.x = placemarkPosition.x;
-			renderer.y = placemarkPosition.y;
+			
+			if (placemarkPosition)
+			{
+				renderer.x = placemarkPosition.x;
+				renderer.y = placemarkPosition.y;
+			}
+			
+			return placemarkPosition != null;
 		}
 
 	}
