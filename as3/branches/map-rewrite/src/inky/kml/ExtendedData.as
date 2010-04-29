@@ -33,9 +33,6 @@ package inky.kml
 		{
 			this.eventDispatcher = new EventDispatcher(this);
 			this._xml = xml;
-trace(">>>>>>>");
-for (var prop:String in this.map)
-	trace(prop + ":\t" + this.map[prop]);
 		}
 		
 		//---------------------------------------
