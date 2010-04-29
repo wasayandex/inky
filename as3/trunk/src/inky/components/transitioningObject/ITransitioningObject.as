@@ -1,6 +1,6 @@
 package inky.components.transitioningObject
 {
-	import inky.sequencing.commands.IAsyncCommand;
+	import inky.async.actions.IAction;
 	import inky.utils.IDisplayObject;
 	import flash.display.DisplayObject;
 	import flash.geom.Rectangle;
@@ -61,11 +61,11 @@ package inky.components.transitioningObject
 		 * 
 		 * 
 		 */
-		function get intro():IAsyncCommand;
+		function get intro():IAction;
 		/**
 		 * @private
 		 */
-		function set intro(intro:IAsyncCommand):void;
+		function set intro(intro:IAction):void;
 
 
 		/**
@@ -74,15 +74,15 @@ package inky.components.transitioningObject
 		 * the stage. This action will be started automatically when the
 		 * <code>remove()</code> method is called.
 		 * 
-		 * @see inky.commands.PlayFrameLabelCommand
+		 * @see inky.async.actions.PlayFrameLabelAction
 		 * @see #remove();
 		 * 
 		 */
-		function get outro():IAsyncCommand;
+		function get outro():IAction;
 		/**
 		 * @private
 		 */
-		function set outro(outro:IAsyncCommand):void;
+		function set outro(outro:IAction):void;
 
 
 		/**
