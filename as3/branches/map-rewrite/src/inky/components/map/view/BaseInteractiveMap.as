@@ -84,21 +84,6 @@ package inky.components.map.view
 		/**
 		 * @inheritDoc
 		 */
-		public function get contentRotation():Number
-		{ 
-			return this.zoomingHelper.contentRotation; 
-		}
-		/**
-		 * @private
-		 */
-		public function set contentRotation(value:Number):void
-		{
-			this.zoomingHelper.contentRotation = value;
-		}
-		
-		/**
-		 * @inheritDoc
-		 */
 		public function get contentX():Number
 		{ 
 			return this.panningHelper.contentX; 
@@ -124,36 +109,6 @@ package inky.components.map.view
 		public function set contentY(value:Number):void
 		{
 			this.panningHelper.contentY = value;
-		}
-		
-		/**
-		 * @inheritDoc
-		 */
-		public function get contentScaleX():Number
-		{ 
-			return this.zoomingHelper.contentScaleX; 
-		}
-		/**
-		 * @private
-		 */
-		public function set contentScaleX(value:Number):void
-		{
-			this.zoomingHelper.contentScaleX = value;
-		}
-		
-		/**
-		 * @inheritDoc
-		 */
-		public function get contentScaleY():Number
-		{ 
-			return this.zoomingHelper.contentScaleY; 
-		}
-		/**
-		 * @private
-		 */
-		public function set contentScaleY(value:Number):void
-		{
-			this.zoomingHelper.contentScaleY = value;
 		}
 		
 		/**
@@ -217,20 +172,20 @@ package inky.components.map.view
 		}
 
 		/**
-		 * @copy inky.components.map.view.helpers.ZoomingHelper#zoomInButton
+		 * @copy inky.components.map.view.helpers.ZoomingHelper#zoom
 		 */
-		public function get zoomInButton():InteractiveObject
+		public function get zoom():Number
 		{ 
-			return this.zoomingHelper.zoomInButton; 
+			return this.zoomingHelper.zoom;
 		}
 		/**
 		 * @private
 		 */
-		public function set zoomInButton(value:InteractiveObject):void
+		public function set zoom(value:Number):void
 		{
-			this.zoomingHelper.zoomInButton = value;
+			this.zoomingHelper.zoom = value;
 		}
-		
+
 		/**
 		 * @copy inky.components.map.view.helpers.ZoomingHelper#zoomingProxy
 		 */
@@ -244,36 +199,6 @@ package inky.components.map.view
 		public function set zoomingProxy(value:Object):void
 		{
 			this.zoomingHelper.zoomingProxy = value;
-		}
-		
-		/**
-		 * @copy inky.components.map.view.helpers.ZoomingHelper#zoomInterval
-		 */
-		public function get zoomInterval():Number
-		{ 
-			return this.zoomingHelper.zoomInterval; 
-		}
-		/**
-		 * @private
-		 */
-		public function set zoomInterval(value:Number):void
-		{
-			this.zoomingHelper.zoomInterval = value;
-		}
-		
-		/**
-		 * @copy inky.components.map.view.helpers.ZoomingHelper#zoomOutButton
-		 */
-		public function get zoomOutButton():InteractiveObject
-		{ 
-			return this.zoomingHelper.zoomOutButton; 
-		}
-		/**
-		 * @private
-		 */
-		public function set zoomOutButton(value:InteractiveObject):void
-		{
-			this.zoomingHelper.zoomOutButton = value;
 		}
 		
 		//---------------------------------------
@@ -298,14 +223,6 @@ package inky.components.map.view
 		public function moveContent(x:Number, y:Number):void
 		{
 			this.panningHelper.moveContent(x, y);
-		}
-		
-		/**
-		 * @copy inky.components.map.view.helpers.ZoomingHelper#scaleContent
-		 */
-		public function scaleContent(scaleX:Number, scaleY:Number):void
-		{
-			this.zoomingHelper.scaleContent(scaleX, scaleY);
 		}
 		
 		/**

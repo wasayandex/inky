@@ -23,12 +23,6 @@ package inky.components.map.view
 		//---------------------------------------
 		
 		/**
-		 * Gets and sets the rotation value for the map content container.
-		 */
-		function get contentRotation():Number;
-		function set contentRotation(value:Number):void;
-		
-		/**
 		 * Gets and sets the x value for the map content container.
 		 */
 		function get contentX():Number;
@@ -39,18 +33,6 @@ package inky.components.map.view
 		 */
 		function get contentY():Number;
 		function set contentY(value:Number):void;
-		
-		/**
-		 * Gets and sets the scaleX value for the map content container.
-		 */
-		function get contentScaleX():Number;
-		function set contentScaleX(value:Number):void;
-		
-		/**
-		 * Gets and sets the scaleY value for the map content container.
-		 */
-		function get contentScaleY():Number;
-		function set contentScaleY(value:Number):void;
 		
 		/**
 		 * 
@@ -69,24 +51,12 @@ package inky.components.map.view
 		 */
 		function get tooltip():ITooltip;
 		function set tooltip(value:ITooltip):void;
-		
+
 		/**
 		 * 
 		 */
-		function get zoomInButton():InteractiveObject;
-		function set zoomInButton(value:InteractiveObject):void;
-		
-		/**
-		 * 
-		 */
-		function get zoomInterval():Number;
-		function set zoomInterval(value:Number):void;
-		
-		/**
-		 * 
-		 */
-		function get zoomOutButton():InteractiveObject;
-		function set zoomOutButton(value:InteractiveObject):void;
+		function get zoom():Number;
+		function set zoom(value:Number):void;
 		
 		//---------------------------------------
 		// PUBLIC METHODS
@@ -96,11 +66,6 @@ package inky.components.map.view
 		 * 
 		 */
 		function moveContent(x:Number, y:Number):void;
-		
-		/**
-		 * 
-		 */
-		function scaleContent(scaleX:Number, scaleY:Number):void;
 		
 		/**
 		 * 

@@ -242,10 +242,10 @@ package inky.components.map.view.helpers
 					return null;
 				}
 
-				var mapBounds:Rectangle = this.overlayContainer.getRect(this.contentContainer);
+				var mapBounds:Rectangle = this.overlayContainer.getRect(this.placemarkContainer);
 
-				point.x = ((point.x - this.map.model.latLonBox.west) / longitudeDifference) * mapBounds.width;
-				point.y = ((point.y - this.map.model.latLonBox.north) / latitudeDifference) * mapBounds.height;
+				point.x = mapBounds.x + ((point.x - this.map.model.latLonBox.west) / longitudeDifference) * mapBounds.width;
+				point.y = mapBounds.y + ((point.y - this.map.model.latLonBox.north) / latitudeDifference) * mapBounds.height;
 
 				if (this.map.model.latLonBox.rotation)
 				{
