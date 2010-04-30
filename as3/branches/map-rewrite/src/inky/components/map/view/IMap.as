@@ -2,7 +2,7 @@ package inky.components.map.view
 {
 	import inky.utils.IDisplayObject;
 	import inky.components.map.model.IMapModel;
-	import inky.components.map.view.helpers.IMapHelper;
+	import inky.components.map.view.Settings;
 	
 	/**
 	 *	An interface that defines a map component view.
@@ -20,6 +20,11 @@ package inky.components.map.view
 		//---------------------------------------
 		// ACCESSORS
 		//---------------------------------------
+
+		/**
+		 * 
+		 */
+		function get settings():Settings;
 
 		/**
 		 * Map model.
@@ -89,7 +94,7 @@ package inky.components.map.view
 		 * @see inky.components.map.view.helpers.IMapHelper
 		 * @see inky.components.map.view.helpers.HelperType
 		 */
-		function registerHelper(helperClass:Class, id:String = null):void
+		function registerHelper(helperClassOrObject:Object, id:String = null, propertyMap:Object = null):void
 		
 		
 	}

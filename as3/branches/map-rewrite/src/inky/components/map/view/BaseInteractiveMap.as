@@ -65,7 +65,7 @@ package inky.components.map.view
 			this.helperInfo.mask = mask;
 			
 			this.registerHelper(PanningHelper, HelperType.PANNING_HELPER);
-			this.registerHelper(ZoomingHelper, HelperType.ZOOMING_HELPER);
+			this.registerHelper(ZoomingHelper, HelperType.ZOOMING_HELPER, {zoom: "zoom", minimumZoom: "minimumZoom", maximumZoom: "maximumZoom", zoomingProxy: "zoomingProxy"});
 			this.registerHelper(ShowPlacemarkHelper, HelperType.SHOW_PLACEMARK_HELPER);
 			this.registerHelper(TooltipHelper, HelperType.TOOLTIP_HELPER);
 		}

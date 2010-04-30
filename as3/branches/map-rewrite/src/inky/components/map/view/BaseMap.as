@@ -8,16 +8,16 @@ package inky.components.map.view
 	import flash.display.DisplayObject;
 	import inky.binding.utils.BindingUtil;
 	import inky.components.map.view.helpers.OverlayLoader;
-	import flash.geom.Point;
 	import inky.binding.utils.IChangeWatcher;
 	import inky.layout.validation.LayoutValidator;
 	import flash.display.DisplayObjectContainer;
-	import inky.utils.describeObject;
-	import flash.utils.getQualifiedClassName;
 	import inky.components.map.view.events.MapChangeEvent;
 	import inky.components.map.view.helpers.HelperInfo;
 	import inky.components.map.view.helpers.HelperType;
+	import inky.components.map.view.Settings;
 	import inky.components.map.view.helpers.IMapHelper;
+	import inky.utils.getClass;
+
 	
 	/**
 	 *
@@ -36,7 +36,8 @@ package inky.components.map.view
  	 */
 	public class BaseMap extends Sprite implements IMap
 	{
-		private var helpers:Array;
+		private var helperCount:int = 0;
+		private var helpers:Object;
 		protected var helperInfo:HelperInfo;
 		protected var contentContainer:DisplayObjectContainer;
 		protected var overlayContainer:DisplayObjectContainer;
@@ -47,6 +48,7 @@ package inky.components.map.view
 		private var _placemarkRendererClass:Class;
 		private var _recyclePlacemarkRenderers:Boolean;
 		private var _scalePlacemarkRenderers:Boolean;
+		private var _settings:Settings;
 
 		
 		/**
@@ -188,6 +190,14 @@ package inky.components.map.view
 			}
 		}
 		
+		/**
+		 * @inheritDoc
+		 */
+		public function get settings():Settings
+		{
+			return this._settings || (this._settings = new Settings());
+		}
+		
 		//---------------------------------------
 		// PUBLIC METHODS
 		//---------------------------------------
@@ -206,31 +216,36 @@ package inky.components.map.view
 		 */
 		public function getHelper(id:String):Object
 		{
-			var helper:Object = this.helpers[id];
-			if (helper is Class)
-				helper = this.initializeHelper(id);
-
-			return helper;
+			return this.initializeHelper(id);
 		}
 		
 		/**
 		 * @inheritDoc
 		 */
-		public function registerHelper(helperClass:Class, id:String = null):void
+		public function registerHelper(helperClassOrObject:Object, id:String = null, propertyMap:Object = null):void
 		{
 			if (!this.helpers)
-				this.helpers = [];
+				this.helpers = {};
+
+// TODO: schedule destroy in next update?				
+			var helper:Object = (id && this.helpers[id] && this.helpers[id].helper) as Object;
+			if (helper)
+				helper.destroy();
+// TODO: Actually eliminate the potential collisions instead of just making them less likely.
+			id = "_____________" + (id || String(this.helperCount++));
 			
-// TODO: schedule destroy in next update?
-			if (id && this.helpers[id] && !(this.helpers[id] is Class))
-				this.helpers[id].destroy();
-			
-			if (!id)
-				this.helpers.push(helperClass);
-			else
-				this.helpers[id] = helperClass;
-				
-			this.invalidateProperty('helpers');
+			this.helpers[id] = {
+				helperClassOrObject: helperClassOrObject
+			};
+// TODO: How do these get unregistered.
+			var property:String;
+			for (property in propertyMap)
+			{
+				var targetProperty:String = propertyMap[property];
+				this.defineProperty(property, targetProperty, id);
+			}
+
+			this.invalidateProperty("helpers");
 		}
 		
 		//---------------------------------------
@@ -261,10 +276,9 @@ package inky.components.map.view
 		{
 			if (this.layoutValidator.validationState.propertyIsInvalid('helpers'))
 			{
-				for (var key:Object in this.helpers)
+				for (var key:String in this.helpers)
 				{
-					if (this.helpers[key] is Class)
-						this.initializeHelper(key);
+					this.initializeHelper(key);
 				}
 			}
 
@@ -275,17 +289,46 @@ package inky.components.map.view
 		//---------------------------------------
 		// PRIVATE METHODS
 		//---------------------------------------
+
+		/**
+		 * 
+		 */
+		private function defineProperty(sourceProperty:String, targetProperty:String, helperId:String):void
+		{
+			var scope:Object = this;
+			this.settings.defineProperty(
+				sourceProperty,
+				function():*
+				{
+					return scope.getHelper(helperId)[targetProperty];
+				},
+				function(value:*):void
+				{
+					scope.getHelper(helperId)[targetProperty] = value;
+				}
+			);
+		}
 		
 		/**
 		 * 
 		 */
-		private function initializeHelper(key:Object):Object
+		private function initializeHelper(key:String):Object
 		{
-			var helper:Object = this.helpers[key];
-			helper = new helper();
-			helper.initialize(this.helperInfo);
-			
-			return this.helpers[key] = helper;
+			var helperData:Object = this.helpers[key];
+			if (!helperData.helper)
+			{
+				if (helperData.helperClassOrObject is IMapHelper)
+				{
+					helperData.helper = helperData.helperClassOrObject;
+				}
+				else if (helperData.helperClassOrObject is String || helperData.helperClassOrObject is Class)
+				{
+					var cls:Class = getClass(helperData.helperClassOrObject);
+					helperData.helper = new cls();
+				}
+				helperData.helper.initialize(this.helperInfo);
+			}
+			return helperData.helper;
 		}
 		
 		/**

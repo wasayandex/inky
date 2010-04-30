@@ -1,7 +1,6 @@
 package inky.components.map.view.helpers 
 {
 	import flash.events.Event;
-	import flash.display.InteractiveObject;
 	import flash.geom.Point;
 	import inky.utils.toCoordinateSpace;
 	import inky.components.map.view.events.MapEvent;
@@ -26,10 +25,8 @@ package inky.components.map.view.helpers
 		private var _maximumZoom:Number;
 		private var _minimumZoom:Number;
 		private var _zoom:Number;
-		private var _zoomInButton:InteractiveObject;
 		private var _zoomingProxy:Object;
 		private var _zoomControl:Object;
-		private var _zoomOutButton:InteractiveObject;
 		protected var overlayContainer:DisplayObjectContainer;
 
 		//---------------------------------------
@@ -50,7 +47,11 @@ package inky.components.map.view.helpers
 		 */
 		public function set maximumZoom(value:Number):void
 		{
-			this._maximumZoom = value;
+			if (value != this._maximumZoom)
+			{
+				this._maximumZoom = value;
+				this._zoomControl.maximum = value;
+			}
 		}
 		
 		/**
@@ -67,7 +68,11 @@ package inky.components.map.view.helpers
 		 */
 		public function set minimumZoom(value:Number):void
 		{
-			this._minimumZoom = value;
+			if (value != this._minimumZoom)
+			{
+				this._minimumZoom = value;
+				this._zoomControl.minimum = value;
+			}
 		}
 		
 		/**
@@ -85,6 +90,8 @@ package inky.components.map.view.helpers
 			if (value != this._zoom)
 			{
 				this._zoom = value;
+// FIXME: How do we update the zoom control without causing the proxy (i.e. tween) to set this property again, updating the zoom control to the current zoom value and therefor stopping the tween?
+//				this._zoomControl.value = value;
 				scale(this.info.overlayContainer, value, this.getCenterPoint());
 				this.info.map.dispatchEvent(new MapEvent(MapEvent.SCALED));
 			}
@@ -132,7 +139,6 @@ package inky.components.map.view.helpers
 				this._zoomControl.addEventListener(Event.CHANGE, this.zoomControl_changeHandler);
 			
 			this._zoom = this.info.overlayContainer.scaleX;
-			
 		}
 
 		//---------------------------------------
@@ -144,7 +150,8 @@ package inky.components.map.view.helpers
 		 */
 		private function zoomControl_changeHandler(event:Event):void
 		{
-			this.setZoom(event.currentTarget.value);
+			var target:Object = this.zoomingProxy || this;
+			target.zoom = event.currentTarget.value;
 		}
 
 		/**
@@ -153,19 +160,6 @@ package inky.components.map.view.helpers
 		private function getCenterPoint():Point
 		{
 			return toCoordinateSpace(new Point(this.info.mask.width * 0.5, this.info.mask.height * 0.5), this.info.mask, this.info.overlayContainer);
-		}
-		
-		//---------------------------------------
-		// PROTECTED METHODS
-		//---------------------------------------
-		
-		/**
-		 * 
-		 */
-		protected function setZoom(zoom:Number):void
-		{
-			var target:Object = this.zoomingProxy || this;
-			target.zoom = zoom;
 		}
 
 	}	
