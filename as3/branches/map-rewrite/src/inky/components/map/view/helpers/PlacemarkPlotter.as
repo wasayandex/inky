@@ -1,19 +1,17 @@
 package inky.components.map.view.helpers 
 {
-	import inky.components.map.view.IMap;
 	import flash.display.DisplayObject;
 	import flash.utils.Dictionary;
 	import inky.collections.IIterator;
 	import inky.collections.events.CollectionEvent;
 	import inky.collections.ArrayList;
-	import inky.utils.IDestroyable;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
-	import inky.components.map.view.helpers.BaseMapViewHelper;
 	import inky.components.map.view.events.MapEvent;
-	import inky.layout.validation.LayoutValidator;
-	import flash.display.DisplayObjectContainer;
 	import inky.utils.EqualityUtil;
+	import inky.components.map.view.helpers.BaseMapHelper;
+	import inky.components.map.view.helpers.HelperInfo;
+	import inky.binding.utils.BindingUtil;
 	
 	/**
 	 *
@@ -26,102 +24,24 @@ package inky.components.map.view.helpers
 	 *	@since  2010.04.09
 	 *
 	 */
-	public class PlacemarkPlotter extends BaseMapViewHelper implements IDestroyable
+	public class PlacemarkPlotter extends BaseMapHelper
 	{
 		protected var availableRenderers:Array;
-		protected var contentContainer:DisplayObjectContainer;
-		protected var placemarkContainer:DisplayObjectContainer;
-		protected var overlayContainer:DisplayObjectContainer;
 		protected var rendererCache:Dictionary;
 		protected var positionCache:Dictionary;
-		private var _recyclePlacemarkRenderers:Boolean;
-		private var _scalePlacemarks:Boolean;
+		private var recyclePlacemarkRenderers:Boolean;
+		private var scalePlacemarkRenderers:Boolean;
+		private var watchers:Array;
 
 		public var placemarks:ArrayList;
 		
 		/**
-		 * @copy inky.components.map.view.helpers.BaseMapViewHelper
-		 * 
-		 * @param placemarkContainer
-		 * 		The map's placemark container.
-		 * 
-		 * @param overlayContainer
-		 * 		The map's overlay container.
-		 * 
-		 * @param recyclePlacemarkRenderers
-		 * 		Whether or not to recycle placemark renderer instances.
-		 * @see #recyclePlacemarkRenderers
-		 * @see inky.components.map.view.IMap#placemarkRendererClass
+		 * Creates a new placemark plotter.
 		 */
-		public function PlacemarkPlotter(map:IMap, layoutValidator:LayoutValidator, contentContainer:DisplayObjectContainer, placemarkContainer:DisplayObjectContainer, overlayContainer:DisplayObjectContainer, scalePlacemarks:Boolean = false, recyclePlacemarkRenderers:Boolean = true)
+		public function PlacemarkPlotter()
 		{
-			super(map, layoutValidator);
-			
-			this.recyclePlacemarkRenderers = recyclePlacemarkRenderers;
-			this.scalePlacemarks = scalePlacemarks;
-			
 			this.placemarks = new ArrayList();
 			this.placemarks.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.placemarks_collectionChangeHandler);
-			
-			this.contentContainer = contentContainer;
-			this.placemarkContainer = placemarkContainer;
-			this.overlayContainer = overlayContainer;
-			
-			this.mapContent.addEventListener(MapEvent.SCALED, this.content_scaledHandler);
-		}
-
-		//---------------------------------------
-		// ACCESSORS
-		//---------------------------------------
-		
-		/**
-		 * Whether or not to recycle placemark renderer instances.
-		 *  
-		 * <p>If <code>false</code>, a new placemark renderer instance is created every 
-		 * time a placemark is added. If <code>true</code>, placemark renderers created 
-		 * for placemarks that are removed will be used for placemarks that are added.</p>
-		 * 
-		 * @default true
-		 */
-		public function get recyclePlacemarkRenderers():Boolean
-		{ 
-			return this._recyclePlacemarkRenderers; 
-		}
-		/**
-		 * @private
-		 */
-		public function set recyclePlacemarkRenderers(value:Boolean):void
-		{
-			var oldValue:Boolean = this._recyclePlacemarkRenderers;
-			if (value != oldValue)
-			{
-				this._recyclePlacemarkRenderers = value;
-				if (!value && this.availableRenderers)
-					this.availableRenderers = null;
-			}
-		}
-		
-		/**
-		 * Whether or not to scale the placemarks when the map is scaled (zoomed).
-		 * 
-		 * <p>If <code>false</code>, placemarks are repositioned when the map is scaled. The size 
-		 * of the placemarks does not change, but their positions are adjusted relative to the 
-		 * scale of the map. If <code>true</code>, the placemarks are not repositioned. The placemark 
-		 * container is scaled along with the map, so that the placemarks keep the same positions 
-		 * relative to the map. However, the size of the placemarks also scales.</p>
-		 * 
-		 * @default false
-		 */
-		public function get scalePlacemarks():Boolean
-		{ 
-			return this._scalePlacemarks; 
-		}
-		/**
-		 * @private
-		 */
-		public function set scalePlacemarks(value:Boolean):void
-		{
-			this._scalePlacemarks = value;
 		}
 		
 		//---------------------------------------
@@ -149,8 +69,16 @@ package inky.components.map.view.helpers
 		/**
 		 * 
 		 */
-		public function destroy():void
+		override public function destroy():void
 		{
+			super.destroy();
+			
+			if (this.watchers)
+			{
+				while (this.watchers.length)
+					this.watchers.pop().unwatch();
+			}
+
 			this.placemarks.removeEventListener(CollectionEvent.COLLECTION_CHANGE, this.placemarks_collectionChangeHandler);
 			this.placemarks = null;
 			
@@ -169,9 +97,6 @@ package inky.components.map.view.helpers
 		 */
 		public function getPlacemarkRendererFor(placemark:Object):Object
 		{
-			if (!this.map.placemarkRendererClass)
-				throw new Error("placemarkRendererClass not defined on map.");
-
 			var renderer:Object;
 
 			if (!this.rendererCache)
@@ -208,6 +133,7 @@ package inky.components.map.view.helpers
 		public function getPositionFor(placemark:Object):Point
 		{
 			var point:Point;
+			var model:Object = this.info.map.model;
 
 			// Look for a cached position for this placemark.
 			if (!this.positionCache)
@@ -227,14 +153,14 @@ package inky.components.map.view.helpers
 				}
 			}
 
-			if (!point)
+			if (!point && model)
 			{
 				point = this.getKMLCoordinatesFor(placemark);
 
-				var longitudeDifference:Number = this.map.model.latLonBox.east - this.map.model.latLonBox.west;
-				var latitudeDifference:Number = this.map.model.latLonBox.south - this.map.model.latLonBox.north;
+				var longitudeDifference:Number = model.latLonBox.east - model.latLonBox.west;
+				var latitudeDifference:Number = model.latLonBox.south - model.latLonBox.north;
 
-				var kmlBounds:Rectangle = new Rectangle(this.map.model.latLonBox.west, this.map.model.latLonBox.north, longitudeDifference, latitudeDifference);
+				var kmlBounds:Rectangle = new Rectangle(model.latLonBox.west, model.latLonBox.north, longitudeDifference, latitudeDifference);
 
 				if (!this.numberIsBetween(point.x, kmlBounds.left, kmlBounds.right) || !this.numberIsBetween(point.y, kmlBounds.top, kmlBounds.bottom))
 				{
@@ -242,16 +168,16 @@ package inky.components.map.view.helpers
 					return null;
 				}
 
-				var mapBounds:Rectangle = this.overlayContainer.getRect(this.placemarkContainer);
+				var mapBounds:Rectangle = this.info.overlayContainer.getRect(this.info.contentContainer);
 
-				point.x = mapBounds.x + ((point.x - this.map.model.latLonBox.west) / longitudeDifference) * mapBounds.width;
-				point.y = mapBounds.y + ((point.y - this.map.model.latLonBox.north) / latitudeDifference) * mapBounds.height;
+				point.x = mapBounds.x + ((point.x - this.info.map.model.latLonBox.west) / longitudeDifference) * mapBounds.width;
+				point.y = mapBounds.y + ((point.y - this.info.map.model.latLonBox.north) / latitudeDifference) * mapBounds.height;
 
-				if (this.map.model.latLonBox.rotation)
+				if (model.latLonBox.rotation)
 				{
 					var center:Point = new Point(mapBounds.width / 2, mapBounds.height / 2);
 					point = point.subtract(center);		
-					this.rotatePoint(point, this.map.model.latLonBox.rotation);
+					this.rotatePoint(point, this.info.map.model.latLonBox.rotation);
 					point =	point.add(center);
 				}
 
@@ -261,25 +187,22 @@ package inky.components.map.view.helpers
 
 			return point;
 		}
-
-		private function numberIsBetween(n:Number, a:Number, b:Number):Boolean
+		
+		/**
+		 * @inheritDoc
+		 */
+		override public function initialize(info:HelperInfo):void
 		{
-			var min:Number;
-			var max:Number;
-			if (a < b)
-			{
-				min = a;
-				max = b;
-			}
-			else
-			{
-				min = b;
-				max = a;
-			}
+			super.initialize(info);
+			this.watchers = 
+			[
+				BindingUtil.bindSetter(this.toggleRecyclePlacemarkRenderers, info.map, "recyclePlacemarkRenderers"),
+				BindingUtil.bindSetter(this.toggleScalePlacemarkRenderers, info.map, "scalePlacemarkRenderers"),
+				BindingUtil.bindSetter(this.setSelectedFolders, info.map, ["model", "selectedFolders"])
+			];
 
-			return n <= max && n >= min;
+			info.map.addEventListener(MapEvent.SCALED, this.content_scaledHandler);
 		}
-
 		
 		/**
 		 * 
@@ -308,10 +231,14 @@ package inky.components.map.view.helpers
 				this.removePlacemark(placemarks[i]);
 		}
 		
+		//---------------------------------------
+		// PROTECTED METHODS
+		//---------------------------------------
+		
 		/**
 		 * @inheritDoc
 		 */
-		override public function reset():void
+		override protected function reset():void
 		{
 			super.reset();
 			this.clearPositionCache();
@@ -320,9 +247,9 @@ package inky.components.map.view.helpers
 		/**
 		 * @inheritDoc
 		 */
-		override public function validate():void
+		override protected function validate():void
 		{
-			var placemarksAreInvalid:Boolean = this.validationState.propertyIsInvalid("placemarks");
+			var placemarksAreInvalid:Boolean = this.info.layoutValidator.validationState.propertyIsInvalid("placemarks");
 			super.validate();
 
 // TODO: Separate updating the model (adding and removing placemarks) from updating the positions.
@@ -332,9 +259,9 @@ package inky.components.map.view.helpers
 				var placemark:Object;
 
 				// Remove any placemarks no longer present.
-				for (var i:int = 0; i < this.placemarkContainer.numChildren; i++)
+				for (var i:int = 0; i < this.info.placemarkContainer.numChildren; i++)
 				{
-					renderer = Object(this.placemarkContainer.getChildAt(i));
+					renderer = Object(this.info..placemarkContainer.getChildAt(i));
 					placemark = renderer.model;
 					if (!this.placemarks.containsItem(placemark))
 					{
@@ -348,11 +275,11 @@ package inky.components.map.view.helpers
 				{
 					renderer = this.getPlacemarkRendererFor(j.next());
 					if (this.updatePlacemarkRendererPosition(renderer))
-						this.placemarkContainer.addChild(renderer as DisplayObject);
+						this.info.placemarkContainer.addChild(renderer as DisplayObject);
 				}
 			}
 		}
-		
+
 		//---------------------------------------
 		// PRIVATE METHODS
 		//---------------------------------------
@@ -362,10 +289,10 @@ package inky.components.map.view.helpers
 		 */
 		private function content_scaledHandler(event:MapEvent):void
 		{
-			if (this.scalePlacemarks)
+			if (this.scalePlacemarkRenderers)
 			{
-				this.placemarkContainer.scaleX = this.overlayContainer.scaleX;
-				this.placemarkContainer.scaleY = this.overlayContainer.scaleY;
+				this.info.placemarkContainer.scaleX = this.info.overlayContainer.scaleX;
+				this.info.placemarkContainer.scaleY = this.info.overlayContainer.scaleY;
 			}
 			else
 			{
@@ -389,13 +316,16 @@ package inky.components.map.view.helpers
 		 */
 		private function getAvailablePlacemarkRenderer():Object
 		{
+			if (!this.info.map.placemarkRendererClass)
+				throw new Error("placemarkRendererClass not defined on map.");
+
 			var renderer:Object;
 
 			if (this.recyclePlacemarkRenderers && this.availableRenderers && this.availableRenderers.length)
 				renderer = this.availableRenderers.pop();
 			
 			if (!renderer)
-				renderer = new this.map.placemarkRendererClass();
+				renderer = new this.info.map.placemarkRendererClass();
 			
 			return renderer;
 		}
@@ -412,6 +342,27 @@ package inky.components.map.view.helpers
 		/**
 		 * 
 		 */
+		private function numberIsBetween(n:Number, a:Number, b:Number):Boolean
+		{
+			var min:Number;
+			var max:Number;
+			if (a < b)
+			{
+				min = a;
+				max = b;
+			}
+			else
+			{
+				min = b;
+				max = a;
+			}
+
+			return n <= max && n >= min;
+		}
+		
+		/**
+		 * 
+		 */
 		private function placemarks_collectionChangeHandler(event:CollectionEvent):void
 		{
 			this.invalidateProperty("placemarks");
@@ -422,8 +373,8 @@ package inky.components.map.view.helpers
 		 */
 		private function recyclePlacemarkRenderer(renderer:Object):void
 		{
-			if (this.placemarkContainer.contains(DisplayObject(renderer)))
-				this.placemarkContainer.removeChild(DisplayObject(renderer));
+			if (this.info.placemarkContainer.contains(DisplayObject(renderer)))
+				this.info.placemarkContainer.removeChild(DisplayObject(renderer));
 			
 			delete this.rendererCache[renderer];
 
@@ -451,9 +402,52 @@ package inky.components.map.view.helpers
 		}
 		
 		/**
+		 * Set the selected folders. This method may be overriden by subclasses 
+		 * to alter the view behavior when folder selections change.
+		 * 
+		 * @param folders
+		 * 		A list of selected folers.
+		 */
+		private function setSelectedFolders(folders:Array):void
+		{
+			this.removeAllPlacemarks();
+			
+			var model:Object = this.info.map.model;
+			
+			if (model)
+			{
+				for each (var folder:Object in model.selectedFolders)
+					this.addPlacemarks(model.getPlacemarks(folder));
+				
+				// Add the placemarks that sit outside of the folder structure.
+				// Since they don't reside in folders that can never be selected, they are always present.
+				this.addPlacemarks(model.getPlacemarks(model.document));
+			}
+		}
+		
+		/**
+		 * 
+		 */
+		private function toggleRecyclePlacemarkRenderers(value:Boolean):void
+		{
+			this.recyclePlacemarkRenderers = value;
+			if (!value && this.availableRenderers)
+				this.availableRenderers = null;
+		}
+		
+		/**
+		 * 
+		 */
+		private function toggleScalePlacemarkRenderers(value:Boolean):void
+		{
+			this.scalePlacemarkRenderers = value;
+		}
+		
+		
+		/**
 		 * @inheritDoc
 		 */
-		protected function updatePlacemarkRendererPosition(renderer:Object):Boolean
+		private function updatePlacemarkRendererPosition(renderer:Object):Boolean
 		{
 			var placemarkPosition:Point = this.getPositionFor(renderer.model);
 			

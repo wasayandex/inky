@@ -1,17 +1,14 @@
 package inky.components.map.view.helpers 
 {
-	import inky.components.map.view.helpers.MaskedMapViewHelper;
 	import flash.events.Event;
 	import flash.display.InteractiveObject;
 	import flash.geom.Point;
 	import inky.utils.toCoordinateSpace;
-	import inky.utils.IDestroyable;
 	import inky.components.map.view.events.MapEvent;
-	import inky.layout.validation.LayoutValidator;
 	import flash.display.DisplayObjectContainer;
-	import flash.display.DisplayObject;
-	import inky.components.map.view.IInteractiveMap;
 	import inky.display.utils.scale;
+	import inky.components.map.view.helpers.BaseMapHelper;
+	import inky.components.map.view.helpers.HelperInfo;
 	
 	/**
 	 *
@@ -24,7 +21,7 @@ package inky.components.map.view.helpers
 	 *	@since  2010.04.12
 	 *
 	 */
-	public class ZoomingHelper extends MaskedMapViewHelper implements IDestroyable
+	public class ZoomingHelper extends BaseMapHelper
 	{
 		private var _maximumZoom:Number;
 		private var _minimumZoom:Number;
@@ -35,40 +32,6 @@ package inky.components.map.view.helpers
 		private var _zoomOutButton:InteractiveObject;
 		protected var overlayContainer:DisplayObjectContainer;
 
-		/**
-		 * @copy inky.components.map.view.helpers.MaskedMapViewHelper
-		 * 
-		 * @param overlayContainer
-		 * 		The map's overlay container.
-		 * 
-		 * @param zoomingProxy
-		 * 		An object that stands in for the contentContainer in scale manipulation methods.
-		 * 
-		 * @param maximumZoom
-		 * 		The maximum 'zoom' amount.
-		 * @see #maximumZoom
-		 * 
-		 * @param minimumZoom
-		 * 		The minimum 'zoom' amount.
-		 * @see #minimumZoom
-		 * 
-		 */
-		public function ZoomingHelper(map:IInteractiveMap, layoutValidator:LayoutValidator, mask:DisplayObject, contentContainer:DisplayObjectContainer, overlayContainer:DisplayObjectContainer, zoomingProxy:Object = null, maximumZoom:Number = 2, minimumZoom:Number = 1)
-		{
-			super(map, layoutValidator, mask, contentContainer);
-			
-			this.zoomingProxy = zoomingProxy;
-			this.maximumZoom = maximumZoom;
-			this.minimumZoom = minimumZoom;
-			
-			this._zoomControl = this.mapContent.getChildByName("_zoomControl");
-			if (this._zoomControl)
-				this._zoomControl.addEventListener(Event.CHANGE, this.zoomControl_changeHandler);
-			
-			this.overlayContainer = overlayContainer;
-			this._zoom = overlayContainer.scaleX;
-		}
-		
 		//---------------------------------------
 		// ACCESSORS
 		//---------------------------------------
@@ -122,8 +85,8 @@ package inky.components.map.view.helpers
 			if (value != this._zoom)
 			{
 				this._zoom = value;
-				scale(this.overlayContainer, value, this.getCenterPoint());
-				this.mapContent.dispatchEvent(new MapEvent(MapEvent.SCALED));
+				scale(this.info.overlayContainer, value, this.getCenterPoint());
+				this.info.map.dispatchEvent(new MapEvent(MapEvent.SCALED));
 			}
 		}
 
@@ -152,8 +115,24 @@ package inky.components.map.view.helpers
 		/**
 		 * @inheritDoc
 		 */
-		public function destroy():void
+		override public function destroy():void
 		{
+			super.destroy();
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		override public function initialize(info:HelperInfo):void
+		{
+			super.initialize(info);
+
+			this._zoomControl = DisplayObjectContainer(this.info.map).getChildByName("_zoomControl");
+			if (this._zoomControl)
+				this._zoomControl.addEventListener(Event.CHANGE, this.zoomControl_changeHandler);
+			
+			this._zoom = this.info.overlayContainer.scaleX;
+			
 		}
 
 		//---------------------------------------
@@ -173,7 +152,7 @@ package inky.components.map.view.helpers
 		 */
 		private function getCenterPoint():Point
 		{
-			return toCoordinateSpace(new Point(this.mask.width * 0.5, this.mask.height * 0.5), this.mask, this.overlayContainer);
+			return toCoordinateSpace(new Point(this.info.mask.width * 0.5, this.info.mask.height * 0.5), this.info.mask, this.info.overlayContainer);
 		}
 		
 		//---------------------------------------

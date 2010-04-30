@@ -1,16 +1,11 @@
 package inky.components.map.view.helpers 
 {
-	import inky.components.map.view.IMap;
 	import inky.binding.utils.BindingUtil;
 	import inky.components.map.model.IMapModel;
-	import inky.components.map.view.helpers.BaseMapViewHelper;
-	import inky.utils.IDestroyable;
 	import inky.binding.utils.IChangeWatcher;
 	import flash.utils.getDefinitionByName;
 	import flash.display.DisplayObject;
 	import inky.components.map.view.events.MapEvent;
-	import inky.layout.validation.LayoutValidator;
-	import flash.display.DisplayObjectContainer;
 	
 	/**
 	 *
@@ -23,24 +18,9 @@ package inky.components.map.view.helpers
 	 *	@since  2010.04.15
 	 *
 	 */
-	public class OverlayLoader extends BaseMapViewHelper implements IDestroyable
+	public class OverlayLoader extends BaseMapHelper
 	{
 		protected var modelWatcher:IChangeWatcher;
-		protected var overlayContainer:DisplayObjectContainer;
-
-		/**
-		 * @copy inky.components.map.view.helpers.BaseMapViewHelper
-		 * 
-		 * @param overlayContainer
-		 * 		The map's overlay container.
-		 */
-		public function OverlayLoader(map:IMap, layoutValidator:LayoutValidator, overlayContainer:DisplayObjectContainer)
-		{
-			super(map, layoutValidator);
-
-			this.overlayContainer = overlayContainer;
-			this.modelWatcher = BindingUtil.bindSetter(this.findAndLoadOverlay, this.map, "model");
-		}
 		
 		//---------------------------------------
 		// PUBLIC METHODS
@@ -49,11 +29,23 @@ package inky.components.map.view.helpers
 		/**
 		 * @inheritDoc
 		 */
-		public function destroy():void
+		override public function destroy():void
 		{
-			this.modelWatcher.unwatch();
+			super.destroy();
+			
+			if (this.modelWatcher)
+				this.modelWatcher.unwatch();
 		}
 		
+		/**
+		 * @inheritDoc
+		 */
+		override public function initialize(info:HelperInfo):void
+		{
+			super.initialize(info);
+			this.modelWatcher = BindingUtil.bindSetter(this.findAndLoadOverlay, this.info.map, "model");
+		}
+
 		//---------------------------------------
 		// PRIVATE METHODS
 		//---------------------------------------
@@ -63,8 +55,8 @@ package inky.components.map.view.helpers
 		 */
 		private function clearOverlay():void
 		{
-			while (this.overlayContainer.numChildren)
-				this.overlayContainer.removeChildAt(0);
+			while (this.info.overlayContainer.numChildren)
+				this.info.overlayContainer.removeChildAt(0);
 		}
 		
 		/**
@@ -82,9 +74,9 @@ package inky.components.map.view.helpers
 					
 					var overlayClass:Class = getDefinitionByName(url.replace(/^lib:\/\//, "")) as Class;
 					var overlay:DisplayObject = new overlayClass() as DisplayObject;
-					this.overlayContainer.addChild(overlay);
+					this.info.overlayContainer.addChild(overlay);
 					
-					this.mapContent.dispatchEvent(new MapEvent(MapEvent.OVERLAY_UPDATED));
+					this.info.map.dispatchEvent(new MapEvent(MapEvent.OVERLAY_UPDATED));
 				}
 			}
 		}

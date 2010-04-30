@@ -11,6 +11,8 @@ package inky.components.map.view
 	import inky.components.map.view.IInteractiveMap;
 	import inky.components.map.view.helpers.ShowPlacemarkHelper;
 	import flash.display.Shape;
+	import inky.binding.events.PropertyChangeEvent;
+	import inky.components.map.view.helpers.HelperType;
 	
 	/**
 	 *
@@ -31,11 +33,11 @@ package inky.components.map.view
 	 */
 	public class BaseInteractiveMap extends BaseMap implements IInteractiveMap
 	{
-		private var panningHelper:PanningHelper;
-		private var zoomingHelper:ZoomingHelper;
-		private var showPlacemarkHelper:ShowPlacemarkHelper;
-		private var tooltipHelper:TooltipHelper;
 		private var __mask:DisplayObject;
+		private var _horizontalPan:Number;
+		private var _panningProxy:Object;
+		private var _verticalPan:Number;
+		private var _zoom:Number;
 		
 		/**
 		 * Creates a BaseInteractiveMap. 
@@ -68,169 +70,28 @@ package inky.components.map.view
 				this.contentContainer.mask = mask;
 
 			this.__mask = mask;
-
-			this.panningHelper = new PanningHelper(this, this.layoutValidator, this.__mask, this.contentContainer);
+			
+			this.helperInfo.mask = mask;
+			
+			this.registerHelper(PanningHelper, HelperType.PANNING_HELPER);
+			this.registerHelper(ZoomingHelper, HelperType.ZOOMING_HELPER);
+			
+			/*this.panningHelper = new PanningHelper(this, this.layoutValidator, this.__mask, this.contentContainer);
 			this.zoomingHelper = new ZoomingHelper(this, this.layoutValidator, this.__mask, this.contentContainer, this.overlayContainer);
 			this.showPlacemarkHelper = new ShowPlacemarkHelper(this, this.layoutValidator, this.__mask, this.contentContainer, this.getPlacemarkRendererFor);
-			this.tooltipHelper = new TooltipHelper(this, this.layoutValidator, this.getPlacemarkRendererFor);
-		}
-
-		//---------------------------------------
-		// ACCESSORS
-		//---------------------------------------
-
-// TODO: Store the exposed helper properties, in case a subclass delays super construction until after setting them?
-		
-		/**
-		 * @inheritDoc
-		 */
-		public function get contentX():Number
-		{ 
-			return this.panningHelper.contentX; 
-		}
-		/**
-		 * @private
-		 */
-		public function set contentX(value:Number):void
-		{
-			this.panningHelper.contentX = value;
-		}
-		
-		/**
-		 * @inheritDoc
-		 */
-		public function get contentY():Number
-		{ 
-			return this.panningHelper.contentY; 
-		}
-		/**
-		 * @private
-		 */
-		public function set contentY(value:Number):void
-		{
-			this.panningHelper.contentY = value;
-		}
-		
-		/**
-		 * @copy inky.components.map.view.helpers.ZoomingHelper#maximumZoom
-		 */
-		public function get maximumZoom():Number
-		{ 
-			return this.zoomingHelper.maximumZoom; 
-		}
-		/**
-		 * @private
-		 */
-		public function set maximumZoom(value:Number):void
-		{
-			this.zoomingHelper.maximumZoom = value;
-		}
-		
-		/**
-		 * @copy inky.components.map.view.helpers.ZoomingHelper#minimumZoom
-		 */
-		public function get minimumZoom():Number
-		{ 
-			return this.zoomingHelper.minimumZoom; 
-		}
-		/**
-		 * @private
-		 */
-		public function set minimumZoom(value:Number):void
-		{
-			this.zoomingHelper.minimumZoom = value;
-		}
-		
-		/**
-		 * @copy inky.components.map.view.helpers.PanningHelper#panningProxy
-		 */
-		public function get panningProxy():Object
-		{ 
-			return this.panningHelper.panningProxy; 
-		}
-		/**
-		 * @private
-		 */
-		public function set panningProxy(value:Object):void
-		{
-			this.panningHelper.panningProxy = value;
-		}
-
-		/**
-		 * @copy inky.components.map.view.helpers.TooltipHelper#tooltip
-		 */
-		public function get tooltip():ITooltip
-		{ 
-			return this.tooltipHelper.tooltip;
-		}
-		/**
-		 * @private
-		 */
-		public function set tooltip(value:ITooltip):void
-		{
-			this.tooltipHelper.tooltip = value;
-		}
-
-		/**
-		 * @copy inky.components.map.view.helpers.ZoomingHelper#zoom
-		 */
-		public function get zoom():Number
-		{ 
-			return this.zoomingHelper.zoom;
-		}
-		/**
-		 * @private
-		 */
-		public function set zoom(value:Number):void
-		{
-			this.zoomingHelper.zoom = value;
-		}
-
-		/**
-		 * @copy inky.components.map.view.helpers.ZoomingHelper#zoomingProxy
-		 */
-		public function get zoomingProxy():Object
-		{ 
-			return this.zoomingHelper.zoomingProxy; 
-		}
-		/**
-		 * @private
-		 */
-		public function set zoomingProxy(value:Object):void
-		{
-			this.zoomingHelper.zoomingProxy = value;
+			this.tooltipHelper = new TooltipHelper(this, this.layoutValidator, this.getPlacemarkRendererFor);*/
 		}
 		
 		//---------------------------------------
 		// PUBLIC METHODS
 		//---------------------------------------
-		
-		/**
-		 * @inheritDoc
-		 */
-		override public function destroy():void
-		{
-			super.destroy();
-			this.panningHelper.destroy();
-			this.zoomingHelper.destroy();
-			this.tooltipHelper.destroy();
-			this.showPlacemarkHelper.destroy();
-		}
 
-		/**
-		 * @copy inky.components.map.view.helpers.PanningHelper#moveContent
-		 */
-		public function moveContent(x:Number, y:Number):void
-		{
-			this.panningHelper.moveContent(x, y);
-		}
-		
 		/**
 		 * @inheritDoc
 		 */
 		public function showPlacemark(placemark:Object):void
 		{
-			this.showPlacemarkHelper.showPlacemark(placemark);
+//			this.showPlacemarkHelper.showPlacemark(placemark);
 		}
 		
 		//---------------------------------------
@@ -242,30 +103,12 @@ package inky.components.map.view
 		 */
 		override protected function reset():void
 		{
-			super.reset();
+			/*this.contentContainer.x = 
+			this.contentContainer.y = 0;
+			this.overlayContainer.scaleX =
+			this.overlayContainer.scaleY = this.minimumZoom;*/
 
-			var contentContainer:DisplayObject = this.getContentContainer();
-			contentContainer.x = 
-			contentContainer.y = 0;
-			overlayContainer.scaleX =
-			overlayContainer.scaleY = this.minimumZoom;
-			
-			this.panningHelper.reset();
-			this.zoomingHelper.reset();
-			this.tooltipHelper.reset();
-			this.showPlacemarkHelper.reset();
-		}
-		
-		/**
-		 * @inheritDoc
-		 */
-		override protected function validate():void
-		{
-			this.zoomingHelper.validate();
-			this.panningHelper.validate();
-			this.tooltipHelper.validate();
-			this.showPlacemarkHelper.validate();
-			super.validate();
+			super.reset();
 		}
 		
 	}

@@ -13,6 +13,10 @@ package inky.components.map.view
 	import inky.layout.validation.LayoutValidator;
 	import flash.display.DisplayObjectContainer;
 	import inky.utils.describeObject;
+	import flash.utils.getQualifiedClassName;
+	import inky.components.map.view.events.MapChangeEvent;
+	import inky.components.map.view.helpers.HelperInfo;
+	import inky.components.map.view.helpers.HelperType;
 	
 	/**
 	 *
@@ -31,23 +35,24 @@ package inky.components.map.view
  	 */
 	public class BaseMap extends Sprite implements IMap
 	{
-		private var changeWatchers:Array;
+		private var helpers:Array;
+		protected var helperInfo:HelperInfo;
 		protected var contentContainer:DisplayObjectContainer;
 		protected var overlayContainer:DisplayObjectContainer;
-		protected var overlayLoader:OverlayLoader;
 		protected var placemarkContainer:DisplayObjectContainer;
-		protected var placemarkPlotter:PlacemarkPlotter;
 		protected var layoutValidator:LayoutValidator;
 		private var modelWatcher:IChangeWatcher;
 		private var _model:IMapModel;
 		private var _placemarkRendererClass:Class;
+		private var _recyclePlacemarkRenderers:Boolean;
+		private var _scalePlacemarkRenderers:Boolean;
+
 		
 		/**
 		 * Creates a BaseMap. 
 		 */
 		public function BaseMap()
 		{
-
 			// Find the content container. If it can't be found, create one.
 			var contentContainer = this.getChildByName("_contentContainer") as DisplayObjectContainer;
 			if (!contentContainer)
@@ -88,12 +93,13 @@ package inky.components.map.view
 
 			this.layoutValidator = new LayoutValidator(this, this.validate);
 			
-			this.overlayLoader = new OverlayLoader(this, this.layoutValidator, this.overlayContainer);
+			// Set up the helper info.
+			this.helperInfo = new HelperInfo(this, this.layoutValidator, this.contentContainer, this.placemarkContainer, this.overlayContainer);
+			
+			// Register default helpers.
+			this.registerHelper(OverlayLoader, HelperType.OVERLAY_HELPER);
+			this.registerHelper(PlacemarkPlotter, HelperType.PLACEMARK_HELPER);
 
-			// TODO: Should we store exposed PlacemarkPlotter values (recyclePlacemarkRenderers) to account for a situation where a subclass sets them before calling super()?
-			this.placemarkPlotter = new PlacemarkPlotter(this, this.layoutValidator, this.contentContainer, this.placemarkContainer, this.overlayContainer);
-
-			this.changeWatchers = [];
 			this.modelWatcher = BindingUtil.bindSetter(this.initializeForModel, this, "model");
 		}
 		
@@ -120,7 +126,7 @@ package inky.components.map.view
 				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "model", oldValue, value));	
 			}
 		}
-
+		
 		/**
 		 * @inheritDoc
 		 */
@@ -133,37 +139,52 @@ package inky.components.map.view
 		 */
 		public function set placemarkRendererClass(value:Class):void
 		{
-			this._placemarkRendererClass = value;
+			var oldValue:Class = this._placemarkRendererClass;
+			if (value != oldValue)
+			{
+				this._placemarkRendererClass = value;
+				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "placemarkRendererClass", oldValue, value));	
+			}
 		}
-		
+
 		/**
-		 * @copy inky.components.map.view.helpers.PlacemarkPlotter#recyclePlacemarkRenderers
+		 * @inheritDoc
 		 */
 		public function get recyclePlacemarkRenderers():Boolean
 		{ 
-			return this.placemarkPlotter.recyclePlacemarkRenderers; 
+			return this._recyclePlacemarkRenderers; 
 		}
 		/**
 		 * @private
 		 */
 		public function set recyclePlacemarkRenderers(value:Boolean):void
 		{
-			this.placemarkPlotter.recyclePlacemarkRenderers = value;
+			var oldValue:Boolean = this._recyclePlacemarkRenderers;
+			if (value != oldValue)
+			{
+				this._recyclePlacemarkRenderers = value;
+				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "recyclePlacemarkRenderers", oldValue, value));	
+			}
 		}
-		
+
 		/**
-		 * @copy inky.components.map.view.helpers.PlacemarkPlotter#scalePlacemarks
+		 * @inheritDoc
 		 */
-		public function get scalePlacemarks():Boolean
+		public function get scalePlacemarkRenderers():Boolean
 		{ 
-			return this.placemarkPlotter.scalePlacemarks; 
+			return this._scalePlacemarkRenderers; 
 		}
 		/**
 		 * @private
 		 */
-		public function set scalePlacemarks(value:Boolean):void
+		public function set scalePlacemarkRenderers(value:Boolean):void
 		{
-			this.placemarkPlotter.scalePlacemarks = value;
+			var oldValue:Boolean = this._scalePlacemarkRenderers;
+			if (value != oldValue)
+			{
+				this._scalePlacemarkRenderers = value;
+				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "scalePlacemarkRenderers", oldValue, value));	
+			}
 		}
 		
 		//---------------------------------------
@@ -175,12 +196,8 @@ package inky.components.map.view
 		 */
 		public function destroy():void
 		{
-			while (this.changeWatchers.length)
-				this.changeWatchers.pop().unwatch();
-			
 			this.modelWatcher.unwatch();
-			
-			this.placemarkPlotter.destroy();
+			this.dispatchEvent(new MapChangeEvent(MapChangeEvent.DESTROY_TRIGGERED));
 		}
 		
 		//---------------------------------------
@@ -188,27 +205,47 @@ package inky.components.map.view
 		//---------------------------------------
 		
 		/**
-		 * Returns the content container.
+		 * Returns a map helper.
+		 * 
+		 * @param id
+		 * 		The id associated with the map helper.
+		 * 
+		 * @see inky.components.map.view.helpers.IMapHelper
+		 * @see inky.components.map.view.helpers.HelperType
 		 */
-		protected function getContentContainer():DisplayObject
+		protected function getHelper(id:String):Object
 		{
-			return this.getChildByName("_contentContainer");
+			return this.helpers[id];
 		}
 		
 		/**
-		 * @copy inky.components.map.view.helpers.PlacemarkPlotter#getPlacemarkRendererFor
+		 * Registers a map helper class with the map.
+		 * 
+		 * @param helperClass 
+		 * 		An IMapHelper class to register.
+		 * 
+		 * @param id
+		 * 		An optional id to identify the role of the helper. If a helper already occupies 
+		 * 		the given id, it is destroyed, and the new helper is created in its place.
+		 * 
+		 * @see inky.components.map.view.helpers.IMapHelper
+		 * @see inky.components.map.view.helpers.HelperType
 		 */
-		protected function getPlacemarkRendererFor(placemark:Object):Object
+		protected function registerHelper(helperClass:Class, id:String = null):void
 		{
-			return this.placemarkPlotter.getPlacemarkRendererFor(placemark);
-		}
-		
-		/**
-		 * @copy inky.components.map.view.helpers.PlacemarkPlotter#getPositionFor
-		 */
-		protected function getPositionFor(placemark:Object):Point
-		{
-			return this.placemarkPlotter.getPositionFor(placemark);
+			if (!this.helpers)
+				this.helpers = [];
+			
+// TODO: schedule destroy in next update?
+			if (id && this.helpers[id] && !(this.helpers[id] is Class))
+				this.helpers[id].destroy();
+			
+			if (!id)
+				this.helpers.push(helperClass);
+			else
+				this.helpers[id] = helperClass;
+				
+			this.invalidateProperty('helpers');
 		}
 		
 		/**
@@ -216,10 +253,9 @@ package inky.components.map.view
 		 */
 		protected function reset():void
 		{
-			this.placemarkPlotter.reset();
-			this.overlayLoader.reset();
+			this.dispatchEvent(new MapChangeEvent(MapChangeEvent.RESET_TRIGGERED));
 		}
-		
+
 		/**
 		 * Set the selected folders. This method may be overriden by subclasses 
 		 * to alter the view behavior when folder selections change.
@@ -227,7 +263,7 @@ package inky.components.map.view
 		 * @param folders
 		 * 		A list of selected folers.
 		 */
-		protected function setSelectedFolders(folders:Array):void
+		/*protected function setSelectedFolders(folders:Array):void
 		{
 			this.placemarkPlotter.removeAllPlacemarks();
 			
@@ -240,7 +276,7 @@ package inky.components.map.view
 				// Since they don't reside in folders that can never be selected, they are always present.
 				this.placemarkPlotter.addPlacemarks(this.model.getPlacemarks(this.model.document));
 			}
-		}
+		}*/
 		
 		/**
 		 * Set the selected placemarks. This method may be overriden by subclasses 
@@ -249,9 +285,18 @@ package inky.components.map.view
 		 * @param placemarks
 		 * 		A list of selected placemarks.
 		 */
-		protected function setSelectedPlacemarks(placemarks:Array):void
+		/*protected function setSelectedPlacemarks(placemarks:Array):void
 		{
 			
+		}*/
+		
+		/**
+		 * @inheritDoc
+		 */
+		protected function invalidateProperty(property:String):void
+		{
+			this.layoutValidator.validationState.markPropertyAsInvalid(property);
+			this.layoutValidator.invalidate();
 		}
 		
 		/**
@@ -259,8 +304,21 @@ package inky.components.map.view
 		 */
 		protected function validate():void
 		{
-			this.overlayLoader.validate();
-			this.placemarkPlotter.validate();
+			if (this.layoutValidator.validationState.propertyIsInvalid('helpers'))
+			{
+				for (var key:Object in this.helpers)
+				{
+					var helper:Object = this.helpers[key];
+					if (helper is Class)
+					{
+						helper = new helper();
+						helper.initialize(this.helperInfo);
+						this.helpers[key] = helper;
+					}
+				}
+			}
+
+			this.dispatchEvent(new MapChangeEvent(MapChangeEvent.VALIDATION_TRIGGERED));
 			this.layoutValidator.validationState.markAllPropertiesAsValid();
 		}
 		
@@ -273,15 +331,8 @@ package inky.components.map.view
 		 */
 		private function initializeForModel(model:Object):void
 		{
-			while (this.changeWatchers.length)
-				this.changeWatchers.pop().unwatch();
-			
 			if (model)
-			{
 				this.reset();
-				this.changeWatchers.push(BindingUtil.bindSetter(this.setSelectedPlacemarks, model, "selectedPlacemarks"));
-				this.changeWatchers.push(BindingUtil.bindSetter(this.setSelectedFolders, model, "selectedFolders"));
-			}
 		}
 		
 	}
