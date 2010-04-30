@@ -32,6 +32,7 @@ package inky.components.map.view.helpers
 		private var recyclePlacemarkRenderers:Boolean;
 		private var scalePlacemarkRenderers:Boolean;
 		private var watchers:Array;
+		private var unplottablePlacemarks:Dictionary = new Dictionary(true);
 
 		public var placemarks:ArrayList;
 		
@@ -164,7 +165,11 @@ package inky.components.map.view.helpers
 
 				if (!this.numberIsBetween(point.x, kmlBounds.left, kmlBounds.right) || !this.numberIsBetween(point.y, kmlBounds.top, kmlBounds.bottom))
 				{
-					trace("Warning: placemark is out of bounds. It will not be plotted.\not" + placemark.xml);
+					if (!this.unplottablePlacemarks[placemark])
+					{
+						this.unplottablePlacemarks[placemark] = true;
+						trace("Warning: placemark is out of bounds. It will not be plotted.\not" + placemark.xml);
+					}
 					return null;
 				}
 
