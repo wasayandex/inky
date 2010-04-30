@@ -16,7 +16,10 @@ package inky.utils
 	 */
 	public function toCoordinateSpace(point:Point, source:DisplayObject, target:DisplayObject):Point
 	{
-		return target.globalToLocal(source.localToGlobal(point));
+		if (source == target)
+			return point.clone();
+		else
+			return target.globalToLocal(source.localToGlobal(point));
 	}
 	
 }
