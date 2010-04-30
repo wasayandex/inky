@@ -90,8 +90,7 @@ package inky.components.map.view.helpers
 			if (value != this._zoom)
 			{
 				this._zoom = value;
-// FIXME: How do we update the zoom control without causing the proxy (i.e. tween) to set this property again, updating the zoom control to the current zoom value and therefor stopping the tween?
-//				this._zoomControl.value = value;
+				this._zoomControl.value = this.zoomingProxy ? this.zoomingProxy.zoom : value;
 				scale(this.info.overlayContainer, value, this.getCenterPoint());
 				this.info.map.dispatchEvent(new MapEvent(MapEvent.SCALED));
 			}
