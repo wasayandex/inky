@@ -4,6 +4,8 @@ package inky.components.map.view
 	import inky.components.map.view.helpers.ControllerHelper;
 	import inky.components.map.controller.MapController;
 	import inky.components.map.controller.mediators.IMapControllerMediator;
+	import inky.binding.events.PropertyChangeEvent;
+	import inky.components.map.view.helpers.HelperType;
 	
 	/**
 	 *
@@ -26,14 +28,15 @@ package inky.components.map.view
 	public class InteractiveMap extends BaseInteractiveMap
 	{
 		private var _controllerClass:Class;
-		private var controllerHelper:ControllerHelper;
 		
 		/**
 		 *
 		 */
 		public function InteractiveMap()
 		{
-			this.controllerClass = MapController;
+			this._controllerClass = MapController;
+			
+			this.registerHelper(ControllerHelper, HelperType.CONTROLLER_HELPER);
 		}
 		
 		//---------------------------------------
@@ -48,18 +51,20 @@ package inky.components.map.view
 		 * @see inky.components.map.controller.IMapController
 		 * @see inky.components.map.controller.MapController
 		 */
+		public function get controllerClass():Class
+		{ 
+			return this._controllerClass; 
+		}
+		/**
+		 * @private
+		 */
 		public function set controllerClass(value:Class):void
 		{
 			var oldValue:Class = this._controllerClass;
-			if (oldValue != value)
+			if (value != oldValue)
 			{
 				this._controllerClass = value;
-
-				if (this.controllerHelper)
-					this.controllerHelper.destroy();
-
-				if (value)
-					this.controllerHelper = new ControllerHelper(this, value);
+				this.dispatchEvent(PropertyChangeEvent.createUpdateEvent(this, "controllerClass", oldValue, value));	
 			}
 		}
 		
@@ -89,10 +94,10 @@ package inky.components.map.view
 		 * @see inky.components.map.controller.mediators.IMapControllerMediator
 		 * @see inky.components.map.controller.mediators.FolderDeselectionMediator
 		 */
-		public function addFolderDeselectionTrigger(trigger:String, targetValidator:Function = null, siteFilter:Function = null):void
+		/*public function addFolderDeselectionTrigger(trigger:String, targetValidator:Function = null, siteFilter:Function = null):void
 		{
 			this.controllerHelper.folderDeselectionMediator.addTrigger(trigger, targetValidator, siteFilter);
-		}
+		}*/
 		
 		/**
 		 * Adds a trigger (event type) that the controller should respond to by making a 
@@ -116,10 +121,10 @@ package inky.components.map.view
 		 * @see inky.components.map.controller.mediators.IMapControllerMediator
 		 * @see inky.components.map.controller.mediators.FolderSelectionMediator
 		 */
-		public function addFolderSelectionTrigger(trigger:String, targetValidator:Function = null, siteFilter:Function = null):void
+		/*public function addFolderSelectionTrigger(trigger:String, targetValidator:Function = null, siteFilter:Function = null):void
 		{
 			this.controllerHelper.folderSelectionMediator.addTrigger(trigger, targetValidator, siteFilter);
-		}
+		}*/
 
 		/**
 		 * Adds a trigger (event type) that the controller should respond to by making a 
@@ -143,10 +148,10 @@ package inky.components.map.view
 		 * @see inky.components.map.controller.mediators.IMapControllerMediator
 		 * @see inky.components.map.controller.mediators.PlacemarkDeselectionMediator
 		 */
-		public function addPlacemarkDeselectionTrigger(trigger:String, targetValidator:Function = null, siteFilter:Function = null):void
+		/*public function addPlacemarkDeselectionTrigger(trigger:String, targetValidator:Function = null, siteFilter:Function = null):void
 		{
 			this.controllerHelper.placemarkDeselectionMediator.addTrigger(trigger, targetValidator, siteFilter);
-		}
+		}*/
 		
 		/**
 		 * Adds a trigger (event type) that the controller should respond to by making a 
@@ -170,19 +175,10 @@ package inky.components.map.view
 		 * @see inky.components.map.controller.mediators.IMapControllerMediator
 		 * @see inky.components.map.controller.mediators.PlacemakrSelectionMediator
 		 */
-		public function addPlacemarkSelectionTrigger(trigger:String, targetValidator:Function = null, siteFilter:Function = null):void
+		/*public function addPlacemarkSelectionTrigger(trigger:String, targetValidator:Function = null, siteFilter:Function = null):void
 		{
 			this.controllerHelper.placemarkSelectionMediator.addTrigger(trigger, targetValidator, siteFilter);
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		override public function destroy():void
-		{
-			super.destroy();
-			this.controllerHelper.destroy();
-		}
+		}*/
 		
 		/**
 		 * Registers a mediator with the controller helper. 
@@ -200,10 +196,10 @@ package inky.components.map.view
 		 * @see inky.components.map.controller.mediators.IMapControllerMediator
 		 * @see inky.components.map.view.helpers.ControllerHelper#registerMediator
 		 */
-		public function registerMediator(mediator:IMapControllerMediator):void
+		/*public function registerMediator(mediator:IMapControllerMediator):void
 		{
 			this.controllerHelper.registerMediator(mediator);
-		}
+		}*/
 		
 		/**
 		 * Registers a mediator class with the controller helper. The mediator is 
@@ -215,10 +211,10 @@ package inky.components.map.view
 		 * @see inky.components.map.controller.mediators.IMapControllerMediator
 		 * @see inky.components.map.view.helpers.ControllerHelper#registerMediatorClass
 		 */
-		public function registerMediatorClass(mediatorClass:Class):void
+		/*public function registerMediatorClass(mediatorClass:Class):void
 		{
 			this.controllerHelper.registerMediatorClass(mediatorClass);
-		}
+		}*/
 		
 		/**
 		 * Unregisters a mediator with the controller helper. The mediator instance 
@@ -230,10 +226,10 @@ package inky.components.map.view
 		 * @see inky.components.map.controller.mediators.IMapControllerMediator
 		 * @see inky.components.map.view.helpers.ControllerHelper#unregisterMediator
 		 */
-		public function unregisterMediator(mediator:IMapControllerMediator):void
+		/*public function unregisterMediator(mediator:IMapControllerMediator):void
 		{
 			this.controllerHelper.unregisterMediator(mediator);
-		}
+		}*/
 		
 		/**
 		 * Unregisters a mediator class with the controller helper. Any instances of the 
@@ -245,10 +241,10 @@ package inky.components.map.view
 		 * @see inky.components.map.controller.mediators.IMapControllerMediator
 		 * @see inky.components.map.view.helpers.ControllerHelper#unregisterMediatorClass
 		 */
-		public function unregisterMediatorClass(mediatorClass:Class):void
+		/*public function unregisterMediatorClass(mediatorClass:Class):void
 		{
 			this.controllerHelper.unregisterMediatorClass(mediatorClass);
-		}
+		}*/
 
 	}
 	

@@ -3,15 +3,10 @@ package inky.components.map.view
 	import inky.components.map.view.BaseMap;
 	import inky.components.map.view.helpers.PanningHelper;
 	import inky.components.map.view.helpers.ZoomingHelper;
-	import flash.display.InteractiveObject;
 	import inky.components.map.view.helpers.TooltipHelper;
-	import inky.components.tooltip.ITooltip;
-	import inky.binding.utils.BindingUtil;
 	import flash.display.DisplayObject;
-	import inky.components.map.view.IInteractiveMap;
 	import inky.components.map.view.helpers.ShowPlacemarkHelper;
 	import flash.display.Shape;
-	import inky.binding.events.PropertyChangeEvent;
 	import inky.components.map.view.helpers.HelperType;
 	
 	/**
@@ -31,13 +26,9 @@ package inky.components.map.view
 	 *	@since  2010.04.11
 	 *
 	 */
-	public class BaseInteractiveMap extends BaseMap implements IInteractiveMap
+	public class BaseInteractiveMap extends BaseMap
 	{
 		private var __mask:DisplayObject;
-		private var _horizontalPan:Number;
-		private var _panningProxy:Object;
-		private var _verticalPan:Number;
-		private var _zoom:Number;
 		
 		/**
 		 * Creates a BaseInteractiveMap. 
@@ -75,23 +66,8 @@ package inky.components.map.view
 			
 			this.registerHelper(PanningHelper, HelperType.PANNING_HELPER);
 			this.registerHelper(ZoomingHelper, HelperType.ZOOMING_HELPER);
-			
-			/*this.panningHelper = new PanningHelper(this, this.layoutValidator, this.__mask, this.contentContainer);
-			this.zoomingHelper = new ZoomingHelper(this, this.layoutValidator, this.__mask, this.contentContainer, this.overlayContainer);
-			this.showPlacemarkHelper = new ShowPlacemarkHelper(this, this.layoutValidator, this.__mask, this.contentContainer, this.getPlacemarkRendererFor);
-			this.tooltipHelper = new TooltipHelper(this, this.layoutValidator, this.getPlacemarkRendererFor);*/
-		}
-		
-		//---------------------------------------
-		// PUBLIC METHODS
-		//---------------------------------------
-
-		/**
-		 * @inheritDoc
-		 */
-		public function showPlacemark(placemark:Object):void
-		{
-//			this.showPlacemarkHelper.showPlacemark(placemark);
+			this.registerHelper(ShowPlacemarkHelper, HelperType.SHOW_PLACEMARK_HELPER);
+			this.registerHelper(TooltipHelper, HelperType.TOOLTIP_HELPER);
 		}
 		
 		//---------------------------------------

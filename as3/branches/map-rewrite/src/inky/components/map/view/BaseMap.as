@@ -17,6 +17,7 @@ package inky.components.map.view
 	import inky.components.map.view.events.MapChangeEvent;
 	import inky.components.map.view.helpers.HelperInfo;
 	import inky.components.map.view.helpers.HelperType;
+	import inky.components.map.view.helpers.IMapHelper;
 	
 	/**
 	 *
@@ -200,38 +201,22 @@ package inky.components.map.view
 			this.dispatchEvent(new MapChangeEvent(MapChangeEvent.DESTROY_TRIGGERED));
 		}
 		
-		//---------------------------------------
-		// PROTECTED METHODS
-		//---------------------------------------
-		
 		/**
-		 * Returns a map helper.
-		 * 
-		 * @param id
-		 * 		The id associated with the map helper.
-		 * 
-		 * @see inky.components.map.view.helpers.IMapHelper
-		 * @see inky.components.map.view.helpers.HelperType
+		 * @inheritDoc
 		 */
-		protected function getHelper(id:String):Object
+		public function getHelper(id:String):Object
 		{
-			return this.helpers[id];
+			var helper:Object = this.helpers[id];
+			if (helper is Class)
+				helper = this.initializeHelper(id);
+
+			return helper;
 		}
 		
 		/**
-		 * Registers a map helper class with the map.
-		 * 
-		 * @param helperClass 
-		 * 		An IMapHelper class to register.
-		 * 
-		 * @param id
-		 * 		An optional id to identify the role of the helper. If a helper already occupies 
-		 * 		the given id, it is destroyed, and the new helper is created in its place.
-		 * 
-		 * @see inky.components.map.view.helpers.IMapHelper
-		 * @see inky.components.map.view.helpers.HelperType
+		 * @inheritDoc
 		 */
-		protected function registerHelper(helperClass:Class, id:String = null):void
+		public function registerHelper(helperClass:Class, id:String = null):void
 		{
 			if (!this.helpers)
 				this.helpers = [];
@@ -248,6 +233,10 @@ package inky.components.map.view
 			this.invalidateProperty('helpers');
 		}
 		
+		//---------------------------------------
+		// PROTECTED METHODS
+		//---------------------------------------
+		
 		/**
 		 * Resets the map (called when the map model changes, typically).
 		 */
@@ -256,40 +245,6 @@ package inky.components.map.view
 			this.dispatchEvent(new MapChangeEvent(MapChangeEvent.RESET_TRIGGERED));
 		}
 
-		/**
-		 * Set the selected folders. This method may be overriden by subclasses 
-		 * to alter the view behavior when folder selections change.
-		 * 
-		 * @param folders
-		 * 		A list of selected folers.
-		 */
-		/*protected function setSelectedFolders(folders:Array):void
-		{
-			this.placemarkPlotter.removeAllPlacemarks();
-			
-			if (this.model)
-			{
-				for each (var folder:Object in this.model.selectedFolders)
-					this.placemarkPlotter.addPlacemarks(this.model.getPlacemarks(folder));
-				
-				// Add the placemarks that sit outside of the folder structure.
-				// Since they don't reside in folders that can never be selected, they are always present.
-				this.placemarkPlotter.addPlacemarks(this.model.getPlacemarks(this.model.document));
-			}
-		}*/
-		
-		/**
-		 * Set the selected placemarks. This method may be overriden by subclasses 
-		 * to alter the view behavior when placemark selections change.
-		 * 
-		 * @param placemarks
-		 * 		A list of selected placemarks.
-		 */
-		/*protected function setSelectedPlacemarks(placemarks:Array):void
-		{
-			
-		}*/
-		
 		/**
 		 * @inheritDoc
 		 */
@@ -308,13 +263,8 @@ package inky.components.map.view
 			{
 				for (var key:Object in this.helpers)
 				{
-					var helper:Object = this.helpers[key];
-					if (helper is Class)
-					{
-						helper = new helper();
-						helper.initialize(this.helperInfo);
-						this.helpers[key] = helper;
-					}
+					if (this.helpers[key] is Class)
+						this.initializeHelper(key);
 				}
 			}
 
@@ -325,6 +275,18 @@ package inky.components.map.view
 		//---------------------------------------
 		// PRIVATE METHODS
 		//---------------------------------------
+		
+		/**
+		 * 
+		 */
+		private function initializeHelper(key:Object):Object
+		{
+			var helper:Object = this.helpers[key];
+			helper = new helper();
+			helper.initialize(this.helperInfo);
+			
+			return this.helpers[key] = helper;
+		}
 		
 		/**
 		 *

@@ -1,13 +1,9 @@
 package inky.components.map.view.helpers 
 {
-	import inky.components.map.controller.MapController;
 	import inky.components.map.controller.mediators.PlacemarkSelectionMediator;
 	import inky.components.map.controller.mediators.FolderSelectionMediator;
-	import inky.components.map.view.IMap;
 	import inky.binding.utils.BindingUtil;
 	import inky.components.map.model.IMapModel;
-	import inky.utils.IDestroyable;
-	import inky.binding.utils.IChangeWatcher;
 	import inky.components.map.controller.IMapController;
 	import inky.components.map.controller.mediators.IMapControllerMediator;
 	import flash.utils.Dictionary;
@@ -17,6 +13,8 @@ package inky.components.map.view.helpers
 	import inky.components.map.controller.mediators.PlacemarkDeselectionMediator;
 	import flash.utils.getQualifiedClassName;
 	import flash.utils.getDefinitionByName;
+	import inky.components.map.view.helpers.HelperInfo;
+	import inky.components.map.view.helpers.BaseMapHelper;
 	
 	/**
 	 *
@@ -29,49 +27,24 @@ package inky.components.map.view.helpers
 	 *	@since  2010.04.14
 	 *
 	 */
-	public class ControllerHelper implements IDestroyable
+	public class ControllerHelper extends BaseMapHelper
 	{
 		private var _controller:IMapController;
-		private var controllerClass:Class;
 		private var _folderDeselectionMediator:FolderDeselectionMediator;
 		private var _placemarkDeselectionMediator:PlacemarkDeselectionMediator;
-		private var map:IMap;
 		private var mediators:Dictionary;
+		private var mediatorsToRegister:Array;
 		private var model:IMapModel;
-		private var modelWatcher:IChangeWatcher;
+		private var watchers:Array;
 		private var _folderSelectionMediator:FolderSelectionMediator;
 		private var _placemarkSelectionMediator:PlacemarkSelectionMediator;
 		
 		/**
 		 * Creates a new controller helper.
-		 * 
-		 * <p>This helper instantiates the default MapController, and it also 
-		 * creates four mediators: a FolderSelectionMediator, a FolderDeselectionMediator, 
-		 * a PlacemarkSelectionMediator, and a PlacemarkDeselectionMediator, all of which 
-		 * allow the controller to be ignorant of the implementation of the view by 
-		 * mediating the process of interpreting user interactivity with the view into 
-		 * controller actions.</p>
-		 * 
-		 * @param map
-		 * 		The IMap target to give the IMapController.
-		 * 
-		 * @param controllerClass
-		 * 		The controller class to use. If none is specified, the default MapController is used.
 		 */
-		public function ControllerHelper(map:IMap, controllerClass:Class = null)
+		public function ControllerHelper()
 		{
 			this.mediators = new Dictionary(true);
-			this.map = map;
-			controllerClass = controllerClass || MapController;
-
-			this._controller = new controllerClass();
-			
-			this._folderSelectionMediator = new FolderSelectionMediator(this.controller, this.map);
-			this._folderDeselectionMediator = new FolderDeselectionMediator(this.controller, this.map);
-			this._placemarkSelectionMediator = new PlacemarkSelectionMediator(this.controller, this.map);
-			this._placemarkDeselectionMediator = new PlacemarkDeselectionMediator(this.controller, this.map);
-
-			this.modelWatcher = BindingUtil.bindSetter(this.initializeForModel, map, "model");
 		}
 		
 		//---------------------------------------
@@ -125,9 +98,15 @@ package inky.components.map.view.helpers
 		/**
 		 * @inheritDoc
 		 */
-		public function destroy():void
+		override public function destroy():void
 		{
-			this.modelWatcher.unwatch();
+			super.destroy();
+			
+			if (this.watchers)
+			{
+				while (this.watchers.length)
+					this.watchers.pop().unwatch();
+			}
 
 			for (var mediatorClass:Object in this.mediators)
 				this.unregisterMediatorClass(mediatorClass as Class);
@@ -136,6 +115,20 @@ package inky.components.map.view.helpers
 			this._folderDeselectionMediator.destroy();
 			this._placemarkSelectionMediator.destroy();
 			this._folderSelectionMediator.destroy();
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		override public function initialize(info:HelperInfo):void
+		{
+			super.initialize(info);
+
+			this.watchers = 
+			[
+				BindingUtil.bindSetter(this.setControllerClass, info.map, "controllerClass"),
+				BindingUtil.bindSetter(this.initializeForModel, info.map, "model")
+			];
 		}
 		
 		/**
@@ -149,12 +142,20 @@ package inky.components.map.view.helpers
 		 */
 		public function registerMediator(mediator:IMapControllerMediator):void
 		{
-			var mediatorClass:Class = getDefinitionByName(getQualifiedClassName(mediator)) as Class;
-			
-			this.mediators[mediatorClass] = mediator;
-			
-			mediator.controller = this.controller;
-			mediator.view = mediator.view || this.map;
+			if (this.info)
+			{
+				var mediatorClass:Class = getDefinitionByName(getQualifiedClassName(mediator)) as Class;
+				this.mediators[mediatorClass] = mediator;
+				mediator.controller = this.controller;
+				mediator.view = mediator.view || this.info.map;
+			}
+			else
+			{
+				if (!this.mediatorsToRegister)
+					this.mediatorsToRegister = [];
+				
+				this.mediatorsToRegister.push(mediator);
+			}
 		}
 		
 		/**
@@ -168,7 +169,17 @@ package inky.components.map.view.helpers
 		 */
 		public function registerMediatorClass(mediatorClass:Class):void
 		{
-			this.mediators[mediatorClass] = this.createMediator(mediatorClass);
+			if (this.info)
+			{
+				this.mediators[mediatorClass] = this.createMediator(mediatorClass);
+			}
+			else
+			{
+				if (!this.mediatorsToRegister)
+					this.mediatorsToRegister = [];
+
+				this.mediatorsToRegister.push(mediatorClass);
+			}
 		}
 		
 		/**
@@ -223,7 +234,7 @@ package inky.components.map.view.helpers
 				throw new ArgumentError(mediatorClass + " is not an IMapControllerMediator.");
 
 			mediator.controller = this.controller;
-			mediator.view = this.map;
+			mediator.view = this.info.map;
 
 			return mediator;
 		}
@@ -235,6 +246,32 @@ package inky.components.map.view.helpers
 		{
 			this.model = model;
 			this.controller.model = model;
+		}
+		
+		/**
+		 * 
+		 */
+		private function setControllerClass(controllerClass:Class):void
+		{
+			this._controller = new controllerClass();
+			this._folderSelectionMediator = new FolderSelectionMediator(this.controller, this.info.map);
+			this._folderDeselectionMediator = new FolderDeselectionMediator(this.controller, this.info.map);
+			this._placemarkSelectionMediator = new PlacemarkSelectionMediator(this.controller, this.info.map);
+			this._placemarkDeselectionMediator = new PlacemarkDeselectionMediator(this.controller, this.info.map);
+			
+			if (this.mediatorsToRegister)
+			{
+				while (this.mediatorsToRegister.length)
+				{
+					var mediator:Object = this.mediatorsToRegister.shift();
+					if (mediator is Class)
+						this.registerMediatorClass(mediator as Class);
+					else
+						this.registerMediator(mediator as IMapControllerMediator);
+				}
+				
+				this.mediatorsToRegister = null;
+			}
 		}
 
 	}

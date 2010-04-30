@@ -1,14 +1,16 @@
 package inky.components.map.view.helpers 
 {
-	import inky.components.map.view.helpers.MaskedMapViewHelper;
-	import flash.geom.Point;
-	import flash.geom.Rectangle;
-	import inky.utils.toCoordinateSpace;
-	import inky.components.map.view.IInteractiveMap;
-	import inky.utils.IDestroyable;
-	import flash.display.DisplayObjectContainer;
+	import inky.components.map.view.helpers.BaseMapHelper;
+	import inky.components.map.view.helpers.HelperInfo;
+	import inky.components.map.view.events.MapChangeEvent;
+	import inky.components.map.view.events.MapFeatureEvent;
+	import inky.components.map.view.helpers.HelperType;
 	import flash.display.DisplayObject;
-	import inky.layout.validation.LayoutValidator;
+	import flash.display.DisplayObjectContainer;
+	import flash.geom.Rectangle;
+	import flash.geom.Point;
+	import inky.utils.toCoordinateSpace;
+	import inky.binding.utils.BindingUtil;
 	
 	/**
 	 *
@@ -21,22 +23,10 @@ package inky.components.map.view.helpers
 	 *	@since  2010.04.19
 	 *
 	 */
-	public class ShowPlacemarkHelper extends MaskedMapViewHelper implements IDestroyable
+	public class ShowPlacemarkHelper extends BaseMapHelper
 	{
-		private var placemarkRendererCallback:Function;
-		
-		/**
-		 * @copy inky.components.map.view.helpers.MaskedMapViewHelper
-		 * 
-		 * @param placemarkRendererCallback
-		 * 		A method used to retreive the renderer for a placemark.
-		 */
-		public function ShowPlacemarkHelper(map:IInteractiveMap, layoutValidator:LayoutValidator, mask:DisplayObject, contentContainer:DisplayObjectContainer, placemarkRendererCallback:Function)
-		{
-			super(map, layoutValidator, mask, contentContainer);
-			this.placemarkRendererCallback = placemarkRendererCallback;
-		}
-		
+		private var watchers:Array;
+
 		//---------------------------------------
 		// PUBLIC METHODS
 		//---------------------------------------
@@ -44,9 +34,26 @@ package inky.components.map.view.helpers
 		/**
 		 * @inheritDoc
 		 */
-		public function destroy():void
+		override public function destroy():void
 		{
-			
+			super.destroy();
+			if (this.watchers)
+			{
+				while (this.watchers.length)
+					this.watchers.pop().unwatch();
+			}
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		override public function initialize(info:HelperInfo):void
+		{
+			super.initialize(info);
+			this.watchers =
+			[
+				BindingUtil.bindSetter(this.setSelectedPlacemarks, this.info.map, ["model", "selectedPlacemarks"])
+			];
 		}
 		
 		/**
@@ -58,17 +65,44 @@ package inky.components.map.view.helpers
 		 */
 		public function showPlacemark(placemark:Object):void
 		{
-			var placemarkRenderer:Object = this.placemarkRendererCallback(placemark);
-			var point:Point = toCoordinateSpace(new Point(placemarkRenderer.x, placemarkRenderer.y), this.contentContainer, this.mapContent);
+			if (this.info && placemark)
+			{
+				var placemarkHelper:Object = this.info.map.getHelper(HelperType.PLACEMARK_HELPER);
+				var panningHelper:Object = this.info.map.getHelper(HelperType.PANNING_HELPER);
+				var map:DisplayObject = DisplayObject(this.info.map);
+				var contentContainer:DisplayObjectContainer = this.info.contentContainer;
+				var placemarkRenderer:Object = placemarkHelper.getPlacemarkRendererFor(placemark);
+				var dragBounds:Rectangle = panningHelper.getDragBounds();
 
-			var maskBounds:Rectangle = this.mask.getRect(this.mapContent);
-			var x:Number = this.contentContainer.x - (point.x - maskBounds.width / 2);
-			var y:Number = this.contentContainer.y - (point.y - maskBounds.height / 2);
+				var point:Point = toCoordinateSpace(new Point(placemarkRenderer.x, placemarkRenderer.y), contentContainer, map);
 
-			IInteractiveMap(this.map).moveContent(x, y);
+				var maskBounds:Rectangle = this.info.mask.getRect(map);
+				var x:Number = Math.max(dragBounds.x, contentContainer.x - (point.x - maskBounds.width / 2));
+				var y:Number = Math.max(dragBounds.y, contentContainer.y - (point.y - maskBounds.height / 2));
+				
+/*
+trace(x, y);
+trace(panningHelper.verticalPan, panningHelper.horizontalPan)
+trace(dragBounds);
+				panningHelper.verticalPan = x / dragBounds.x;
+				panningHelper.horizontalPan = y / dragBounds.y;
+trace(panningHelper.verticalPan, panningHelper.horizontalPan)*/
+			}
+		}
+		
+		//---------------------------------------
+		// PRIVATE METHODS
+		//---------------------------------------
+		
+		/**
+		 * 
+		 */
+		private function setSelectedPlacemarks(placemarks:Array):void
+		{
+			if (placemarks && placemarks.length)
+				this.showPlacemark(placemarks[0]);
 		}
 
-		
 	}
 	
 }

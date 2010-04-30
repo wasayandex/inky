@@ -266,7 +266,7 @@ package inky.components.map.view.helpers
 				// Remove any placemarks no longer present.
 				for (var i:int = 0; i < this.info.placemarkContainer.numChildren; i++)
 				{
-					renderer = Object(this.info..placemarkContainer.getChildAt(i));
+					renderer = Object(this.info.placemarkContainer.getChildAt(i));
 					placemark = renderer.model;
 					if (!this.placemarks.containsItem(placemark))
 					{

@@ -2,6 +2,7 @@ package inky.components.map.view
 {
 	import inky.utils.IDisplayObject;
 	import inky.components.map.model.IMapModel;
+	import inky.components.map.view.helpers.IMapHelper;
 	
 	/**
 	 *	An interface that defines a map component view.
@@ -57,6 +58,39 @@ package inky.components.map.view
 		 */
 		function get scalePlacemarkRenderers():Boolean;
 		function set scalePlacemarkRenderers(value:Boolean):void;
+		
+		//---------------------------------------
+		// PUBLIC METHODS
+		//---------------------------------------
+		
+		/**
+		 * Returns a map helper.
+		 * 
+		 * @param id
+		 * 		The id associated with the map helper.
+		 * 
+		 * @return The map helper associated with the id.
+		 * 
+		 * @see inky.components.map.view.helpers.IMapHelper
+		 * @see inky.components.map.view.helpers.HelperType
+		 */
+		function getHelper(id:String):Object;
+		
+		/**
+		 * Registers a map helper class with the map.
+		 * 
+		 * @param helperClass 
+		 * 		An IMapHelper class to register.
+		 * 
+		 * @param id
+		 * 		An optional id to identify the role of the helper. If a helper already occupies 
+		 * 		the given id, it is destroyed, and the new helper is created in its place.
+		 * 
+		 * @see inky.components.map.view.helpers.IMapHelper
+		 * @see inky.components.map.view.helpers.HelperType
+		 */
+		function registerHelper(helperClass:Class, id:String = null):void
+		
 		
 	}
 }
