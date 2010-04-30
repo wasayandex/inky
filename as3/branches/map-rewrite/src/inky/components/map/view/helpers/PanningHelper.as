@@ -7,7 +7,9 @@ package inky.components.map.view.helpers
 	import flash.geom.Rectangle;
 	import inky.components.map.view.helpers.HelperInfo;
 	import inky.components.map.view.helpers.BaseMapHelper;
-	import inky.binding.utils.BindingUtil;
+	import inky.utils.toCoordinateSpace;
+	import flash.geom.Point;
+	import flash.display.DisplayObject;
 	
 	/**
 	 *
@@ -26,7 +28,6 @@ package inky.components.map.view.helpers
 		protected var draggableCursors:DraggableCursors;
 		private var _horizontalPan:Number;
 		private var _verticalPan:Number;
-		private var watchers:Array;
 		
 		//---------------------------------------
 		// ACCESSORS
@@ -83,12 +84,6 @@ package inky.components.map.view.helpers
 		{
 			super.destroy();
 
-			if (this.watchers)
-			{
-				while (this.watchers.length)
-					this.watchers.pop().unwatch();
-			}
-
 			if (this.info)
 			{
 				this.info.map.removeEventListener(MapEvent.OVERLAY_UPDATED, this.content_boundsChangeHandler);
@@ -113,14 +108,6 @@ package inky.components.map.view.helpers
 
 			this.draggable = new Draggable(this.info.contentContainer, false, this.getDragBounds());
 			this.draggableCursors = new DraggableCursors(this.draggable);
-			
-			this.watchers =
-			[
-				/*BindingUtil.bindProperty(this, "horizontalPan", this.info.map, "horizontalPan"),
-				BindingUtil.bindProperty(this, "verticalPan", this.info.map, "verticalPan"),*/
-				//BindingUtil.bindSetter(this.setPanningProxy, this.info.map, "panningProxy")
-				
-			];
 
 this.setPanningProxy(null);
 
@@ -170,9 +157,22 @@ this.setPanningProxy(null);
 		 */
 		private function calculateDragBounds():Rectangle
 		{
-			var contentBounds:Rectangle = this.info.contentContainer.getRect(this.info.map as DisplayObjectContainer);
-			var maskBounds:Rectangle = this.info.mask.getRect(this.info.map as DisplayObjectContainer);
-			var bounds:Rectangle = new Rectangle(maskBounds.width - contentBounds.width, maskBounds.height - contentBounds.height, contentBounds.width - maskBounds.width, contentBounds.height - maskBounds.height);
+			var map:DisplayObjectContainer = this.info.map as DisplayObjectContainer;
+			var contentBounds:Rectangle = this.info.contentContainer.getRect(map);
+			var maskBounds:Rectangle = this.info.mask.getRect(map);
+			var contentBounds2:Rectangle = this.info.contentContainer.getRect(this.info.contentContainer);
+
+			var p:Point = new Point(this.info.contentContainer.x, this.info.contentContainer.y);
+			p = toCoordinateSpace(p, this.info.contentContainer.parent, map);
+			p.x = contentBounds.x - p.x;
+			p.y = contentBounds.y - p.y;
+
+			var bounds:Rectangle = new Rectangle(
+				maskBounds.width - contentBounds.width - p.x,
+				maskBounds.height - contentBounds.height - p.y,
+				contentBounds.width - maskBounds.width,
+				contentBounds.height - maskBounds.height
+			);
 			return bounds;
 		}
 
@@ -181,27 +181,18 @@ this.setPanningProxy(null);
 		 */
 		private function content_boundsChangeHandler(event:MapEvent):void
 		{
-			this.draggable.bounds = this.getDragBounds();
+			var bounds:Rectangle = this.getDragBounds();
+			this.draggable.bounds = bounds;
+			
+			// Correct the position when zoomed.
+			if (event.type == MapEvent.SCALED)
+			{
+				var contentContainer:DisplayObject = this.info.contentContainer;
+				contentContainer.x = Math.max(Math.min(contentContainer.x, bounds.x + bounds.width), bounds.x);
+				contentContainer.y = Math.max(Math.min(contentContainer.y, bounds.y + bounds.height), bounds.y);
+			}
 		}
 
-		/**
-		 * 
-		 */
-		private function normalizeX(value:Number):Number
-		{
-			var dragBounds:Rectangle = this.getDragBounds();
-			return Math.max(Math.min(dragBounds.right, value), dragBounds.left);
-		}
-		
-		/**
-		 * 
-		 */
-		private function normalizeY(value:Number):Number
-		{
-			var dragBounds:Rectangle = this.getDragBounds();
-			return Math.max(Math.min(dragBounds.bottom, value), dragBounds.top);
-		}
-		
 		/**
 		 * @inheritDoc
 		 */
