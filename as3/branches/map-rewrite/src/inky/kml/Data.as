@@ -36,7 +36,7 @@ package inky.kml
 		 */
 		public function get displayName():String
 		{
-			var displayName:String = this.xml.displayName;
+			var displayName:String = this.xml.kml::displayName.toString();
 			if (!displayName.length)
 				displayName = this.name;
 			return displayName;

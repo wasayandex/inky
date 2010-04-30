@@ -7,6 +7,7 @@ package inky.components.map.view.helpers
 	import inky.components.map.view.helpers.HelperInfo;
 	import flash.display.DisplayObjectContainer;
 	import inky.components.map.view.events.MapFeatureEvent;
+	import inky.components.map.view.helpers.HelperType;
 	
 	/**
 	 *
@@ -112,12 +113,10 @@ package inky.components.map.view.helpers
 				{
 					this.info.map.addEventListener(MapEvent.MOVED, this.content_movedHandler);
 					this.info.map.addEventListener(MapEvent.SCALED, this.content_scaledHandler);
-// TODO: How to get a ref to the placemark renderer??
 
-//					this.target = 
-//					this.tooltip.target = this.placemarkRendererCallback.apply(null, [placemarks.pop()]);
+					this.target = 
+					this.tooltip.target = this.info.map.getHelper(HelperType.PLACEMARK_HELPER).getPlacemarkRendererFor(placemarks.pop());
 					this.tooltip.show();
-trace('show tooltip!')
 				}
 				else
 				{
@@ -133,9 +132,6 @@ trace('show tooltip!')
 		{
 			this._tooltip.hide();
 			
-			if (this.target)
-				this.info.map.dispatchEvent(new MapFeatureEvent(MapFeatureEvent.DESELECT_PLACEMARK_TRIGGERED, this.target.model));
-
 			if (this.info)
 			{
 				this.info.map.removeEventListener(MapEvent.MOVED, this.content_movedHandler);

@@ -11,6 +11,9 @@ package inky.components.map.view.helpers
 	import flash.geom.Point;
 	import inky.utils.toCoordinateSpace;
 	import inky.binding.utils.BindingUtil;
+	import flash.utils.Dictionary;
+	import inky.collections.ArrayList;
+	import inky.utils.EqualityUtil;
 	
 	/**
 	 *
@@ -23,13 +26,27 @@ package inky.components.map.view.helpers
 	 *	@since  2010.04.19
 	 *
 	 */
-	public class ShowPlacemarkHelper extends BaseMapHelper
+	public class SelectPlacemarkHelper extends BaseMapHelper
 	{
 		private var watchers:Array;
+		private var selectedPlacemarks:Dictionary;
 
 		//---------------------------------------
 		// PUBLIC METHODS
 		//---------------------------------------
+		
+		/**
+		 * Updates the view to deselect the associated placemark renderer for a given placemark.
+		 * 
+		 * 
+		 * @param placemark
+		 * 		The placemark to deselect.
+		 */
+		public function deselectPlacemark(placemark:Object):void
+		{
+			if (this.info && placemark)
+				this.toggleSelectedFor(placemark, false);
+		}
 		
 		/**
 		 * @inheritDoc
@@ -50,6 +67,7 @@ package inky.components.map.view.helpers
 		override public function initialize(info:HelperInfo):void
 		{
 			super.initialize(info);
+			this.selectedPlacemarks = new Dictionary(true);
 			this.watchers =
 			[
 				BindingUtil.bindSetter(this.setSelectedPlacemarks, this.info.map, ["model", "selectedPlacemarks"])
@@ -57,17 +75,19 @@ package inky.components.map.view.helpers
 		}
 		
 		/**
-		 * Updates the view to reveal the associated placemark renderer for a 
-		 * given placemark.
+		 * Updates the view to select the associated placemark renderer for a given placemark.
 		 * 
 		 * @param placemark
-		 * 		The placemark to show.
+		 * 		The placemark to select.
 		 */
-		public function showPlacemark(placemark:Object):void
+		public function selectPlacemark(placemark:Object):void
 		{
 			if (this.info && placemark)
-			{
-				var placemarkHelper:Object = this.info.map.getHelper(HelperType.PLACEMARK_HELPER);
+				this.toggleSelectedFor(placemark, true);
+
+				//var placemarkHelper:Object = this.info.map.getHelper(HelperType.PLACEMARK_HELPER);
+				
+				/*var placemarkHelper:Object = this.info.map.getHelper(HelperType.PLACEMARK_HELPER);
 				var panningHelper:Object = this.info.map.getHelper(HelperType.PANNING_HELPER);
 				var map:DisplayObject = DisplayObject(this.info.map);
 				var contentContainer:DisplayObjectContainer = this.info.contentContainer;
@@ -78,7 +98,7 @@ package inky.components.map.view.helpers
 
 				var maskBounds:Rectangle = this.info.mask.getRect(map);
 				var x:Number = Math.max(dragBounds.x, contentContainer.x - (point.x - maskBounds.width / 2));
-				var y:Number = Math.max(dragBounds.y, contentContainer.y - (point.y - maskBounds.height / 2));
+				var y:Number = Math.max(dragBounds.y, contentContainer.y - (point.y - maskBounds.height / 2));*/
 				
 /*
 trace(x, y);
@@ -87,7 +107,6 @@ trace(dragBounds);
 				panningHelper.verticalPan = x / dragBounds.x;
 				panningHelper.horizontalPan = y / dragBounds.y;
 trace(panningHelper.verticalPan, panningHelper.horizontalPan)*/
-			}
 		}
 		
 		//---------------------------------------
@@ -99,8 +118,54 @@ trace(panningHelper.verticalPan, panningHelper.horizontalPan)*/
 		 */
 		private function setSelectedPlacemarks(placemarks:Array):void
 		{
-			if (placemarks && placemarks.length)
-				this.showPlacemark(placemarks[0]);
+			var marks:ArrayList;
+			
+			for each (var placemark:Object in this.selectedPlacemarks)
+			{
+				if (!marks)
+					marks = new ArrayList(placemarks);
+
+				if (!marks.containsItem(placemark))
+					this.deselectPlacemark(placemark);
+			}
+		
+			if (placemarks)
+			{
+				while (placemarks.length)
+					this.selectPlacemark(placemarks.shift());
+			}
+		}
+		
+		/**
+		 * 
+		 */
+		private function toggleSelectedFor(placemark:Object, value:Boolean):void
+		{
+			var placemarkRenderer:Object;
+			
+			if (value)
+			{
+				placemarkRenderer = this.info.map.getHelper(HelperType.PLACEMARK_HELPER).getPlacemarkRendererFor(placemark);
+				this.selectedPlacemarks[placemarkRenderer] = placemark;
+			}
+			else
+			{
+				for (var key:Object in this.selectedPlacemarks)
+				{
+					var obj:Object = this.selectedPlacemarks[key];
+					if (EqualityUtil.objectsAreEqual(obj, placemark))
+					{
+						placemarkRenderer = key;
+						break;
+					}
+				}
+				
+				if (placemarkRenderer)
+					delete this.selectedPlacemarks[placemarkRenderer];
+			}
+			
+			if (placemarkRenderer && placemarkRenderer.hasOwnProperty('selected'))
+				placemarkRenderer.selected = value;
 		}
 
 	}

@@ -17,6 +17,7 @@ package inky.components.map.view
 	import inky.components.map.view.Settings;
 	import inky.components.map.view.helpers.IMapHelper;
 	import inky.utils.getClass;
+	import inky.components.map.view.helpers.SelectPlacemarkHelper;
 
 	
 	/**
@@ -101,7 +102,8 @@ package inky.components.map.view
 			
 			// Register default helpers.
 			this.registerHelper(OverlayLoader, HelperType.OVERLAY_HELPER);
-			this.registerHelper(PlacemarkPlotter, HelperType.PLACEMARK_HELPER);
+			this.registerHelper(PlacemarkPlotter, HelperType.PLACEMARK_HELPER, {recyclePlacemarkRenderers: "recyclePlacemarkRenderers", scalePlacemarkRenderers: "scalePlacemarkRenderers"});
+			this.registerHelper(SelectPlacemarkHelper, HelperType.SELECT_PLACEMARK_HELPER);
 
 			this.modelWatcher = BindingUtil.bindSetter(this.initializeForModel, this, "model");
 		}
@@ -232,7 +234,7 @@ package inky.components.map.view
 			if (helper)
 				helper.destroy();
 // TODO: Actually eliminate the potential collisions instead of just making them less likely.
-			id = "_____________" + (id || String(this.helperCount++));
+			id = id || ("_____________" + String(this.helperCount++));
 			
 			this.helpers[id] = {
 				helperClassOrObject: helperClassOrObject
@@ -315,6 +317,7 @@ package inky.components.map.view
 		private function initializeHelper(key:String):Object
 		{
 			var helperData:Object = this.helpers[key];
+
 			if (!helperData.helper)
 			{
 				if (helperData.helperClassOrObject is IMapHelper)

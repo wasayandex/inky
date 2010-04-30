@@ -5,7 +5,6 @@ package inky.components.map.view
 	import inky.components.map.view.helpers.ZoomingHelper;
 	import inky.components.map.view.helpers.TooltipHelper;
 	import flash.display.DisplayObject;
-	import inky.components.map.view.helpers.ShowPlacemarkHelper;
 	import flash.display.Shape;
 	import inky.components.map.view.helpers.HelperType;
 	
@@ -64,9 +63,8 @@ package inky.components.map.view
 			
 			this.helperInfo.mask = mask;
 			
-			this.registerHelper(PanningHelper, HelperType.PANNING_HELPER);
+			this.registerHelper(PanningHelper, HelperType.PANNING_HELPER, {horizontalPan: "horizontalPan", verticalPan: "verticalPan", panningProxy: "panningProxy"});
 			this.registerHelper(ZoomingHelper, HelperType.ZOOMING_HELPER, {zoom: "zoom", minimumZoom: "minimumZoom", maximumZoom: "maximumZoom", zoomingProxy: "zoomingProxy"});
-			this.registerHelper(ShowPlacemarkHelper, HelperType.SHOW_PLACEMARK_HELPER);
 			this.registerHelper(TooltipHelper, HelperType.TOOLTIP_HELPER);
 		}
 		

@@ -18,7 +18,7 @@ package inky.components.map.view.helpers
 		public static const OVERLAY_HELPER:String = "overlayHelper";
 		public static const PANNING_HELPER:String = "panningHelper";
 		public static const PLACEMARK_HELPER:String = "placemarkHelper";
-		public static const SHOW_PLACEMARK_HELPER:String = "showPlacemarkHelper";
+		public static const SELECT_PLACEMARK_HELPER:String = "selectPlacemarkHelper";
 		public static const TOOLTIP_HELPER:String = "tooltipHelper";
 		public static const ZOOMING_HELPER:String = "zoomingHelper";
 	}

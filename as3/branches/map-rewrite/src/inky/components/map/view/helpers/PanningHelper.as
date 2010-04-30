@@ -27,8 +27,17 @@ package inky.components.map.view.helpers
 		protected var draggable:Draggable;
 		protected var draggableCursors:DraggableCursors;
 		private var _horizontalPan:Number;
+		private var _panningProxy:Object;
 		private var _verticalPan:Number;
 		
+		/**
+		 *
+		 */
+		public function PanningHelper()
+		{
+			this._horizontalPan =
+			this._verticalPan = 0;
+		}
 		//---------------------------------------
 		// ACCESSORS
 		//---------------------------------------
@@ -50,6 +59,25 @@ package inky.components.map.view.helpers
 			{
 				this._horizontalPan = value;
 				this.invalidateProperty('horizontalPan');
+			}
+		}
+		
+		/**
+		 *
+		 */
+		public function get panningProxy():Object
+		{ 
+			return this._panningProxy; 
+		}
+		/**
+		 * @private
+		 */
+		public function set panningProxy(value:Object):void
+		{
+			if (value != this._panningProxy)
+			{
+				this._panningProxy = value;
+				this.setPanningProxy(value);
 			}
 		}
 
@@ -109,7 +137,7 @@ package inky.components.map.view.helpers
 			this.draggable = new Draggable(this.info.contentContainer, false, this.getDragBounds());
 			this.draggableCursors = new DraggableCursors(this.draggable);
 
-this.setPanningProxy(null);
+			this.setPanningProxy(null);
 
 			this.info.map.addEventListener(MapEvent.OVERLAY_UPDATED, this.content_boundsChangeHandler);
 			this.info.map.addEventListener(MapEvent.SCALED, this.content_boundsChangeHandler);
@@ -142,8 +170,8 @@ this.setPanningProxy(null);
 			
 			if (positionIsInvalid)
 			{
-				this.info.contentContainer.x = this.horizontalPan * (this.draggable.bounds.width - this.draggable.bounds.x);
-				this.info.contentContainer.y = this.verticalPan * (this.draggable.bounds.height - this.draggable.bounds.y);
+				this.info.contentContainer.x = this.horizontalPan * this.draggable.bounds.x;
+				this.info.contentContainer.y = this.verticalPan * this.draggable.bounds.y;
 				this.info.map.dispatchEvent(new MapEvent(MapEvent.MOVED));
 			}
 		}
@@ -225,14 +253,15 @@ class DragProxy
 	 */
 	public function set x(value:Number):void
 	{
-		this.proxiedObject.horizontalPan = value / (this.draggable.bounds.width - this.draggable.bounds.x);
+		this.proxiedObject.horizontalPan = value / this.draggable.bounds.x;
 	}
 	/**
 	 * @private
 	 */
 	public function get x():Number
 	{
-		return this.proxiedObject.horizontalPan;
+trace('returning ' + (this.proxiedObject.horizontalPan * this.draggable.bounds.x));
+		return this.proxiedObject.horizontalPan * this.draggable.bounds.x;
 	}
 	
 	/**
@@ -240,13 +269,13 @@ class DragProxy
 	 */
 	public function set y(value:Number):void
 	{
-		this.proxiedObject.verticalPan = value / (this.draggable.bounds.height - this.draggable.bounds.y);
+		this.proxiedObject.verticalPan = value / this.draggable.bounds.y;
 	}
 	/**
 	 * @private
 	 */
 	public function get y():Number
 	{
-		return this.proxiedObject.verticalPan;
+		return this.proxiedObject.verticalPan * this.draggable.bounds.x;
 	}
 }

@@ -29,8 +29,8 @@ package inky.components.map.view.helpers
 		protected var availableRenderers:Array;
 		protected var rendererCache:Dictionary;
 		protected var positionCache:Dictionary;
-		private var recyclePlacemarkRenderers:Boolean;
-		private var scalePlacemarkRenderers:Boolean;
+		private var _recyclePlacemarkRenderers:Boolean;
+		private var _scalePlacemarkRenderers:Boolean;
 		private var watchers:Array;
 		private var unplottablePlacemarks:Dictionary = new Dictionary(true);
 
@@ -43,6 +43,54 @@ package inky.components.map.view.helpers
 		{
 			this.placemarks = new ArrayList();
 			this.placemarks.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.placemarks_collectionChangeHandler);
+		}
+		
+		//---------------------------------------
+		// ACCESSORS
+		//---------------------------------------
+
+		
+		/**
+		 * Whether or not to recycle placemark renderer instances.
+		 *  
+		 * <p>If <code>false</code>, a new placemark renderer instance is created every 
+		 * time a placemark is added. If <code>true</code>, placemark renderers created 
+		 * for placemarks that are removed will be used for placemarks that are added.</p>
+		 * 
+		 * @default true
+		 */
+		public function get recyclePlacemarkRenderers():Boolean
+		{
+			return this._recyclePlacemarkRenderers;
+		}
+		/**
+		 * @private
+		 */
+		public function set recyclePlacemarkRenderers(value:Boolean):void
+		{
+			this._recyclePlacemarkRenderers = value;
+			if (!value && this.availableRenderers)
+				this.availableRenderers = null;
+		}
+		
+		/**
+		 * Whether or not to scale the placemarks when the map is scaled (zoomed).
+		 * 
+		 * <p>If <code>false</code>, placemarks are repositioned when the map is scaled. The size 
+		 * of the placemarks does not change, but their positions are adjusted relative to the 
+		 * scale of the map. If <code>true</code>, the placemarks are not repositioned. The placemark 
+		 * container is scaled along with the map, so that the placemarks keep the same positions 
+		 * relative to the map. However, the size of the placemarks also scales.</p>
+		 * 
+		 * @default false
+		 */
+		public function get scalePlacemarkRenderers():Boolean
+		{
+			return this._scalePlacemarkRenderers;
+		}
+		public function set scalePlacemarkRenderers(value:Boolean):void
+		{
+			this._scalePlacemarkRenderers = value;
 		}
 		
 		//---------------------------------------
@@ -201,8 +249,6 @@ package inky.components.map.view.helpers
 			super.initialize(info);
 			this.watchers = 
 			[
-				BindingUtil.bindSetter(this.toggleRecyclePlacemarkRenderers, info.map, "recyclePlacemarkRenderers"),
-				BindingUtil.bindSetter(this.toggleScalePlacemarkRenderers, info.map, "scalePlacemarkRenderers"),
 				BindingUtil.bindSetter(this.setSelectedFolders, info.map, ["model", "selectedFolders"])
 			];
 
@@ -407,11 +453,7 @@ package inky.components.map.view.helpers
 		}
 		
 		/**
-		 * Set the selected folders. This method may be overriden by subclasses 
-		 * to alter the view behavior when folder selections change.
 		 * 
-		 * @param folders
-		 * 		A list of selected folers.
 		 */
 		private function setSelectedFolders(folders:Array):void
 		{
@@ -429,26 +471,7 @@ package inky.components.map.view.helpers
 				this.addPlacemarks(model.getPlacemarks(model.document));
 			}
 		}
-		
-		/**
-		 * 
-		 */
-		private function toggleRecyclePlacemarkRenderers(value:Boolean):void
-		{
-			this.recyclePlacemarkRenderers = value;
-			if (!value && this.availableRenderers)
-				this.availableRenderers = null;
-		}
-		
-		/**
-		 * 
-		 */
-		private function toggleScalePlacemarkRenderers(value:Boolean):void
-		{
-			this.scalePlacemarkRenderers = value;
-		}
-		
-		
+
 		/**
 		 * @inheritDoc
 		 */
