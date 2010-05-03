@@ -10,6 +10,7 @@ package inky.components.map.view.helpers
 	import inky.utils.toCoordinateSpace;
 	import flash.geom.Point;
 	import flash.display.DisplayObject;
+	import flash.display.Sprite;
 	
 	/**
 	 *
@@ -58,7 +59,9 @@ package inky.components.map.view.helpers
 			if (value != oldValue)
 			{
 				this._horizontalPan = value;
-				this.invalidateProperty('horizontalPan');
+				this.info.contentContainer.x = PanHelper.toXPosition(value);
+				this.info.map.dispatchEvent(new MapEvent(MapEvent.MOVED));
+//				this.invalidateProperty('horizontalPan');
 			}
 		}
 		
@@ -97,7 +100,9 @@ package inky.components.map.view.helpers
 			if (value != oldValue)
 			{
 				this._verticalPan = value;
-				this.invalidateProperty('verticalPan');
+				this.info.contentContainer.y = PanHelper.toYPosition(value);
+				this.info.map.dispatchEvent(new MapEvent(MapEvent.MOVED));
+//				this.invalidateProperty('verticalPan');
 			}
 		}
 
@@ -134,6 +139,7 @@ package inky.components.map.view.helpers
 		{
 			super.initialize(info);
 
+			PanHelper.draggable = 
 			this.draggable = new Draggable(this.info.contentContainer, false, this.getDragBounds());
 			this.draggableCursors = new DraggableCursors(this.draggable);
 
@@ -142,6 +148,33 @@ package inky.components.map.view.helpers
 			this.info.map.addEventListener(MapEvent.OVERLAY_UPDATED, this.content_boundsChangeHandler);
 			this.info.map.addEventListener(MapEvent.SCALED, this.content_boundsChangeHandler);
 		}
+		
+		/**
+		 * Moves the map so that the provided point rests as close to the center of the visible bounds 
+		 * of the map as possible without exceeding the draggable boundaries.
+		 * 
+		 * @param point
+		 * 		The point (in the coordinate space of the placemark container) to move to center.
+		 */
+		public function moveToCenter(point:Point):void
+		{
+			var map:DisplayObjectContainer = this.info.map as DisplayObjectContainer;
+			var maskBounds:Rectangle = this.info.mask.getRect(map);
+			point = toCoordinateSpace(point, this.info.placemarkContainer, map);
+			var offset:Point = point.subtract(new Point(maskBounds.right / 2, maskBounds.bottom / 2));
+			var dragBounds:Rectangle = this.draggable.bounds;
+
+			var x:Number = Math.max(dragBounds.left, Math.min(dragBounds.right, this.info.contentContainer.x - offset.x));
+			var y:Number = Math.max(dragBounds.top, Math.min(dragBounds.bottom, this.info.contentContainer.y - offset.y));
+
+			var target:Object = this.panningProxy || this;
+			target.horizontalPan = PanHelper.toHorizontalPan(x);
+			target.verticalPan = PanHelper.toVerticalPan(y);
+		}
+		
+		//---------------------------------------
+		// PROTECTED METHODS
+		//---------------------------------------
 		
 		/**
 		 * @inheritDoc
@@ -163,18 +196,18 @@ package inky.components.map.view.helpers
 		/**
 		 * @inheritDoc
 		 */
-		override protected function validate():void
+		/*override protected function validate():void
 		{
 			var positionIsInvalid:Boolean = this.info.layoutValidator.validationState.propertyIsInvalid("horizontalPan") || this.info.layoutValidator.validationState.propertyIsInvalid("verticalPan");
 			super.validate();
 			
 			if (positionIsInvalid)
 			{
-				this.info.contentContainer.x = this.horizontalPan * this.draggable.bounds.x;
-				this.info.contentContainer.y = this.verticalPan * this.draggable.bounds.y;
+				this.info.contentContainer.x = PanHelper.toXPosition(this.horizontalPan);
+				this.info.contentContainer.y = PanHelper.toYPosition(this.verticalPan);
 				this.info.map.dispatchEvent(new MapEvent(MapEvent.MOVED));
 			}
-		}
+		}*/
 		
 		//---------------------------------------
 		// PRIVATE METHODS
@@ -216,8 +249,14 @@ package inky.components.map.view.helpers
 			if (event.type == MapEvent.SCALED)
 			{
 				var contentContainer:DisplayObject = this.info.contentContainer;
-				contentContainer.x = Math.max(Math.min(contentContainer.x, bounds.x + bounds.width), bounds.x);
+				this.draggable.positionProxy.x =
+			 	contentContainer.x = Math.max(Math.min(contentContainer.x, bounds.x + bounds.width), bounds.x);
+				this.draggable.positionProxy.y =
 				contentContainer.y = Math.max(Math.min(contentContainer.y, bounds.y + bounds.height), bounds.y);
+
+				/*var target:Object = this.panningProxy || this;
+				target.horizontalPan = PanHelper.toHorizontalPan(contentContainer.x);
+				target.verticalPan = PanHelper.toVerticalPan(contentContainer.y);*/
 			}
 		}
 
@@ -253,15 +292,14 @@ class DragProxy
 	 */
 	public function set x(value:Number):void
 	{
-		this.proxiedObject.horizontalPan = value / this.draggable.bounds.x;
+		this.proxiedObject.horizontalPan = PanHelper.toHorizontalPan(value);
 	}
 	/**
 	 * @private
 	 */
 	public function get x():Number
 	{
-trace('returning ' + (this.proxiedObject.horizontalPan * this.draggable.bounds.x));
-		return this.proxiedObject.horizontalPan * this.draggable.bounds.x;
+		return PanHelper.toXPosition(this.proxiedObject.horizontalPan);
 	}
 	
 	/**
@@ -269,13 +307,64 @@ trace('returning ' + (this.proxiedObject.horizontalPan * this.draggable.bounds.x
 	 */
 	public function set y(value:Number):void
 	{
-		this.proxiedObject.verticalPan = value / this.draggable.bounds.y;
+		this.proxiedObject.verticalPan = PanHelper.toVerticalPan(value);
 	}
 	/**
 	 * @private
 	 */
 	public function get y():Number
 	{
-		return this.proxiedObject.verticalPan * this.draggable.bounds.x;
+		return PanHelper.toYPosition(this.proxiedObject.verticalPan);
 	}
+}
+
+
+class PanHelper
+{
+	public static var draggable:Object;
+	
+	/**
+	 * 
+	 */
+	public static function toHorizontalPan(x:Number):Number
+	{
+		if (!PanHelper.draggable)
+			throw new Error("PanHelper has no draggable target.");
+
+		return x / PanHelper.draggable.bounds.x;
+	}
+	
+	/**
+	 * 
+	 */
+	public static function toVerticalPan(y:Number):Number
+	{
+		if (!PanHelper.draggable)
+			throw new Error("PanHelper has no draggable target.");
+
+		return y / PanHelper.draggable.bounds.y;
+	}
+
+	/**
+	 * 
+	 */
+	public static function toXPosition(horizontalPan:Number):Number
+	{
+		if (!PanHelper.draggable)
+			throw new Error("PanHelper has no draggable target.");
+
+		return horizontalPan * PanHelper.draggable.bounds.x;
+	}
+	
+	/**
+	 * 
+	 */
+	public static function toYPosition(verticalPan:Number):Number
+	{
+		if (!PanHelper.draggable)
+			throw new Error("PanHelper has no draggable target.");
+
+		return verticalPan * PanHelper.draggable.bounds.y;
+	}
+	
 }

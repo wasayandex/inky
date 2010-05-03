@@ -2,14 +2,7 @@ package inky.components.map.view.helpers
 {
 	import inky.components.map.view.helpers.BaseMapHelper;
 	import inky.components.map.view.helpers.HelperInfo;
-	import inky.components.map.view.events.MapChangeEvent;
-	import inky.components.map.view.events.MapFeatureEvent;
 	import inky.components.map.view.helpers.HelperType;
-	import flash.display.DisplayObject;
-	import flash.display.DisplayObjectContainer;
-	import flash.geom.Rectangle;
-	import flash.geom.Point;
-	import inky.utils.toCoordinateSpace;
 	import inky.binding.utils.BindingUtil;
 	import flash.utils.Dictionary;
 	import inky.collections.ArrayList;
@@ -48,6 +41,10 @@ package inky.components.map.view.helpers
 				this.toggleSelectedFor(placemark, false);
 		}
 		
+		//---------------------------------------
+		// PUBLIC METHODS
+		//---------------------------------------
+		
 		/**
 		 * @inheritDoc
 		 */
@@ -84,29 +81,6 @@ package inky.components.map.view.helpers
 		{
 			if (this.info && placemark)
 				this.toggleSelectedFor(placemark, true);
-
-				//var placemarkHelper:Object = this.info.map.getHelper(HelperType.PLACEMARK_HELPER);
-				
-				/*var placemarkHelper:Object = this.info.map.getHelper(HelperType.PLACEMARK_HELPER);
-				var panningHelper:Object = this.info.map.getHelper(HelperType.PANNING_HELPER);
-				var map:DisplayObject = DisplayObject(this.info.map);
-				var contentContainer:DisplayObjectContainer = this.info.contentContainer;
-				var placemarkRenderer:Object = placemarkHelper.getPlacemarkRendererFor(placemark);
-				var dragBounds:Rectangle = panningHelper.getDragBounds();
-
-				var point:Point = toCoordinateSpace(new Point(placemarkRenderer.x, placemarkRenderer.y), contentContainer, map);
-
-				var maskBounds:Rectangle = this.info.mask.getRect(map);
-				var x:Number = Math.max(dragBounds.x, contentContainer.x - (point.x - maskBounds.width / 2));
-				var y:Number = Math.max(dragBounds.y, contentContainer.y - (point.y - maskBounds.height / 2));*/
-				
-/*
-trace(x, y);
-trace(panningHelper.verticalPan, panningHelper.horizontalPan)
-trace(dragBounds);
-				panningHelper.verticalPan = x / dragBounds.x;
-				panningHelper.horizontalPan = y / dragBounds.y;
-trace(panningHelper.verticalPan, panningHelper.horizontalPan)*/
 		}
 		
 		//---------------------------------------
