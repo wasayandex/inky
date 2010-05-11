@@ -26,15 +26,20 @@ package inky.components.map.view.helpers
 	 */
 	public class PlacemarkPlotter extends BaseMapHelper
 	{
+		private var _avoidPlacemarkCollisions:Boolean = false;
 		protected var availableRenderers:Array;
 		protected var rendererCache:Dictionary;
+		private var _placemarkSnapX:Number = 0;
+		private var _placemarkSnapY:Number = 0;
 		protected var positionCache:Dictionary;
 		private var _recyclePlacemarkRenderers:Boolean;
 		private var _scalePlacemarkRenderers:Boolean;
 		private var watchers:Array;
 		private var unplottablePlacemarks:Dictionary = new Dictionary(true);
-
+		private var placemarkPositions:Object = {};
 		public var placemarks:ArrayList;
+		private var snapDegreesX:Number;
+		private var snapDegreesY:Number;
 		
 		/**
 		 * Creates a new placemark plotter.
@@ -48,6 +53,53 @@ package inky.components.map.view.helpers
 		//---------------------------------------
 		// ACCESSORS
 		//---------------------------------------
+
+		/**
+		 *
+		 */
+		public function get avoidPlacemarkCollisions():Boolean
+		{ 
+			return this._avoidPlacemarkCollisions; 
+		}
+		/**
+		 * @private
+		 */
+		public function set avoidPlacemarkCollisions(value:Boolean):void
+		{
+			this._avoidPlacemarkCollisions = value;
+		}
+
+		/**
+		 *
+		 */
+		public function get placemarkSnapY():Number
+		{ 
+			return this._placemarkSnapY; 
+		}
+		/**
+		 * @private
+		 */
+		public function set placemarkSnapY(value:Number):void
+		{
+			this._placemarkSnapY = value;
+			this.recalculateSnapDegrees();
+		}
+
+		/**
+		 *
+		 */
+		public function get placemarkSnapX():Number
+		{ 
+			return this._placemarkSnapX;
+		}
+		/**
+		 * @private
+		 */
+		public function set placemarkSnapX(value:Number):void
+		{
+			this._placemarkSnapX = value;
+			this.recalculateSnapDegrees();
+		}
 
 		
 		/**
@@ -204,37 +256,8 @@ package inky.components.map.view.helpers
 
 			if (!point && model)
 			{
-				point = this.getKMLCoordinatesFor(placemark);
-
-				var longitudeDifference:Number = model.latLonBox.east - model.latLonBox.west;
-				var latitudeDifference:Number = model.latLonBox.south - model.latLonBox.north;
-
-				var kmlBounds:Rectangle = new Rectangle(model.latLonBox.west, model.latLonBox.north, longitudeDifference, latitudeDifference);
-
-				if (!this.numberIsBetween(point.x, kmlBounds.left, kmlBounds.right) || !this.numberIsBetween(point.y, kmlBounds.top, kmlBounds.bottom))
-				{
-					if (!this.unplottablePlacemarks[placemark])
-					{
-						this.unplottablePlacemarks[placemark] = true;
-						trace("Warning: placemark is out of bounds. It will not be plotted.\not" + placemark.xml);
-					}
-					return null;
-				}
-
-				var mapBounds:Rectangle = this.info.overlayContainer.getRect(this.info.contentContainer);
-
-				point.x = mapBounds.x + ((point.x - this.info.map.model.latLonBox.west) / longitudeDifference) * mapBounds.width;
-				point.y = mapBounds.y + ((point.y - this.info.map.model.latLonBox.north) / latitudeDifference) * mapBounds.height;
-
-				if (model.latLonBox.rotation)
-				{
-					var center:Point = new Point(mapBounds.width / 2, mapBounds.height / 2);
-					point = point.subtract(center);		
-					this.rotatePoint(point, this.info.map.model.latLonBox.rotation);
-					point =	point.add(center);
-				}
-
 				// Cache the calculated position for this placemark.
+				point = this.calculatePlacemarkPosition(placemark);
 				this.positionCache[point] = placemark;
 			}
 
@@ -253,6 +276,8 @@ package inky.components.map.view.helpers
 			];
 
 			info.map.addEventListener(MapEvent.SCALED, this.content_scaledHandler);
+			info.map.addEventListener(MapEvent.OVERLAY_UPDATED, this.map_overlayUpdatedHandler);
+			this.recalculateSnapDegrees();
 		}
 		
 		/**
@@ -285,6 +310,125 @@ package inky.components.map.view.helpers
 		//---------------------------------------
 		// PROTECTED METHODS
 		//---------------------------------------
+
+		/**
+		 * 
+		 */
+		protected function calculatePlacemarkPosition(placemark:Object):Point
+		{
+			var point:Point = this.getKMLCoordinatesFor(placemark);
+			var model:Object = this.info.map.model;
+
+			var longitudeDifference:Number = model.latLonBox.east - model.latLonBox.west;
+			var latitudeDifference:Number = model.latLonBox.south - model.latLonBox.north;
+
+			var kmlBounds:Rectangle = new Rectangle(model.latLonBox.west, model.latLonBox.north, longitudeDifference, latitudeDifference);
+
+			if (!this.numberIsBetween(point.x, kmlBounds.left, kmlBounds.right) || !this.numberIsBetween(point.y, kmlBounds.top, kmlBounds.bottom))
+			{
+				if (!this.unplottablePlacemarks[placemark])
+				{
+					this.unplottablePlacemarks[placemark] = true;
+					trace("Warning: placemark is out of bounds. It will not be plotted.\n" + placemark.xml);
+				}
+				return null;
+			}
+
+			var mapBounds:Rectangle = this.info.overlayContainer.getRect(this.info.contentContainer);
+
+			// Snap the placemarks.
+			if (this.placemarkSnapX)
+				point.x = Math.round(point.x / this.snapDegreesX) * this.snapDegreesX;
+			if (this.placemarkSnapY)
+				point.y = Math.round(point.y / this.snapDegreesY) * this.snapDegreesY;
+
+			point.x = mapBounds.x + ((point.x - this.info.map.model.latLonBox.west) / longitudeDifference) * mapBounds.width;
+			point.y = mapBounds.y + ((point.y - this.info.map.model.latLonBox.north) / latitudeDifference) * mapBounds.height;
+
+			if (model.latLonBox.rotation)
+			{
+				var center:Point = new Point(mapBounds.width / 2, mapBounds.height / 2);
+				point = point.subtract(center);		
+				this.rotatePoint(point, this.info.map.model.latLonBox.rotation);
+				point =	point.add(center);
+			}
+
+			if (!this.placemarkSnapX || !this.placemarkSnapY && this.avoidPlacemarkCollisions)
+			{
+				throw new Error("You can't avoid collisions unless you specify values for placemarkSnapX and placemarkSnapY");
+			}
+			else if (this.avoidPlacemarkCollisions)
+			{
+				var r:int = 0;
+				var p:Point;
+				while (!p)
+				{
+					p = this.tryPosition(point, r);
+					r++;
+				}
+				point = p;
+				this.placemarkPositions[point.x + "," + point.y] = true;
+			}
+
+			return point;
+		}
+		
+		
+		/**
+		 * 
+		 */
+		private function map_overlayUpdatedHandler(event:MapEvent):void
+		{
+			this.recalculateSnapDegrees();
+		}
+
+		/**
+		 * 
+		 */
+		private function tryPosition(origin:Point, r:int):Point
+		{
+			return this.tryPositionInDirection(origin, r, true) || this.tryPositionInDirection(origin, r, false);
+		}
+		
+		/**
+		 * @return the first found non-colliding point, or null if none is found
+		 */
+		private function tryPositionInDirection(origin:Point, r:int, horizontal:Boolean):Point
+		{
+			var p:Point = origin.clone();
+			
+			var collides:Boolean = true;
+			for each (var i:int in [-r, r])
+			{
+				for (var j:int = -r; j <= r; j++)
+				{
+					var xOffset:int;
+					var yOffset:int;
+					if (horizontal)
+					{
+						xOffset = j;
+						yOffset = i;
+					}
+					else
+					{
+						xOffset = i;
+						yOffset = j;
+					}
+
+					p.x = Math.round(origin.x + xOffset * this.placemarkSnapX);
+					p.y = Math.round(origin.y + yOffset * this.placemarkSnapY);
+
+					collides = this.placemarkPositions[p.x + "," + p.y];
+
+					if (!collides)
+						break;
+				}
+				if (!collides)
+					break;
+			}
+
+			return collides ? null : p;
+		}
 		
 		/**
 		 * @inheritDoc
@@ -293,6 +437,7 @@ package inky.components.map.view.helpers
 		{
 			super.reset();
 			this.clearPositionCache();
+			this.recalculateSnapDegrees();
 		}
 
 		/**
@@ -338,6 +483,28 @@ package inky.components.map.view.helpers
 		/**
 		 * 
 		 */
+		private function recalculateSnapDegrees():void
+		{
+			if (!this.info || !this.info.overlayContainer || !this.info.contentContainer || !this.info.map || !this.info.map.model)
+			{
+				this.snapDegreesX = 0;
+				this.snapDegreesY = 0;
+				return;
+			}
+			
+			var mapBounds:Rectangle = this.info.overlayContainer.getRect(this.info.contentContainer);
+			var model:Object = this.info.map.model;
+			var longitudeDifference:Number = model.latLonBox.east - model.latLonBox.west;
+			var latitudeDifference:Number = model.latLonBox.south - model.latLonBox.north;
+			var pxPerDegreeX:Number = mapBounds.width / longitudeDifference;
+			var pxPerDegreeY:Number = mapBounds.height / latitudeDifference;
+			this.snapDegreesX = this.placemarkSnapX / pxPerDegreeX;
+			this.snapDegreesY = this.placemarkSnapY / pxPerDegreeY;
+		}
+		
+		/**
+		 * 
+		 */
 		private function content_scaledHandler(event:MapEvent):void
 		{
 			if (this.scalePlacemarkRenderers)
@@ -360,8 +527,9 @@ package inky.components.map.view.helpers
 		private function clearPositionCache():void
 		{
 			this.positionCache = null;
+			this.placemarkPositions = {};
 		}
-		
+
 		/**
 		 * 
 		 */

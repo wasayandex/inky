@@ -102,7 +102,17 @@ package inky.components.map.view
 			
 			// Register default helpers.
 			this.registerHelper(OverlayLoader, HelperType.OVERLAY_HELPER);
-			this.registerHelper(PlacemarkPlotter, HelperType.PLACEMARK_HELPER, {recyclePlacemarkRenderers: "recyclePlacemarkRenderers", scalePlacemarkRenderers: "scalePlacemarkRenderers"});
+			this.registerHelper(
+				PlacemarkPlotter,
+				HelperType.PLACEMARK_HELPER,
+				{
+					avoidPlacemarkCollisions: "avoidPlacemarkCollisions",
+					placemarkSnapX: "placemarkSnapX",
+					placemarkSnapY: "placemarkSnapY",
+					recyclePlacemarkRenderers: "recyclePlacemarkRenderers",
+					scalePlacemarkRenderers: "scalePlacemarkRenderers"
+				}
+			);
 			this.registerHelper(SelectPlacemarkHelper, HelperType.SELECT_PLACEMARK_HELPER);
 
 			this.modelWatcher = BindingUtil.bindSetter(this.initializeForModel, this, "model");
