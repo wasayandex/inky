@@ -36,7 +36,7 @@ package inky.sequencing.commands
 		 */
 		public function get isAsync():Boolean
 		{
-			return true;
+			return false;
 		}
 		
 		//---------------------------------------

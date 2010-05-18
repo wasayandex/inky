@@ -19,7 +19,7 @@ package inky.sequencing.commands
 	 */
 	public class GTweenCommand extends EventDispatcher implements IAsyncCommand
 	{
-		private var _isAsync:Boolean = false;
+		private var _isAsync:Boolean = true;
 		public var tween:GTween;
 		public var tweenProperties:Object = {};
 		public var targetValues:Object = {};

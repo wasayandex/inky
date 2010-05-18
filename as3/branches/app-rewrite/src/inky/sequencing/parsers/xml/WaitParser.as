@@ -105,9 +105,7 @@ package inky.sequencing.parsers.xml
 		 */
 		private static function formatDuration(time:String):Number
 		{
-			var timeParser:TimeParser = WaitParser.timeParser || (WaitParser.timeParser = new TimeParser());
-			var parseResult:ParsedTime = timeParser.parse(time);
-			return parseResult.time;
+			return WaitParser.getTimeParser().parse(time).time;
 		}
 		
 		/**
@@ -115,7 +113,15 @@ package inky.sequencing.parsers.xml
 		 */
 		private static function formatUnits(time:String):String
 		{
-			return timeParser.parse(time).units;
+			return WaitParser.getTimeParser().parse(time).units;
+		}
+		
+		/**
+		 * 
+		 */
+		private static function getTimeParser():TimeParser
+		{
+			return WaitParser.timeParser || (WaitParser.timeParser = new TimeParser());
 		}
 
 	}
