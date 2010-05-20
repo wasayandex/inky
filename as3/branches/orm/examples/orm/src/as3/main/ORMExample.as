@@ -4,6 +4,7 @@ package
 	import User;
 	import flash.display.Sprite;
 	import inky.orm.*;
+	import inky.utils.describeObject;
 
 
 	/**
@@ -24,7 +25,7 @@ package
 		 */
 		public function ORMExample()
 		{
-			var db:Repository = new Repository(
+			var db:XMLDatabase = new XMLDatabase(
 				<db>
 					<comment id="0" body="Lorem ipsum dolor sit amet." authorId="1" />
 					<comment id="1" body="Consectetur adipisicing elit." authorId="5" />
@@ -50,10 +51,12 @@ package
 			myComment.id = "6";
 			myComment.body = "ORM is rad!";
 			myComment.author = new User("Matthew", "Tretter");
-			myComment.save();
+trace(describeObject(myComment, true));
+			
+//			myComment.save();
 
 			// Test the getter.
-			myComment.user;
+//			myComment.user;
 
 return;
 db.dump();

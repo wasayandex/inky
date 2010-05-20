@@ -23,13 +23,9 @@ package inky.orm.relationships
 		private var _property:String;
 		private var _options:Object;
 
-
-
-
-		//
-		// public methods
-		//
-
+		//---------------------------------------
+		// PUBLIC METHODS
+		//---------------------------------------
 
 		/**
 		 * @inheritDoc
@@ -37,16 +33,16 @@ package inky.orm.relationships
 		public function evaluate(model:Object):*
 		{
 			var relatedObject:Object;
-			var key:String = this._getKey();
+			var key:String = this.getKey();
 			var relatedKeyValue:String = model[key];
 
 			if (relatedKeyValue)
 			{
-				var relatedClass:String = this._getRelatedClass();
+				var relatedClass:String = this.getRelatedClass();
 				var dataMapper:IDataMapper = DATA_MAPPER_CONFIG.getDataMapper(relatedClass);
 				var relatedClassConstructor:Class = getClass(relatedClass);
 				relatedObject = new relatedClassConstructor();
-				var relatedKey:String = this._getRelatedKey(relatedClass);
+				var relatedKey:String = this.getRelatedKey(relatedClass);
 				var query:Object = {};
 				query[relatedKey] = relatedKeyValue;
 				relatedObject = dataMapper.load(relatedObject, query);
@@ -54,7 +50,6 @@ package inky.orm.relationships
 
 			return relatedObject;
 		}
-
 
 		/**
 		 * @inheritDoc
@@ -66,18 +61,14 @@ package inky.orm.relationships
 			this._options = options;
 		}
 
-
-
-
-		//
-		// private methods
-		//
-
+		//---------------------------------------
+		// PRIVATE METHODS
+		//---------------------------------------
 
 		/**
 		 * 
 		 */
-		private function _formatAsClass(str:String):String
+		private function formatAsClass(str:String):String
 		{
 			return str.substr(0, 1).toUpperCase() + str.substr(1);
 		}
@@ -86,7 +77,7 @@ package inky.orm.relationships
 		/**
 		 * 
 		 */
-		private function _getKey():String
+		private function getKey():String
 		{
 			return this._options.key || this._property + "Id";
 		}
@@ -95,14 +86,14 @@ package inky.orm.relationships
 		/**
 		 * 
 		 */
-		private function _getRelatedClass():String
+		private function getRelatedClass():String
 		{
 			var relatedClass:String = this._options.relatedClass;
 			if (!relatedClass)
 			{
 				var parts:Array = this._className.split(".");
 				parts.pop();
-				parts.push(this._formatAsClass(this._property));
+				parts.push(this.formatAsClass(this._property));
 				relatedClass = parts.join(".");
 			}
 			return relatedClass;
@@ -112,7 +103,7 @@ package inky.orm.relationships
 		/**
 		 * 
 		 */
-		private function _getRelatedKey(relatedClass:String):String
+		private function getRelatedKey(relatedClass:String):String
 		{
 			return DATA_MAPPER_CONFIG.getPrimaryKey(relatedClass) || "id";
 		}

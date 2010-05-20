@@ -6,7 +6,7 @@ package inky.orm
 	import inky.orm.IDataMapper;
 	import inky.collections.IList;
 	import inky.collections.IIterator;
-	import inky.utils.Conditions;
+	import inky.conditions.Conditions;
 	import inky.utils.describeObject;
 
 	

@@ -1,9 +1,8 @@
-package
+package  
 {
 	import inky.orm.DataMapperResource;
-	import inky.orm.inspection.XMLTypeInspector;
 	import inky.orm.inspection.ITypeInspector;
-
+	
 	/**
 	 *
 	 *  ..
@@ -12,26 +11,19 @@ package
 	 *	@playerversion Flash 9.0.0
 	 *
 	 *	@author matthew
-	 *	@since  2009.09.29
+	 *	@since  2010.05.19
 	 *
 	 */
-	dynamic public class User extends DataMapperResource
+	public class Categorization extends DataMapperResource
 	{
 		private static const XML_CONFIG:XML =
-			<type storageName="usr">
+			<type>
 				<property name="id" />
-				<property name="firstName" />
-				<property name="lastName" />
+				<property name="creationTime" type="Date" />
+
+				<belongsTo SOMETHING="category" />
+				<belongs to="post" />
 			</type>
-		
-		/**
-		 *
-		 */
-		public function User(firstName:String, lastName:String)
-		{
-			this.firstName = firstName;
-			this.lastName = lastName;
-		}
 		
 		/**
 		 * 
@@ -40,6 +32,21 @@ package
 		{
 			return new XMLTypeInspector(XML_CONFIG);
 		}
+
+		/*
+
+		class Categorization
+			include DataMapper::Resource
+
+			property :id,         Serial
+			property :created_at, DateTime
+
+			belongs_to :category
+			belongs_to :post
+		end
 		
+		*/
+
 	}
+	
 }

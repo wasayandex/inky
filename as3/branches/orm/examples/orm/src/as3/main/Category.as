@@ -12,22 +12,20 @@ package
 	 *	@since  2010.05.19
 	 *
 	 */
-	public class Comment
+	public class Category
 	{
 		
 
 		/*
 
-		class Comment
+		class Category
 			include DataMapper::Resource
 
 			property :id,         Serial
-			property :posted_by,  String
-			property :email,      String
-			property :url,        String
-			property :body,       Text
-			
-			belongs_to :post
+			property :name,       String
+
+			has n, :categorizations
+			has n, :posts,      :through => :categorizations
 		end
 		
 		*/

@@ -1,5 +1,6 @@
 package inky.orm.relationships 
 {
+	import inky.orm.inspection.RelationshipData;
 	
 	/**
 	 *
@@ -14,25 +15,14 @@ package inky.orm.relationships
 	 */
 	public class RelationshipFactory
 	{
-		private static var _instance:RelationshipFactory;
-		
-		/**
-		 *
-		 */
-		public function RelationshipFactory()
-		{
-			if (_instance)
-				throw new ArgumentError();
-		}
-		
 		
 		/**
 		 *	
 		 */
-		public function createRelationship(className:String, property:String, options:Object):IRelationship
+		public function createRelationship(className:String, property:String, options:RelationshipData):IRelationship
 		{
-			options = options || {};
-			var relationshipClass:Class = this._getRelationshipClass(className, property, options);
+			options = options || new RelationshipData();
+			var relationshipClass:Class = this.getRelationshipClass(className, property, options);
 
 			// Create the relationship.
 			var relationship:IRelationship = new relationshipClass();
@@ -40,56 +30,46 @@ package inky.orm.relationships
 			return relationship;
 		}
 		
+		//---------------------------------------
+		// PRIVATE METHODS
+		//---------------------------------------
 		
 		/**
 		 * 
 		 */
-		private function _getRelationshipClass(className:String, property:String, options:Object):Class
+		private function getRelationshipClass(className:String, property:String, options:RelationshipData):Class
 		{
-			var relationshipClass:Class = (options && options.relationship) as Class;
-			if (!relationshipClass)
-			{
-				// If the relationship type wasn't explicitly specified, infer it from the property name.			
 // TODO: More advanced lexical analysis.
-				var relationshipType:String;
-				if (options && options.relationshipType)
-				 	relationshipType = options.relationshipType;
-				else
-					relationshipType = property.substr(-1) == "s" ? RelationshipType.HAS_MANY : RelationshipType.HAS_ONE;
+			var relationshipClass:Class;
+			var relationshipType:String;
+			if (options && options.relationshipType)
+			 	relationshipType = options.relationshipType;
+			else
+				// If the relationship type wasn't explicitly specified, infer it from the property name.			
+				relationshipType = property.substr(-1) == "s" ? RelationshipType.HAS_MANY : RelationshipType.HAS_ONE;
 
-				switch (relationshipType)
+			switch (relationshipType)
+			{
+				case RelationshipType.HAS_ONE:
 				{
-					case RelationshipType.HAS_ONE:
-					{
-						relationshipClass = OneToOne;
-						break;
-					}
-					case RelationshipType.HAS_MANY:
-					{
-						relationshipClass = OneToMany;
-						break;
-					}
-					default:
-					{
-						throw new ArgumentError("Invalid relationship type: \"" + relationshipType + "\".");
-						break;
-					}
+					relationshipClass = OneToOne;
+					break;
+				}
+				case RelationshipType.HAS_MANY:
+				{
+					relationshipClass = OneToMany;
+					break;
+				}
+				default:
+				{
+					throw new ArgumentError("Invalid relationship type: \"" + relationshipType + "\".");
+					break;
 				}
 			}
-			
+
 			return relationshipClass;
 		}
 
-
-
-		/**
-		 *	
-		 */
-		public static function getInstance():RelationshipFactory
-		{
-			return _instance || (_instance = new RelationshipFactory());
-		}
-		getInstance();
 	}
 	
 }
