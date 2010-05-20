@@ -1,8 +1,10 @@
 package
 {
-	import inky.orm.DataMapperResource;
+	import inky.orm.XMLConfigDataMapperResource;
 	import inky.orm.inspection.XMLTypeInspector;
 	import inky.orm.inspection.ITypeInspector;
+	import inky.orm.IDataMapper;
+	import inky.orm.DataMapperResource;
 
 	/**
 	 *
@@ -15,7 +17,7 @@ package
 	 *	@since  2009.09.29
 	 *
 	 */
-	dynamic public class User extends DataMapperResource
+	dynamic public class User extends XMLConfigDataMapperResource
 	{
 		private static const XML_CONFIG:XML =
 			<type storageName="usr">
@@ -29,20 +31,17 @@ package
 		 */
 		public function User(firstName:String, lastName:String)
 		{
+			super(XML_CONFIG);
 			this.firstName = firstName;
 			this.lastName = lastName;
 		}
 		
-		//---------------------------------------
-		// PROTECTED METHODS
-		//---------------------------------------
-		
 		/**
-		 * @inheritDoc
+		 * 
 		 */
-		override protected function _createTypeInspector():ITypeInspector
+		public static function mapper():IDataMapper
 		{
-			return new XMLTypeInspector(XML_CONFIG);
+			return DataMapperResource.getDataMapper(User);
 		}
 		
 	}

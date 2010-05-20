@@ -3,9 +3,9 @@ package
 	import Comment;
 	import User;
 	import flash.display.Sprite;
-	import inky.orm.*;
+	import inky.orm.DataMapper;
+	import inky.orm.databases.XMLDatabase;
 	import inky.utils.describeObject;
-
 
 	/**
 	 *

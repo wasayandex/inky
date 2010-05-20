@@ -1,4 +1,4 @@
-package inky.orm 
+package inky.orm.databases
 {
 	import inky.collections.IIterable;
 

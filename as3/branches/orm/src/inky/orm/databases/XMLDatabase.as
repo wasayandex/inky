@@ -1,6 +1,6 @@
-package inky.orm 
+package inky.orm.databases
 {
-	import inky.orm.IDatabase;
+	import inky.orm.databases.IDatabase;
 	import inky.collections.IIterable;
 	import inky.collections.ArrayList;
 

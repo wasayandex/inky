@@ -10,6 +10,7 @@ package inky.orm
 	import inky.orm.inspection.InspectorRegistry;
 	import inky.orm.relationships.RelationshipRegistry;
 	import inky.orm.inspection.RelationshipData;
+	import inky.orm.IDataMapper;
 
 	use namespace flash_proxy;
 
@@ -44,20 +45,28 @@ package inky.orm
 		//---------------------------------------
 
 		/**
-		 *	@inheritDoc
+		 * 
 		 */
-		public function load(conditions:Object):void
+		public static function getDataMapper(clazz:Object):IDataMapper
 		{
-			DATA_MAPPER_CONFIG.getDataMapper(this.className).load(this, conditions);
+			return null;
 		}
 
-		/**
-		 *	@inheritDoc
-		 */
-		public function save():void
-		{
-			DATA_MAPPER_CONFIG.getDataMapper(this.className).save(this, true);
-		}
+/**
+ *	@inheritDoc
+ */
+public function load(conditions:Object):void
+{
+	DATA_MAPPER_CONFIG.getDataMapper(this.className).load(this, conditions);
+}
+
+/**
+ *	@inheritDoc
+ */
+public function save():void
+{
+	DATA_MAPPER_CONFIG.getDataMapper(this.className).save(this, true);
+}
 
 		//---------------------------------------
 		// flash_proxy methods

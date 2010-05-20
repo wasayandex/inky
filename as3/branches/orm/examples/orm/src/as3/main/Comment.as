@@ -1,8 +1,10 @@
 package  
 {
-	import inky.orm.DataMapperResource;
+	import inky.orm.XMLConfigDataMapperResource;
 	import inky.orm.inspection.XMLTypeInspector;
 	import inky.orm.inspection.ITypeInspector;
+	import inky.orm.IDataMapper;
+	import inky.orm.DataMapperResource;
 
 	/**
 	 *
@@ -15,11 +17,19 @@ package
 	 *	@since  2010.05.19
 	 *
 	 */
-	dynamic public class Comment extends DataMapperResource
+	dynamic public class Comment extends XMLConfigDataMapperResource
 	{
 		private static const XML_CONFIG:XML =
 			<type>
 			</type>	
+
+		/**
+		 *
+		 */
+		public function Comment()
+		{
+			super(XML_CONFIG);
+		}
 
 		/*
 
@@ -37,16 +47,12 @@ package
 		
 		*/
 		
-		//---------------------------------------
-		// PROTECTED METHODS
-		//---------------------------------------
-		
 		/**
-		 * @inheritDoc
+		 * 
 		 */
-		override protected function _createTypeInspector():ITypeInspector
+		public static function mapper():IDataMapper
 		{
-			return new XMLTypeInspector(XML_CONFIG);
+			return DataMapperResource.getDataMapper(Comment);
 		}
 
 	}

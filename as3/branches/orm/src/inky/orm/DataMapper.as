@@ -2,7 +2,7 @@ package inky.orm
 {
 	import flash.utils.getQualifiedClassName;
 	import flash.utils.describeType;
-	import inky.orm.IDatabase;
+	import inky.orm.databases.IDatabase;
 	import inky.orm.IDataMapper;
 	import inky.collections.IList;
 	import inky.collections.IIterator;
