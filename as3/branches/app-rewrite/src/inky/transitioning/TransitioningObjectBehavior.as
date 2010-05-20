@@ -6,7 +6,7 @@
 	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;
 	import inky.transitioning.events.TransitioningEvent;
-	import inky.sequencing.commands.IAsyncCommand;
+	import inky.sequencing.commands.ICommand;
 	import inky.transitioning.TransitioningState;
 
 
@@ -31,10 +31,10 @@
 	{
 		private var addedToStageEventFixer:AddedToStageEventFixer;
 		private var _autoPlayIntro:Boolean;
-		private var _intro:IAsyncCommand;
+		private var _intro:ICommand;
 		private var displayObject:DisplayObject;
 		private var eventDispatcher:IEventDispatcher;
-		private var _outro:IAsyncCommand;
+		private var _outro:ICommand;
 		private var pendingRemoval:Boolean;
 		private var _transitioningState:String;
 
@@ -95,14 +95,14 @@
 		/**
 		 * 
 		 */
-		public function get intro():IAsyncCommand
+		public function get intro():ICommand
 		{
 			return this._intro;
 		}
 		/**
 		 * @private
 		 */
-		public function set intro(value:IAsyncCommand):void
+		public function set intro(value:ICommand):void
 		{
 			if (value != this._intro)
 			{
@@ -117,14 +117,14 @@
 		/**
 		 * 
 		 */
-		public function get outro():IAsyncCommand
+		public function get outro():ICommand
 		{
 			return this._outro;
 		}
 		/**
 		 * @private	
 		 */
-		public function set outro(value:IAsyncCommand):void
+		public function set outro(value:ICommand):void
 		{
 			if (value != this._outro)
 			{
@@ -156,17 +156,17 @@
 		{
 			this.dispatch(TransitioningEvent.INTRO_START);
 			
-			var isAsync:Boolean = false;
+			var isInstantaneous:Boolean = false;
 			if (this.intro)
 			{
 				this.intro.execute();
-				isAsync = this.intro.isAsync;
+				isInstantaneous = this.intro.isInstantaneous;
 			}
 
-			if (!this.intro || !isAsync)
+			if (!this.intro || !isInstantaneous)
 				this.dispatch(TransitioningEvent.INTRO_FINISH);
 
-			return !isAsync;
+			return !isInstantaneous;
 		}
 		
 		/**
@@ -176,20 +176,20 @@
 		{
 			this.dispatch(TransitioningEvent.OUTRO_START);
 			
-			var isAsync:Boolean = false;
+			var isInstantaneous:Boolean = false;
 			if (this.outro)
 			{
 				this.outro.execute();
-				isAsync = this.outro.isAsync;
+				isInstantaneous = this.outro.isInstantaneous;
 			}
 			
-			if (!this.outro || !isAsync)
+			if (!this.outro || !isInstantaneous)
 			{
 				this.dispatch(TransitioningEvent.OUTRO_FINISH);
 				this.checkRemove();
 			}
 
-			return !isAsync;
+			return !isInstantaneous;
 		}
 
 		/**

@@ -2,7 +2,7 @@ package inky.transitioning.commands
 {
 	import flash.events.Event;
 	import flash.display.FrameLabel;
-	import inky.sequencing.commands.IAsyncCommand;
+	import inky.sequencing.commands.ICommand;
 	import flash.events.EventDispatcher;
 	
 	/**
@@ -17,7 +17,7 @@ package inky.transitioning.commands
 	 *	@since  2010.01.14
 	 *
 	 */
-	public class PlayFrameLabelCommand extends EventDispatcher implements IAsyncCommand
+	public class PlayFrameLabelCommand extends EventDispatcher implements ICommand
 	{
 		private var firstFrame:int;
 		private var lastFrame:int;
@@ -43,7 +43,7 @@ package inky.transitioning.commands
 		/**
 		 * @inheritDoc
 		 */
-		public function get isAsync():Boolean
+		public function get isInstantaneous():Boolean
 		{
 			return true;
 		}

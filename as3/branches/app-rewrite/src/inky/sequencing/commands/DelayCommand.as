@@ -1,6 +1,6 @@
 package inky.sequencing.commands 
 {
-	import inky.sequencing.commands.IAsyncCommand;
+	import inky.sequencing.commands.ICommand;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.utils.setTimeout;
@@ -18,7 +18,7 @@ package inky.sequencing.commands
 	 *	@since  2010.03.30
 	 *
 	 */
-	public class DelayCommand extends EventDispatcher implements IAsyncCommand
+	public class DelayCommand extends EventDispatcher implements ICommand
 	{
 		private var enterFrameBeacon:Sprite;
 		private var frameCount:int;
@@ -40,7 +40,7 @@ package inky.sequencing.commands
 		/**
 		 * @inheritDoc
 		 */
-		public function get isAsync():Boolean
+		public function get isInstantaneous():Boolean
 		{
 			return false;
 		}

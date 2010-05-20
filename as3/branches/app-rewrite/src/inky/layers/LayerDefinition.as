@@ -8,6 +8,9 @@ package inky.layers
 	import inky.layers.strategies.AddToRoot;
 	import inky.layers.LayerStack;
 	import inky.layers.strategies.RemoveFromStage;
+	import flash.events.EventDispatcher;
+	import inky.layers.events.LayerEvent;
+	import flash.events.Event;
 	
 	/**
 	 *
@@ -20,15 +23,20 @@ package inky.layers
 	 *	@since  2010.04.12
 	 *
 	 */
-	public class LayerDefinition implements ILayerDefinition
+	public class LayerDefinition extends EventDispatcher implements ILayerDefinition
 	{
 		private var additionStrategy:IAdditionStrategy;
 		private var additionStrategyOrClass:Object;
+//		private var callbackMap:Object;
 		private var _forceRefresh:Boolean;
 		private var removalStrategy:IRemovalStrategy;
 		private var removalStrategyOrClass:Object;
 		private var view:DisplayObject;
 		private var viewClass:Object;
+		private var _onBeforeAdd:Function;
+		private var _onAddComplete:Function;
+		private var _onBeforeRemove:Function;
+		private var _onRemoveComplete:Function;
 		
 		/**
 		 *
@@ -45,6 +53,14 @@ package inky.layers
 		//---------------------------------------
 		
 		/**
+		 * @inheritDoc
+		 */
+		public function get addIsInstantaneous():Boolean
+		{
+			return this.getAdditionStrategy().isInstantaneous;
+		}
+
+		/**
 		 *
 		 */
 		public function get forceRefresh():Boolean
@@ -58,6 +74,74 @@ package inky.layers
 		{
 			this._forceRefresh = value;
 		}
+		
+		/**
+		 *
+		 */
+		public function get onAddComplete():Function
+		{ 
+			return this._onAddComplete; 
+		}
+		/**
+		 * @private
+		 */
+		public function set onAddComplete(value:Function):void
+		{
+			this._onAddComplete = value;
+		}
+
+		/**
+		 *
+		 */
+		public function get onBeforeAdd():Function
+		{
+			return this._onBeforeAdd;
+		}
+		/**
+		 * @private
+		 */
+		public function set onBeforeAdd(value:Function):void
+		{
+			this._onBeforeAdd = value;
+		}
+		
+		/**
+		 *
+		 */
+		public function get onBeforeRemove():Function
+		{ 
+			return this._onBeforeRemove; 
+		}
+		/**
+		 * @private
+		 */
+		public function set onBeforeRemove(value:Function):void
+		{
+			this._onBeforeRemove = value;
+		}
+
+		/**
+		 *
+		 */
+		public function get onRemoveComplete():Function
+		{ 
+			return this._onRemoveComplete; 
+		}
+		/**
+		 * @private
+		 */
+		public function set onRemoveComplete(value:Function):void
+		{
+			this._onRemoveComplete = value;
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function get removeIsInstantaneous():Boolean
+		{
+			return this.getRemovalStrategy().isInstantaneous;
+		}
 
 		//---------------------------------------
 		// PUBLIC METHODS
@@ -68,8 +152,8 @@ package inky.layers
 		 */
 		public function addTo(stack:LayerStack):void
 		{
-			var additionStrategy:IAdditionStrategy = IAdditionStrategy(this.getStrategy("additionStrategy", IAdditionStrategy, "IAdditionStrategy"));
-			additionStrategy.add(this.getView(), stack);
+			var additionStrategy:IAdditionStrategy = this.getAdditionStrategy();
+			additionStrategy.add(this.getView(), stack, this);
 		}
 		
 		/**
@@ -77,13 +161,29 @@ package inky.layers
 		 */
 		public function removeFrom(stack:LayerStack):void
 		{
-			var removalStrategy:IRemovalStrategy = IRemovalStrategy(this.getStrategy("removalStrategy", IRemovalStrategy, "IRemovalStrategy"));
-			removalStrategy.remove(this.getView(), stack);
+			var removalStrategy:IRemovalStrategy = this.getRemovalStrategy();
+			removalStrategy.remove(this.getView(), stack, this);
 		}
 		
 		//---------------------------------------
 		// PRIVATE METHODS
 		//---------------------------------------
+		
+		/**
+		 * 
+		 */
+		private function getAdditionStrategy():IAdditionStrategy
+		{
+			return IAdditionStrategy(this.getStrategy("additionStrategy", IAdditionStrategy, "IAdditionStrategy"));
+		}
+		
+		/**
+		 * 
+		 */
+		private function getRemovalStrategy():IRemovalStrategy
+		{
+			return IRemovalStrategy(this.getStrategy("removalStrategy", IRemovalStrategy, "IRemovalStrategy"));
+		}
 		
 		/**
 		 * 
@@ -106,7 +206,7 @@ package inky.layers
 				}
 				else
 				{
-					var cls:Class = getClass(strategyOrClass);
+					var cls:Class = getClass(strategyOrClass as Class || strategyOrClass.toString());
 					if (!cls)
 						throw new Error("Couldn't find " + interfaceName + ": " + strategyOrClass);
 					strategy = new cls();
@@ -133,6 +233,40 @@ package inky.layers
 			}
 			return this.view;
 		}
+		
+		/**
+		 * 
+		 */
+		/*private function setCallback(callback:Function, eventType:String):void
+		{
+			if (!this.callbackMap)
+				this.callbackMap = {};
+				
+			var oldCallback:Function = this.callbackMap[eventType];
+			if (callback != oldCallback)
+			{
+				if (callback != null)
+				{
+					this.callbackMap[eventType] = callback;
+					this.addEventListener(eventType, this.triggerCallback);
+				}
+				else if (oldCallback != null)
+				{
+					delete this.callbackMap[eventType];
+					this.removeEventListener(eventType, this.triggerCallback);
+				}
+			}
+		}*/
+		
+		/**
+		 * 
+		 */
+		/*private function triggerCallback(event:Event):void
+		{
+			var callback:Function = this.callbackMap[event.type];
+			if (callback != null)
+				callback(this);
+		}*/
 
 	}
 	

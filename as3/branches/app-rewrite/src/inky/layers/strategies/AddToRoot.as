@@ -1,8 +1,10 @@
 package inky.layers.strategies 
 {
-	import flash.display.DisplayObject;
 	import inky.layers.LayerStack;
 	import inky.layers.strategies.IAdditionStrategy;
+	import flash.display.DisplayObject;
+	import flash.events.IEventDispatcher;
+	import flash.events.Event;
 	
 	/**
 	 *
@@ -17,13 +19,30 @@ package inky.layers.strategies
 	 */
 	public class AddToRoot implements IAdditionStrategy
 	{
+		private var dispatcher:IEventDispatcher;
+		private var layer:DisplayObject;
+		private var stack:LayerStack;
 		
 		/**
 		 * @inheritDoc
 		 */
-		public function add(layer:DisplayObject, stack:LayerStack):void
+		public function get isInstantaneous():Boolean
 		{
+			return true;
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public function add(layer:DisplayObject, stack:LayerStack, dispatcher:IEventDispatcher = null):void
+		{
+			this.dispatcher = dispatcher;
+			this.layer = layer;
+			this.stack = stack;
+
 			stack.root.addChild(layer);
+			if (dispatcher)
+				dispatcher.dispatchEvent(new Event(Event.COMPLETE));
 		}
 		
 	}

@@ -1,7 +1,8 @@
 package inky.layers.strategies 
 {
-	import flash.display.DisplayObject;
 	import inky.layers.LayerStack;
+	import flash.display.DisplayObject;
+	import flash.events.IEventDispatcher;
 	
 	/**
 	 *
@@ -16,11 +17,15 @@ package inky.layers.strategies
 	 */
 	public interface IAdditionStrategy
 	{
+		/**
+		 * 
+		 */
+		function get isInstantaneous():Boolean;
 		
 		/**
 		 * 
 		 */
-		function add(layer:DisplayObject, stack:LayerStack):void;
+		function add(layer:DisplayObject, stack:LayerStack, dispatcher:IEventDispatcher = null):void;
 		
 	}
 	

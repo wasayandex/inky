@@ -7,7 +7,7 @@ package inky.sequencing.commands
 	import flash.utils.getQualifiedClassName;
 	import flash.display.Bitmap;
 	import flash.events.Event;
-	import inky.sequencing.commands.IAsyncCommand;
+	import inky.sequencing.commands.ICommand;
 	import flash.events.EventDispatcher;
 	import flash.system.LoaderContext;
 	import flash.system.ApplicationDomain;
@@ -23,11 +23,11 @@ package inky.sequencing.commands
 	 *	@since  2010.04.02
 	 *
 	 */
-	public class LoadCommand extends EventDispatcher implements IAsyncCommand
+	public class LoadCommand extends EventDispatcher implements ICommand
 	{
 		private static const GRAPHIC_EXTENSION:RegExp = /\.(swf|gif|png|jpg|jpeg)(\?.*)?$/i
 
-		private var _isAsync:Boolean = false;
+		private var _isInstantaneous:Boolean = false;
 		public var content:*;
 		public var contentType:Object;
 		private var formattedContentType:String;
@@ -41,16 +41,16 @@ package inky.sequencing.commands
 		/**
 		 *
 		 */
-		public function get isAsync():Boolean
+		public function get isInstantaneous():Boolean
 		{ 
-			return this._isAsync; 
+			return this._isInstantaneous; 
 		}
 		/**
 		 * @private
 		 */
-		public function set isAsync(value:Boolean):void
+		public function set isInstantaneous(value:Boolean):void
 		{
-			this._isAsync = value;
+			this._isInstantaneous = value;
 		}
 		
 		//---------------------------------------

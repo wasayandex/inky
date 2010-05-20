@@ -3,7 +3,7 @@ package inky.sequencing.commands
 	import flash.events.IEventDispatcher;
 	import flash.utils.getQualifiedClassName;
 	import flash.events.Event;
-	import inky.sequencing.commands.IAsyncCommand;
+	import inky.sequencing.commands.ICommand;
 	import flash.utils.describeType;
 	import flash.events.EventDispatcher;
 	
@@ -18,7 +18,7 @@ package inky.sequencing.commands
 	 *	@since  2010.03.30
 	 *
 	 */
-	public class EventListenerCommand extends EventDispatcher implements IAsyncCommand
+	public class EventListenerCommand extends EventDispatcher implements ICommand
 	{
 		public var eventClass:Object;
 		public var eventType:String;
@@ -34,7 +34,7 @@ package inky.sequencing.commands
 		/**
 		 * @inheritDoc
 		 */
-		public function get isAsync():Boolean
+		public function get isInstantaneous():Boolean
 		{
 			return false;
 		}

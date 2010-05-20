@@ -1,7 +1,8 @@
 package inky.layers.strategies 
 {
-	import flash.display.DisplayObject;
 	import inky.layers.LayerStack;
+	import flash.display.DisplayObject;
+	import flash.events.IEventDispatcher;
 
 	
 	/**
@@ -17,11 +18,16 @@ package inky.layers.strategies
 	 */
 	public interface IRemovalStrategy
 	{
+		/**
+		 * 
+		 */
+		function get isInstantaneous():Boolean;
+		
 		
 		/**
 		 * 
 		 */
-		function remove(layer:DisplayObject, stack:LayerStack):void;
+		function remove(layer:DisplayObject, stack:LayerStack, dispatcher:IEventDispatcher = null):void;
 		
 	}
 	

@@ -4,7 +4,7 @@ package inky.sequencing.commands
 	import inky.utils.describeObject;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
-	import inky.sequencing.commands.IAsyncCommand;
+	import inky.sequencing.commands.ICommand;
 	
 	/**
 	 *
@@ -17,9 +17,9 @@ package inky.sequencing.commands
 	 *	@since  2010.03.31
 	 *
 	 */
-	public class GTweenCommand extends EventDispatcher implements IAsyncCommand
+	public class GTweenCommand extends EventDispatcher implements ICommand
 	{
-		private var _isAsync:Boolean = true;
+		private var _isInstantaneous:Boolean = true;
 		public var tween:GTween;
 		public var tweenProperties:Object = {};
 		public var targetValues:Object = {};
@@ -31,16 +31,16 @@ package inky.sequencing.commands
 		/**
 		 * @inheritDoc
 		 */
-		public function get isAsync():Boolean
+		public function get isInstantaneous():Boolean
 		{ 
-			return this._isAsync; 
+			return this._isInstantaneous; 
 		}
 		/**
 		 * @private
 		 */
-		public function set isAsync(value:Boolean):void
+		public function set isInstantaneous(value:Boolean):void
 		{
-			this._isAsync = value;
+			this._isInstantaneous = value;
 		}
 		
 		//---------------------------------------

@@ -19,12 +19,12 @@ package inky.sequencing.commands
 	 *	@since  2010.03.29
 	 *
 	 */
-	public interface IAsyncCommand extends IEventDispatcher
+	public interface ICommand extends IEventDispatcher
 	{
 		/**
 		 * Specifies whether this command should be run asynchronously or as a regular command.
 		 */
-		function get isAsync():Boolean;
+		function get isInstantaneous():Boolean;
 		
 		/**
 		 * 

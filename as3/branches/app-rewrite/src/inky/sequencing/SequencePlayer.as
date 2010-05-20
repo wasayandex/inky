@@ -2,7 +2,7 @@ package inky.sequencing
 {
 	import inky.sequencing.ISequence;
 	import flash.events.Event;
-	import inky.sequencing.commands.IAsyncCommand;
+	import inky.sequencing.commands.ICommand;
 	import flash.events.IEventDispatcher;
 	import inky.sequencing.events.SequenceEvent;
 	import inky.sequencing.commands.ISequenceCommand;
@@ -181,13 +181,13 @@ package inky.sequencing
 			this.dispatch(SequenceEvent.BEFORE_COMMAND_EXECUTE);
 			
 			// Execute the command.
-			if (command is IAsyncCommand)
+			if (command is ICommand)
 			{
 				command.execute();
 				this._previousCommand = command;
 				
-				// Watch out for IAsyncCommands that execute synchronously!
-				if (command.isAsync)
+				// Watch out for ICommands that execute synchronously!
+				if (command.isInstantaneous)
 					this.executeNextCommand();
 				else
 					command.addEventListener(Event.COMPLETE, this.command_completeHandler);
