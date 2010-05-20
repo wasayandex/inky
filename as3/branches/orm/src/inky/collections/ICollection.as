@@ -39,10 +39,10 @@ package inky.collections
 		/**
 		 *
 		 * The number of elements in this collection. If this collection
-		 * contains more than uint.MAX_VALUE elements, returns uint.MAX_VALUE.
+		 * contains more than int.MAX_VALUE elements, returns int.MAX_VALUE.
 		 *
 		 */
-		function get length():uint;
+		function get length():int;
 
 
 

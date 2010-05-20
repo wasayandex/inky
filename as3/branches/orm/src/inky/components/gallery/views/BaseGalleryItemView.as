@@ -44,7 +44,7 @@
 		private var __container:DisplayObjectContainer;
 		private var _features:ArrayList;
 		private var _featureSize:String;
-		private var _model:GalleryItemModel;
+		private var _dataProvider:GalleryItemModel;
 		private var _orientation:String;
 		private var _previews:ArrayList;
 		private var _previewSize:String;
@@ -97,19 +97,19 @@
 		/**
 		 *
 		 */
-		public function get model():GalleryItemModel
+		public function get dataProvider():GalleryItemModel
 		{
-			return this._model;
+			return this._dataProvider;
 		}
 		/**
 		 * @private
 		 */
-		public function set model(value:GalleryItemModel):void
+		public function set dataProvider(value:GalleryItemModel):void
 		{
 			if (this.progressBar)
 				this.progressBar.source = null;
 
-			var oldModel:GalleryItemModel = this._model;
+			var oldModel:GalleryItemModel = this._dataProvider;
 			if (!EqualityUtil.objectsAreEqual(oldModel, value))
 			{
 				var feature:GalleryImageModel;
@@ -126,8 +126,8 @@
 						this.cancelLoad(preview);
 				}
 				
-				this._model = value;
-				this.modelUpdated();
+				this._dataProvider = value;
+				this.dataProviderUpdated();
 
 				if (value)
 				{
@@ -292,7 +292,7 @@
 		/**
 		 *	
 		 */
-		protected function modelUpdated():void
+		protected function dataProviderUpdated():void
 		{
 		}
 		
@@ -370,14 +370,12 @@
 		{
 			if (this.progressBar && this.progressBar.parent)
 			{
-				if (this.progressBar is ITransitioningObject)
-				{
-					ITransitioningObject(this.progressBar).remove();
-				}
+// TODO: Use ITransitioningObject when that gets sorted out.
+				var progressBar:* = this.progressBar;
+				if (progressBar.hasOwnProperty("remove") && progressBar.remove is Function)
+					progressBar.remove();
 				else
-				{
 					this.progressBar.parent.removeChild(DisplayObject(this.progressBar));
-				}
 			}
 		}
 		
@@ -549,7 +547,7 @@
 				var preview:DisplayObject = this.createPreview(DisplayObject(e.target));
 				this.previewLoaded(preview);
 
-				var featureModel:GalleryImageModel = GalleryImageModel(this.model.images.findFirst({size: this.featureSize}));
+				var featureModel:GalleryImageModel = GalleryImageModel(this.dataProvider.images.findFirst({size: this.featureSize}));
 				if (featureModel)
 				{
 					this.startLoad(featureModel, "feature");

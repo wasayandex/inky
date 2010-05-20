@@ -12,7 +12,7 @@ package inky.components.scrollBar.events {
 	/**
 	 * The ScrollEvent class defines the scroll event that is associated with the ScrollBar component.
 	 * 
-	 * @see inky.components.scrollBar.views.BaseScrollBar BaseScrollBar
+	 * @see inky.components.scrollBar.BaseScrollBar BaseScrollBar
 	 * @see inky.components.scrollBar.ScrollBarDirection ScrollBarDirection
      *
      * @langversion 3.0

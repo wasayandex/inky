@@ -69,7 +69,7 @@
 				// Update the gallery item view(s)
 				for each (var itemView:IGalleryItemView in this._itemViews)
 				{
-					itemView.model = data;
+					itemView.dataProvider = data;
 				}
 			}
 			else

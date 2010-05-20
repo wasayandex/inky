@@ -83,7 +83,7 @@ package inky.xml
 		/**
 		 *	@inheritDoc
 		 */
-		override public function addItemAt(item:Object, index:uint):void
+		override public function addItemAt(item:Object, index:int):void
 		{
 			var length:int = this._node.children().length;
 
@@ -109,7 +109,7 @@ throw new Error("not yet implemented");
 		/**
 		 *	@inheritDoc
 		 */
-		override public function addItemsAt(collection:ICollection, index:uint):void
+		override public function addItemsAt(collection:ICollection, index:int):void
 		{
 throw new Error("not yet implemented");
 		}
@@ -140,7 +140,7 @@ throw new Error("not yet implemented");
 		/**
 		 *	@inheritDoc
 		 */
-		override public function removeItemAt(index:uint):Object
+		override public function removeItemAt(index:int):Object
 		{
 			if (index < 0 || index >= this.length)
 				throw new RangeError();
@@ -163,7 +163,7 @@ throw new Error("not yet implemented");
 		/**
 		 *	@inheritDoc
 		 */
-		override public function replaceItemAt(newItem:Object, index:uint):Object
+		override public function replaceItemAt(newItem:Object, index:int):Object
 		{
 throw new Error("not yet implemented");
 		}
@@ -216,9 +216,7 @@ throw new Error("not yet implemented");
 		{
 			// Make sure the event isn't just bubbling through this node.
 			if (this._node.equals(event.target))
-			{
 				super.removeItem(event.relatedNode);
-			}
 		}
 
 

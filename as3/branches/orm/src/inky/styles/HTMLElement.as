@@ -158,9 +158,7 @@ if (!this._xml)	return null;
 
 
 		/**
-		 *
 		 * Helper function for toHTMLString that adds the necessary tags to the contents.
-		 * 	
 		 */
 		private function _formatHTMLString(contents:String):String
 		{
@@ -211,7 +209,10 @@ if (!this._xml)	return null;
 			// TODO: should this be all tags except ones that are replaced by textformat or font?
 			if (this.type && this.type.toString().match(/b|a/))
 			{
+				var prettyPrinting:Boolean = XML.prettyPrinting;
+				XML.prettyPrinting = false;
 				openingTags.push(this._xml.toXMLString().replace(/>.*/, '>'));
+				XML.prettyPrinting = prettyPrinting;
 				closingTags.unshift("</" + this.type.toString() + ">");
 			}
 

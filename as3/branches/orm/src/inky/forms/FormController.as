@@ -21,16 +21,12 @@
 	import flash.utils.getDefinitionByName;
 	import flash.utils.getQualifiedClassName;
 	import flash.utils.Dictionary;
-	import flash.utils.setTimeout;
-	import inky.binding.utils.BindingUtil;
 	import inky.binding.utils.ChangeWatcher;
-	import inky.binding.utils.IChangeWatcher;
-	import inky.app.inky;
-	import inky.app.Application;
-	import inky.app.managers.MarkupObjectManager;
-	import inky.data.Model;
 	import inky.forms.events.FormEvent;
-	import inky.validation.*;
+	import inky.validation.IValidator;
+	import inky.validation.IValidatorView;
+	import inky.validation.ValidationResult;
+	import inky.validation.ValidationError;
 
 
 	/**
@@ -48,17 +44,16 @@
 	{
 		private var _action:Object;
 		private var _debug:Boolean;
-		private static var _enterFrameBeacon:Sprite = new Sprite();
-		private var _formControlsMap:Dictionary;
-		private var _id:String;
-		private var _labels2Controls:Dictionary;
+		private static var enterFrameBeacon:Sprite = new Sprite();
+		private var formControlsMap:Dictionary;
+		private var labels2Controls:Dictionary;
 		private var _method:String;
+		private var models:Object = {};
 		private var _response:Object;
 		private var _submitButton:InteractiveObject;
-		private static var _uiComponentClass:Class; // Flash won't include UIComponent unless you have one in your library. Which means referencing the class would throw an error. So we have to get the class from a string.
-		private var _urlLoader:URLLoader;
-		private var _validators:Array;
-
+		private static var uiComponentClass:Class; // Flash won't include UIComponent unless you have one in your library. Which means referencing the class would throw an error. So we have to get the class from a string.
+		private var urlLoader:URLLoader;
+		private var validators:Array;
 
 		/**
 		 *
@@ -66,20 +61,14 @@
 		 */
 		public function FormController()
 		{
-			this._init();
+			this.init();
 		}
 
-
-
-
-		//
-		// accessors
-		//
-
+		//---------------------------------------
+		// ACCESSORS
+		//---------------------------------------
 
 		/**
-		 *
-		 *
 		 *
 		 */
 		public function get action():Object
@@ -98,27 +87,21 @@
 			this._action = action;
 		}
 
-
 		/**
-		 *
-		 *
 		 *
 		 */
 		public function get controls():IList
 		{
 // TODO: List should be unmodifiable! You can't add labels by doing form.labels.addItem();
 			var list:Array = [];
-			for (var control:Object in this._formControlsMap)
+			for (var control:Object in this.formControlsMap)
 			{
 				list.push(control);
 			}
 			return new ArrayList(list);
 		}
 
-
 		/**
-		 *
-		 *
 		 *
 		 */
 		public function get debug():Boolean
@@ -133,14 +116,12 @@
 			this._debug = debug;
 		}
 
-
 		/**
 		 *
-		 *	
 		 */
 		public function destroy():void
 		{
-			for each (var o:Object in this._formControlsMap)
+			for each (var o:Object in this.formControlsMap)
 			{
 				for each (var m:Object in o)
 				{
@@ -150,30 +131,24 @@
 					}
 				}
 			}
-			this._formControlsMap = null;
+			this.formControlsMap = null;
 		}
 
-
 		/**
-		 *
-		 *
 		 *
 		 */
 		public function get labels():IList
 		{
 // TODO: List should be unmodifiable! You can't add labels by doing form.labels.addItem();
 			var list:Array = [];
-			for (var label:Object in this._labels2Controls)
+			for (var label:Object in this.labels2Controls)
 			{
 				list.push(label);
 			}
 			return new ArrayList(list);
 		}
 
-
 		/**
-		 *
-		 *
 		 *
 		 */
 		public function get method():String
@@ -188,10 +163,7 @@
 			this._method = method;
 		}
 
-
 		/**
-		 *
-		 *
 		 *
 		 */
 		public function get response():Object
@@ -199,10 +171,7 @@
 			return this._response;
 		}
 
-
 		/**
-		 *
-		 *
 		 *
 		 */
 		public function get submitButton():InteractiveObject
@@ -216,26 +185,21 @@
 		{
 			if (this.submitButton)
 			{
-				this.submitButton.removeEventListener(MouseEvent.CLICK, this._submitButtonClickHandler);
+				this.submitButton.removeEventListener(MouseEvent.CLICK, this.submitButton_clickHandler);
 			}
 			if (submitButton)
 			{
-				submitButton.addEventListener(MouseEvent.CLICK, this._submitButtonClickHandler);
+				submitButton.addEventListener(MouseEvent.CLICK, this.submitButton_clickHandler);
 			}
 			this._submitButton = submitButton;
 		}
 
-
-
-
-		//
-		// public methods
-		//
-
+		//---------------------------------------
+		// PUBLIC METHODS
+		//---------------------------------------
 
 		/**
 		 *
-		 *	
 		 */
 		public function addControl(control:DisplayObject, controlValueGetter:Object = null, modelOrModelId:Object = null, modelValueGetter:Object = null, submissionName:String = null, emptyValue:* = undefined):void
 		{
@@ -249,22 +213,14 @@
 				var match:Array = control.name.match(re);
 				var modelId:String = modelOrModelId as String;
 				model = modelId == null ? modelOrModelId : null;
-				var mom:MarkupObjectManager = MarkupObjectManager.masterMarkupObjectManager;
 
 				// Get the model, modelId, and submission name.
 				if (match)
 				{
 					if (!modelId)
 					{
-						if (model)
-						{
-							modelId = mom.getMarkupObjectId(model);
-						}
-						else
-						{
-							modelId = match[1];
-							model = this._getModel(modelId);
-						}
+						modelId = match[1];
+						model = this.getModel(modelId);
 					}
 					if (modelProp == null)
 					{
@@ -292,7 +248,7 @@
 					}
 					else
 					{
-						controlValueGetter = FormController._comboBoxValueGetter;
+						controlValueGetter = FormController.comboBoxValueGetter;
 					}
 				}
 				else if (getQualifiedClassName(control) == "fl.controls::CheckBox")
@@ -310,7 +266,7 @@
 			{
 				if (getQualifiedClassName(control) == "fl.controls::ComboBox")
 				{
-					modelValueGetter = this._getComboBoxModelValueGetter(model, modelProp, control);
+					modelValueGetter = this.getComboBoxModelValueGetter(model, modelProp, control);
 				}
 				else
 				{
@@ -371,32 +327,29 @@
 					}
 					isFirstFrame = false;
 				}
-				FormController._enterFrameBeacon.addEventListener(Event.ENTER_FRAME, f);
+				FormController.enterFrameBeacon.addEventListener(Event.ENTER_FRAME, f);
 			}
 
-			this._formControlsMap[control] = this._formControlsMap[control] || {};
-			this._formControlsMap[control][controlValueProp] = { modelId: modelId, modelProp: modelProp, controlValueProp: controlValueProp, submissionName: submissionName, watcher: watcher, emptyValue: emptyValue, modelValueGetter: modelValueGetter };
+			this.formControlsMap[control] = this.formControlsMap[control] || {};
+			this.formControlsMap[control][controlValueProp] = { modelId: modelId, modelProp: modelProp, controlValueProp: controlValueProp, submissionName: submissionName, watcher: watcher, emptyValue: emptyValue, modelValueGetter: modelValueGetter };
 		}
-
 
 		/**
 		 *
 		 */
 		public function addLabel(label:DisplayObject, control:DisplayObject):void
 		{
-			if (this._labels2Controls[label] != null)
+			if (this.labels2Controls[label] != null)
 			{
 				this.removeLabel(label);
 			}
 			
-			this._labels2Controls[label] = control;
-			label.addEventListener(MouseEvent.CLICK, this._labelClickHandler, false, 0, true);
+			this.labels2Controls[label] = control;
+			label.addEventListener(MouseEvent.CLICK, this.label_clickHandler, false, 0, true);
 		}
-
 
 		/**
 		 *
-		 *	
 		 */
 		public function addValidator(validator:IValidator, view:IValidatorView = null):void
 		{
@@ -404,21 +357,19 @@
 			{
 				view.validator = validator;
 			}
-			if (this._validators.indexOf(validator) == -1)
+			if (this.validators.indexOf(validator) == -1)
 			{
-				this._validators.push(validator);
+				this.validators.push(validator);
 			}
 		}
-
 
 		/**
 		 *
 		 */
 		public function getControlByLabel(label:DisplayObject):DisplayObject
 		{
-			return this._labels2Controls[label] as DisplayObject;
+			return this.labels2Controls[label] as DisplayObject;
 		}
-
 
 		/**
 		 *
@@ -426,106 +377,94 @@
 		public function getControlValue(control:DisplayObject):*
 		{
 // TODO: Figure out if controls can have multiple values or not. I think this class is inconsistent.
-			for each (var o:Object in this._formControlsMap[control])
+			for each (var o:Object in this.formControlsMap[control])
 			{
 				return o.watcher.getValue();
 			}
 			return null;
 		}
 
-
 		/**
 		 *
 		 */
 		public function getLabelByControl(control:DisplayObject):DisplayObject
 		{
-			for (var label:Object in this._labels2Controls)
+			for (var label:Object in this.labels2Controls)
 			{
-				if (this._labels2Controls[label] == control)
+				if (this.labels2Controls[label] == control)
 					return label as DisplayObject;
 			}
 			return null;
 		}
 
-
 		/**
 		 *
-		 *	
 		 */
 		public function removeControl(control:DisplayObject):void
 		{
-			for each (var o:Object in this._formControlsMap[control])
+			for each (var o:Object in this.formControlsMap[control])
 			{
 				o.watch.unwatch();
 			}
 
-			delete this._formControlsMap[control];
+			delete this.formControlsMap[control];
 		}
-
 
 		/**
 		 *
 		 */
 		public function removeLabel(label:DisplayObject):void
 		{
-			delete this._labels2Controls[label];
-			label.removeEventListener(MouseEvent.CLICK, this._labelClickHandler);
+			delete this.labels2Controls[label];
+			label.removeEventListener(MouseEvent.CLICK, this.label_clickHandler);
 		}
-
 
 		/**
 		 *
-		 *	
 		 */
 		public function removeValidator(validator:IValidator):void
 		{
-			var index:int = this._validators.indexOf(validator);
+			var index:int = this.validators.indexOf(validator);
 			if (index != -1)
 			{
-				this._validators.splice(index, 1);
+				this.validators.splice(index, 1);
 			}
 		}
 
-
 		/**
 		 *
-		 *	
-		 *	
 		 */
 		public function restore():void
 		{
-			for (var control:Object in this._formControlsMap)
+			for (var control:Object in this.formControlsMap)
 			{
-				for (var prop:String in this._formControlsMap[control])
+				for (var prop:String in this.formControlsMap[control])
 				{
 					// Determine whether the control is a Flash UIComponent (and therefore the assignment needs to be delayed)
-					if (!FormController._uiComponentClass)
+					if (!FormController.uiComponentClass)
 					{
 						try
 						{
-							FormController._uiComponentClass = getDefinitionByName("fl.core.UIComponent") as Class;
+							FormController.uiComponentClass = getDefinitionByName("fl.core.UIComponent") as Class;
 						}
 						catch (error:Error)
 						{
 						}
 					}
 					
-					var delay:Boolean = FormController._uiComponentClass && (control is FormController._uiComponentClass);
+					var delay:Boolean = FormController.uiComponentClass && (control is FormController.uiComponentClass);
 					this.restoreControl(control, prop, delay);
 				}
 			}
 		}
 
-
 		/**
-		 *
 		 *	
 		 */
 		public function restoreControl(control:Object, prop:String, delay:Boolean = false):void
 		{
-			var mom:MarkupObjectManager = MarkupObjectManager.masterMarkupObjectManager;
-			var info:Object = this._formControlsMap[control][prop];
-			var model:Object = this._getModel(info.modelId);
+			var info:Object = this.formControlsMap[control][prop];
+			var model:Object = this.getModel(info.modelId);
 
 			var assign:Function = function():void
 			{
@@ -538,7 +477,7 @@
 
 			if (delay)
 			{
-				FormController._enterFrameBeacon.addEventListener(Event.ENTER_FRAME, function(e:Event):void
+				FormController.enterFrameBeacon.addEventListener(Event.ENTER_FRAME, function(e:Event):void
 				{
 					e.currentTarget.removeEventListener(e.type, arguments.callee);
 					assign();
@@ -550,17 +489,13 @@
 			}
 		}
 
-
 		/**
-		 *
 		 *	
 		 */
 		public function submit():void
 		{
 			if (!this.action)
-			{
 				throw new Error('You must set an action on a form before submitting it.');
-			}
 			
 			var e:FormEvent = new FormEvent(FormEvent.SUBMIT, false, true);
 			this.dispatchEvent(e);
@@ -585,16 +520,15 @@
 			
 			if (!isError)
 			{
-				var request:URLRequest = this._getURLRequest();
+				var request:URLRequest = this.getURLRequest();
 				var vars:URLVariables = new URLVariables();
-				var mom:MarkupObjectManager = MarkupObjectManager.masterMarkupObjectManager;
 
-				for (var control:Object in this._formControlsMap)
+				for (var control:Object in this.formControlsMap)
 				{
-					for (var p:String in this._formControlsMap[control])
+					for (var p:String in this.formControlsMap[control])
 					{
-						var info:Object = this._formControlsMap[control][p];
-						var model:Object = mom.getMarkupObjectById(info.modelId);
+						var info:Object = this.formControlsMap[control][p];
+						var model:Object = this.getModel(info.modelId);
 // TODO: Use serializable interface.
 						var value:* = model[info.modelProp];
 						vars[info.submissionName] = value === undefined ? '' : String(value);
@@ -604,13 +538,13 @@
 
 				// Send the request.
 				var ldr:URLLoader = new URLLoader();
-				ldr.addEventListener(Event.COMPLETE, this._relayEvent);
-				ldr.addEventListener(Event.OPEN, this._relayEvent);
-				ldr.addEventListener(ProgressEvent.PROGRESS, this._relayEvent);
-				ldr.addEventListener(SecurityErrorEvent.SECURITY_ERROR, this._relayEvent);
-				ldr.addEventListener(HTTPStatusEvent.HTTP_STATUS, this._relayEvent);
-				ldr.addEventListener(IOErrorEvent.IO_ERROR, this._relayEvent);
-				this._urlLoader = ldr;
+				ldr.addEventListener(FormEvent.COMPLETE, this.relayEvent);
+				ldr.addEventListener(Event.OPEN, this.relayEvent);
+				ldr.addEventListener(ProgressEvent.PROGRESS, this.relayEvent);
+				ldr.addEventListener(SecurityErrorEvent.SECURITY_ERROR, this.relayEvent);
+				ldr.addEventListener(HTTPStatusEvent.HTTP_STATUS, this.relayEvent);
+				ldr.addEventListener(IOErrorEvent.IO_ERROR, this.relayEvent);
+				this.urlLoader = ldr;
 				ldr.data = vars;
 				ldr.load(request);
 
@@ -633,7 +567,7 @@
 					trace('Form Validation Errors:');
 					for each (result in validationResults)
 					{
-						trace(this._getValidationErrors(result));
+						trace(this.getValidationErrors(result));
 					}
 				}
 				
@@ -641,39 +575,31 @@
 			}
 		}
 
-
-
-
-		//
-		// private methods
-		//
-
+		//---------------------------------------
+		// PRIVATE METHODS
+		//---------------------------------------
 
 		/**
-		 *
 		 *	
 		 */
-		private function _cleanupLoader():void
+		private function cleanupLoader():void
 		{
-			var ldr:URLLoader = this._urlLoader;
-			ldr.removeEventListener(Event.COMPLETE, this._relayEvent);
-			ldr.removeEventListener(Event.OPEN, this._relayEvent);
-            ldr.removeEventListener(ProgressEvent.PROGRESS, this._relayEvent);
-	        ldr.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this._relayEvent);
-    	    ldr.removeEventListener(HTTPStatusEvent.HTTP_STATUS, this._relayEvent);
-        	ldr.removeEventListener(IOErrorEvent.IO_ERROR, this._relayEvent);
-			this._urlLoader = null;
+			var ldr:URLLoader = this.urlLoader;
+			ldr.removeEventListener(FormEvent.COMPLETE, this.relayEvent);
+			ldr.removeEventListener(Event.OPEN, this.relayEvent);
+            ldr.removeEventListener(ProgressEvent.PROGRESS, this.relayEvent);
+	        ldr.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this.relayEvent);
+    	    ldr.removeEventListener(HTTPStatusEvent.HTTP_STATUS, this.relayEvent);
+        	ldr.removeEventListener(IOErrorEvent.IO_ERROR, this.relayEvent);
+			this.urlLoader = null;
 			
 			this._response = ldr.data;
 		}
 
-
 		/**
-		 *
-		 *	
 		 *	
 		 */
-		private static var _comboBoxValueGetter:Object =
+		private static var comboBoxValueGetter:Object =
 		{
 			name: 'selectedIndex',
 			getter: function(host:Object):*
@@ -691,12 +617,10 @@
 			}
 		};
 
-
 		/**
 		 *
-		 *	
 		 */
-		private function _getComboBoxModelValueGetter(model:Object, modelProp:String, control:Object):Object
+		private function getComboBoxModelValueGetter(model:Object, modelProp:String, control:Object):Object
 		{
 			return {
 				name: modelProp, 
@@ -728,15 +652,12 @@
 			};
 		}
 
-
 		/**
-		 *
-		 *	
 		 *	
 		 */
-		private function _getEmptyValue(control:Object, prop:String):Object
+		private function getEmptyValue(control:Object, prop:String):Object
 		{
-			var o:Object = this._formControlsMap[control];
+			var o:Object = this.formControlsMap[control];
 			var emptyValue:*;
 			if (o)
 			{
@@ -761,25 +682,18 @@
 			return emptyValue;
 		}
 
-
 		/**
-		 *
 		 *	
 		 */
-		private function _getModel(modelId:String):Object
+		private function getModel(modelId:String):Object
 		{
-			var mom:MarkupObjectManager = MarkupObjectManager.masterMarkupObjectManager;
-// TODO: This is lame. Why should it parse XML? Stupid.
-			var model:Object = mom.getMarkupObjectById(modelId) || mom.createMarkupObject(<inky:Model xmlns:inky={inky.uri} inky:id={modelId} />);
-			return model;
+			return this.models[modelId] || (this.models[modelId] = {});
 		}
 
-
 		/**
-		 *
 		 *	
 		 */
-		private function _getURLRequest():URLRequest
+		private function getURLRequest():URLRequest
 		{
 			var url:String = this._action as String;
 			var request:URLRequest = new URLRequest(url);
@@ -787,13 +701,10 @@
 			return request;
 		}
 
-
 		/**
-		 *
 		 * Gets a description of the errors for debugging.	
-		 *	
 		 */
-		private function _getValidationErrors(result:ValidationResult):String
+		private function getValidationErrors(result:ValidationResult):String
 		{
 			var lines:Array = [];
 			for each (var error:ValidationError in result.errors)
@@ -802,32 +713,29 @@
 			}
 			for each (var subFieldResult:ValidationResult in result.subFieldResults)
 			{
-				lines.push(this._getValidationErrors(subFieldResult));
+				lines.push(this.getValidationErrors(subFieldResult));
 			}
 			return lines.join('\n');
 		}
 
-
 		/**
-		 *
 		 *	
 		 */
-		private function _init():void
+		private function init():void
 		{
 			this._debug = false;
-			this._formControlsMap = new Dictionary(true);
-			this._labels2Controls = new Dictionary(true);
-			this._validators = [];
+			this.formControlsMap = new Dictionary(true);
+			this.labels2Controls = new Dictionary(true);
+			this.validators = [];
 		}
-
 
 		/**
 		 *
 		 */
-		private function _labelClickHandler(e:MouseEvent):void
+		private function label_clickHandler(e:MouseEvent):void
 		{
 			var label:DisplayObject = e.currentTarget as DisplayObject;
-			var control:InteractiveObject = this._labels2Controls[label] as InteractiveObject;
+			var control:InteractiveObject = this.labels2Controls[label] as InteractiveObject;
 			var stage:Stage = label.stage as Stage || control.stage as Stage;
 			if (stage != null)
 			{
@@ -836,19 +744,17 @@
 			}
 		}
 
-
 		/**
 		 *
-		 *	
 		 */
-		private function _relayEvent(e:Event):void
+		private function relayEvent(e:Event):void
 		{
 			var cleanup:Boolean = false;
 			var isError:Boolean = false;
 			var success:Boolean = false;
 			switch (e.type)
 			{
-				case Event.COMPLETE:
+				case FormEvent.COMPLETE:
 					cleanup = true;
 					success = true;
 					break;
@@ -861,14 +767,14 @@
 			
 			if (cleanup)
 			{
-				this._cleanupLoader();
+				this.cleanupLoader();
 			}
 			
 			this.dispatchEvent(e);
 			
 			if (isError)
 			{
-				this.dispatchEvent(new FormEvent(FormEvent.ERROR));
+				this.dispatchEvent(new FormEvent(FormEvent.SUBMISSION_ERROR));
 			}
 			else if (success && this.debug)
 			{
@@ -877,37 +783,29 @@
 			}
 		}
 
-
 		/**
-		 *
 		 *	
 		 */
-		private function _submitButtonClickHandler(e:Event):void
+		private function submitButton_clickHandler(e:Event):void
 		{
 			if (!(e is MouseEvent)) return;
 			this.submit();
 		}
 
-
 		/**
 		 *
-		 *	
-		 *	
 		 */
 		private function _validate():Array
 		{
 			var results:Array = [];
 
-			for each (var validator:IValidator in this._validators)
+			for each (var validator:IValidator in this.validators)
 			{
 				results.push(validator.validate());
 			}
 
 			return results;
 		}
-
-
-
 
 	}
 }

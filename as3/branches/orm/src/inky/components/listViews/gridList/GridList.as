@@ -24,8 +24,8 @@
 	 */
 	public class GridList extends Sprite implements IListView
 	{
-		private var _itemViewClass:Class;
-		private var _model:IList;
+		private var _itemRendererClass:Class;
+		private var _dataProvider:IList;
 		private var _grid:GridLayout;
 		private var __contentContainer:Sprite;
 		
@@ -69,32 +69,32 @@
 		/**
 		 *
 		 */
-		public function get itemViewClass():Class
+		public function get itemRendererClass():Class
 		{
-			return this._itemViewClass;
+			return this._itemRendererClass;
 		}
 		/**
 		 * @private
 		 */
-		public function set itemViewClass(value:Class):void
+		public function set itemRendererClass(value:Class):void
 		{
-			this._itemViewClass = value;
+			this._itemRendererClass = value;
 		}
 
 
 		/**
 		 *
 		 */
-		public function get model():IList
+		public function get dataProvider():IList
 		{
-			return this._model;
+			return this._dataProvider;
 		}
 		/**
 		 * @private
 		 */
-		public function set model(value:IList):void
+		public function set dataProvider(value:IList):void
 		{
-			this._model = value;
+			this._dataProvider = value;
 			this._setContent();
 		}
 
@@ -218,10 +218,10 @@
 			e.currentTarget.removeEventListener(e.type, arguments.callee);
 			this._clearContent();
 
-			if (this._model == null) return;
-			if (this._itemViewClass == null)
+			if (this._dataProvider == null) return;
+			if (this._itemRendererClass == null)
 			{
-				throw new Error("itemViewClass is not set!");
+				throw new Error("itemRendererClass is not set!");
 			}
 			
 			this._updateContent();
@@ -233,10 +233,10 @@
 		 */
 		private function _updateContent():void
 		{
-			for (var i:int = 0; i < this.model.length; i++)
+			for (var i:int = 0; i < this.dataProvider.length; i++)
 			{
-				var item:Object = new this._itemViewClass();
-				item.model = this.model.getItemAt(i);
+				var item:Object = new this._itemRendererClass();
+				item.model = this.dataProvider.getItemAt(i);
 				this.__contentContainer.addChild(DisplayObject(item));
 			}
 			this._grid.layoutContainer(this.__contentContainer);

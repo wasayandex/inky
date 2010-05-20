@@ -138,21 +138,6 @@
 
 			this._removeToken = token;
 			return token;
-
-			/*if (this.state == TransitioningObjectState.PLAYING_OUTRO) return;	
-
-			if (this._outro)
-			{
-				// If there is an outro, play it before removing the clip.
-				this._outro.addEventListener(ActionEvent.ACTION_FINISH, this._removeNow, false, 0, true);
-				this._playTransition(this._outro);
-			}
-			else
-			{
-				// If the clip doesn't have an outro, remove it immediately.
-				this._playTransition(this._outro);
-				this._removeNow();
-			}*/
 		}
 
 
@@ -274,6 +259,7 @@
 				{
 					token = new AsyncToken();
 					token.async_internal::callResponders();
+					token.addResponder(this._actionFinishHandler);
 				}
 			}
 			

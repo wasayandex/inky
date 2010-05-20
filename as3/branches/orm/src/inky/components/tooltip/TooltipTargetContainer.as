@@ -2,7 +2,6 @@
 {
 	import flash.display.DisplayObjectContainer;
 	import flash.display.InteractiveObject;
-	import inky.components.tooltip.TooltipTargetContainer;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 

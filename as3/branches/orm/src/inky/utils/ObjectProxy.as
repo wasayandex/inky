@@ -77,7 +77,7 @@ package inky.utils
 		 */
 	    override flash_proxy function getDescendants(name:*):*
 	    {
-	    	throw new TypeError("Error #1016: Descendants operator (..) not supported on " + this);
+	    	throw new TypeError('Error #1016: Descendants operator (..) not supported on type ModelData.');
 	    }
 
 
@@ -86,7 +86,6 @@ package inky.utils
 		 */
 	    override flash_proxy function getProperty(name:*):*
 	    {
-// FIXME: new ObjectProxy().constructor (or new ObjectProxySubclass().constructor) will not return the correct values.
 			return this._item[name];
 	    }
 
@@ -116,9 +115,7 @@ package inky.utils
 		{
 			// initial call
 			if (index == 0)
-			{
 				this._setupPropertyList();
-			}
 	     
 			return index < this._propertyList.length ? index + 1 : 0;
 		}
@@ -131,10 +128,8 @@ package inky.utils
 	    {
 			// initial call
 			if (index == 0)
-			{
 				this._setupPropertyList();
-			}
-	     
+
 			return this._item[this._propertyList[index - 1]];
 	    }
 
@@ -144,7 +139,7 @@ package inky.utils
 		 */
 	    override flash_proxy function setProperty(name:*, value:*):void
 	    {
-	    	var oldValue:* = this._item[name];
+	    	var oldValue:* = this[name];
 			if (value != oldValue)
 			{
 				this._item[name] = value;
@@ -162,16 +157,22 @@ package inky.utils
 
 		/**
 		 *
-		 *
-		 *
 		 */
 		private function _setupPropertyList():void
 		{
-			this._propertyList = [];
+			this._propertyList = this._getPropertyList();
+		}
+
+
+		/**
+		 * 
+		 */
+		protected function _getPropertyList():Array
+		{
+			var propertyList:Array = [];
 			for (var x:* in this._item)
-			{
-				this._propertyList.push(x);
-			}
+				propertyList.push(x);
+			return propertyList;
 		}		 		 		 		
 
 

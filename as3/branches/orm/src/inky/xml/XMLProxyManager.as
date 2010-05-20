@@ -3,6 +3,9 @@
 	import inky.collections.E4XHashMap;
 	import inky.xml.DirectXMLProxy;
 	import inky.xml.IXMLProxy;
+	import inky.collections.IIterator;
+	import inky.utils.UIDUtil;
+	import flash.utils.Dictionary;
 
 
 	/**
@@ -20,7 +23,7 @@
 	{
 		private static var _singletonEnforcer:Object = {};
 		private static var _instance:XMLProxyManager;
-		private static var _pool:E4XHashMap = new E4XHashMap(true);
+		private static var _pool:Dictionary = new Dictionary(true);
 
 
 		/**
@@ -64,14 +67,32 @@
 			else if (!(source is XML))
 				throw new ArgumentError("You can only get XML proxies for XML objects and IXMLProxy objects");
 
-			var proxy:DirectXMLProxy = _pool.getItemByKey(source as XML) as DirectXMLProxy;
-			if (!proxy && create)
+			var proxy:Object;
+			var proxyFound:Boolean = false;
+
+			for (proxy in _pool)
 			{
-				proxy = new DirectXMLProxy(source as XML);
-				_pool.putItemAt(proxy, source);
+				if (proxy.source === source)
+				{
+					proxyFound = true;
+					break;
+				}
+			}
+			
+			if (!proxyFound)
+			{
+				if (create)
+				{
+					proxy = new DirectXMLProxy(source as XML);
+					_pool[proxy] = null;
+				}
+				else
+				{
+					proxy = null;
+				}
 			}
 
-			return proxy;
+			return proxy as DirectXMLProxy;
 		}
 
 

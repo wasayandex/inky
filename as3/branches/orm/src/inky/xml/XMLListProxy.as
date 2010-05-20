@@ -47,9 +47,9 @@
 		 * 
 		 *
 		 */	
-	    public function XMLListProxy(source:XMLList)
+	    public function XMLListProxy(source:XMLList = null)
 	    {
-			this.setSource(source);
+			this.setSource(source || new XMLList());
 	    }
 
 
@@ -89,13 +89,13 @@
 		/**
 		 *	@inheritDoc
 		 */
-		public function addItemAt(item:Object, index:uint):void
+		public function addItemAt(item:Object, index:int):void
 		{
 			this._addItemAt(item, index);
 		}
 		
 		
-		private function _addItemAt(item:Object, index:uint, dispatchEvent:Boolean = true):Boolean
+		private function _addItemAt(item:Object, index:int, dispatchEvent:Boolean = true):Boolean
 		{
 			if (!(item is IXMLProxy))
 				throw new ArgumentError("Argument must be of type IXMLProxy");
@@ -148,7 +148,7 @@
 		/**
 		 *	
 		 */
-		private function _addItemsAt(collection:ICollection, index:uint):void
+		private function _addItemsAt(collection:ICollection, index:int):void
 		{
 			var collectionChanged:Boolean = false;
 			for (var i:IIterator = collection.iterator(); i.hasNext(); )
@@ -167,7 +167,7 @@
 		/**
 		 *	@inheritDoc
 		 */
-		public function addItemsAt(collection:ICollection, index:uint):void
+		public function addItemsAt(collection:ICollection, index:int):void
 		{
 			this._addItemsAt(collection, index);
 		}
@@ -198,7 +198,7 @@ throw new Error("not yet implemented");
 		/**
 		 *	@inheritDoc
 		 */
-		public function getItemAt(index:uint):Object
+		public function getItemAt(index:int):Object
 		{
 			if (index < 0 || index >= this.length)
 				throw new RangeError("The supplied index (" + index + ") is out of bounds.");
@@ -238,7 +238,7 @@ throw new Error("not yet implemented");
 		/**
 		 *	@inheritDoc
 		 */
-		public function getSubList(fromIndex:uint, toIndex:uint):IList
+		public function getSubList(fromIndex:int, toIndex:int):IList
 		{
 			if (toIndex > this.length || fromIndex > toIndex || fromIndex < 0)
 				throw new RangeError();
@@ -269,7 +269,7 @@ throw new Error("not yet implemented");
 		/**
 		 *	@inheritDoc
 		 */
-		public function get length():uint
+		public function get length():int
 		{
 			return this._source.length();
 		}
@@ -278,7 +278,7 @@ throw new Error("not yet implemented");
 		/**
 		 *	@inheritDoc
 		 */
-		public function listIterator(index:uint = 0):IListIterator
+		public function listIterator(index:int = 0):IListIterator
 		{
 			return new ListIterator(this, index);
 		}
@@ -329,14 +329,10 @@ throw new Error("not yet implemented");
 
 			// Update the list.
 			var newSource:XMLList = new XMLList();
-			var j:int = 0;
 			for (var i:int = 0; i < this._source.length(); i++)
 			{
 				if (i != index)
-				{
-					newSource = newSource + this._source[j];
-					j++;
-				}
+					newSource = newSource + this._source[i];
 			}
 			this._source = newSource;
 
@@ -350,7 +346,7 @@ throw new Error("not yet implemented");
 		/**
 		 *	@inheritDoc
 		 */
-		public function removeItemAt(index:uint):Object
+		public function removeItemAt(index:int):Object
 		{
 			return this._removeItemAt(index);
 		}
@@ -368,7 +364,7 @@ throw new Error("not yet implemented");
 		/**
 		 *	@inheritDoc
 		 */
-		public function replaceItemAt(newItem:Object, index:uint):Object
+		public function replaceItemAt(newItem:Object, index:int):Object
 		{
 throw new Error("not yet implemented");
 		}

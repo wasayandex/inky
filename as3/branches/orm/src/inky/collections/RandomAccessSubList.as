@@ -21,9 +21,9 @@
 	 */
 	public class RandomAccessSubList extends EventDispatcher implements ISearchableList
 	{
-		private var _fromIndex:uint;
+		private var _fromIndex:int;
 		private var _list:IList;
-		private var _toIndex:uint;
+		private var _toIndex:int;
 // FIXME: Event locations aren't correct.
 
 
@@ -32,7 +32,7 @@
 		 *
 		 *
 		 */
-		public function RandomAccessSubList(list:IList, fromIndex:uint, toIndex:uint)
+		public function RandomAccessSubList(list:IList, fromIndex:int, toIndex:int)
 		{
 			this._list = list;
 			this._fromIndex = fromIndex;
@@ -50,7 +50,7 @@
 		/**
 		 * @inheritDoc
 		 */
-		public function get length():uint
+		public function get length():int
 		{
 			return this._toIndex - this._fromIndex;
 		}
@@ -74,7 +74,7 @@
 		/**
 		 * @inheritDoc
 		 */
-		public function addItemAt(item:Object, index:uint):void
+		public function addItemAt(item:Object, index:int):void
 		{
 			this._list.addItemAt(item, index + this._fromIndex);
 			this._toIndex++;
@@ -85,7 +85,7 @@
 		/**
 		 * @inheritDoc
 		 */
-		public function addItemsAt(collection:ICollection, index:uint):void
+		public function addItemsAt(collection:ICollection, index:int):void
 		{
 			this._list.addItemsAt(collection, index + this._fromIndex);
 			this._toIndex += collection.length;
@@ -179,7 +179,7 @@
 		/**
 		 * @inheritDoc
 		 */
-		public function getItemAt(index:uint):Object
+		public function getItemAt(index:int):Object
 		{
 			return this._list.getItemAt(index + this._fromIndex);
 		}
@@ -197,7 +197,7 @@
 		/**
 		 * @inheritDoc
 		 */
-		public function getSubList(fromIndex:uint, toIndex:uint):IList
+		public function getSubList(fromIndex:int, toIndex:int):IList
 		{
 			return new RandomAccessSubList(this, fromIndex, toIndex);
 		}
@@ -224,7 +224,7 @@
 		/**
 		 * @inheritDoc
 		 */
-		public function listIterator(index:uint = 0):IListIterator
+		public function listIterator(index:int = 0):IListIterator
 		{
 			return new ListIterator(this, index);
 		}
@@ -258,7 +258,7 @@
 		/**
 		 * @inheritDoc
 		 */
-		public function removeItemAt(index:uint):Object
+		public function removeItemAt(index:int):Object
 		{
 			var removedItem:Object = this._removeItemAt(index);
 			this.dispatchEvent(new CollectionEvent(CollectionEvent.COLLECTION_CHANGE, false, false, CollectionEventKind.REMOVE, -1, -1, [removedItem]));
@@ -282,7 +282,7 @@
 		/**
 		 * @inheritDoc
 		 */
-		public function replaceItemAt(newItem:Object, index:uint):Object
+		public function replaceItemAt(newItem:Object, index:int):Object
 		{
 // FIXME: Dispatch events
 			this._toIndex--;

@@ -31,15 +31,42 @@
 	{
 		private var _listView:IListView;
 
-
+		/**
+		 * 
+		 */
 		public function ListViewGallery()
 		{
-			this._init();
+			this.init();
 		}
 
+		//---------------------------------------
+		// ACCESSORS
+		//---------------------------------------
 
+		/**
+		 * 
+		 */
+		public function get listView():IListView
+		{
+			return this._listView;
+		}
 
-		private function _init():void
+		/**
+		 * 
+		 */
+		public function set galleryItemViewClass(value:Class):void
+		{
+			this._listView.itemRendererClass = value;
+		}
+
+		//---------------------------------------
+		// PRIVATE METHODS
+		//---------------------------------------
+
+		/**
+		 * 
+		 */
+		private function init():void
 		{
 			for (var i:int = 0; i < this.numChildren; i++)
 			{
@@ -53,31 +80,23 @@
 			}
 		}
 
+		//---------------------------------------
+		// PROTECTED METHODS
+		//---------------------------------------
 
-
-		public function get listView():IListView
-		{
-			return this._listView;
-		}
-
-
-		public function set galleryItemViewClass(value:Class):void
-		{
-			this._listView.itemViewClass = value;
-		}
-
-
+		/**
+		 * @inheritDoc
+		 */
 		override protected function selectedGroupChanged():void
 		{
 if (!this.model) return;			
 			var data:GalleryGroupModel;
 			if (this.model && (data = this.model.selectedGroupModel))
 			{
-				if (!this._listView.itemViewClass)
-				{
+				if (!this._listView.itemRendererClass)
 					throw new Error("galleryItemViewClass is not set!");
-				}
-				this._listView.model = this.model.selectedGroupModel.items;
+
+				this._listView.dataProvider = this.model.selectedGroupModel.items;
 			}
 			else
 			{
@@ -85,7 +104,9 @@ if (!this.model) return;
 			}
 		}
 
-
+		/**
+		 * @inheritDoc
+		 */
 		override protected function selectedItemChanged():void
 		{
 if (!this.model) return;

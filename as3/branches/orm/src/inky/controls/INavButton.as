@@ -1,6 +1,6 @@
 package inky.controls 
 {
-	import inky.components.IButton;
+	import inky.components.button.IButton;
 	
 	/**
 	 *

@@ -165,10 +165,10 @@
 			}
 		}
 
-public function showItemAt(index:int):void
-{
-	
-}
+		public function showItemAt(index:int):void
+		{
+			this.selectedIndex = index;
+		}
 		
 		//
 		// protected methods
@@ -179,7 +179,7 @@ public function showItemAt(index:int):void
 		*/
 		protected function moveItem(item:IAccordionItemView, position:Number):void
 		{
-			Tweener.addTween(item, {y: position, time: .5, transition: 'easeInOutQuad'});			
+			Tweener.addTween(item, {y: position, time: .5, transition: 'easeOutQuad'});			
 		}	
 			
 		//

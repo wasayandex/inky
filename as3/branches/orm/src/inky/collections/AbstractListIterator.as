@@ -20,7 +20,7 @@ package inky.collections
 // TODO: Protect from instantiation?
     	private var _allowRemove:Boolean;
 		private var _index:int;
-		private var _removeOffset:uint;
+		private var _removeOffset:int;
 		protected var _target:Object;
 
 
@@ -169,7 +169,7 @@ package inky.collections
 		 *
 		 *
 		 */
-		protected function addItemAt(item:Object, index:uint):void
+		protected function addItemAt(item:Object, index:int):void
 		{
 			throw new Error('addItemAt() must be overridden by subclass');
 		}
@@ -179,7 +179,7 @@ package inky.collections
 		 *
 		 *
 		 */
-		protected function getItemAt(index:uint):Object
+		protected function getItemAt(index:int):Object
 		{
 			throw new Error('getItemAt() must be overridden by subclass');
 		}
@@ -189,7 +189,7 @@ package inky.collections
 		 *
 		 *
 		 */
-		protected function getLength():uint
+		protected function getLength():int
 		{
 			throw new Error('getLength() must be overridden by subclass');
 		}		 				
@@ -198,7 +198,7 @@ package inky.collections
 		 *
 		 *
 		 */
-		protected function removeItemAt(index:uint):Object
+		protected function removeItemAt(index:int):Object
 		{
 			throw new Error('removeItemAt() must be overridden by subclass');
 		}
@@ -208,7 +208,7 @@ package inky.collections
 		 *
 		 *
 		 */
-		protected function replaceItemAt(newItem:Object, index:uint):Object
+		protected function replaceItemAt(newItem:Object, index:int):Object
 		{
 			throw new Error('replaceItemAt() must be overridden by subclass');
 		}
