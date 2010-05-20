@@ -33,8 +33,12 @@ package
 			this.lastName = lastName;
 		}
 		
+		//---------------------------------------
+		// PROTECTED METHODS
+		//---------------------------------------
+		
 		/**
-		 * 
+		 * @inheritDoc
 		 */
 		override protected function _createTypeInspector():ITypeInspector
 		{

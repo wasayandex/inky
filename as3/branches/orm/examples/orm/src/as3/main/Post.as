@@ -1,5 +1,8 @@
 package  
 {
+	import inky.orm.DataMapperResource;
+	import inky.orm.inspection.XMLTypeInspector;
+	import inky.orm.inspection.ITypeInspector;
 	import inky.orm.relationships.RelationshipType;
 	
 	/**
@@ -13,7 +16,7 @@ package
 	 *	@since  2010.05.19
 	 *
 	 */
-	public class Post
+	public class Post extends DataMapperResource
 	{
 		private static const XML_CONFIG:XML =
 			<type>
@@ -28,15 +31,6 @@ package
 				<belongsTo SOMETHING="category" />
 				<belongs to="post" />
 			</type>
-		
-		/**
-		 * 
-		 */
-		override protected function _createTypeInspector():ITypeInspector
-		{
-			return new XMLTypeInspector(XML_CONFIG);
-		}
-
 
 /*
 		class Post
@@ -53,6 +47,18 @@ package
 
 		end
 */
+
+		//---------------------------------------
+		// PROTECTED METHODS
+		//---------------------------------------
+
+		/**
+		 * @inheritDoc
+		 */
+		override protected function _createTypeInspector():ITypeInspector
+		{
+			return new XMLTypeInspector(XML_CONFIG);
+		}
 		
 	}
 	

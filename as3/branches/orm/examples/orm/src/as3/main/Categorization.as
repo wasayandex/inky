@@ -1,6 +1,7 @@
 package  
 {
 	import inky.orm.DataMapperResource;
+	import inky.orm.inspection.XMLTypeInspector;
 	import inky.orm.inspection.ITypeInspector;
 	
 	/**
@@ -25,13 +26,6 @@ package
 				<belongs to="post" />
 			</type>
 		
-		/**
-		 * 
-		 */
-		override protected function _createTypeInspector():ITypeInspector
-		{
-			return new XMLTypeInspector(XML_CONFIG);
-		}
 
 		/*
 
@@ -46,6 +40,18 @@ package
 		end
 		
 		*/
+		
+		//---------------------------------------
+		// PROTECTED METHODS
+		//---------------------------------------
+		
+		/**
+		 * @inheritDoc
+		 */
+		override protected function _createTypeInspector():ITypeInspector
+		{
+			return new XMLTypeInspector(XML_CONFIG);
+		}
 
 	}
 	
