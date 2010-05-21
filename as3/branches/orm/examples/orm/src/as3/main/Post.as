@@ -22,16 +22,14 @@ package
 	{
 		private static const XML_CONFIG:XML =
 			<type>
-				<property name="id" />
-				<property name="title" />
-				<property name="body" />
-				<property name="creationTime" type="Date" />
+				<property name="id" type="Serial" />
+				<property name="title" type="String" />
+				<property name="body" type="Text" />
+				<property name="creationTime" type="DateTime" />
 
-				<property name="comments" has="n"
-				<relationship type={RelationshipType.HAS_N} 
-
-				<belongsTo SOMETHING="category" />
-				<belongs to="post" />
+				<association name="comments" type={RelationshipType.HAS_N} />
+				<association name="categorizations" type={RelationshipType.HAS_N} />
+				<association name="categories" type={RelationshipType.HAS_N} through="categorizations" />
 			</type>
 
 		/**

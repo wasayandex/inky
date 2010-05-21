@@ -21,11 +21,11 @@ package
 	{
 		private static const XML_CONFIG:XML =
 			<type>
-				<property name="id" />
-				<property name="creationTime" type="Date" />
+				<property name="id" type="Serial" />
+				<property name="creationTime" type="DateTime" />
 
-				<belongsTo SOMETHING="category" />
-				<belongs to="post" />
+				<association name="category" type={RelationshipType.BELONGS_TO} />
+				<association name="post" type={RelationshipType.BELONGS_TO} />
 			</type>
 		
 		/**

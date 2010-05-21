@@ -21,7 +21,14 @@ package
 	{
 		private static const XML_CONFIG:XML =
 			<type>
-			</type>	
+				<property name="id" type="Serial" />
+				<property name="author" type="String" />
+				<property name="email" type="String" />
+				<property name="url" type="String" />
+				<property name="body" type="Text" />
+				
+				<association name="post" type={RelationshipType.BELONGS_TO} />
+			</type>
 
 		/**
 		 *

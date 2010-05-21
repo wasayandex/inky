@@ -21,6 +21,11 @@ package
 	{
 		private static const XML_CONFIG:XML =
 			<type>
+				<property name="id" type="Serial" />
+				<property name="name" type="String" />
+				
+				<association name="categorizations" type={RelationshipType.HAS_N} />
+				<association name="posts" type={RelationshipType.HAS_N} through="categorizations" />
 			</type>
 
 		/**
