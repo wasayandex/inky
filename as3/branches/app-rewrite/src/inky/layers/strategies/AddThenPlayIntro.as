@@ -9,6 +9,9 @@ package inky.layers.strategies
 	import inky.utils.getClass;
 	import flash.events.Event;
 	import inky.layers.strategies.AddToRoot;
+	import flash.utils.getQualifiedClassName;
+	import flash.utils.setTimeout;
+	import inky.utils.UIDUtil;
 	
 	/**
 	 *
@@ -66,7 +69,6 @@ package inky.layers.strategies
 			if (!this.additionStrategy)
 			{
 				var strategyOrClass:Object = this.additionStrategyOrClass;
-
 				if (strategyOrClass is IAdditionStrategy)
 				{
 					this.additionStrategy = strategyOrClass as IAdditionStrategy;

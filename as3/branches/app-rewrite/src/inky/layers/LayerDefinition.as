@@ -9,8 +9,7 @@ package inky.layers
 	import inky.layers.LayerStack;
 	import inky.layers.strategies.RemoveFromStage;
 	import flash.events.EventDispatcher;
-	import inky.layers.events.LayerEvent;
-	import flash.events.Event;
+	import inky.utils.EqualityUtil;
 	
 	/**
 	 *
@@ -27,7 +26,6 @@ package inky.layers
 	{
 		private var additionStrategy:IAdditionStrategy;
 		private var additionStrategyOrClass:Object;
-//		private var callbackMap:Object;
 		private var _forceRefresh:Boolean;
 		private var removalStrategy:IRemovalStrategy;
 		private var removalStrategyOrClass:Object;
@@ -159,6 +157,35 @@ package inky.layers
 		/**
 		 * @inheritDoc
 		 */
+		public function clone():ILayerDefinition
+		{
+			var def:LayerDefinition = new LayerDefinition(this.viewClass, this.additionStrategyOrClass, this.removalStrategyOrClass);
+			
+// FIXME: add the props defined in the interface.
+			/*for (var prop:String in this)
+			{
+				def[prop] = this[prop];
+			}*/
+			
+			return def;
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function replaces(layer:Object):Boolean
+		{
+			var replaces:Boolean = layer != this;
+
+			if (replaces && layer is LayerDefinition)
+				replaces = getClass(LayerDefinition(layer).viewClass) != getClass(this.viewClass);
+
+			return replaces;
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
 		public function removeFrom(stack:LayerStack):void
 		{
 			var removalStrategy:IRemovalStrategy = this.getRemovalStrategy();
@@ -233,40 +260,6 @@ package inky.layers
 			}
 			return this.view;
 		}
-		
-		/**
-		 * 
-		 */
-		/*private function setCallback(callback:Function, eventType:String):void
-		{
-			if (!this.callbackMap)
-				this.callbackMap = {};
-				
-			var oldCallback:Function = this.callbackMap[eventType];
-			if (callback != oldCallback)
-			{
-				if (callback != null)
-				{
-					this.callbackMap[eventType] = callback;
-					this.addEventListener(eventType, this.triggerCallback);
-				}
-				else if (oldCallback != null)
-				{
-					delete this.callbackMap[eventType];
-					this.removeEventListener(eventType, this.triggerCallback);
-				}
-			}
-		}*/
-		
-		/**
-		 * 
-		 */
-		/*private function triggerCallback(event:Event):void
-		{
-			var callback:Function = this.callbackMap[event.type];
-			if (callback != null)
-				callback(this);
-		}*/
 
 	}
 	

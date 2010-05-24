@@ -2,13 +2,13 @@ package inky.layers
 {
 	import flash.display.DisplayObjectContainer;
 	import inky.layers.ILayerDefinition;
-	import inky.utils.EqualityUtil;
 	import inky.layers.sequencing.LayerStackSequence;
 	import inky.layers.sequencing.commands.RemoveFromCommand;
 	import inky.layers.sequencing.commands.AddToCommand;
 	import inky.layers.events.LayerEvent;
 	import inky.sequencing.commands.DispatchEventCommand;
 	import inky.sequencing.commands.CallCommand;
+	import flash.utils.getQualifiedClassName;
 	
 	/**
 	 *
@@ -59,69 +59,47 @@ package inky.layers
 		 */
 		public function build(...newLayers:Array):void
 		{
-// If a build sequence is currently running for this stack, abort it.
-if (this.sequence)
-	this.sequence.abort();
+			// If a build sequence is currently running for this stack, abort it.
+			if (this.sequence)
+				this.sequence.abort();
+			this.sequence = new LayerStackSequence()
 
-this.sequence = new LayerStackSequence()
-
-			var i:int;
 			var removeFromIndex:int = this.layerDefinitions.length;
+			var i:int;
+
+			// Determine the point at which the new layer set and the old layer set first differ.
 			for (i = 0; i < this.layerDefinitions.length; i++)
 			{
 				var oldLayer:ILayerDefinition = this.layerDefinitions[i];
 				var newLayer:ILayerDefinition = newLayers[i];
 
-				if (!newLayer || newLayer.forceRefresh || !EqualityUtil.objectsAreEqual(newLayer, oldLayer))
+				if (!newLayer || newLayer.forceRefresh || newLayer.replaces(oldLayer))
 				{
 					removeFromIndex = i;
 					break;
 				}
 			}
 
+			// Keep a list of removed layers, so that newly added layers can be cloned 
+			// in the event that they are equal to a layer that may still be on stage. 
+			// This is necessary because REMOVED_FROM_STAGE is dispatched before a 
+			// DisplayObject is actually removed, which potentially means an object 
+			// that is added back to stage in the handling of the REMOVED_FROM_STAGE 
+			// event will actually be removed immediately after the event is handled, 
+			// effectively negating the add.
+			var removedLayers:Array = [];
+
 			// Remove the layers that must be removed.
 			for (i = this.layerDefinitions.length - 1; i >= removeFromIndex; i--)
 			{
 				var layerToRemove:ILayerDefinition = this.layerDefinitions[i];
-//				layerToRemove.removeFrom(this);
-
-// If the layer to remove has an onBeforeRemove callback defined, add a command to trigger it.
-if (layerToRemove.onBeforeRemove != null)
-{
-	var beforeRemoveCallback:CallCommand = new CallCommand();
-	beforeRemoveCallback.callee = layerToRemove.onBeforeRemove;
-	beforeRemoveCallback.arguments = [layerToRemove];
-	this.sequence.addCommand(beforeRemoveCallback);
-}
-
-// Add a command to dispatch a BEFORE_REMOVE event for the layer to be removed.
-var beforeRemove:DispatchEventCommand = new DispatchEventCommand();
-beforeRemove.eventClass = LayerEvent;
-beforeRemove.type = LayerEvent.BEFORE_REMOVE;
-beforeRemove.target = layerToRemove;
-this.sequence.addCommand(beforeRemove);
-
-// Add a command to perform the remove.
-this.sequence.addCommand(new RemoveFromCommand(layerToRemove, this));
-
-// If the removed layer has an onRemoveCompmlete callback defined, add a command to trigger it.
-if (layerToRemove.onRemoveComplete != null)
-{
-	var removeCompleteCallback:CallCommand = new CallCommand();
-	removeCompleteCallback.callee = layerToRemove.onRemoveComplete;
-	removeCompleteCallback.arguments = [layerToRemove];
-	this.sequence.addCommand(removeCompleteCallback);
-}
-
-// Add a command to dispatch a REMOVE_COMPLETE event for the layer that was removed.
-var removeComplete:DispatchEventCommand = new DispatchEventCommand();
-removeComplete.eventClass = LayerEvent;
-removeComplete.type = LayerEvent.REMOVE_COMPLETE;
-removeComplete.target = layerToRemove;
-this.sequence.addCommand(removeComplete);
-
+				removedLayers.push(layerToRemove);
+				// Add the set of commands to remove this layer to the sequence.
+				this.addCommandSet(layerToRemove, RemoveFromCommand, LayerEvent.BEFORE_REMOVE, LayerEvent.REMOVE_COMPLETE, layerToRemove.onBeforeRemove, layerToRemove.onRemoveComplete);
 			}
 			this.layerDefinitions.length = removeFromIndex;
+
+//trace('\t\t:::::::removed layers: ' + removedLayers)
 
 			// Add the layers that must be added.
 			for (i = removeFromIndex; i < newLayers.length; i++)
@@ -129,49 +107,64 @@ this.sequence.addCommand(removeComplete);
 				var layerToAdd:ILayerDefinition = newLayers[i] as ILayerDefinition;
 				if (!layerToAdd)
 					throw new Error("The layer at index " + i + " is not an ILayerDefinition");
-//				ILayerDefinition(layerToAdd).addTo(this);
 
-// If the layer to add has an onBeforeAdd callback defined, add a command to trigger it.
-if (layerToAdd.onBeforeAdd != null)
-{
-	var beforeAddCallback:CallCommand = new CallCommand();
-	beforeAddCallback.callee = layerToAdd.onBeforeAdd;
-	beforeAddCallback.arguments = [layerToAdd];
-	this.sequence.addCommand(beforeAddCallback);
-}
-
-// Add a command to dispatch a BEFORE_ADD event for the layer to be added.
-var beforeAdd:DispatchEventCommand = new DispatchEventCommand();
-beforeAdd.eventClass = LayerEvent;
-beforeAdd.type = LayerEvent.BEFORE_ADD;
-beforeAdd.target = layerToAdd;
-this.sequence.addCommand(beforeAdd);
-
-// Add a command to perform the add.
-this.sequence.addCommand(new AddToCommand(layerToAdd, this));
-
-// If the added layer has an onAddComplete callback defined, add a command to trigger it.
-if (layerToAdd.onAddComplete != null)
-{
-	var addCompleteCallback:CallCommand = new CallCommand();
-	addCompleteCallback.callee = layerToAdd.onAddComplete;
-	addCompleteCallback.arguments = [layerToAdd];
-	this.sequence.addCommand(addCompleteCallback);
-}
-
-// Add a command to dispatch an ADD_COMPLETE event for the layer that was added.
-var addComplete:DispatchEventCommand = new DispatchEventCommand();
-addComplete.eventClass = LayerEvent;
-addComplete.type = LayerEvent.ADD_COMPLETE;
-addComplete.target = layerToAdd;
-this.sequence.addCommand(addComplete);
+				if (this.layerDefinitions.indexOf(layerToAdd) != -1 || removedLayers.indexOf(layerToAdd) != -1)
+					layerToAdd = layerToAdd.clone();
 
 				this.layerDefinitions.push(layerToAdd);
+				// Add the set of commands to add this layer to the sequence.
+				this.addCommandSet(layerToAdd, AddToCommand, LayerEvent.BEFORE_ADD, LayerEvent.ADD_COMPLETE, layerToAdd.onBeforeAdd, layerToAdd.onAddComplete);
 			}
 
-// If any add or remove commands have been queued up, execute them in sequential order.
-if (this.sequence.length)
-	this.sequence.play();
+//trace(this.sequence.length)
+
+			if (this.sequence.length)
+				this.sequence.play();
+		}
+
+		//---------------------------------------
+		// PRIVATE METHODS
+		//---------------------------------------
+
+		/**
+		 * 
+		 */
+		private function addCommandSet(layer:ILayerDefinition, commandClass:Class, beforeEventType:String, completeEventType:String, beforeCallback:Function = null, completeCallback:Function = null):void
+		{
+			// If a before callback is defined, add a command to trigger it.
+			if (beforeCallback != null)
+			{
+				var beforeCallbackCommand:CallCommand = new CallCommand();
+				beforeCallbackCommand.callee = beforeCallback;
+				beforeCallbackCommand.arguments = [layer];
+				this.sequence.addCommand(beforeCallbackCommand);
+			}
+
+			// Add a command to dispatch the before event.
+			var beforeEventCommand:DispatchEventCommand = new DispatchEventCommand();
+			beforeEventCommand.eventClass = LayerEvent;
+			beforeEventCommand.type = beforeEventType;
+			beforeEventCommand.target = layer;
+			this.sequence.addCommand(beforeEventCommand);
+
+			// Add the command.
+			this.sequence.addCommand(new commandClass(layer, this));
+
+			// If a complete callback defined, add a command to trigger it.
+			if (completeCallback != null)
+			{
+				var completeCallbackCommand:CallCommand = new CallCommand();
+				completeCallbackCommand.callee = completeCallback;
+				completeCallbackCommand.arguments = [layer];
+				this.sequence.addCommand(completeCallbackCommand);
+			}
+
+			// Add a command to dispatch the complete event.
+			var afterEventCommand:DispatchEventCommand = new DispatchEventCommand();
+			afterEventCommand.eventClass = LayerEvent;
+			afterEventCommand.type = completeEventType;
+			afterEventCommand.target = layer;
+			this.sequence.addCommand(afterEventCommand);
 		}
 
 	}

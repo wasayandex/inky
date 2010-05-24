@@ -1,6 +1,7 @@
 package inky.layers.sequencing 
 {
 	import inky.sequencing.AbstractSequence;
+	import inky.utils.UIDUtil;
 	
 	/**
 	 *
@@ -23,7 +24,8 @@ package inky.layers.sequencing
 		 */
 		public function LayerStackSequence()
 		{
-			
+this.onAbort = function (obj) { trace(" SEQUENCE " + UIDUtil.getUID(this) + " ABORTED!")};
+this.onComplete = function (obj) { trace(" SEQUENCE " + UIDUtil.getUID(this) + " COMPLETE! ")};
 		}
 		
 		//---------------------------------------
@@ -57,6 +59,17 @@ package inky.layers.sequencing
 		override public function getCommandAt(index:int):Object
 		{
 			return this.commands[index];
+		}
+		
+		override public function play():void
+		{
+trace(" SEQUENCE " + UIDUtil.getUID(this) + " STARTED!");
+			super.play();
+		}
+		
+		override protected function onBeforeCommandExecute():void
+		{
+trace("::\tEXECUTING COMMAND\t::\t" + this.currentIndex + "\t::\t" + this.currentCommand)			
 		}
 		
 	}

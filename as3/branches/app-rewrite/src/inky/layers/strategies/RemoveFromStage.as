@@ -19,10 +19,7 @@ package inky.layers.strategies
 	 */
 	public class RemoveFromStage implements IRemovalStrategy
 	{
-		private var dispatcher:IEventDispatcher;
-		private var layer:DisplayObject;
-		private var stack:LayerStack;
-		
+
 		/**
 		 * @inheritDoc
 		 */
@@ -36,10 +33,6 @@ package inky.layers.strategies
 		 */
 		public function remove(layer:DisplayObject, stack:LayerStack, dispatcher:IEventDispatcher = null):void
 		{
-			this.dispatcher = dispatcher;
-			this.layer = layer;
-			this.stack = stack;
-
 			if (layer.parent)
 				layer.parent.removeChild(layer);
 

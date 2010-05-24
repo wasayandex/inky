@@ -6,10 +6,10 @@ package inky.layers.strategies
 	import flash.events.IEventDispatcher;
 	import inky.transitioning.IHasOutro;
 	import inky.transitioning.ISelfRemovingDisplayObject;
-	import inky.transitioning.events.TransitioningEvent;
 	import flash.events.Event;
 	import inky.utils.getClass;
 	import inky.layers.strategies.RemoveFromStage;
+	import inky.utils.UIDUtil;
 	
 	/**
 	 *
@@ -60,50 +60,51 @@ package inky.layers.strategies
 		 */
 		public function remove(layer:DisplayObject, stack:LayerStack, dispatcher:IEventDispatcher = null):void
 		{
-			this.dispatcher = dispatcher;
 			this.layer = layer;
+			this.dispatcher = dispatcher;
 			this.stack = stack;
 			
-			if (layer is ISelfRemovingDisplayObject)
+			this._isInstantaneous = !this.layer.parent;
+			
+			if (this.layer.parent)
 			{
-				if (ISelfRemovingDisplayObject(layer).remove())
+				if (layer is ISelfRemovingDisplayObject)
 				{
-					this._isInstantaneous = true;
-					this.dispatchCompleteEvent();
+					this._isInstantaneous = ISelfRemovingDisplayObject(layer).remove();
+				}
+				else if (layer is IHasOutro)
+				{
+					throw new ArgumentError("Layers that have outros but are not self-removing are not yet supported");
 				}
 				else
 				{
-					layer.addEventListener(Event.REMOVED_FROM_STAGE, this.removeFromStageHandler);
-				}
-			}
-			else if (layer is IHasOutro)
-			{
-				throw new ArgumentError("Layers that have outros but are not self-removing are not yet supported");
-			}
-			else
-			{
-				if (!this.removalStrategy)
-				{
-					var strategyOrClass:Object = this.removalStrategyOrClass;
+					if (!this.removalStrategy)
+					{
+						var strategyOrClass:Object = this.removalStrategyOrClass;
 
-					if (strategyOrClass is IRemovalStrategy)
-					{
-						this.removalStrategy = strategyOrClass as IRemovalStrategy;
+						if (strategyOrClass is IRemovalStrategy)
+						{
+							this.removalStrategy = strategyOrClass as IRemovalStrategy;
+						}
+						else
+						{
+							var cls:Class = getClass(strategyOrClass);
+							if (!cls)
+								throw new Error("Couldn't find IRemovalStrategy: " + strategyOrClass);
+							this.removalStrategy = new cls();
+							if (!(this.removalStrategy is IRemovalStrategy))
+								throw new Error(strategyOrClass + " does not implement IRemovalStrategy");
+						}
 					}
-					else
-					{
-						var cls:Class = getClass(strategyOrClass);
-						if (!cls)
-							throw new Error("Couldn't find IRemovalStrategy: " + strategyOrClass);
-						this.removalStrategy = new cls();
-						if (!(this.removalStrategy is IRemovalStrategy))
-							throw new Error(strategyOrClass + " does not implement IRemovalStrategy");
-					}
-				}
-				
-				this._isInstantaneous = this.removalStrategy.isInstantaneous;
-				this.removalStrategy.remove(this.layer, this.stack, this.dispatcher);
+
+					this.removalStrategy.remove(this.layer, this.stack, this.dispatcher);
+					this._isInstantaneous = this.removalStrategy.isInstantaneous;
+				} 
+					
 			}
+
+			if (!this.isInstantaneous)
+				layer.addEventListener(Event.REMOVED_FROM_STAGE, this.removedFromStageHandler);
 		}
 
 		//---------------------------------------
@@ -122,7 +123,7 @@ package inky.layers.strategies
 		/**
 		 * 
 		 */
-		private function removeFromStageHandler(event:Event):void
+		private function removedFromStageHandler(event:Event):void
 		{
 			event.currentTarget.removeEventListener(event.type, arguments.callee);
 			this.dispatchCompleteEvent();

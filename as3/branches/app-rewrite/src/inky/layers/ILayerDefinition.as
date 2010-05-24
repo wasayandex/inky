@@ -1,10 +1,7 @@
 package inky.layers 
 {
 	import inky.layers.LayerStack;
-	import flash.display.DisplayObject;
 	import flash.events.IEventDispatcher;
-	import inky.layers.strategies.IAdditionStrategy;
-	import inky.layers.strategies.IRemovalStrategy;
 	
 	/**
 	 *
@@ -86,6 +83,16 @@ package inky.layers
 		 * 
 		 */
 		function addTo(stack:LayerStack):void;
+		
+		/**
+		 * 
+		 */
+		function clone():ILayerDefinition;
+		
+		/**
+		 * 
+		 */
+		function replaces(layer:Object):Boolean;
 		
 		/**
 		 * 

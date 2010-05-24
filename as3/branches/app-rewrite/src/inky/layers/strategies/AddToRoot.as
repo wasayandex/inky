@@ -19,10 +19,6 @@ package inky.layers.strategies
 	 */
 	public class AddToRoot implements IAdditionStrategy
 	{
-		private var dispatcher:IEventDispatcher;
-		private var layer:DisplayObject;
-		private var stack:LayerStack;
-		
 		/**
 		 * @inheritDoc
 		 */
@@ -36,15 +32,11 @@ package inky.layers.strategies
 		 */
 		public function add(layer:DisplayObject, stack:LayerStack, dispatcher:IEventDispatcher = null):void
 		{
-			this.dispatcher = dispatcher;
-			this.layer = layer;
-			this.stack = stack;
-
 			stack.root.addChild(layer);
 			if (dispatcher)
 				dispatcher.dispatchEvent(new Event(Event.COMPLETE));
 		}
-		
+
 	}
 	
 }
