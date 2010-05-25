@@ -51,8 +51,7 @@ package inky.layers
 		override public function clone():ILayerDefinition
 		{
 			var def:TransitioningLayerDefinition = new TransitioningLayerDefinition(this.viewClass, this.additionStrategyOrClass, this.removalStrategyOrClass);
-trace('cloning ' + this.viewClass)
-			
+
 // FIXME: add the props defined in the interface.
 			/*for (var prop:String in this)
 			{

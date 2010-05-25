@@ -99,8 +99,6 @@ package inky.layers
 			}
 			this.layerDefinitions.length = removeFromIndex;
 
-//trace('\t\t:::::::removed layers: ' + removedLayers)
-
 			// Add the layers that must be added.
 			for (i = removeFromIndex; i < newLayers.length; i++)
 			{
@@ -115,8 +113,6 @@ package inky.layers
 				// Add the set of commands to add this layer to the sequence.
 				this.addCommandSet(layerToAdd, AddToCommand, LayerEvent.BEFORE_ADD, LayerEvent.ADD_COMPLETE, layerToAdd.onBeforeAdd, layerToAdd.onAddComplete);
 			}
-
-//trace(this.sequence.length)
 
 			if (this.sequence.length)
 				this.sequence.play();
