@@ -1,11 +1,7 @@
-package inky.routing.router 
+package inky.routing 
 {
-	import com.asual.swfaddress.SWFAddressEvent;
 	import inky.utils.CloningUtil;
-	import inky.routing.request.StandardRequest;
-	import inky.routing.router.EventRoute;
-	import inky.routing.router.IAddressRoute;
-
+	import inky.conditions.PropertyConditions;
 	
 	/**
 	 *
@@ -18,8 +14,11 @@ package inky.routing.router
 	 *	@since  2009.09.28
 	 *
 	 */
-	public class AddressRoute extends EventRoute implements IAddressRoute
+	public class Route implements IRoute
 	{
+		private var _commandClass:Class;
+		private var _defaults:Object;
+		private var _requirements:PropertyConditions;
 		private var _dynamicSegmentNames:Array;
 		private var _pattern:String;
 		private var _patternSource:String;
@@ -34,24 +33,53 @@ package inky.routing.router
 		/**
 		 *	
 		 */
-		public function AddressRoute(addressPattern:String, requestWrapper:Object = null, defaults:Object = null, requirements:Object = null)
+		public function Route(addressPattern:String, commandClass:Class, defaults:Object = null, requirements:Object = null)
 		{
-			super("change", requestWrapper, defaults, requirements);
-
 			if (addressPattern == null)
 				throw new ArgumentError("AddressRoute requires an address. (A null value was provided)")
+
+			this._commandClass = commandClass;
+			this._requirements = new PropertyConditions(requirements);
+			this._defaults = defaults || {};
 			
 			this._patternSource = addressPattern;
 			this._createRegExp();
+
+			// Create the requirements object.
+			var requirements:Object = requirements || {};
+			for (var requirementName:String in requirements)
+			{
+				var r:Object = requirements[requirementName];
+				var requirement:RegExp;
+				if (r is String)
+					requirement = new RegExp(r as String);
+				else if (r is RegExp)
+					requirement = r as RegExp;
+				else
+					throw new ArgumentError();
+				requirements[requirementName] = requirement;
+			}
 		}
 
+		//---------------------------------------
+		// ACCESSORS
+		//---------------------------------------
 
+		/**
+		 * @inheritDoc
+		 */
+		public function get commandClass():Class
+		{
+			return this._commandClass;
+		}
 
-
-		//
-		// accessors
-		//
-
+		/**
+		 * @inheritDoc
+		 */
+		public function get defaults():Object
+		{ 
+			return this._defaults; 
+		}
 
 		/**
 		 * Gets a (cleaned version) of this route's pattern.
@@ -87,13 +115,17 @@ package inky.routing.router
 			return this._pattern;
 		}
 
+		/**
+		 * @inheritDoc
+		 */
+		public function get requirements():Object
+		{ 
+			return this._requirements; 
+		}
 
-
-
-		//
-		// public methods
-		//
-
+		//---------------------------------------
+		// PUBLIC METHODS
+		//---------------------------------------
 
 		/**
 		 * @inheritDoc
@@ -206,25 +238,34 @@ package inky.routing.router
 		/**
 		 *	@inheritDoc
 		 */
-		override public function routeRequest(oldRequest:Object):Object
+		public function match(url:String):Object
 		{
-			var request:Object;
-			if (oldRequest is SWFAddressEvent && oldRequest.type == SWFAddressEvent.CHANGE)
+			var params:Object; 
+			var match:Array = url.match(this._regExp);
+
+			if (match)
 			{
-				request = this._matchAddress("#" + SWFAddressEvent(oldRequest).value);
-				if (request)
-					request = this.wrapRequest(request);
+				params = {};
+				// add the default options to compensate for a
+				// route that has no dynamic segments, but could have
+				// implied options (as in the case of an overrideURL.)
+				for (var p:String in this.defaults)
+				{
+					params[p] = this.defaults[p];
+				}
+				for (var i:uint = 0; i < match.length - 1; i++)
+				{
+					var optionName:String = this._dynamicSegmentNames[i];
+					params[optionName] = match[i + 1] != null ? match[i + 1] : this.defaults[optionName];
+				}
 			}
-			return request;
+
+			return params;
 		}
 
-
-
-
-		//
-		// private methods
-		//
-
+		//---------------------------------------
+		// PRIVATE METHODS
+		//---------------------------------------
 
 		/**
 		 *	
@@ -317,36 +358,6 @@ package inky.routing.router
 
 			return source;
 		}
-
-
-		/**
-		 * @inheritDoc
-		 */
-		private function _matchAddress(url:String):Object
-		{
-			var request:Object; 
-			var o:Array = url.match(this._regExp);
-
-			if (o)
-			{
-				request = new StandardRequest();
-				// add the default options to compensate for a
-				// route that has no dynamic segments, but could have
-				// implied options (as in the case of an overrideURL.)
-				for (var p:String in this.defaults)
-				{
-					request[p] = this.defaults[p];
-				}
-				for (var i:uint = 0; i < o.length - 1; i++)
-				{
-					var optionName:String = this._dynamicSegmentNames[i];
-					request[optionName] = o[i + 1] != null ? o[i + 1] : this.defaults[optionName];
-				}
-			}
-
-			return request;
-		}
-
 
 		/**
 		 * Tokenizes a string.
@@ -453,9 +464,6 @@ package inky.routing.router
 
 			return a;
 		}
-
-
-
 
 	}
 }

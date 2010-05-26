@@ -1,7 +1,7 @@
 package inky.routing.events
 {
 	import flash.events.Event;
-	import inky.routing.router.IRoute;
+	import inky.routing.IRoute;
 
 	/**
 	 *
@@ -14,15 +14,15 @@ package inky.routing.events
 	 *	@since  2009.10.21
 	 *
 	 */
-	public class RoutingEvent extends Event
+	public class RouteMatchedEvent extends Event
 	{
+		public var params:Object;
 		public var route:IRoute;
-		public var request:Object;
-
+		public var url:String;
 
 		/**
-		 *  The <code>RoutingEvent.REQUEST_ROUTED</code> constant defines the value of the 
-		 *  <code>type</code> property of the event object for a <code>requestRouted</code> event.
+		 *  The <code>RouteMatchedEvent.ROUTE_MATCHED</code> constant defines the value of the 
+		 *  <code>type</code> property of the event object for a <code>routeMatched</code> event.
 		 * 
 		 *  <p>The properties of the event object have the following values:</p>
 		 *  <table class="innertable">
@@ -39,9 +39,9 @@ package inky.routing.events
 		 *       Object listening for the event.</td></tr>
 		 *  </table>
 		 *
-		 *  @eventType requestRouted
+		 *  @eventType routeMatched
 		 */
-		public static const REQUEST_ROUTED:String = "requestRouted";
+		public static const ROUTE_MATCHED:String = "routeMatched";
 
 
 		/**
@@ -51,36 +51,33 @@ package inky.routing.events
 		 *      The event type; indicates the action that caused the event.
 		 *
 		 */
-		public function RoutingEvent(type:String, route:IRoute, request:Object)
+		public function RouteMatchedEvent(url:String, route:IRoute, params:Object = null)
 		{
-			super(type, false, true);
+			super(RouteMatchedEvent.ROUTE_MATCHED);
 			this.route = route;
-			this.request = request;
+			this.url = url;
+			this.params = params || {};
 		}
 
-
-
-
-		//
-		// public methods
-		//
-		
+		//---------------------------------------
+		// PUBLIC METHODS
+		//---------------------------------------
 		
 		/**
 		 * @inheritDoc
 		 */
 		override public function clone():Event
 		{
-			return new RoutingEvent(this.type, this.route, this.request);
+			return new RouteMatchedEvent(this.url, route, params);
 		}
-
 
 		/**
 		 * @inheritDoc
 		 */
 		public override function toString():String
 		{
-			return this.formatToString("RoutingEvent", "type", "route", "request");
+// TODO: Params should be enumerated in toString()
+			return this.formatToString("RouteMatchedEvent", "type", "url", "route", "params");
 		}
 
 
