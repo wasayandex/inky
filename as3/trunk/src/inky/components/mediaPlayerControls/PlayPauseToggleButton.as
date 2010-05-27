@@ -55,6 +55,7 @@ package inky.components.mediaPlayerControls
 		override public function registerMediaPlayer(mediaPlayer:Object, playerChangeEvents:Array = null):void
 		{
 			super.registerMediaPlayer(mediaPlayer, playerChangeEvents || [STATE_CHANGE]);
+			this.updateControl(mediaPlayer);
 		}
 
 		/**
@@ -70,9 +71,8 @@ package inky.components.mediaPlayerControls
 				{
 					this.control.selected = true;
 					break;
-				}	
-				case PAUSED:
-				case STOPPED: 
+				}
+				default:	
 				{
 					this.control.selected = false;
 					break;
