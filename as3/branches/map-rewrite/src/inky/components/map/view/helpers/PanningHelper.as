@@ -1,6 +1,8 @@
 package inky.components.map.view.helpers 
 {
 	import inky.components.map.view.events.MapEvent;
+	import inky.components.map.view.helpers.PanHelper;
+	import inky.components.map.view.helpers.DragProxy;
 	import inky.dragAndDrop.Draggable;
 	import inky.dragAndDrop.DraggableCursors;
 	import flash.display.DisplayObjectContainer;
@@ -268,103 +270,6 @@ package inky.components.map.view.helpers
 			this.draggable.positionProxy = value ? new DragProxy(value, this.draggable) : new DragProxy(this, this.draggable);
 		}
 
-	}
-	
-}
-
-
-class DragProxy
-{
-	private var proxiedObject:Object;
-	private var draggable:Object;
-	
-	/**
-	 *
-	 */
-	public function DragProxy(proxiedObject:Object, draggable:Object)
-	{
-		this.proxiedObject = proxiedObject;
-		this.draggable = draggable;
-	}
-	
-	/**
-	 * 
-	 */
-	public function set x(value:Number):void
-	{
-		this.proxiedObject.horizontalPan = PanHelper.toHorizontalPan(value);
-	}
-	/**
-	 * @private
-	 */
-	public function get x():Number
-	{
-		return PanHelper.toXPosition(this.proxiedObject.horizontalPan);
-	}
-	
-	/**
-	 * 
-	 */
-	public function set y(value:Number):void
-	{
-		this.proxiedObject.verticalPan = PanHelper.toVerticalPan(value);
-	}
-	/**
-	 * @private
-	 */
-	public function get y():Number
-	{
-		return PanHelper.toYPosition(this.proxiedObject.verticalPan);
-	}
-}
-
-
-class PanHelper
-{
-	public static var draggable:Object;
-	
-	/**
-	 * 
-	 */
-	public static function toHorizontalPan(x:Number):Number
-	{
-		if (!PanHelper.draggable)
-			throw new Error("PanHelper has no draggable target.");
-
-		return x / PanHelper.draggable.bounds.x;
-	}
-	
-	/**
-	 * 
-	 */
-	public static function toVerticalPan(y:Number):Number
-	{
-		if (!PanHelper.draggable)
-			throw new Error("PanHelper has no draggable target.");
-
-		return y / PanHelper.draggable.bounds.y;
-	}
-
-	/**
-	 * 
-	 */
-	public static function toXPosition(horizontalPan:Number):Number
-	{
-		if (!PanHelper.draggable)
-			throw new Error("PanHelper has no draggable target.");
-
-		return horizontalPan * PanHelper.draggable.bounds.x;
-	}
-	
-	/**
-	 * 
-	 */
-	public static function toYPosition(verticalPan:Number):Number
-	{
-		if (!PanHelper.draggable)
-			throw new Error("PanHelper has no draggable target.");
-
-		return verticalPan * PanHelper.draggable.bounds.y;
 	}
 	
 }
