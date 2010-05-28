@@ -1,6 +1,7 @@
 package inky.routing 
 {
 	import inky.routing.IRoute;
+	import inky.routing.RoutingParams;
 	
 	/**
 	 *
@@ -15,13 +16,13 @@ package inky.routing
 	 */
 	public class RouteInfo
 	{
-		private var _params:Object;
+		private var _params:RoutingParams;
 		private var _route:IRoute;
 		
 		/**
 		 *
 		 */
-		public function RouteInfo(route:IRoute, params:Object = null)
+		public function RouteInfo(route:IRoute, params:RoutingParams = null)
 		{
 			this._route = route;
 			this._params = params;
@@ -34,7 +35,7 @@ package inky.routing
 		/**
 		 * 
 		 */
-		public function get params():Object
+		public function get params():RoutingParams
 		{
 			return this._params;
 		}

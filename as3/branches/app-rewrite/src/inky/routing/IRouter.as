@@ -25,7 +25,20 @@ package inky.routing
 		 * @param commandClass The Class to instantiate - must have an execute() method
 		 */
 		function mapRoute(pattern:String, commandClass:Class, defaults:Object = null, requirements:Object = null):void;
-
+	
+		
+		/**
+		 * Map a command class to an event, and provide parameters for routing.
+		 * 
+		 * @param eventType The Event type to listen for
+		 * @param commandClass The Class to instantiate - must have an execute() method
+		 * @param eventClass Optional Event class for a stronger mapping. Defaults to <code>flash.events.Event</code>. Your commandClass can optionally [Inject] a variable of this type to access the event that triggered the command.
+		 * @param defaults Optional default values for the routing parameters.
+		 * @param paramMap Optional mapping for generating routing parameters. If a function is passed, the function must take an event as its argument, and it should return a map of parameter values. If a map object is provided, properties on the event will be mapped to the routing parameters according to the map (ex: {propNameOnRoutingParms: "propNameOnEvent"}).
+		 * @param oneshot Unmap the Class after execution?
+		 */
+		function mapEventWithParams(eventType:String, commandClass:Class, eventClass:Class = null, defaults:Object = null, paramMap:Object = null, oneshot:Boolean = false):void;
+		
 
 		/**
 		 * 

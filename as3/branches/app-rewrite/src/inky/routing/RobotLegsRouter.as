@@ -17,6 +17,8 @@ package inky.routing
 	import flash.utils.describeType;
 	import inky.routing.RouteInfo;
 	import inky.utils.CloningUtil;
+	import inky.routing.RoutingParams;
+	import inky.utils.describeObject;
 
 
 	/**
@@ -37,6 +39,43 @@ package inky.routing
 		private var eventsToCommands:Object = {};
 		private var numRoutes:int = 0;
 		
+		private static var DEFAULT_PARAM_MAP:Function = function (inObj:Object):Object 
+		{
+			var outObj:Object = {};
+			var propName:String;
+
+// FIXME: Yikes, this is some costly stuff. How to improve?
+			var typeDescription:XML = describeType(inObj);
+			var properties:XMLList = typeDescription.variable + typeDescription.accessor;
+			for each (var prop:XML in properties.(@type == "String" || @type == "Number" || @type == "Boolean" || @type == "uint" || @type == "int"))
+			{
+				propName = prop.@name;
+				switch (propName)
+				{
+					case "eventPhase":
+					case "bubbles":
+					case "cancelable":
+					case "type":
+					{
+						// ignore event properties.
+						if (inObj is Event)
+							break;
+					}
+					default:
+					{
+						outObj[propName] = inObj[propName];
+						break;
+					}
+				}
+			}
+
+			// Also map the enumerable properties.
+			for (propName in inObj)
+				outObj[propName] = inObj[propName];
+			
+			return outObj; 
+		};
+		
 		/**
 		 *
 		 */
@@ -54,19 +93,20 @@ package inky.routing
 		 */
 		override public function mapEvent(eventType:String, commandClass:Class, eventClass:Class = null, oneshot:Boolean = false):void
 		{
-			this.mapEventWithDefaultParams(eventType, commandClass, {}, eventClass, oneshot);
+			this.mapEventWithParams(eventType, commandClass, eventClass, null, null, oneshot);
 		}
-
+		
 		/**
 		 * 
 		 */
-		public function mapEventWithDefaultParams(eventType:String, commandClass:Class, params:Object = null, eventClass:Class = null, oneshot:Boolean = false):void
+		public function mapEventWithParams(eventType:String, commandClass:Class, eventClass:Class = null, defaults:Object = null, paramMap:Object = null, oneshot:Boolean = false):void
 		{
 			eventClass = eventClass || Event;
 			var hash:String = this.getHash(eventType, eventClass);
 			this.eventsToCommands[hash] = {
 				commandClass: commandClass,
-				params: params
+				defaults: defaults,
+				paramMap: arguments.length > 4 ? paramMap : DEFAULT_PARAM_MAP
 			};
 			super.mapEvent(eventType, commandClass, eventClass, oneshot);
 		}
@@ -126,10 +166,13 @@ package inky.routing
 				if ((params = route.match(url)))
 				{
 					var commandClass:Class = route.commandClass;
-					var routeInfo:RouteInfo = new RouteInfo(route, params);
+					var routingParams:RoutingParams = new RoutingParams(params);
+					var routeInfo:RouteInfo = new RouteInfo(route, routingParams);
 					this.injector.mapValue(RouteInfo, routeInfo);
+					this.injector.mapValue(RoutingParams, routingParams);
 					var command:Object = this.injector.instantiate(commandClass);
 					this.injector.unmap(RouteInfo);
+					this.injector.unmap(RoutingParams);
 					command.execute();
 					break;
 				}
@@ -153,14 +196,41 @@ package inky.routing
 			if (commandInfo && (route = this.commandClassesToRoutes[commandInfo.commandClass]))
 			{
 				var commandClass:Class = commandInfo.commandClass;
-				var params:Object = CloningUtil.clone(commandInfo.params);
-				var routeInfo:RouteInfo = new RouteInfo(route, params);
+
+// Map params.
+var params:Object = CloningUtil.clone(commandInfo.defaults) || {};
+var prop:String
+var mappedParams:Object;
+if (commandInfo.paramMap != null)
+{
+	if (commandInfo.paramMap is Function)
+	{
+		mappedParams = commandInfo.paramMap(event);
+	}
+	else
+	{
+		mappedParams = {};
+		for (prop in commandInfo.paramMap)
+		{
+			mappedParams[prop] = event[commandInfo.paramMap[prop]];
+		}
+	}
+}
+for (prop in mappedParams)
+{
+	params[prop] = mappedParams[prop];
+}
+
+				var routingParams:RoutingParams = new RoutingParams(params);
+				var routeInfo:RouteInfo = new RouteInfo(route, routingParams);
 
 				// Set up the injection for, create, and execute, the command.
 				this.injector.mapValue(RouteInfo, routeInfo);
+				this.injector.mapValue(RoutingParams, routingParams);
 				this.injector.mapValue(eventClass, event);
 				var command:Object = this.injector.instantiate(commandClass);
 				this.injector.unmap(RouteInfo);
+				this.injector.unmap(RoutingParams);
 				this.injector.unmap(eventClass);
 				command.execute();
 				if (oneshot)
