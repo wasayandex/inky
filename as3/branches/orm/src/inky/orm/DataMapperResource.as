@@ -6,11 +6,12 @@ package inky.orm
 	import flash.utils.flash_proxy;
 	import inky.orm.DATA_MAPPER_CONFIG;
 	import inky.orm.relationships.RelationshipFactory;
-	import inky.orm.inspection.ITypeInspector;
-	import inky.orm.inspection.InspectorRegistry;
+	import inky.orm.reflection.IReflector;
+	import inky.orm.reflection.ReflectorRegistry;
 	import inky.orm.relationships.RelationshipRegistry;
-	import inky.orm.inspection.RelationshipData;
+	import inky.orm.reflection.fieldData.RelationshipData;
 	import inky.orm.IDataMapper;
+	import inky.orm.reflection.MetadataReflector;
 
 	use namespace flash_proxy;
 
@@ -28,7 +29,7 @@ package inky.orm
 	public class DataMapperResource extends ObjectProxy
 	{
 		private var className:String;
-		private static var inspectorRegistry:InspectorRegistry;
+		private static var reflectorRegistry:ReflectorRegistry;
 		private static var relationshipRegistry:RelationshipRegistry;
 		private static var relationshipFactory:RelationshipFactory;
 
@@ -98,7 +99,7 @@ public function save():void
 		 */
 	    override flash_proxy function hasProperty(name:*):Boolean
 	    {
-	        return super.flash_proxy::hasProperty(name) || this.getInspector().hasProperty(name);
+	        return super.flash_proxy::hasProperty(name) || this.getReflector().hasProperty(name);
 	    }
 
 		/**
@@ -118,20 +119,20 @@ public function save():void
 		/**
 		 * 
 		 */
-		private function getInspector():ITypeInspector
+		private function getReflector():IReflector
 		{
-			// Create a registry for storing inspectors if it hasn't already been created.
-			if (!DataMapperResource.inspectorRegistry)
-				DataMapperResource.inspectorRegistry = new InspectorRegistry();
+			// Create a registry for storing reflectors if it hasn't already been created.
+			if (!DataMapperResource.reflectorRegistry)
+				DataMapperResource.reflectorRegistry = new ReflectorRegistry();
 
-			// Fetch the registered inspector from the registry, creating it if necessary.
-			var inspector:ITypeInspector = DataMapperResource.inspectorRegistry.get(this.className)
-			if (!inspector)
+			// Fetch the registered reflector from the registry, creating it if necessary.
+			var reflector:IReflector = DataMapperResource.reflectorRegistry.get(this.className)
+			if (!reflector)
 			{
-				inspector = this._createTypeInspector();
-				DataMapperResource.inspectorRegistry.put(this.className, inspector);
+				reflector = this._createReflector();
+				DataMapperResource.reflectorRegistry.put(this.className, reflector);
 			}
-			return inspector;
+			return reflector;
 		}
 
 		/**
@@ -139,16 +140,16 @@ public function save():void
 		 */
 		private function getRelationship(property:String):IRelationship
 		{
-			var inspector:ITypeInspector = this.getInspector();
+			var reflector:IReflector = this.getReflector();
 			if (!DataMapperResource.relationshipRegistry)
 				DataMapperResource.relationshipRegistry = new RelationshipRegistry();
 			var relationship:IRelationship = DataMapperResource.relationshipRegistry.get(this.className, property);
 			if (!relationship)
 			{
-				var options:RelationshipData = this.getInspector().getRelationshipData(property);
+				var options:RelationshipData = this.getReflector().getRelationshipData(property);
 				if (options)
 				{
-					relationship = this._createRelationship(this.className, property, options);
+					relationship = this._createRelationship(options);
 					DataMapperResource.relationshipRegistry.put(this.className, property, relationship);
 				}
 			}
@@ -163,19 +164,19 @@ public function save():void
 		/**
 		 * 
 		 */
-		protected function _createRelationship(className:String, property:String, options:RelationshipData):IRelationship
+		protected function _createRelationship(options:RelationshipData):IRelationship
 		{
 			if (!DataMapperResource.relationshipFactory)
 				DataMapperResource.relationshipFactory = new RelationshipFactory();
-			return DataMapperResource.relationshipFactory.createRelationship(className, property, options);
+			return DataMapperResource.relationshipFactory.createRelationship(options);
 		}
 
 		/**
-		 * Creates a type inspector for this class. Although this is a class method (non-static), it is only called once per type.
+		 * Creates a type reflector for this class. Although this is a class method (non-static), it is only called once per type.
 		 */
-		protected function _createTypeInspector():ITypeInspector
+		protected function _createReflector():IReflector
 		{
-			throw new Error("Must be overridden right now.");
+			return new MetadataReflector(this);
 		}
 
 		/**
@@ -183,7 +184,7 @@ public function save():void
 		 */
 		override protected function _getPropertyList():Array
 		{
-			return this.getInspector().propertyList;
+			return this.getReflector().propertyList;
 		}
 
 	}

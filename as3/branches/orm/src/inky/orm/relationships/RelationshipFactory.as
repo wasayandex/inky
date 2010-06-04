@@ -1,6 +1,6 @@
 package inky.orm.relationships 
 {
-	import inky.orm.inspection.RelationshipData;
+	import inky.orm.reflection.fieldData.RelationshipData;
 	
 	/**
 	 *
@@ -19,14 +19,14 @@ package inky.orm.relationships
 		/**
 		 *	
 		 */
-		public function createRelationship(className:String, property:String, options:RelationshipData):IRelationship
+		public function createRelationship(data:RelationshipData):IRelationship
 		{
-			options = options || new RelationshipData();
-			var relationshipClass:Class = this.getRelationshipClass(className, property, options);
+//			options = options || new RelationshipData();
+			var relationshipClass:Class = this.getRelationshipClass(data);
 
 			// Create the relationship.
 			var relationship:IRelationship = new relationshipClass();
-			relationship.setup(className, property, options);
+			relationship.setup(data);
 			return relationship;
 		}
 		
@@ -37,13 +37,15 @@ package inky.orm.relationships
 		/**
 		 * 
 		 */
-		private function getRelationshipClass(className:String, property:String, options:RelationshipData):Class
+		private function getRelationshipClass(data:RelationshipData):Class
 		{
 // TODO: More advanced lexical analysis.
+			var property:String = data.propertyName;
+			var className:String = data.className;
 			var relationshipClass:Class;
 			var relationshipType:String;
-			if (options && options.relationshipType)
-			 	relationshipType = options.relationshipType;
+			if (data && data.relationshipType)
+			 	relationshipType = data.relationshipType;
 			else
 				// If the relationship type wasn't explicitly specified, infer it from the property name.			
 				relationshipType = property.substr(-1) == "s" ? RelationshipType.HAS_MANY : RelationshipType.HAS_ONE;

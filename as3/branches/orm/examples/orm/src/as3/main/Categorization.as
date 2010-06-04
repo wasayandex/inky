@@ -1,10 +1,12 @@
 package  
 {
-	import inky.orm.XMLConfigDataMapperResource;
-	import inky.orm.inspection.XMLTypeInspector;
-	import inky.orm.inspection.ITypeInspector;
-	import inky.orm.IDataMapper;
 	import inky.orm.DataMapperResource;
+	import inky.orm.IDataMapper;
+	
+//	[Property("id")]
+//	[Property("creationTime")]
+	[BelongsTo("category")]
+	[BelongsTo("post")]
 	
 	/**
 	 *
@@ -17,24 +19,10 @@ package
 	 *	@since  2010.05.19
 	 *
 	 */
-	public class Categorization extends XMLConfigDataMapperResource
+	public class Categorization extends DataMapperResource
 	{
-		private static const XML_CONFIG:XML =
-			<type>
-				<property name="id" type="Serial" />
-				<property name="creationTime" type="DateTime" />
-
-				<association name="category" type={RelationshipType.BELONGS_TO} />
-				<association name="post" type={RelationshipType.BELONGS_TO} />
-			</type>
-		
-		/**
-		 *
-		 */
-		public function Categorization()
-		{
-			super(XML_CONFIG);
-		}
+		public var id:int;
+		public var creationTime:Date;
 
 		/*
 

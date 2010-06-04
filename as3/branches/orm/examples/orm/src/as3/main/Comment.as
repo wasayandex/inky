@@ -1,10 +1,16 @@
 package  
 {
-	import inky.orm.XMLConfigDataMapperResource;
-	import inky.orm.inspection.XMLTypeInspector;
-	import inky.orm.inspection.ITypeInspector;
-	import inky.orm.IDataMapper;
 	import inky.orm.DataMapperResource;
+	import inky.orm.IDataMapper;
+
+//	[Property("id")]
+//	[Property("author")]
+//	[Property("email")]
+//	[Property("url")]
+//	[Property("body")]
+	[BelongsTo("post")]
+	[BelongsTo("author", className="User")]
+	[HasMany("comments")]
 
 	/**
 	 *
@@ -17,27 +23,13 @@ package
 	 *	@since  2010.05.19
 	 *
 	 */
-	dynamic public class Comment extends XMLConfigDataMapperResource
+	dynamic public class Comment extends DataMapperResource
 	{
-		private static const XML_CONFIG:XML =
-			<type>
-				<property name="id" type="Serial" />
-				<property name="author" type="String" />
-				<property name="email" type="String" />
-				<property name="url" type="String" />
-				<property name="body" type="Text" />
-				
-				<association name="post" type={RelationshipType.BELONGS_TO} />
-			</type>
-
-		/**
-		 *
-		 */
-		public function Comment()
-		{
-			super(XML_CONFIG);
-		}
-
+		public var id:int;
+		public var email:String;
+		public var url:String;
+		public var body:String;
+		
 		/*
 
 		class Comment

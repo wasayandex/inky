@@ -1,12 +1,16 @@
 package  
 {
-	import inky.orm.XMLConfigDataMapperResource;
-	import inky.orm.inspection.XMLTypeInspector;
-	import inky.orm.inspection.ITypeInspector;
-	import inky.orm.relationships.RelationshipType;
-	import inky.orm.IDataMapper;
 	import inky.orm.DataMapperResource;
-	
+	import inky.orm.IDataMapper;
+
+//	[Property("id")]
+//	[Property("title")]
+//	[Property("body")]
+//	[Property("creationTime")]
+	[HasMany("comments")]
+	[HasMany("categorizations")]
+	[HasMany("categories", through="categorizations")]
+
 	/**
 	 *
 	 *  ..
@@ -18,28 +22,13 @@ package
 	 *	@since  2010.05.19
 	 *
 	 */
-	public class Post extends XMLConfigDataMapperResource
+	public class Post extends DataMapperResource
 	{
-		private static const XML_CONFIG:XML =
-			<type>
-				<property name="id" type="Serial" />
-				<property name="title" type="String" />
-				<property name="body" type="Text" />
-				<property name="creationTime" type="DateTime" />
-
-				<association name="comments" type={RelationshipType.HAS_N} />
-				<association name="categorizations" type={RelationshipType.HAS_N} />
-				<association name="categories" type={RelationshipType.HAS_N} through="categorizations" />
-			</type>
-
-		/**
-		 *
-		 */
-		public function Post()
-		{
-			super(XML_CONFIG);
-		}
-
+		public var id:int;
+		public var title:String;
+		public var body:String;
+		public var creationTime:Date;
+		
 /*
 		class Post
 			include DataMapper::Resource

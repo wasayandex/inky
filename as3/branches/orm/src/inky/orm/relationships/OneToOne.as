@@ -5,6 +5,7 @@ package inky.orm.relationships
 	import inky.orm.DATA_MAPPER_CONFIG;
 	import inky.utils.getClass;
 	import inky.utils.describeObject;
+	import inky.orm.reflection.fieldData.RelationshipData;
 
 	/**
 	 *
@@ -54,11 +55,11 @@ package inky.orm.relationships
 		/**
 		 * @inheritDoc
 		 */
-		public function setup(className:String, property:String, options:Object):void
+		public function setup(relationshipData:RelationshipData):void
 		{
-			this._className = className;
-			this._property = property;
-			this._options = options;
+			this._className = relationshipData.className;
+			this._property = relationshipData.propertyName;
+			this._options = relationshipData.options;
 		}
 
 		//---------------------------------------

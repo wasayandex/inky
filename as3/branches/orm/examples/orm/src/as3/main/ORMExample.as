@@ -6,6 +6,7 @@ package
 	import inky.orm.DataMapper;
 	import inky.orm.databases.XMLDatabase;
 	import inky.utils.describeObject;
+	import inky.orm.relationships.*;
 
 	/**
 	 *
@@ -46,9 +47,9 @@ package
 			var commentMapper:DataMapper = new DataMapper(db);
 			var myComment:Comment;
 
-			// Create a new book.
+			// Create a new comment.
 			myComment = new Comment();
-			myComment.id = "6";
+			myComment.id = 6;
 			myComment.body = "ORM is rad!";
 			myComment.author = new User("Matthew", "Tretter");
 trace(describeObject(myComment, true));

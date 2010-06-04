@@ -1,6 +1,6 @@
-package inky.orm.inspection 
+package inky.orm.reflection 
 {
-	import inky.orm.inspection.RelationshipData;
+	import inky.orm.reflection.fieldData.RelationshipData;
 	
 	/**
 	 *
@@ -13,7 +13,7 @@ package inky.orm.inspection
 	 *	@since  2010.05.19
 	 *
 	 */
-	public interface ITypeInspector
+	public interface IReflector
 	{
 		//---------------------------------------
 		// GETTER / SETTERS

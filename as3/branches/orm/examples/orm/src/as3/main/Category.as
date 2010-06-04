@@ -1,10 +1,12 @@
 package  
 {
-	import inky.orm.XMLConfigDataMapperResource;
-	import inky.orm.inspection.XMLTypeInspector;
-	import inky.orm.inspection.ITypeInspector;
-	import inky.orm.IDataMapper;
 	import inky.orm.DataMapperResource;
+	import inky.orm.IDataMapper;
+
+//	[Property("id")]
+//	[Property("name")]
+	[HasMany("categorizations")]
+	[HasMany("posts", through="categorizations")]
 
 	/**
 	 *
@@ -17,25 +19,11 @@ package
 	 *	@since  2010.05.19
 	 *
 	 */
-	public class Category extends XMLConfigDataMapperResource
+	public class Category extends DataMapperResource
 	{
-		private static const XML_CONFIG:XML =
-			<type>
-				<property name="id" type="Serial" />
-				<property name="name" type="String" />
-				
-				<association name="categorizations" type={RelationshipType.HAS_N} />
-				<association name="posts" type={RelationshipType.HAS_N} through="categorizations" />
-			</type>
-
-		/**
-		 *
-		 */
-		public function Category()
-		{
-			super(XML_CONFIG);
-		}
-
+		public var id:int;
+		public var name:String;
+		
 		/*
 
 		class Category

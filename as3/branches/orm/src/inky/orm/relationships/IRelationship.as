@@ -1,5 +1,6 @@
 package inky.orm.relationships 
 {
+	import inky.orm.reflection.fieldData.RelationshipData;
 	
 	/**
 	 *
@@ -23,7 +24,7 @@ package inky.orm.relationships
 		/**
 		 * 
 		 */
-		function setup(className:String, property:String, options:Object):void;
+		function setup(relationshipData:RelationshipData):void;
 		
 	}
 	

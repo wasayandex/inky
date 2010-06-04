@@ -1,6 +1,7 @@
 package inky.orm.relationships 
 {
 	import inky.orm.relationships.IRelationship;
+	import inky.orm.reflection.fieldData.RelationshipData;
 	
 	/**
 	 *
@@ -28,7 +29,7 @@ package inky.orm.relationships
 		/**
 		 * @inheritDoc
 		 */
-		public function setup(className:String, property:String, options:Object):void
+		public function setup(relationshipData:RelationshipData):void
 		{
 		}
 

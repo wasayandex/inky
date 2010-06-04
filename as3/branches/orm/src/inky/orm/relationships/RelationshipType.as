@@ -14,10 +14,9 @@ package inky.orm.relationships
 	 */
 	public class RelationshipType
 	{
+		public static const BELONGS_TO:String = "belongsTo";
 		public static const HAS_ONE:String = "hasOne";
 		public static const HAS_MANY:String = "hasMany";
-
-		
 	}
 	
 }

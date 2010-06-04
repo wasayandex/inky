@@ -1,10 +1,11 @@
 package
 {
-	import inky.orm.XMLConfigDataMapperResource;
-	import inky.orm.inspection.XMLTypeInspector;
-	import inky.orm.inspection.ITypeInspector;
-	import inky.orm.IDataMapper;
 	import inky.orm.DataMapperResource;
+	import inky.orm.IDataMapper;
+
+//	[Property("id")]
+//	[Property("firstName")]
+//	[Property("lastName")]
 
 	/**
 	 *
@@ -17,21 +18,17 @@ package
 	 *	@since  2009.09.29
 	 *
 	 */
-	dynamic public class User extends XMLConfigDataMapperResource
+	dynamic public class User extends DataMapperResource
 	{
-		private static const XML_CONFIG:XML =
-			<type storageName="usr">
-				<property name="id" />
-				<property name="firstName" />
-				<property name="lastName" />
-			</type>
+		public var id:int;
+		public var firstName:String;
+		public var lastName:String;
 		
 		/**
 		 *
 		 */
 		public function User(firstName:String, lastName:String)
 		{
-			super(XML_CONFIG);
 			this.firstName = firstName;
 			this.lastName = lastName;
 		}
