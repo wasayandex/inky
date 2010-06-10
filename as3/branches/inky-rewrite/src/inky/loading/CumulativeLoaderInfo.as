@@ -7,6 +7,8 @@ package inky.loading
 	import flash.events.ProgressEvent;
 	import flash.events.EventDispatcher;
 	import inky.loading.events.CumulativeLoaderInfoProgressEvent;
+	import flash.events.Event;
+	import flash.display.LoaderInfo;
 	
 	/**
 	 *
@@ -24,6 +26,7 @@ package inky.loading
 		private var _bytesLoaded:uint;
 		private var bytesLoadedIsInvalid:Boolean = true;
 		private var useWeakReferenceValues:Dictionary = new Dictionary(true);
+		private var completeLoaders:Dictionary = new Dictionary(true);
 		
 		private var loaders:Object = {
 			weak: new Dictionary(true),
@@ -52,6 +55,7 @@ package inky.loading
 				throw new Error("Type not supported");
 			
 			dispatcher.addEventListener(ProgressEvent.PROGRESS, this.progressHandler, false, 0, useWeakReference);
+			dispatcher.addEventListener(Event.COMPLETE, this.dispatcher_completeHandler, false, 0, true);
 		}
 		
 		//---------------------------------------
@@ -94,6 +98,32 @@ package inky.loading
 		// PRIVATE METHODS
 		//---------------------------------------
 		
+		/**
+		 * 
+		 */
+		private function dispatcher_completeHandler(event:Event):void
+		{
+			// Mark this loader as complete.
+			var loader:Object;
+			if (event.currentTarget is LoaderInfo)
+				loader = LoaderInfo(event.currentTarget).loader;
+			else
+				loader = event.currentTarget;
+			this.completeLoaders[loader] = true;
+			
+			// Check if all loaders are complete.
+			for each (var dict:Dictionary in this.loaders)
+			{
+				for (loader in dict)
+				{
+					if (!this.completeLoaders[loader])
+						return;
+				}
+			}
+			
+			this.dispatchEvent(new Event(Event.COMPLETE));
+		}
+
 		/**
 		 * 
 		 */

@@ -187,7 +187,7 @@ package inky.sequencing
 				this._previousCommand = command;
 				
 				// Watch out for IAsyncCommands that execute synchronously!
-				if (!command.async || command.isComplete)
+				if (command.isAsync)
 					this.executeNextCommand();
 				else
 					command.addEventListener(Event.COMPLETE, this.command_completeHandler);

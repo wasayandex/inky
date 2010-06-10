@@ -9,6 +9,8 @@ package inky.sequencing.commands
 	import flash.events.Event;
 	import inky.sequencing.commands.IAsyncCommand;
 	import flash.events.EventDispatcher;
+	import flash.system.LoaderContext;
+	import flash.system.ApplicationDomain;
 	
 	/**
 	 *
@@ -25,10 +27,9 @@ package inky.sequencing.commands
 	{
 		private static const GRAPHIC_EXTENSION:RegExp = /\.(swf|gif|png|jpg|jpeg)(\?.*)?$/i
 
-		private var _async:Boolean = true;
+		private var _isAsync:Boolean = false;
 		public var content:*;
 		public var contentType:Object;
-		private var _isComplete:Boolean;
 		private var formattedContentType:String;
 		public var loader:Object;
 		public var url:Object;
@@ -40,24 +41,16 @@ package inky.sequencing.commands
 		/**
 		 *
 		 */
-		public function get async():Boolean
+		public function get isAsync():Boolean
 		{ 
-			return this._async; 
+			return this._isAsync; 
 		}
 		/**
 		 * @private
 		 */
-		public function set async(value:Boolean):void
+		public function set isAsync(value:Boolean):void
 		{
-			this._async = value;
-		}
-		
-		/**
-		 *
-		 */
-		public function get isComplete():Boolean
-		{ 
-			return this._isComplete; 
+			this._isAsync = value;
 		}
 		
 		//---------------------------------------
@@ -69,12 +62,11 @@ package inky.sequencing.commands
 		 */
 		public function execute():void
 		{
-			this._isComplete = false;
-			
 			if (!this.url)
 				throw new Error("You must set the \"url\" property.");
 
 			var request:URLRequest = toURLRequest(this.url);
+			var loadArgs:Array;
 			if (!request)
 				throw new Error("The url property must be either a String or URLRequest.");
 				
@@ -120,13 +112,19 @@ package inky.sequencing.commands
 			}
 
 			if (this.loader is URLLoader)
+			{
 				this.loader.addEventListener(Event.COMPLETE, this.urlLoader_completeHandler);
+				loadArgs = [request];
+			}
 			else if (this.loader is Loader)
+			{
 				this.loader.contentLoaderInfo.addEventListener(Event.COMPLETE, this.loader_completeHandler);
+				loadArgs = [request, new LoaderContext(false, ApplicationDomain.currentDomain)];
+			}
 			else
 				throw new Error("How did we get here?!");
 
-			this.loader.load(request);
+			this.loader.load.apply(null, loadArgs);
 		}
 		
 		//---------------------------------------
@@ -169,7 +167,6 @@ package inky.sequencing.commands
 		 */
 		private function onComplete():void
 		{
-			this._isComplete = true;
 			this.dispatchEvent(new Event(Event.COMPLETE));
 		}
 

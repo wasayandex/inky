@@ -1,12 +1,20 @@
 package inky.loading.events
 {
 	import flash.events.Event;
-	import flash.events.ProgressEvent;
 	import inky.loading.CumulativeLoaderInfo;
 
 	/**
 	 *
-	 *  ..
+	 *  I wanted this to extend ProgressEvent but it looks like Adobe changed
+	 *  the ProgressEvent API between player versions (bytesLoaded/bytesTotal
+	 *  used to return uint; now return Number). This causes the player to
+	 *  fail at runtime if the player version has the old class definition:
+	 * 	    return types dont match
+	 *          virt uint flash.events::ProgressEvent/get bytesLoaded()
+	 *          over Number inky.loading.events::CumulativeLoaderInfoProgressEvent/get bytesLoaded()
+	 * 	    return types dont match
+	 * 	        virt uint flash.events::ProgressEvent/get bytesTotal()
+	 * 	    	over Number inky.loading.events::CumulativeLoaderInfoProgressEvent/get bytesTotal()
 	 *	
 	 * 	@langversion ActionScript 3
 	 *	@playerversion Flash 9.0.0
@@ -15,7 +23,7 @@ package inky.loading.events
 	 *	@since  2010.04.06
 	 *
 	 */
-	public class CumulativeLoaderInfoProgressEvent extends ProgressEvent
+	public class CumulativeLoaderInfoProgressEvent extends Event
 	{
 		private var loaderInfo:CumulativeLoaderInfo;
 		
@@ -64,17 +72,17 @@ package inky.loading.events
 		//---------------------------------------
 		
 		/**
-		 * @inheritDoc
+		 * @copy flash.events.ProgressEvent
 		 */
-		override public function get bytesLoaded():uint
+		public function get bytesLoaded():Number
 		{ 
 			return this.loaderInfo.bytesLoaded; 
 		}
 
 		/**
-		 * @inheritDoc
+		 * @copy flash.events.ProgressEvent
 		 */
-		override public function get bytesTotal():uint
+		public function get bytesTotal():Number
 		{ 
 			return this.loaderInfo.bytesTotal; 
 		}

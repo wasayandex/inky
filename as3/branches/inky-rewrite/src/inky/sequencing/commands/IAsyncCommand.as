@@ -24,15 +24,7 @@ package inky.sequencing.commands
 		/**
 		 * Specifies whether this command should be run asynchronously or as a regular command.
 		 */
-		function get async():Boolean;
-		
-		/**
-		 * Indicates whether the command has completed. This value must be
-		 * reset to false every time execute() is called, and set to true
-		 * when the command completes. This accounds for IAsyncCommands that
-		 * execute synchronously.
-		 */
-		function get isComplete():Boolean;
+		function get isAsync():Boolean;
 		
 		/**
 		 * 
