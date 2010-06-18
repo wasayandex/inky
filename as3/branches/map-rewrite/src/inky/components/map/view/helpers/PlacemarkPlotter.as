@@ -353,7 +353,7 @@ package inky.components.map.view.helpers
 				point =	point.add(center);
 			}
 
-			if (!this.placemarkSnapX || !this.placemarkSnapY && this.avoidPlacemarkCollisions)
+			if ((!this.placemarkSnapX || !this.placemarkSnapY) && this.avoidPlacemarkCollisions)
 			{
 				throw new Error("You can't avoid collisions unless you specify values for placemarkSnapX and placemarkSnapY");
 			}
