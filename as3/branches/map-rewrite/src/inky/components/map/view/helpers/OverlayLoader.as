@@ -6,6 +6,7 @@ package inky.components.map.view.helpers
 	import flash.utils.getDefinitionByName;
 	import flash.display.DisplayObject;
 	import inky.components.map.view.events.MapEvent;
+	import inky.display.utils.removeFromDisplayList;
 	
 	/**
 	 *
@@ -21,6 +22,7 @@ package inky.components.map.view.helpers
 	public class OverlayLoader extends BaseMapHelper
 	{
 		protected var modelWatcher:IChangeWatcher;
+		private var overlay:DisplayObject;
 		
 		//---------------------------------------
 		// PUBLIC METHODS
@@ -55,8 +57,9 @@ package inky.components.map.view.helpers
 		 */
 		private function clearOverlay():void
 		{
-			while (this.info.overlayContainer.numChildren)
-				this.info.overlayContainer.removeChildAt(0);
+			removeFromDisplayList(this.overlay);
+			/*while (this.info.overlayContainer.numChildren)
+				this.info.overlayContainer.removeChildAt(0);*/
 		}
 		
 		/**
@@ -73,8 +76,8 @@ package inky.components.map.view.helpers
 					this.clearOverlay();
 					
 					var overlayClass:Class = getDefinitionByName(url.replace(/^lib:\/\//, "")) as Class;
-					var overlay:DisplayObject = new overlayClass() as DisplayObject;
-					this.info.overlayContainer.addChild(overlay);
+					this.overlay = new overlayClass() as DisplayObject;
+					this.info.overlayContainer.addChild(this.overlay);
 					
 					this.info.map.dispatchEvent(new MapEvent(MapEvent.OVERLAY_UPDATED));
 				}

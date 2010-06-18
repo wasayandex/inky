@@ -31,7 +31,7 @@ package inky.components.map.view
 		
 		/**
 		 * Creates a BaseInteractiveMap. 
-		 * This class can be instantiated directly, but generally should be extended intstead.
+		 * This class should not be instantiated directly.
 		 */
 		public function BaseInteractiveMap()
 		{
@@ -61,28 +61,11 @@ package inky.components.map.view
 
 			this.__mask = mask;
 			
-			this.helperInfo.mask = mask;
+			this.helperInfo.setMask(mask);
 			
 			this.registerHelper(PanningHelper, HelperType.PANNING_HELPER, {horizontalPan: "horizontalPan", verticalPan: "verticalPan", panningProxy: "panningProxy"});
 			this.registerHelper(ZoomingHelper, HelperType.ZOOMING_HELPER, {zoom: "zoom", minimumZoom: "minimumZoom", maximumZoom: "maximumZoom", zoomingProxy: "zoomingProxy"});
 			this.registerHelper(TooltipHelper, HelperType.TOOLTIP_HELPER);
-		}
-		
-		//---------------------------------------
-		// PROTECTED METHODS
-		//---------------------------------------
-		
-		/**
-		 * 
-		 */
-		override protected function reset():void
-		{
-			/*this.contentContainer.x = 
-			this.contentContainer.y = 0;
-			this.overlayContainer.scaleX =
-			this.overlayContainer.scaleY = this.minimumZoom;*/
-
-			super.reset();
 		}
 		
 	}

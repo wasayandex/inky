@@ -11,8 +11,7 @@ package inky.components.map.view.helpers
 	import inky.components.map.view.helpers.BaseMapHelper;
 	import inky.utils.toCoordinateSpace;
 	import flash.geom.Point;
-	import flash.display.DisplayObject;
-	import flash.display.Sprite;
+	import inky.dragAndDrop.events.DragEvent;
 	
 	/**
 	 *
@@ -29,6 +28,7 @@ package inky.components.map.view.helpers
 	{
 		protected var draggable:Draggable;
 		protected var draggableCursors:DraggableCursors;
+		private var isPanning:Boolean = false;
 		private var _horizontalPan:Number;
 		private var _panningProxy:Object;
 		private var _verticalPan:Number;
@@ -50,6 +50,9 @@ package inky.components.map.view.helpers
 		 */
 		public function get horizontalPan():Number
 		{ 
+			if (isNaN(this._horizontalPan))
+				this._horizontalPan = PanHelper.toHorizontalPan(this.info.contentContainer.x);
+
 			return this._horizontalPan; 
 		}
 		/**
@@ -61,9 +64,7 @@ package inky.components.map.view.helpers
 			if (value != oldValue)
 			{
 				this._horizontalPan = value;
-				this.info.contentContainer.x = PanHelper.toXPosition(value);
-				this.info.map.dispatchEvent(new MapEvent(MapEvent.MOVED));
-//				this.invalidateProperty('horizontalPan');
+				this.invalidateProperty('horizontalPan');
 			}
 		}
 		
@@ -90,7 +91,10 @@ package inky.components.map.view.helpers
 		 *
 		 */
 		public function get verticalPan():Number
-		{ 
+		{
+			if (isNaN(this._verticalPan))
+				this._verticalPan = PanHelper.toVerticalPan(this.info.contentContainer.y);
+
 			return this._verticalPan; 
 		}
 		/**
@@ -102,9 +106,7 @@ package inky.components.map.view.helpers
 			if (value != oldValue)
 			{
 				this._verticalPan = value;
-				this.info.contentContainer.y = PanHelper.toYPosition(value);
-				this.info.map.dispatchEvent(new MapEvent(MapEvent.MOVED));
-//				this.invalidateProperty('verticalPan');
+				this.invalidateProperty('verticalPan');
 			}
 		}
 
@@ -121,19 +123,18 @@ package inky.components.map.view.helpers
 
 			if (this.info)
 			{
-				this.info.map.removeEventListener(MapEvent.OVERLAY_UPDATED, this.content_boundsChangeHandler);
-				this.info.map.removeEventListener(MapEvent.SCALED, this.content_boundsChangeHandler);
+				this.info.map.removeEventListener(MapEvent.OVERLAY_UPDATED, this.map_overlayUpdatedHandler);
+				this.info.map.removeEventListener(MapEvent.SCALED, this.map_scaledHandler);
+			}
+			
+			if (this.draggable)
+			{
+				this.draggable.removeEventListener(DragEvent.DRAG, this.draggable_dragHandler);
+				this.draggable.removeEventListener(DragEvent.START_DRAG, this.draggable_startDragHandler);
+				this.draggable.removeEventListener(DragEvent.STOP_DRAG, this.draggable_stopDragHandler);
 			}
 		}
-		
-		/**
-		 * 
-		 */
-		public function getDragBounds():Rectangle
-		{
-			return this.calculateDragBounds();
-		}
-		
+
 		/**
 		 * @inheritDoc
 		 */
@@ -142,13 +143,14 @@ package inky.components.map.view.helpers
 			super.initialize(info);
 
 			PanHelper.draggable = 
-			this.draggable = new Draggable(this.info.contentContainer, false, this.getDragBounds());
+			this.draggable = new Draggable(this.info.contentContainer, false, this.info.getDragBounds());
+			this.draggable.addEventListener(DragEvent.START_DRAG, this.draggable_startDragHandler);
 			this.draggableCursors = new DraggableCursors(this.draggable);
 
 			this.setPanningProxy(null);
 
-			this.info.map.addEventListener(MapEvent.OVERLAY_UPDATED, this.content_boundsChangeHandler);
-			this.info.map.addEventListener(MapEvent.SCALED, this.content_boundsChangeHandler);
+			this.info.map.addEventListener(MapEvent.OVERLAY_UPDATED, this.map_overlayUpdatedHandler);
+			this.info.map.addEventListener(MapEvent.SCALED, this.map_scaledHandler);
 		}
 		
 		/**
@@ -184,32 +186,29 @@ package inky.components.map.view.helpers
 		override protected function reset():void
 		{
 			super.reset();
-			
-			/*if (this.panningProxy)
-			{
-				if (this.panningProxy.contentX != this.contentX)
-					this.panningProxy.contentX = this.contentX;
+			this.info.contentContainer.x =
+			this.info.contentContainer.y = 0;
+			this._horizontalPan =
+			this._verticalPan = NaN;
 
-				if (this.panningProxy.contentY != this.contentY)
-					this.panningProxy.contentY = this.contentY;
-			}*/
+			var bounds:Rectangle = this.info.getDragBounds();
+			this.draggable.bounds = bounds;
 		}
-
+		
 		/**
 		 * @inheritDoc
 		 */
-		/*override protected function validate():void
+		override protected function validate():void
 		{
 			var positionIsInvalid:Boolean = this.info.layoutValidator.validationState.propertyIsInvalid("horizontalPan") || this.info.layoutValidator.validationState.propertyIsInvalid("verticalPan");
 			super.validate();
 			
 			if (positionIsInvalid)
 			{
-				this.info.contentContainer.x = PanHelper.toXPosition(this.horizontalPan);
-				this.info.contentContainer.y = PanHelper.toYPosition(this.verticalPan);
+				this.moveToNormalizedPosition(new Point(PanHelper.toXPosition(this.horizontalPan), PanHelper.toYPosition(this.verticalPan)));
 				this.info.map.dispatchEvent(new MapEvent(MapEvent.MOVED));
 			}
-		}*/
+		}
 		
 		//---------------------------------------
 		// PRIVATE METHODS
@@ -218,48 +217,65 @@ package inky.components.map.view.helpers
 		/**
 		 * 
 		 */
-		private function calculateDragBounds():Rectangle
+		private function draggable_dragHandler(event:DragEvent):void
 		{
-			var map:DisplayObjectContainer = this.info.map as DisplayObjectContainer;
-			var contentBounds:Rectangle = this.info.contentContainer.getRect(map);
-			var maskBounds:Rectangle = this.info.mask.getRect(map);
-			var contentBounds2:Rectangle = this.info.contentContainer.getRect(this.info.contentContainer);
-
-			var p:Point = new Point(this.info.contentContainer.x, this.info.contentContainer.y);
-			p = toCoordinateSpace(p, this.info.contentContainer.parent, map);
-			p.x = contentBounds.x - p.x;
-			p.y = contentBounds.y - p.y;
-
-			var bounds:Rectangle = new Rectangle(
-				maskBounds.width - contentBounds.width - p.x,
-				maskBounds.height - contentBounds.height - p.y,
-				contentBounds.width - maskBounds.width,
-				contentBounds.height - maskBounds.height
-			);
-			return bounds;
+			this.isPanning = true;
+			event.target.removeEventListener(event.type, arguments.callee);
+		}
+		
+		/**
+		 * 
+		 */
+		private function draggable_startDragHandler(event:DragEvent):void
+		{
+			event.target.addEventListener(DragEvent.DRAG, this.draggable_dragHandler);
+			event.target.addEventListener(DragEvent.STOP_DRAG, this.draggable_stopDragHandler);
 		}
 
 		/**
 		 * 
 		 */
-		private function content_boundsChangeHandler(event:MapEvent):void
+		private function draggable_stopDragHandler(event:DragEvent):void
 		{
-			var bounds:Rectangle = this.getDragBounds();
-			this.draggable.bounds = bounds;
-			
-			// Correct the position when zoomed.
-			if (event.type == MapEvent.SCALED)
-			{
-				var contentContainer:DisplayObject = this.info.contentContainer;
-				this.draggable.positionProxy.x =
-			 	contentContainer.x = Math.max(Math.min(contentContainer.x, bounds.x + bounds.width), bounds.x);
-				this.draggable.positionProxy.y =
-				contentContainer.y = Math.max(Math.min(contentContainer.y, bounds.y + bounds.height), bounds.y);
+			this.isPanning = false;
+			event.target.removeEventListener(event.type, arguments.callee);
+		}
 
-				/*var target:Object = this.panningProxy || this;
-				target.horizontalPan = PanHelper.toHorizontalPan(contentContainer.x);
-				target.verticalPan = PanHelper.toVerticalPan(contentContainer.y);*/
-			}
+		/**
+		 * 
+		 */
+		private function map_overlayUpdatedHandler(event:MapEvent):void
+		{
+			this.reset();
+		}
+		
+		/**
+		 * 
+		 */
+		private function moveToNormalizedPosition(position:Point = null):void
+		{
+			if (!position)
+				position = new Point(this.info.contentContainer.x, this.info.contentContainer.y);
+
+			var bounds:Rectangle = this.info.getDragBounds();
+			this.draggable.bounds = bounds;
+
+			this.info.contentContainer.x = Math.max(Math.min(position.x, bounds.right), bounds.left);
+			this.info.contentContainer.y = Math.max(Math.min(position.y, bounds.bottom), bounds.top);
+		}
+
+		/**
+		 * 
+		 */
+		private function map_scaledHandler(event:MapEvent):void
+		{
+			this.moveToNormalizedPosition();
+// TODO: Figure out a better way to eliminate the 'jump' that occurs when zooming and panning tweening overlaps. This solution results in panning not tweening while zooming is happening.
+if (!this.isPanning)
+{
+	this._horizontalPan = NaN;
+	this._verticalPan = NaN;
+}
 		}
 
 		/**

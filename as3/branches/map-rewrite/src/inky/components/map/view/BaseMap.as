@@ -98,7 +98,12 @@ package inky.components.map.view
 			this.layoutValidator = new LayoutValidator(this, this.validate);
 			
 			// Set up the helper info.
-			this.helperInfo = new HelperInfo(this, this.layoutValidator, this.contentContainer, this.placemarkContainer, this.overlayContainer);
+			this.helperInfo = new HelperInfo();
+			this.helperInfo.setMap(this);
+			this.helperInfo.setLayoutValidator(this.layoutValidator);
+			this.helperInfo.setContentContainer(this.contentContainer);
+			this.helperInfo.setPlacemarkContainer(this.placemarkContainer);
+			this.helperInfo.setOverlayContainer(this.overlayContainer);
 			
 			// Register default helpers.
 			this.registerHelper(OverlayLoader, HelperType.OVERLAY_HELPER);

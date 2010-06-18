@@ -40,11 +40,7 @@ package inky.components.map.view.helpers
 			if (this.info && placemark)
 				this.toggleSelectedFor(placemark, false);
 		}
-		
-		//---------------------------------------
-		// PUBLIC METHODS
-		//---------------------------------------
-		
+
 		/**
 		 * @inheritDoc
 		 */

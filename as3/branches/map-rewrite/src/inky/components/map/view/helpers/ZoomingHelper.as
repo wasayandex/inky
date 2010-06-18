@@ -40,7 +40,7 @@ package inky.components.map.view.helpers
 		 */
 		public function get maximumZoom():Number
 		{ 
-			return this._maximumZoom; 
+			return isNaN(this._maximumZoom) ? 1 : this._maximumZoom; 
 		}
 		/**
 		 * @private
@@ -61,7 +61,7 @@ package inky.components.map.view.helpers
 		 */
 		public function get minimumZoom():Number
 		{ 
-			return this._minimumZoom; 
+			return isNaN(this._minimumZoom) ? 1 : this._minimumZoom; 
 		}
 		/**
 		 * @private
@@ -80,7 +80,7 @@ package inky.components.map.view.helpers
 		 */
 		public function get zoom():Number
 		{ 
-			return this._zoom; 
+			return this._zoom;
 		}
 		/**
 		 * @private
@@ -90,6 +90,7 @@ package inky.components.map.view.helpers
 			if (value != this._zoom)
 			{
 				this._zoom = value;
+
 				this._zoomControl.value = this.zoomingProxy ? this.zoomingProxy.zoom : value;
 				scale(this.info.overlayContainer, value, this.getCenterPoint());
 				this.info.map.dispatchEvent(new MapEvent(MapEvent.SCALED));
@@ -124,6 +125,9 @@ package inky.components.map.view.helpers
 		override public function destroy():void
 		{
 			super.destroy();
+
+			if (this.info)
+				this.info.map.removeEventListener(MapEvent.OVERLAY_UPDATED, this.map_overlayUpdatedHandler);
 		}
 		
 		/**
@@ -135,14 +139,45 @@ package inky.components.map.view.helpers
 
 			this._zoomControl = DisplayObjectContainer(this.info.map).getChildByName("_zoomControl");
 			if (this._zoomControl)
+			{
 				this._zoomControl.addEventListener(Event.CHANGE, this.zoomControl_changeHandler);
+				this._minimumZoom = this._zoomControl.minimum;
+				this._maximumZoom = this._zoomControl.maximum;
+			}
 			
 			this._zoom = this.info.overlayContainer.scaleX;
+			
+			this.info.map.addEventListener(MapEvent.OVERLAY_UPDATED, this.map_overlayUpdatedHandler);
 		}
-
+		
+		//---------------------------------------
+		// PROTECTED METHODS
+		//---------------------------------------
+		
+		/**
+		 * @inheritDoc
+		 */
+		override protected function reset():void
+		{
+			super.reset();
+			scale(this.info.overlayContainer, this.minimumZoom);
+			this._zoomControl.value =
+			this._zoom = this.minimumZoom;
+			this.info.overlayContainer.x =
+			this.info.overlayContainer.y = 0;
+		}
+		
 		//---------------------------------------
 		// PRIVATE METHODS
 		//---------------------------------------
+
+		/**
+		 * 
+		 */
+		private function map_overlayUpdatedHandler(event:MapEvent):void
+		{
+			this.reset();
+		}
 
 		/**
 		 * 
