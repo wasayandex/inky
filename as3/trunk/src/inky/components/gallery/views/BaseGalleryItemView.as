@@ -44,7 +44,7 @@
 		private var __container:DisplayObjectContainer;
 		private var _features:ArrayList;
 		private var _featureSize:String;
-		private var _dataProvider:GalleryItemModel;
+		private var _model:GalleryItemModel;
 		private var _orientation:String;
 		private var _previews:ArrayList;
 		private var _previewSize:String;
@@ -97,19 +97,19 @@
 		/**
 		 *
 		 */
-		public function get dataProvider():GalleryItemModel
+		public function get model():GalleryItemModel
 		{
-			return this._dataProvider;
+			return this._model;
 		}
 		/**
 		 * @private
 		 */
-		public function set dataProvider(value:GalleryItemModel):void
+		public function set model(value:GalleryItemModel):void
 		{
 			if (this.progressBar)
 				this.progressBar.source = null;
 
-			var oldModel:GalleryItemModel = this._dataProvider;
+			var oldModel:GalleryItemModel = this._model;
 			if (!EqualityUtil.objectsAreEqual(oldModel, value))
 			{
 				var feature:GalleryImageModel;
@@ -126,8 +126,8 @@
 						this.cancelLoad(preview);
 				}
 				
-				this._dataProvider = value;
-				this.dataProviderUpdated();
+				this._model = value;
+				this.modelUpdated();
 
 				if (value)
 				{
@@ -292,7 +292,7 @@
 		/**
 		 *	
 		 */
-		protected function dataProviderUpdated():void
+		protected function modelUpdated():void
 		{
 		}
 		
@@ -547,7 +547,7 @@
 				var preview:DisplayObject = this.createPreview(DisplayObject(e.target));
 				this.previewLoaded(preview);
 
-				var featureModel:GalleryImageModel = GalleryImageModel(this.dataProvider.images.findFirst({size: this.featureSize}));
+				var featureModel:GalleryImageModel = GalleryImageModel(this.model.images.findFirst({size: this.featureSize}));
 				if (featureModel)
 				{
 					this.startLoad(featureModel, "feature");
