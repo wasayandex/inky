@@ -35,7 +35,7 @@ package inky.routing
 	public class RobotLegsRouter extends CommandMap implements ICommandMap, IRouter
 	{
 		private var currentURL:String;
-		private var commandClassesToRoutes:Dictionary = new Dictionary();
+		private var routesToCommandClasses:Dictionary = new Dictionary();
 		private var eventsToCommands:Object = {};
 		private var numRoutes:int = 0;
 		
@@ -117,7 +117,7 @@ package inky.routing
 		public function mapRoute(pattern:String, commandClass:Class, defaults:Object = null, requirements:Object = null):void
 		{
 			var route:Route = new Route(pattern, commandClass, defaults, requirements);
-			this.commandClassesToRoutes[commandClass] = route;
+			this.routesToCommandClasses[route] = commandClass;
 			this.numRoutes++;
 			SWFAddress.addEventListener(SWFAddressEvent.CHANGE, this.swfAddress_changeHandler);
 		}
@@ -161,8 +161,9 @@ package inky.routing
 				throw new Error("Could not route url \"" + url + "\". No routes have been added.");
 
 			var params:Object;
-			for each (var route:IRoute in this.commandClassesToRoutes)
+			for (var key:Object in this.routesToCommandClasses)
 			{
+				var route:IRoute = key as IRoute;
 				if ((params = route.match(url)))
 				{
 					var commandClass:Class = route.commandClass;
@@ -182,18 +183,28 @@ package inky.routing
 		/**
 		 * @inheritDoc
 		 */
-		override protected function routeEventToCommand(event:Event, unused:Class, oneshot:Boolean, originalEventClass:Class):void
+
+		override protected function routeEventToCommand(event:Event, unused:Class, oneshot:Boolean, originalEventClass:Class):Boolean
 		{
 			var eventClass:Class = Object(event).constructor;
 			if (eventClass != originalEventClass)
-				return;
+				return false;
 
 			var hash:String = this.getHash(event.type, eventClass);
 // trace(hash);
 			var commandInfo:Object = this.eventsToCommands[hash];
 			var route:IRoute;
 
-			if (commandInfo && (route = this.commandClassesToRoutes[commandInfo.commandClass]))
+			// FIXME: Improve this route lookup! Instead of mapping routes to command classes, maybe map command classes to an array of routes?
+			for (var key:Object in this.routesToCommandClasses)
+			{
+				if (commandInfo.commandClass == this.routesToCommandClasses[key])
+				{
+					route = key as IRoute;
+					break;
+				}
+			}
+			if (commandInfo && route)
 			{
 				var commandClass:Class = commandInfo.commandClass;
 
@@ -240,10 +251,12 @@ for (prop in mappedParams)
 // trace("generated: " + url);
 				this.currentURL = url;
 				SWFAddress.setValue(url.replace(/^#/, ""));
+				
+				return true;
 			}
 			else
 			{
-				super.routeEventToCommand(event, unused, oneshot, originalEventClass);
+				return super.routeEventToCommand(event, unused, oneshot, originalEventClass);
 			}
 		}
 
