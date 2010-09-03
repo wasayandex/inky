@@ -19,7 +19,7 @@ package inky.utils
 	 *     path does not point to a DisplayObject.
 	 *	
 	 */
-	public function getDescendantByPath(parent:DisplayObjectContainer, path:String):DisplayObject
+	public function getDescendantByPath(parent:DisplayObjectContainer, path:String):*
 	{
 		var names:Array = path.split('/');
 		var tmp:DisplayObject = parent;
