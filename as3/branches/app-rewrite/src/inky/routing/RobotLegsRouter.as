@@ -140,7 +140,7 @@ package inky.routing
 		private function swfAddress_changeHandler(event:SWFAddressEvent):void
 		{
 // trace("value:\t" + event.value);
-			this.routeURLToCommand("#" + event.value);
+			this.routeURLToCommand("#" + (event.value.match(/^\/$/) ? "" : event.value));
 		}
 
 		//---------------------------------------
