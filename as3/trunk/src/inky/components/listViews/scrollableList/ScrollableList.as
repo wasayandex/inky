@@ -689,6 +689,8 @@ if (!this.orientation) return;
 		 */
 		private function validate(event:Event):void
 		{
+if (!this.stage)
+	return;
 			this.stage.removeEventListener(Event.RENDER, this.validate);
 			this.removeEventListener(Event.ENTER_FRAME, this.validate);
 
