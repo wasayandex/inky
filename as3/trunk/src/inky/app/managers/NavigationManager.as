@@ -18,6 +18,7 @@
 	import inky.components.transitioningObject.events.TransitionEvent;
 	import inky.app.managers.LoadManager;
 	import inky.utils.Debugger;
+	import inky.app.utils.History;
 
 
 	/**
@@ -38,16 +39,18 @@
 	 */
 	public class NavigationManager
 	{
+		private var _closeHistory:Array;
+		private var _closeTarget:Dictionary;
 		private var _cmdQueue:Array;
 		private var _currentInitializeOptions:Dictionary;
 		private var _currentSPath:SPath;
 		private var _currentSubsections:Dictionary;
 		private var _currentAddress:String;
-		private var _lastNav:Dictionary;
+		private var _history:History;
 		private var _lastRequestedSPath:SPath;
 		private var _masterSection:Section;
+		private var _nextHistoryItem:Object;
 		private var _nextSPath:SPath;
-		private var _navHistory:Array;
 		private var _sectionOptions:Object;
 
 
@@ -73,6 +76,22 @@
 		//
 		// public methods
 		//
+		
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function back(section:Section):void
+		{
+			// If the previous nav is scheduled for history storage, cancel it.
+			this._nextHistoryItem = null;
+
+			var lastSection:Object = this._history.removeHeadItem();
+			if (lastSection)
+				section.gotoSection.apply(null, lastSection)
+			else
+				this._gotoAddress('#/');
+		}
 
 
 		/**
@@ -81,11 +100,17 @@
 		 */
 		public function closeSection(section:Section):void
 		{
-			var lastNav:Array = this._lastNav[section];
-			if (lastNav != null)
-				section.gotoSection.apply(null, lastNav);
+			// If the previous nav is scheduled for history storage, cancel it.
+			this._nextHistoryItem = null;
+
+			var closeTarget:Array = this._closeTarget[section];
+			if (closeTarget != null)
+			{
+				closeTarget.push(false);
+				section.gotoSection.apply(null, closeTarget);
+			}
 			else
-				this._gotoAddress('#/');
+				this._gotoAddress('#/', null, false);
 		}
 
 
@@ -122,11 +147,15 @@
 		 *     passed to the target section's <code>initialize</code> method
 		 *     and be used (in conjunction with Routes) to construct the
 		 *     section's URL.
+		 * @param keepInHistory
+		 *     Whether or not this navigation should be kept in the history queue.
+		 *     If true, calling back from a subsequent section will result in returning 
+		 *     to this current section. Default is true.
 		 * @see inky.app.Section#initialize()
 		 * @see inky.routing.Route
 		 *	
 		 */
-		public function gotoSection(target:Object, options:Object = null):void
+		public function gotoSection(target:Object, options:Object = null, keepInHistory:Boolean = true):void
 		{
 			var sPath:SPath = target is String ? SPath.parse(target as String) : target as SPath;
 
@@ -181,7 +210,7 @@
 					if ((url != null) && (url != this._currentAddress))
 					{
 						this._nextSPath = sPath;
-						this._gotoAddress(url, sPath);
+						this._gotoAddress(url, sPath, keepInHistory);
 						
 						// SWFAddress will throw security errors sometimes.
 						try
@@ -206,7 +235,7 @@
 
 				if (useSPath)
 				{
-					this._gotoSection(sPath, options);
+					this._gotoSection(sPath, options, keepInHistory);
 				}
 			}
 		}
@@ -255,6 +284,24 @@
 			var address:String = e.value == '/' ? '#/' : '#' + e.value;
 			if (address != this._currentAddress)
 			{
+				// If the new url matches the head history item, remove it, as it was the result of a back action.
+				var headHistoryItem:Object = this._history.getHeadItem();
+				if (headHistoryItem)
+				{
+					var sPath:Object = headHistoryItem[0];
+					var info:SectionInfo = this._masterSection.inky_internal::getInfo().getSectionInfoBySPath(sPath);
+					var url:String = info.routeMapper.getURL(info.sPath, headHistoryItem[1]);
+
+// FIXME: Is it safe to assume that if these values match, the address change was a result of back button press?
+					if (url == address)
+					{
+						// Don't store the previous nav in history, as this nav represents a back movement, which overwrites it.
+						this._nextHistoryItem = null;
+
+						this._history.removeHeadItem();
+					}
+				}
+
 				this._gotoAddress(address);
 			}
 		}
@@ -329,10 +376,14 @@
 		 * @param sPath
 		 *     (optional) The section to navigate to. If not provided, it will
 		 *     be determined by the RouteMapper
+		 * @param keepInHistory
+		 *     Whether or not this navigation should be kept in the history queue.
+		 *     If true, calling back from a subsequent section will result in returning 
+		 *     to this current section. Default is true.
 		 * @see inky.routing.RouteMapper
 		 *	
 		 */
-		private function _gotoAddress(address:String, sPath:SPath = null):void
+		private function _gotoAddress(address:String, sPath:SPath = null, keepInHistory:Boolean = true):void
 		{
 			this._currentAddress = address;
 
@@ -345,7 +396,7 @@
 				throw new Error('Couldn\'t resolve the following url hash: ' + address);
 			}
 
-			this._gotoSection(sPath, options);
+			this._gotoSection(sPath, options, keepInHistory);
 		}
 
 
@@ -365,11 +416,15 @@
 		 *     passed to the target section's <code>initialize</code> method
 		 *     and be used (in conjunction with Routes) to construct the
 		 *     section's URL.
+		 * @param keepInHistory
+		 *     Whether or not this navigation should be kept in the history queue.
+		 *     If true, calling back from a subsequent section will result in returning 
+		 *     to this current section.
 		 * @see inky.app.Section#initialize()
 		 * @see inky.routing.Route
 		 *	
 		 */
-		private function _gotoSection(sPath:SPath, options:Object):void
+		private function _gotoSection(sPath:SPath, options:Object, keepInHistory:Boolean):void
 		{
 			var i:int;
 
@@ -387,18 +442,26 @@
 			this._sectionOptions = options;
 			this._lastRequestedSPath = sPath.clone() as SPath;
 
-			// Store the navigation in a history list. This list is used to add
-			// the section.close() functionality.
-			this._navHistory.push([sPath, options]);
-			if (this._navHistory.length > 2)
+			// Store the previous navigation in a history list. This list is used to add
+			// the section.back() functionality.
+			if (this._nextHistoryItem)
 			{
-				this._navHistory = this._navHistory.slice(-2);
+// FIXME: Should there be a history size limit? 10 items? 
+				this._history.offerItem(this._nextHistoryItem);
+				this._nextHistoryItem = null;
 			}
+			// If this navigation should be stored in history, mark it as the next navigation to be added.
+			if (keepInHistory)
+				this._nextHistoryItem = [sPath, options];
+
+			// Store the navigation in a close history list. This list is used to add
+			// the section.close() functionality.
+			this._closeHistory.push([sPath, options]);
+			if (this._closeHistory.length > 2)
+				this._closeHistory = this._closeHistory.slice(-2);
 
 			if (!info)
-			{
 				throw new ArgumentError('Section ' + sPath + ' does not exist');
-			}
 
 
 			//
@@ -514,9 +577,10 @@
 			this._currentSPath = new SPath();
 			this._currentSPath.absolute = true;
 			this._currentSubsections = new Dictionary(true);
-			this._lastNav = new Dictionary(true);
-			this._navHistory = [];
+			this._closeTarget = new Dictionary(true);
+			this._closeHistory = [];
 			this._sectionOptions = {};
+			this._history = new History();
 		}
 
 
@@ -636,7 +700,20 @@ public static function getSPath(section:Section):SPath
 			NavigationManager._sections2SPaths[subsection] = this._currentSPath.clone();
 			Section.setSection(subsection, owner);
 			this._currentSubsections[owner] = subsection;
-			this._lastNav[subsection] = this._navHistory[this._navHistory.length - 2];
+			
+			// If the previous section in close history matches this section's sPath - 1, set it as this section's close target.
+			var testSPath:Object = this._currentSPath.clone();
+			if (testSPath.length > 1 && this._closeHistory.length > 1)
+			{
+				testSPath.removeItemAt(testSPath.length - 1);
+
+				var prevNav:Array = this._closeHistory[this._closeHistory.length - 2];
+				var prevSPath:Object = prevNav[0];
+				if (testSPath.equals(prevSPath))
+				{
+					this._closeTarget[subsection] = prevNav;
+				}
+			}
 
 			// Set the section's info.
 			subsection.inky_internal::setInfo(info);

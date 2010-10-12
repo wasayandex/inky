@@ -401,6 +401,27 @@ Section.setSection(this.__itemLoadingProgressBar, this.sPath || '/');
 			this.__subsectionContainer.addChild(subsection);
 		}
 
+		
+		/**
+		 *
+		 * Returns to the previous section. If you've deeplinked to this
+		 * section (i.e. there is no previous section), navigates back
+		 * to the first section of the application.
+		 * 
+		 * This is different from <code>close</code> in that it will 
+		 * return you to the previous completed navigation state, not the 
+		 * owner (parent) of this section.
+		 * 
+		 * For example, if you start at <code>a/b</code>, then navigate 
+		 * to <code>a/c</code>, then call <code>back</code>, you will be 
+		 * returned to <code>a/b</code>.
+		 *		
+		 */
+		public function back():void
+		{
+			this.inky_internal::getNavigationManager().back(this);
+		}
+
 
 		/**
 		 * 
@@ -426,9 +447,17 @@ Section.setSection(this.__itemLoadingProgressBar, this.sPath || '/');
 
 		/**
 		 *
-		 * Returns to the previous section. If you've deeplinked to this
+		 * Returns to the parent section. If you've deeplinked to this
 		 * section (i.e. there is no previous section), navigates back
 		 * to the first section of the application.
+		 * 
+		 * This is different from <code>back</code> in that it will 
+		 * return you to the owner of this section, not the previous 
+		 * complete navigation state.
+		 * 
+		 * For example, if you start at <code>a/b</code>, then navigate to 
+		 * <code>a/c</code>, then call <code>close</code>, you will be 
+		 * returned to <code>a</code>.
 		 *		
 		 */
 		public function close():void
@@ -635,11 +664,15 @@ Section.setSection(this.__itemLoadingProgressBar, this.sPath || '/');
 		 * @param options
 		 *     (optional) A hash map of options that will be passed to the
 		 *     initialize function of the target section.
+		 * @param keepInHistory
+		 *     Whether or not this navigation should be kept in the history queue.
+		 *     If true, calling back from a subsequent section will result in returning 
+		 *     to this current section. Default is true.
 		 * @see #initialize()
 		 * @see inky.routing.RouteMapper
 		 * 
 		 */
-		public function gotoSection(target:Object, options:Object = null):void
+		public function gotoSection(target:Object, options:Object = null, keepInHistory:Boolean = true):void
 		{
 			if (target)
 			{
@@ -651,11 +684,11 @@ Section.setSection(this.__itemLoadingProgressBar, this.sPath || '/');
 				// Delegate navigation up the section chain.
 				if (this == this.master)
 				{
-					this.inky_internal::getNavigationManager().gotoSection(sPath, options);
+					this.inky_internal::getNavigationManager().gotoSection(sPath, options, keepInHistory);
 				}
 				else
 				{
-					this.owner.gotoSection(sPath, options);
+					this.owner.gotoSection(sPath, options, keepInHistory);
 				}
 			}
 			else
