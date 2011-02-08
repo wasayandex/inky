@@ -85,7 +85,11 @@ package inky.dragAndDrop
 		 */
 		public function set isDraggable(value:Boolean):void
 		{
-			this._isDraggable = value;
+			if (value != this._isDraggable)
+			{
+				this._isDraggable = value;
+				this.dispatchEvent(new Event("isDraggableChange"));
+			}
 		}
 
 		/**

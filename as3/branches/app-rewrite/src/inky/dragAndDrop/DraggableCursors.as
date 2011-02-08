@@ -83,6 +83,7 @@ package inky.dragAndDrop
 			this.draggable.draggedObject.addEventListener(MouseEvent.ROLL_OVER, this.rollOverHandler);
 			this.draggable.draggedObject.addEventListener(MouseEvent.ROLL_OUT, this.rollOutHandler);
 			this.draggable.draggedObject.addEventListener(Event.REMOVED_FROM_STAGE, this.removedFromStageHandler);
+			this.draggable.addEventListener("isDraggableChange", this.rollOverHandler);
 		}
 
 		//---------------------------------------
@@ -171,7 +172,7 @@ package inky.dragAndDrop
 		/**
 		 * 
 		 */
-		private function rollOverHandler(event:MouseEvent):void
+		private function rollOverHandler(event:Event):void
 		{
 			if (this.draggableCursorToken)
 				this.draggableCursorToken.remove();
