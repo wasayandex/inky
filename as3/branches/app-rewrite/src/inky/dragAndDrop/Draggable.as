@@ -6,7 +6,8 @@ package inky.dragAndDrop
 	import inky.dragAndDrop.events.DragEvent;
 	import flash.events.EventDispatcher;
 	import flash.geom.Rectangle;
-
+	import flash.events.IEventDispatcher;
+	import flash.events.Event;
 
 	/**
 	 *
@@ -19,40 +20,41 @@ package inky.dragAndDrop
 	 *	@since  2010.01.25
 	 *
 	 */
-	public class Draggable extends EventDispatcher
+	public class Draggable implements IEventDispatcher
 	{
 		private var _bounds:Rectangle;
-		private var _sprite:InteractiveObject;
+		private var _eventDispatcher:IEventDispatcher;
+		private var _isDraggable:Boolean;
+		private var isDragging:Boolean;
 		private var _lockCenter:Boolean;
-		private var _offset:Point;
-		private var _oldPosition:Point;
-		
+		private var offset:Point;
+		private var oldPosition:Point;
+		private var sprite:InteractiveObject;
+		private var _positionProxy:Object;
 		
 		/**
 		 *
 		 */
-		public function Draggable(sprite:InteractiveObject, lockCenter:Boolean = false, bounds:Rectangle = null)
+		public function Draggable(sprite:InteractiveObject, lockCenter:Boolean = false, bounds:Rectangle = null, eventDispatcher:IEventDispatcher = null, positionProxy:Object = null)
 		{
+			this._isDraggable = true;
+			this.eventDispatcher = eventDispatcher || new EventDispatcher(this);
+			this.positionProxy = positionProxy;
 			this.bounds = bounds;
-			this._offset = new Point();
+			this.offset = new Point();
 			this.lockCenter = lockCenter;
-			this._sprite = sprite;
-			sprite.addEventListener(MouseEvent.MOUSE_DOWN, this._mouseDownHandler);
+			this.sprite = sprite;
+			this.sprite.addEventListener(MouseEvent.MOUSE_DOWN, this.mouseDownHandler);
 		}
 
-
-
-
-		//
-		// accessors
-		//
-
+		//---------------------------------------
+		// ACCESSORS
+		//---------------------------------------
 
 		/**
-		 *
+		 * The object being dragged.
 		 */
-		public function get draggedObject():InteractiveObject { return this._sprite; }
-
+		public function get draggedObject():InteractiveObject { return this.sprite; }
 
 		/**
 		 *
@@ -61,6 +63,30 @@ package inky.dragAndDrop
 		/** @private */
 		public function set bounds(value:Rectangle):void { this._bounds = value; }
 
+		/**
+		 * The object to which this instance's IEventDispatcher functions
+		 * should be delegated. For example, if you set this value to the
+		 * draggedObject, DragEvents will be dispatched on the draggedObject
+		 * and listeners will be added to it.
+		 */
+		public function get eventDispatcher():IEventDispatcher { return this._eventDispatcher; }
+		/** @private */
+		public function set eventDispatcher(value:IEventDispatcher):void { this._eventDispatcher = value; }
+
+		/**
+		 *
+		 */
+		public function get isDraggable():Boolean
+		{ 
+			return this._isDraggable; 
+		}
+		/**
+		 * @private
+		 */
+		public function set isDraggable(value:Boolean):void
+		{
+			this._isDraggable = value;
+		}
 
 		/**
 		 *
@@ -68,45 +94,60 @@ package inky.dragAndDrop
 		public function get lockCenter():Boolean { return this._lockCenter; }
 		/** @private */
 		public function set lockCenter(value:Boolean):void { this._lockCenter = value; }
+		
+		/**
+		 *
+		 */
+		public function get positionProxy():Object { return this._positionProxy; }
+		/** @private */
+		public function set positionProxy(value:Object):void { this._positionProxy = value; }
 
-
-
-
-		//
-		// private methods
-		//
-
+		//---------------------------------------
+		// PRIVATE METHODS
+		//---------------------------------------
 
 		/**
 		 * 
 		 */
-		private function _mouseDownHandler(event:MouseEvent):void
+		private function dispatch(type:String, event:MouseEvent, deltaX:Number = NaN, deltaY:Number = NaN):Boolean
 		{
-			if (this.dispatchEvent(DragEvent.createDragEvent(event, DragEvent.START_DRAG)))
+			var dispatched:Boolean = true;
+			if (this.willTrigger(type))
+				dispatched = this.dispatchEvent(DragEvent.createDragEvent(event, type, deltaX, deltaY));
+			return dispatched;
+		}
+
+		/**
+		 * 
+		 */
+		private function mouseDownHandler(event:MouseEvent):void
+		{
+			if (this.isDraggable && this.dispatch(DragEvent.START_DRAG, event))
 			{
-				this._oldPosition = this._sprite.parent.globalToLocal(new Point(event.stageX, event.stageY));
+				this.isDragging = true;
+
+				this.oldPosition = this.sprite.parent.globalToLocal(new Point(event.stageX, event.stageY));
 				if (!this.lockCenter)
 				{
-					this._offset.x = this._sprite.x - this._sprite.parent.mouseX;
-					this._offset.y = this._sprite.y - this._sprite.parent.mouseY;
+					this.offset.x = this.sprite.x - this.sprite.parent.mouseX;
+					this.offset.y = this.sprite.y - this.sprite.parent.mouseY;
 				}
 				else
 				{
-					this._offset.x = 0;
-					this._offset.y = 0;
+					this.offset.x = 0;
+					this.offset.y = 0;
 				}
-				this._sprite.stage.addEventListener(MouseEvent.MOUSE_MOVE, this._mouseMoveHandler);
-				this._sprite.stage.addEventListener(MouseEvent.MOUSE_UP, this._mouseUpHandler);
+				this.sprite.stage.addEventListener(MouseEvent.MOUSE_MOVE, this.mouseMoveHandler);
+				this.sprite.stage.addEventListener(MouseEvent.MOUSE_UP, this.mouseUpHandler);
 			}
 		}
-
 
 		/**
 		 * 
 		 */
-		private function _mouseMoveHandler(event:MouseEvent):void
+		private function mouseMoveHandler(event:MouseEvent):void
 		{
-			var p:Point = new Point(this._sprite.parent.mouseX + this._offset.x, this._sprite.parent.mouseY + this._offset.y);
+			var p:Point = new Point(this.sprite.parent.mouseX + this.offset.x, this.sprite.parent.mouseY + this.offset.y);
 			
 			if (this.bounds)
 			{
@@ -114,35 +155,74 @@ package inky.dragAndDrop
 				p.y = Math.max(Math.min(p.y, this.bounds.y + this.bounds.height), this.bounds.y);
 			}
 
-			var deltaX:Number = p.x - this._oldPosition.x;
-			var deltaY:Number = p.y - this._oldPosition.y;
-			var preDragEvent:DragEvent = DragEvent.createDragEvent(event, DragEvent.PRE_DRAG, deltaX, deltaY);
+			var deltaX:Number = p.x - this.oldPosition.x;
+			var deltaY:Number = p.y - this.oldPosition.y;
 
-			this.dispatchEvent(preDragEvent)
-
-			if (!preDragEvent.isDefaultPrevented())
+			if (this.dispatch(DragEvent.PRE_DRAG, event, deltaX, deltaY))
 			{
-				this._sprite.x = p.x;
-				this._sprite.y = p.y;
-				this.dispatchEvent(DragEvent.createDragEvent(event, DragEvent.DRAG, deltaX, deltaY));
+				var target:Object = this.positionProxy || this.sprite;
+				target.x = p.x;
+				target.y = p.y;
+				this.dispatch(DragEvent.DRAG, event, deltaX, deltaY);
 			}
 
-			this._oldPosition = p;
+			this.oldPosition = p;
 		}
-
 
 		/**
 		 * 
 		 */
-		private function _mouseUpHandler(event:MouseEvent):void
+		private function mouseUpHandler(event:MouseEvent):void
 		{
-			this.dispatchEvent(DragEvent.createDragEvent(event, DragEvent.STOP_DRAG));
-			this._sprite.stage.removeEventListener(MouseEvent.MOUSE_MOVE, this._mouseMoveHandler);
-			this._sprite.stage.removeEventListener(MouseEvent.MOUSE_UP, this._mouseUpHandler);
+			this.isDragging = false;
+			event.currentTarget.removeEventListener(MouseEvent.MOUSE_MOVE, this.mouseMoveHandler);
+			event.currentTarget.removeEventListener(MouseEvent.MOUSE_UP, this.mouseUpHandler);
+			this.dispatch(DragEvent.STOP_DRAG, event);
 		}
 
+		//---------------------------------------
+		// Event dispatcher methods
+		//---------------------------------------
 
+		/**
+		 * @inheritDoc
+		 */
+		public function addEventListener(type:String, listener:Function, useCapture:Boolean = false, priority:int = 0, useWeakReference:Boolean = false):void
+		{
+			this.eventDispatcher.addEventListener(type, listener, useCapture, priority, useWeakReference);
+		}
 
+		/**
+		 * @inheritDoc
+		 */
+		public function removeEventListener(type:String, listener:Function, useCapture:Boolean = false):void
+		{
+			this.eventDispatcher.removeEventListener(type, listener, useCapture);
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public function dispatchEvent(event:Event):Boolean
+		{
+			return this.eventDispatcher.dispatchEvent(event);
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function hasEventListener(type:String):Boolean
+		{
+			return this.eventDispatcher.hasEventListener(type);
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function willTrigger(type:String):Boolean
+		{
+			return this.eventDispatcher.willTrigger(type);
+		}
 
 	}
 	
