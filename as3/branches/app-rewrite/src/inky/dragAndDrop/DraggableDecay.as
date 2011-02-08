@@ -20,7 +20,7 @@ package inky.dragAndDrop
 	public class DraggableDecay
 	{
 		// The number of seconds to sample.
-		private static const SAMPLE_SIZE:Number = 0.33;
+		private static const SAMPLE_SIZE:Number = 0.2;
 		
 		private static const DRAGGING:String = "dragging";
 		private static const STARTING_friction:String = "startingfriction";
