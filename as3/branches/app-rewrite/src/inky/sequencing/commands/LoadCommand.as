@@ -7,6 +7,7 @@ package inky.sequencing.commands
 	import flash.utils.getQualifiedClassName;
 	import flash.display.Bitmap;
 	import flash.events.Event;
+	import flash.events.IOErrorEvent;
 	import inky.sequencing.commands.ICommand;
 	import flash.events.EventDispatcher;
 	import flash.system.LoaderContext;
@@ -114,11 +115,13 @@ package inky.sequencing.commands
 			if (this.loader is URLLoader)
 			{
 				this.loader.addEventListener(Event.COMPLETE, this.urlLoader_completeHandler);
+				this.loader.addEventListener(IOErrorEvent.IO_ERROR, this.ioErrorHandler);
 				loadArgs = [request];
 			}
 			else if (this.loader is Loader)
 			{
 				this.loader.contentLoaderInfo.addEventListener(Event.COMPLETE, this.loader_completeHandler);
+				this.loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, this.ioErrorHandler);
 				loadArgs = [request, new LoaderContext(false, ApplicationDomain.currentDomain)];
 			}
 			else
@@ -168,6 +171,16 @@ package inky.sequencing.commands
 		private function onComplete():void
 		{
 			this.dispatchEvent(new Event(Event.COMPLETE));
+		}
+
+		/**
+		 * 
+		 */
+		private function ioErrorHandler(event:IOErrorEvent):void
+		{
+			event.currentTarget.removeEventListener(event.type, arguments.callee);
+// TODO: Some sort of feedback?
+			this.onComplete();
 		}
 
 		/**
