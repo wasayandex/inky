@@ -1,0 +1,1 @@
+Inky allows you to make web-based flash applications quickly and easily.
